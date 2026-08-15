@@ -6,12 +6,12 @@
 [![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-20%20passed-brightgreen.svg)](tests/)
 [![Architecture](https://img.shields.io/badge/architecture-modular%20decoupled-purple.svg)](src/option_quant/)
-[![Interactive Report](https://img.shields.io/badge/sample%20report-open%20preview-emerald.svg)](examples/sample_report_en.html)
+[![Interactive Report](https://img.shields.io/badge/sample%20report-live%20preview-emerald.svg)](https://iamtroyh.github.io/the-sell-put-king/examples/sample_report_en.html)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Production-grade quantitative options engine for **Sell Put (Cash Secured Put)** and **Covered Call** strategy recommendation, [**InvestSkill**](https://github.com/yennanliu/InvestSkill) institutional equity research synthesis, automated **Robinhood** portfolio management, and real-time **Portfolio Delta Notional Exposure / Leverage Ratio** risk governance.
 
-> **Instant Sample Preview**: Open [**`examples/sample_report_en.html`**](examples/sample_report_en.html) in any web browser to inspect the fully interactive English research and portfolio management dashboard without any setup.
+> **Instant Live Preview**: Explore the [**Interactive English Strategy & Portfolio Dashboard**](https://iamtroyh.github.io/the-sell-put-king/examples/sample_report_en.html) live via GitHub Pages without any local setup.
 
 ---
 
@@ -106,7 +106,7 @@ the-sell-put-king insider LULU
 
 ### Step 4: Review Deliverables & Execute Trades
 
-- **Instant Sample Report (Zero Setup)**: Open [**`examples/sample_report_en.html`**](examples/sample_report_en.html) in any browser to inspect the full English interactive dashboard, DTE-sorted positions table, Action Plan decision badges, multi-factor ranking tables, and Chart.js visualizations.
+- **Instant Live Report (Zero Setup)**: Open the [**Live Interactive Sample Dashboard**](https://iamtroyh.github.io/the-sell-put-king/examples/sample_report_en.html) (or local file [`examples/sample_report_en.html`](examples/sample_report_en.html)) to inspect the full English interactive dashboard, DTE-sorted positions table, Action Plan decision badges, multi-factor ranking tables, and Chart.js visualizations.
 - **Live Interactive Dashboard**: Open [`report.html`](report.html) generated after running `the-sell-put-king run` or issuing `research` to review current position action plans, 3-tab candidate workbenches (Option Contracts / InvestSkill Deep Dive / Fundamental Valuation), and collateral budget metrics.
 - **TradingView Import List**: Open [`data/tradingview_watchlist.txt`](data/tradingview_watchlist.txt), copy the comma-separated ticker list with accurate exchange prefixes (e.g. `NASDAQ:LULU, NYSE:ACN...`), and paste into TradingView.
 - **Robinhood Mobile App**: Open the Robinhood App, navigate to the `Sell Put Candidate` Watchlist, and execute ranked contracts in descending score order.
@@ -444,8 +444,8 @@ pytest tests/test_market_data.py
 
 ## Output Deliverables & Interactive Reports
 
-1. **Instant Static Sample Report (English)**: [`examples/sample_report_en.html`](examples/sample_report_en.html)
-   - Tracked in git; immediately viewable in any browser without configuration.
+1. **Instant Static Sample Report (English)**: [**Live GitHub Pages Dashboard**](https://iamtroyh.github.io/the-sell-put-king/examples/sample_report_en.html) / [`examples/sample_report_en.html`](examples/sample_report_en.html)
+   - Tracked in git and deployed on GitHub Pages; immediately viewable in any browser without configuration.
    - Includes full English quantitative portfolio dashboard, DTE sorting, Action Plan decision badges, multi-factor candidate recommendations, and interactive Chart.js visualizations.
    - Accompanying data schema samples: [`examples/sample_account_info.json`](examples/sample_account_info.json) and [`examples/sample_current_positions.json`](examples/sample_current_positions.json).
 
