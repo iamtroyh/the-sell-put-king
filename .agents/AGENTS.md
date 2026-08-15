@@ -28,10 +28,10 @@ Output Specifications & Ordering:
     - If quality is high, verify cash availability for assignment or await technical rebounds to roll down & out.
     - If quality has deteriorated, recommend closing to prevent permanent capital impairment.
   * **Hold (Standard Hold)**: Standard premium harvesting for healthy positions.
-- **Dynamic Volatility Tiering ($HV_{30}$ Baselines)**:
-  * **Low Volatility / ETF ($HV_{30} < 20\%$)**: Inefficient Yield BTC < 6.0% APY; Greedy Hold >= 10.0% APY.
-  * **Medium Volatility ($20\% \le HV_{30} \le 35\%$)**: Inefficient Yield BTC < 10.0% APY; Greedy Hold >= 15.0% APY.
-  * **High Volatility ($HV_{30} > 35\%$)**: Inefficient Yield BTC < 15.0% APY; Greedy Hold >= 22.0% APY.
+- **Dynamic Volatility Tiering ($\text{HV}_{30}$ Baselines)**:
+  * **Low Volatility / ETF ($\text{HV}_{30} < 20\%$)**: Inefficient Yield BTC < 6.0% APY; Greedy Hold >= 10.0% APY.
+  * **Medium Volatility ($20\% \le \text{HV}_{30} \le 35\%$)**: Inefficient Yield BTC < 10.0% APY; Greedy Hold >= 15.0% APY.
+  * **High Volatility ($\text{HV}_{30} > 35\%$)**: Inefficient Yield BTC < 15.0% APY; Greedy Hold >= 22.0% APY.
 - **Chronological Sorting**: Mandatorily sort all active positions in ascending order of expiration date (DTE from smallest to largest).
 - **IBIT BTC Price Annotation**: Whenever displaying IBIT prices, simultaneously annotate the corresponding Bitcoin spot price as `IBIT Price (BTC $BTC Price)` (e.g., `$35.63 (BTC $62,976)`).
 - **Wash Sale Compliance**: Review past 30-day realized loss transactions (from `get_pnl_trade_history`) and unrealized losses. Display Wash Sale risk warnings with countdown dates to prevent disallowed tax deductions.
@@ -54,8 +54,8 @@ Conduct multi-factor quantitative screening across the market:
    * **Red Alert Deep OTM (VIX >= 30 or 30d Market Drop >= 12%)**: Lock Delta to `0.08 ~ 0.15` (`[-0.15, -0.08]`) with minimum safety cushion >= 12.0%.
    * **Black Swan Halt (VIX >= 40)**: Suspend new CSP openings across the market.
 7. **Earnings-DTE Smart Buffer**:
-   * If earnings are scheduled within 30 days and the option contract crosses the earnings date ($\text{DTE} > \text{dte\_earnings}$):
-     - Mandate post-earnings buffer of at least 14 days and total DTE >= 35 ($\text{DTE} \ge \max(35, \text{dte\_earnings} + 14)$).
+   * If earnings are scheduled within 30 days and the option contract crosses the earnings date ($\text{DTE} > \text{DTE}_{\text{earnings}}$):
+     - Mandate post-earnings buffer of at least 14 days and total DTE >= 35 ($\text{DTE} \ge \max(35, \text{DTE}_{\text{earnings}} + 14)$).
      - Tighten Delta to `0.10 ~ 0.20` (`[-0.20, -0.10]`) with safety cushion >= 10.0%.
 8. **Sector Concentration Limit**: In the top 10 recommended ranking, allow a maximum of 3 tickers per GICS sector, deferring additional same-sector tickers downward to ensure diversification.
 9. **Collateral & Budget Calculation**: Calculate Cash Secured Put collateral requirements for top 5 and top 10 positions against available unleveraged cash, highlighting purchasing power surplus or shortfall.
@@ -67,19 +67,19 @@ Contracts failing the following dual liquidity thresholds are strictly vetoed:
 *Fallback*: If no contracts pass for a ticker, output the single best available contract with an explicit `[Low Liquidity Warning]` flag.
 
 ### Sell Put Multi-Factor Scoring Model
-$$\text{Total Score} = \max\left(0, 0.30 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.25 \times S_{\text{Yield}} + 0.15 \times S_{\text{IV}} - \text{Trend\_Penalty} + \text{Bonuses}\right)$$
+$$\text{Total Score} = \max\left(0, 0.30 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.25 \times S_{\text{Yield}} + 0.15 \times S_{\text{IV}} - \text{TrendPenalty} + \text{Bonuses}\right)$$
 
 - **Price Factor ($S_{\text{Price}}$ - 30%)**:
-  * Long-bull: $Dev = \frac{\text{Price} - SMA_{200}}{SMA_{200}}$. If $Dev \le 0.0$, $S_{\text{Price}} = \min(100, 70 - Dev \times 600)$; else $S_{\text{Price}} = \max(0, 70 - Dev \times 700)$.
-  * High-vol: $RP = \frac{\text{Price} - Low_{52w}}{High_{52w} - Low_{52w}}$. If $RP \le 0.20$, $S_{\text{Price}} = \min(100, 70 + (0.20 - RP) \times 200)$; else $S_{\text{Price}} = \max(0, 70 - (RP - 0.20) \times 87.5)$.
+  * Long-bull: $Dev = \frac{\text{Price} - \text{SMA}_{200}}{\text{SMA}_{200}}$. If $Dev \le 0.0$, $S_{\text{Price}} = \min(100, 70 - Dev \times 600)$; else $S_{\text{Price}} = \max(0, 70 - Dev \times 700)$.
+  * High-vol: $RP = \frac{\text{Price} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. If $RP \le 0.20$, $S_{\text{Price}} = \min(100, 70 + (0.20 - RP) \times 200)$; else $S_{\text{Price}} = \max(0, 70 - (RP - 0.20) \times 87.5)$.
 - **Safety Margin ($S_{\text{Safety}}$ - 30%)**:
   * Standard: $S_{\text{Safety}} = (1 - \vert\text{Delta}\vert) \times 100$.
   * Trough smooth transition: Smooth scaling toward 100 for deep value assets.
 - **Yield Factor ($S_{\text{Yield}}$ - 25%)**:
-  * $S_{\text{Yield}} = \min\left(100, \frac{\text{Annualized Option Yield}}{1.0 + 1.5 \times (HV_{30} / 100)} \times 400\right)$.
+  * $S_{\text{Yield}} = \min\left(100, \frac{\text{Annualized Option Yield}}{1.0 + 1.5 \times (\text{HV}_{30} / 100)} \times 400\right)$.
 - **Implied Volatility Factor ($S_{\text{IV}}$ - 15%)**:
   * $S_{\text{IV}} = IVP \times 100$.
-- **Penalties & Bonuses ($\text{Trend\_Penalty}$ & Bonuses)**:
+- **Penalties & Bonuses ($\text{TrendPenalty}$ & Bonuses)**:
   * Stepped Drop: 30d drop > 15% (ETF > 8%) deducts 15 pts; > 25% (ETF > 15%) deducts 30 pts; > 35% (ETF > 25%) vetoes ticker.
   * Structural Negative FCF: Deducts 10 pts (equities only).
   * Low IV (IVP <= 25%): Deducts 10 pts.

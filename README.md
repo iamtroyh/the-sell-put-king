@@ -244,28 +244,28 @@ flowchart TD
 ## Quantitative Multi-Factor Scoring Models & Risk Controls
 
 ### 1. Sell Put Multi-Factor Model (Total Score Max 100)
-$$\text{Total Score} = \max\left(0, 0.30 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.25 \times S_{\text{Yield}} + 0.15 \times S_{\text{IV}} - \text{Trend\_Penalty} + \text{Bonuses}\right)$$
+$$\text{Total Score} = \max\left(0, 0.30 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.25 \times S_{\text{Yield}} + 0.15 \times S_{\text{IV}} - \text{TrendPenalty} + \text{Bonuses}\right)$$
 
 | Factor | Weight | Calculation Logic & Formula | Strategic Purpose |
 | :--- | :---: | :--- | :--- |
-| **Price Valuation ($S_{\text{Price}}$)** | 30% | **Long-Bull Assets**: Deviation $Dev = \frac{Price - SMA_{200}}{SMA_{200}}$. At $Dev = 0\%$, score = 70. Reaching $Dev \le -5\%$ yields 100 points (hard truncation floor at **-15%**).<br>**High-Vol Assets**: 52-week position $RP = \frac{Price - Low_{52w}}{High_{52w} - Low_{52w}}$. $RP \le 0.20$ awards bonus points. | Rewards mean-reversion at valuation troughs; prevents buying tops. |
+| **Price Valuation ($S_{\text{Price}}$)** | 30% | **Long-Bull Assets**: Deviation $Dev = \frac{\text{Price} - \text{SMA}_{200}}{\text{SMA}_{200}}$. At $Dev = 0\%$, score = 70. Reaching $Dev \le -5\%$ yields 100 points (hard truncation floor at **-15%**).<br>**High-Vol Assets**: 52-week position $RP = \frac{\text{Price} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. $RP \le 0.20$ awards bonus points. | Rewards mean-reversion at valuation troughs; prevents buying tops. |
 | **Safety Margin ($S_{\text{Safety}}$)** | 30% | Base: $(1 - \vert\text{Delta}\vert) \times 100$. Valuation trough assets utilize a smooth transition scaling up to 100 to encourage disciplined bottom-fishing. | Evaluates probability of profit and cushion depth. |
-| **Annualized Yield ($S_{\text{Yield}}$)** | 25% | Adjusted by $HV_{30}$ historical volatility penalty: $S_{\text{Yield}} = \min\left(100, \frac{\text{Annualized Option APY}}{1.0 + 1.5 \times (HV_{30} / 100)} \times 400\right)$. | Eliminates superficial high yields driven solely by wild volatility. |
+| **Annualized Yield ($S_{\text{Yield}}$)** | 25% | Adjusted by $\text{HV}_{30}$ historical volatility penalty: $S_{\text{Yield}} = \min\left(100, \frac{\text{Annualized Option APY}}{1.0 + 1.5 \times (\text{HV}_{30} / 100)} \times 400\right)$. | Eliminates superficial high yields driven solely by wild volatility. |
 | **Implied Volatility ($S_{\text{IV}}$)** | 15% | $S_{\text{IV}} = IVP \times 100$ (Current IV percentile against 1-year historical distribution). | Captures elevated volatility premium to harvest post-entry IV Crush. |
 
-#### Trend Penalties & Fundamental Deductions ($\text{Trend\_Penalty}$)
+#### Trend Penalties & Fundamental Deductions ($\text{TrendPenalty}$)
 - **Stepped Downtrend Penalty**: 30-day stock drop > 15% (ETF > 8%) deducts **15 pts**; > 25% (ETF > 15%) deducts **30 pts**; > 35% (ETF > 25%) triggers **Black Swan Veto (Disqualification)**.
 - **Negative FCF Penalty**: Negative trailing 12-month free cash flow deducts **10 pts** (equities only).
 - **Low IV Penalty**: $IVP \le 25\%$ deducts **10 pts** to avoid collateral lockup on negligible yields.
 - **Piotroski F-Score**: $F \le 3$ deducts **50 pts** (Veto); $F \ge 7$ rewards **+10 pts**.
-- **SEC Form 4 Insider Sentiment**: Net executive selling $\ge \$10\text{M}$ deducts **5 pts**; Net executive buying $\ge \$500\text{K}$ rewards **+5 pts**.
+- **SEC Form 4 Insider Sentiment**: Heavy selling (net selling >= $10M) deducts **5 pts**; Net buying (>= $500K) rewards **+5 pts**.
 - **Excessive Debt**: $D/E > 250\%$ for non-financials deducts **15 pts**.
 
 ---
 
 ### 2. Earnings-DTE Smart Buffer
-When earnings are scheduled within 30 days ($0 \le \text{dte\_earnings} \le 30$) and the option contract crosses the earnings announcement ($\text{DTE} > \text{dte\_earnings}$):
-- **Mandatory Buffer**: Total contract duration must satisfy $\text{DTE} \ge \max(35, \text{dte\_earnings} + 14)$ to provide at least 14 days post-earnings stabilization.
+When earnings are scheduled within 30 days ($0 \le \text{DTE}_{\text{earnings}} \le 30$) and the option contract crosses the earnings announcement ($\text{DTE} > \text{DTE}_{\text{earnings}}$):
+- **Mandatory Buffer**: Total contract duration must satisfy $\text{DTE} \ge \max(35, \text{DTE}_{\text{earnings}} + 14)$ to provide at least 14 days post-earnings stabilization.
 - **Tighter Delta & Cushion**: Bounds Delta to `[-0.20, -0.10]` and mandates minimum safety cushion $\ge 10.0\%$.
 
 ---
@@ -319,7 +319,7 @@ Provides automated account synchronization, options trading data ingestion, and 
 
 ### 2. yfinance Market Data & Fundamentals
 Integrates [**`yfinance`**](https://github.com/ranaroussi/yfinance) as the high-speed market data backbone:
-- Multi-threaded parallel fetching of historical price series (200-SMA, 52w range, $HV_{30}$, Williams VixFix).
+- Multi-threaded parallel fetching of historical price series (200-SMA, 52w range, $\text{HV}_{30}$, Williams VixFix).
 - Real-time options chain quotes and implied volatility tracking.
 - Fundamental ratios: Piotroski F-Score metrics, Free Cash Flow, Debt-to-Equity, and forward P/E.
 - SEC Form 4 insider transactions over 90-day windows.
