@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>量化期权交易策略与持仓管理报告</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-color: #09090b;
+            --card-bg: rgba(24, 24, 27, 0.6);
+            --border-color: rgba(255, 255, 255, 0.06);
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --green: #34d399;
+            --red: #f87171;
+            --blue: #60a5fa;
+            --orange: #fbbf24;
+            --purple: #c084fc;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 0%, #1c1917 0%, #09090b 100%) no-repeat;
+            background-color: #09090b;
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 32px 24px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+        }
+
+        .header-left h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #ffffff 50%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 40px 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+            border-left: 4px solid var(--blue);
+            padding-left: 12px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        /* Stats Dashboard Banner */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stats-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: border-color 0.2s;
+        }
+
+        .stats-card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .stats-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .stats-value {
+            font-size: 26px;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff;
+        }
+
+        .stats-sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        /* Tables */
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background-color: #18181b;
+            color: #ffffff;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        th {
+            padding: 14px 18px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 18px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+            color: #e4e4e7;
+        }
+
+        tr {
+            transition: background-color 0.15s;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.01);
+        }
+
+        tbody tr:not([id^="details-"]):hover {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Sticky Freeze Active Master Row */
+        tr.is-sticky-active > td {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 45 !important;
+            background-color: #101015 !important;
+            border-top: 2px solid #3b82f6 !important;
+            border-bottom: 2px solid #3b82f6 !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        tr.is-sticky-active > td:first-child {
+            border-left: 3px solid #3b82f6 !important;
+        }
+        tr.is-sticky-active > td:last-child {
+            border-right: 3px solid #3b82f6 !important;
+        }
+
+        /* Detail Tabs UI */
+        .detail-tabs-container {
+            width: 100%;
+        }
+        .detail-tabs-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #27272a;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .detail-tab-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #27272a;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .detail-tab-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            border-color: #3f3f46;
+        }
+        .detail-tab-btn.active {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.3) 100%);
+            border-color: #3b82f6;
+            color: #60a5fa;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+        }
+        .detail-tab-pane {
+            display: none;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+        .detail-tab-pane.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Accordions */
+        details {
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            overflow: hidden;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        details:hover {
+            border-color: rgba(96, 165, 250, 0.25);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        details[open] {
+            border-color: rgba(96, 165, 250, 0.35);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        summary {
+            padding: 14px 20px;
+            cursor: pointer;
+            outline: none;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+
+        summary:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Typography & Lists */
+        ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        strong {
+            color: #ffffff;
+        }
+
+        .highlight-green {
+            color: var(--green);
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(52, 211, 153, 0.15);
+        }
+
+        .highlight-red {
+            color: var(--red);
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(248, 113, 113, 0.15);
+        }
+
+        .highlight-blue {
+            color: var(--blue);
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.15);
+        }
+
+        .highlight-orange {
+            color: var(--orange);
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.15);
+        }
+
+        .highlight-purple {
+            color: var(--purple);
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(192, 132, 252, 0.15);
+        }
+
+        .note-box {
+            background-color: rgba(96, 165, 250, 0.05);
+            border-left: 4px solid var(--blue);
+            padding: 16px 20px;
+            border-radius: 0 12px 12px 0;
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+        @keyframes danger-pulse-background {
+            0% { background-color: rgba(239, 68, 68, 0.04); }
+            50% { background-color: rgba(239, 68, 68, 0.12); }
+            100% { background-color: rgba(239, 68, 68, 0.04); }
+        }
+        .danger-pulse {
+            animation: danger-pulse-background 2s infinite !important;
+        }
+        .danger-pulse td {
+            border-top: 1px solid rgba(239, 68, 68, 0.3) !important;
+            border-bottom: 1px solid rgba(239, 68, 68, 0.3) !important;
+        }
+        .danger-pulse td:first-child {
+            border-left: 1px solid rgba(239, 68, 68, 0.3) !important;
+        }
+        .danger-pulse td:last-child {
+            border-right: 1px solid rgba(239, 68, 68, 0.3) !important;
+        }
+        tbody tr.danger-pulse:hover {
+            animation: none !important;
+            background-color: rgba(239, 68, 68, 0.2) !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1>量化期权交易策略与持仓管理报告</h1>
+                <div class="header-meta">
+                    <span id="report-time"><strong>报告时间</strong>：<!-- REPORT_TIME_PLACEHOLDER --></span>
+                    <span><strong>分析师</strong>：Antigravity (量化期权策略分析系统)</span>
+                    <span><strong>策略类型</strong>：Sell Put (卖出看跌期权)</span>
+                </div>
+            </div>
+            <div class="header-right" style="display: flex; align-items: center; gap: 12px;">
+                <button id="sync-btn" onclick="triggerSync()" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none; padding: 6px 16px; border-radius: 8px; font-weight: 500; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); transition: all 0.2s;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-cw"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+                    同步数据
+                </button>
+                <span class="badge">Joint Account ••••2843</span>
+            </div>
+        </header>
+
+        <!-- STALE_DATA_WARNING_BANNER -->
+
+        <!-- Statistics Banner -->
+        <div class="stats-grid">
+            <div class="stats-card">
+                <span class="stats-label">担保资金总额</span>
+                <span class="stats-value highlight-green"><!-- TOTAL_COLLATERAL_PLACEHOLDER --></span>
+                <span class="stats-sub">100% 核心资产化锁定</span>
+            </div>
+            <div class="stats-card">
+                <span class="stats-label">可用于 Sell Put Cash</span>
+                <span class="stats-value highlight-blue"><!-- CASH_AVAILABLE_PLACEHOLDER --></span>
+                <span class="stats-sub">无杠杆购买力</span>
+            </div>
+            <div class="stats-card">
+                <span class="stats-label">组合每日时间收租 (Theta)</span>
+                <span class="stats-value" style="color: #f59e0b;"><!-- PORTFOLIO_THETA_PLACEHOLDER --></span>
+                <span class="stats-sub">仅随时间流逝每日赚取的金额</span>
+            </div>
+            <div class="stats-card">
+                <span class="stats-label">投资组合 Delta 名义做多敞口</span>
+                <span class="stats-value" style="color: var(--blue);"><!-- PORTFOLIO_DELTA_NOTIONAL_PLACEHOLDER --></span>
+                <span class="stats-sub"><!-- PORTFOLIO_LEVERAGE_PLACEHOLDER --></span>
+            </div>
+            <div class="stats-card">
+                <span class="stats-label">活跃期权持仓</span>
+                <span class="stats-value"><!-- ACTIVE_OPTIONS_PLACEHOLDER --></span>
+                <span class="stats-sub"><!-- ACTIVE_OPTIONS_SUB_PLACEHOLDER --></span>
+            </div>
+            <div class="stats-card">
+                <span class="stats-label">全市场扫描标的</span>
+                <span class="stats-value" style="color: var(--blue);"><!-- SCANNED_TICKERS_PLACEHOLDER --></span>
+                <span class="stats-sub">覆盖蓝筹、ETF 与高波标的</span>
+            </div>
+            <div class="stats-card">
+                <span class="stats-label">自选股同步候选</span>
+                <span class="stats-value" style="color: var(--purple);"><!-- WATCHLIST_CANDIDATES_PLACEHOLDER --></span>
+                <span class="stats-sub">已自动同步至 Robinhood</span>
+            </div>
+        </div>
+
+        <!-- ================= TASK 1: POSITION MANAGEMENT ================= -->
+        <h2 class="section-title">📊 Task 1: Robinhood 持仓管理 (平仓/展期计划 & InvestSkill 接股研判)</h2>
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 16px;">
+            基于实时市场数据与 <strong>InvestSkill 机构基本面深度研判</strong>，对当前持仓进行生命周期管理与『接股 vs 割肉』可行性裁决：
+        </p>
+
+        <div class="table-container" style="max-height: none; overflow-y: visible; margin-bottom: 24px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>标的 (Ticker)</th>
+                        <th>期权合约</th>
+                        <th>价格 (现价/行权/安全垫)</th>
+                        <th>剩余 DTE</th>
+                        <th>Delta / 等效做多敞口</th>
+                        <th>当前浮盈亏</th>
+                        <th>年化 (开仓/剩余)</th>
+                        <th>行动决策与接股研判</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- TABLE_TASK1_PLACEHOLDER -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- WASH_SALE_WARNING_PLACEHOLDER -->
+
+        <div class="grid-2">
+            <!-- Action Plan Card -->
+            <!-- ACTION_PLAN_PLACEHOLDER -->
+
+            <!-- Collateral Card -->
+            <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
+                <h3 class="card-title" style="margin-bottom: 0;">🔒 担保现金锁定与资本效率</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">
+                    当前期权持仓总计锁定担保现金分布如下：
+                </p>
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; margin-top: 8px;">
+                    <!-- Legend Column -->
+                    <div id="chartLegend"
+                        style="flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 6px; font-family: sans-serif;">
+                        <!-- Dynamically populated by JS -->
+                    </div>
+
+                    <!-- Chart Column -->
+                    <div
+                        style="width: 200px; height: 200px; display: flex; justify-content: center; align-items: center; position: relative; margin-right: 12px;">
+                        <canvas id="collateralChart" width="180" height="180"></canvas>
+                        <div
+                            style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; pointer-events: none; z-index: 10;">
+                            <span id="centerTextLabel"
+                                style="font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">总锁定</span>
+                            <span id="totalCollateralText"
+                                style="font-size: 16px; font-weight: 700; color: #ffffff;">$0.0K</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="note-box" style="margin-top: 8px;">
+                    目前您的所有持仓标的均属于底层核心资产池，资产组合健康度极高。已释放部分保证金，可用于执行新建仓建议。
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TASK 2: CANDIDATE WATCHLIST & OPTION MATRIX ================= -->
+        <h2 class="section-title">🚀 Task 2: 标的池全景扫描与期权建仓研判 (Candidate Watchlist & Option Matrix)</h2>
+
+        <!-- MACRO_SENTIMENT_MONITOR_PLACEHOLDER -->
+
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 20px; margin-bottom: 16px;">
+            <span style="font-size: 13px; color: #34d399; display: flex; align-items: center; gap: 6px;">
+                💡 <strong>交互指引</strong>：全市场筛选标的已自动倒序同步至 Robinhood <code>Sell Put Candidate</code> 自选股。点击下方<strong>任意标的行</strong>，即可在线展开 <strong>📊 期权合约</strong>、<strong>📑 InvestSkill 深度研报</strong> 与 <strong>🔍 基本面估值</strong>！
+            </span>
+            <a href="https://robinhood.com/lists/custom/6e6ba5fc-a7aa-46b1-b106-3a40645cea18" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 6px; font-size: 12.5px; font-weight: 600; text-decoration: none; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                <span>📱 Robinhood 自选股列表</span>
+                <span>↗</span>
+            </a>
+        </div>
+
+        <div id="table-grouped-container" style="margin-bottom: 12px;">
+            <!-- TABLE_GROUPED_PLACEHOLDER -->
+        </div>
+
+        <!-- COLLATERAL_BUDGET_PLACEHOLDER -->
+
+        <!-- ================= TASK 3: COVERED CALL RECOMMENDATIONS ================= -->
+        <h2 class="section-title" style="border-left-color: var(--orange);">📈 Task 3: Sell Covered Call 建议 (车轮策略第二步)
+        </h2>
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 16px;">
+            针对您当前持有的股票现货（持股数量 &ge; 100股），筛选行权价高于持仓均价的 Covered Call 合约以降低持仓成本：
+        </p>
+        <div id="table-cc-container" style="margin-bottom: 32px;">
+            <!-- TABLE_CC_PLACEHOLDER -->
+        </div>
+
+    </div>
+
+    <script>
+        function toggleDetails(rowId, masterRowId) {
+            const row = document.getElementById(rowId);
+            const masterRow = document.getElementById(masterRowId);
+            if (!row) return;
+            
+            const isHidden = (row.style.display === 'none' || !row.style.display);
+            if (isHidden) {
+                row.style.display = 'table-row';
+                if (masterRow) {
+                    masterRow.classList.add('is-sticky-active');
+                    const collapseBtn = masterRow.querySelector('.collapse-toggle-btn');
+                    if (collapseBtn) collapseBtn.innerText = '▲ 收起';
+                }
+            } else {
+                row.style.display = 'none';
+                if (masterRow) {
+                    masterRow.classList.remove('is-sticky-active');
+                    const collapseBtn = masterRow.querySelector('.collapse-toggle-btn');
+                    if (collapseBtn) collapseBtn.innerText = '▼ 展开';
+                }
+            }
+        }
+
+        function switchDetailTab(rowId, tabName) {
+            const detailRow = document.getElementById(rowId);
+            if (!detailRow) return;
+            
+            // Switch tab buttons
+            const btns = detailRow.querySelectorAll('.detail-tab-btn');
+            btns.forEach(btn => {
+                if (btn.getAttribute('data-tab') === tabName) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Switch panes
+            const panes = detailRow.querySelectorAll('.detail-tab-pane');
+            panes.forEach(pane => {
+                if (pane.getAttribute('data-pane') === tabName) {
+                    pane.style.display = 'block';
+                    pane.classList.add('active');
+                } else {
+                    pane.style.display = 'none';
+                    pane.classList.remove('active');
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const canvas = document.getElementById("collateralChart");
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+
+            // 1. Parse the table to get collateral per ticker (taking quantity into account)
+            const collateralMap = {};
+            const tbody = document.querySelector("table tbody");
+            if (tbody) {
+                const tableRows = tbody.querySelectorAll("tr");
+                tableRows.forEach(row => {
+                    const tds = row.querySelectorAll("td");
+                    if (tds.length >= 3) {
+                        const rawTicker = tds[0].innerText.trim();
+                        // Extract only the first alphanumeric word (e.g. "ASHR" from "ASHR 📈")
+                        const ticker = rawTicker.split(/\s+/)[0];
+                        
+                        const optText = tds[1].innerText.trim();
+                        let qty = 1;
+                        const qtyMatch = optText.match(/(\d+)\s*张/);
+                        if (qtyMatch) {
+                            qty = parseInt(qtyMatch[1]);
+                        }
+                        
+                        const priceText = tds[2].innerText;
+                        const match = priceText.match(/\/\s*\$\s*([0-9,]+(?:\.[0-9]+)?)/);
+                        if (match) {
+                            const strike = parseFloat(match[1].replace(/,/g, ''));
+                            collateralMap[ticker] = (collateralMap[ticker] || 0) + (strike * 100.0 * qty);
+                        }
+                    }
+                });
+            }
+
+            // 2. Read available cash from stats card
+            let availableCash = 0;
+            const cashValEl = document.querySelector(".stats-value.highlight-blue");
+            if (cashValEl) {
+                const cashText = cashValEl.innerText.trim();
+                const cashMatch = cashText.match(/\$?([0-9,]+(?:\.[0-9]+)?)/);
+                if (cashMatch) {
+                    availableCash = parseFloat(cashMatch[1].replace(/,/g, ''));
+                }
+            }
+
+            const predefinedColors = {
+                "TSM": "#10b981",
+                "MSFT": "#3b82f6",
+                "IBIT": "#f59e0b",
+                "ASHR": "#8b5cf6",
+                "SPYM": "#ec4899",
+                "可用现金": "#3f3f46" // neutral zinc grey
+            };
+            const colorPalette = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4", "#14b8a6", "#f43f5e", "#84cc16", "#a855f7"];
+            let paletteIdx = 0;
+
+            const data = Object.keys(collateralMap).map(ticker => {
+                let color = predefinedColors[ticker];
+                if (!color) {
+                    color = colorPalette[paletteIdx % colorPalette.length];
+                    paletteIdx++;
+                }
+                return {
+                    label: ticker,
+                    value: collateralMap[ticker],
+                    color: color
+                };
+            });
+
+            if (availableCash > 0) {
+                data.push({
+                    label: "可用现金",
+                    value: availableCash,
+                    color: predefinedColors["可用现金"]
+                });
+            }
+
+            // Sort by value descending
+            data.sort((a, b) => b.value - a.value);
+
+            const total = data.reduce((sum, item) => sum + item.value, 0);
+
+            // Update center label text to "总资金"
+            const labelEl = document.getElementById("centerTextLabel");
+            if (labelEl && availableCash > 0) {
+                labelEl.innerText = "总资金";
+            }
+
+            // Update total text in center
+            const totalText = document.getElementById("totalCollateralText");
+            if (totalText) {
+                totalText.innerText = `$${(total / 1000).toFixed(1)}K`;
+            }
+
+            // Render Dynamic Legend
+            const legendContainer = document.getElementById("chartLegend");
+            if (legendContainer && total > 0) {
+                legendContainer.innerHTML = data.map(item => {
+                    const percentage = ((item.value / total) * 100).toFixed(1);
+                    return `
+                        <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.02);">
+                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: ${item.color};"></span>
+                            <strong style="color: #ffffff; min-width: 50px;">${item.label}</strong>
+                            <span style="color: var(--text-secondary); font-weight: 500;">${percentage}%</span>
+                            <span style="color: var(--text-muted); font-size: 12px; margin-left: auto;">$${(item.value / 1000).toFixed(1)}K</span>
+                        </div>
+                    `;
+                }).join("");
+            }
+
+            // 2. Draw Donut Chart
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const outerRadius = Math.min(centerX, centerY) - 5;
+            const innerRadius = outerRadius - 15;
+
+            if (total > 0) {
+                let startAngle = -Math.PI / 2;
+                data.forEach(item => {
+                    const sliceAngle = (item.value / total) * 2 * Math.PI;
+
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, outerRadius, startAngle, startAngle + sliceAngle);
+                    ctx.arc(centerX, centerY, innerRadius, startAngle + sliceAngle, startAngle, true);
+                    ctx.closePath();
+                    ctx.fillStyle = item.color;
+                    ctx.fill();
+
+                    startAngle += sliceAngle;
+                });
+
+                // Clear inner circle to transparent using globalCompositeOperation
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, innerRadius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.globalCompositeOperation = 'source-over'; // restore default
+            } else {
+                // Draw default empty/grey circle
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, outerRadius, 0, 2 * Math.PI);
+                ctx.arc(centerX, centerY, innerRadius, 2 * Math.PI, 0, true);
+                ctx.closePath();
+                ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
+                ctx.fill();
+            }
+        });
+
+        function triggerSync() {
+            navigator.clipboard.writeText("research").then(() => {
+                alert("📋 指令「 research 」已成功复制到您的剪贴板！\n\n请返回您的 IDE Chat 窗口，直接 粘贴 (Cmd+V) 并发送，即可立刻启动后台资产同步与期权打分！完成后刷新本页面即可。");
+            }).catch(err => {
+                alert("📢 同步指引：\n由于沙箱安全限制，网页端无法直接发起同步。请返回您的 IDE Chat 窗口，输入并发送「 research 」指令，即可触发后台资产同步与期权扫描！");
+            });
+        }
+    </script>
+</body>
+
+</html>

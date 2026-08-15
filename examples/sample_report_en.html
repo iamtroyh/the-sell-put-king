@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Institutional Quantitative Options & Portfolio Risk Management Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        :root {
+            --bg-color: #09090b;
+            --card-bg: rgba(24, 24, 27, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --green: #34d399;
+            --green-dim: rgba(52, 211, 153, 0.15);
+            --red: #f87171;
+            --red-dim: rgba(248, 113, 113, 0.15);
+            --blue: #60a5fa;
+            --blue-dim: rgba(96, 165, 250, 0.15);
+            --orange: #fbbf24;
+            --orange-dim: rgba(251, 191, 36, 0.15);
+            --purple: #c084fc;
+            --purple-dim: rgba(192, 132, 252, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 0%, #1c1917 0%, #09090b 100%) no-repeat;
+            background-color: #09090b;
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 32px 24px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-left h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0 0 6px 0;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 50%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px 20px;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .stat-card .value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .stat-card .subtext {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 36px 0 16px 0;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+            border-left: 4px solid var(--blue);
+            padding-left: 12px;
+            margin: 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .highlight-green { color: var(--green); font-weight: 600; }
+        .highlight-red { color: var(--red); font-weight: 600; }
+        .highlight-blue { color: var(--blue); font-weight: 600; }
+        .highlight-orange { color: var(--orange); font-weight: 600; }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 4px;
+            margin-bottom: 2px;
+        }
+
+        .tag-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.3); }
+        .tag-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(96, 165, 250, 0.3); }
+        .tag-orange { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(251, 191, 36, 0.3); }
+        .tag-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(192, 132, 252, 0.3); }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tv-card {
+            background: linear-gradient(135deg, #18181b 0%, #1c1917 100%);
+            border: 1px solid #3f3f46;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+        }
+
+        .tv-code {
+            background: #09090b;
+            border: 1px solid #27272a;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 12px;
+            color: var(--green);
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-top: 8px;
+        }
+
+        .btn {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1>The Sell Put King | Quantitative Option Strategy Engine</h1>
+                <div class="header-meta">
+                    <span>Generated: <strong>2026-08-15 16:00:00 UTC</strong></span>
+                    <span>Account: <strong>Joint Tenancy (Production Sandbox)</strong></span>
+                    <span>Mode: <strong>Institutional Multi-Factor Pipeline</strong></span>
+                </div>
+            </div>
+            <div class="badge">
+                Macro VIX: <strong style="color: var(--green);">15.24 (Normal / Green Alert)</strong>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Total Net Liquidity</div>
+                <div class="value">$182,450.00</div>
+                <div class="subtext">Cash + Collateral + Equities</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Unleveraged Cash</div>
+                <div class="value" style="color: var(--green);">$42,300.00</div>
+                <div class="subtext">Ready for CSP Allocation</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Short Put Collateral</div>
+                <div class="value">$125,500.00</div>
+                <div class="subtext">14 Active Contracts</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Delta Notional Exposure</div>
+                <div class="value">$84,120.00</div>
+                <div class="subtext">Delta Shares: +385.2 eqv</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Delta Leverage Ratio</div>
+                <div class="value" style="color: var(--blue);">0.46x</div>
+                <div class="subtext">Healthy / Standard Tier (0.41x - 0.75x)</div>
+            </div>
+        </div>
+
+        <!-- TradingView Copy Card -->
+        <div class="tv-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <div style="font-weight: 600; font-size: 13px;">TradingView Watchlist Quick Import (Ordered by Multi-Factor Total Score)</div>
+                <button class="btn" onclick="navigator.clipboard.writeText('NASDAQ:LULU, NYSE:ACN, NASDAQ:INTU, NASDAQ:SNPS, NASDAQ:MSFT, AMEX:SPYM, AMEX:ASHR, NASDAQ:IBIT').then(() => alert('Copied to clipboard!'))">
+                    Copy TradingView Symbols
+                </button>
+            </div>
+            <div class="tv-code">
+                NASDAQ:LULU, NYSE:ACN, NASDAQ:INTU, NASDAQ:SNPS, NASDAQ:MSFT, AMEX:SPYM, AMEX:ASHR, NASDAQ:IBIT
+            </div>
+        </div>
+
+        <!-- Task 1: Portfolio Management -->
+        <div class="section-header">
+            <h2 class="section-title">Task 1: Active Options Portfolio & Action Plan (Sorted by DTE)</h2>
+        </div>
+        <div class="card" style="padding: 0; overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Contract</th>
+                        <th>DTE</th>
+                        <th>Spot / Strike</th>
+                        <th>Cushion</th>
+                        <th>Delta / Shares</th>
+                        <th>Entry / Current</th>
+                        <th>PnL ($ / %)</th>
+                        <th>Remaining APY</th>
+                        <th>InvestSkill Thesis</th>
+                        <th>Action Decision</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>LULU</strong> 2026-08-22 $180.00 Put</td>
+                        <td><span class="highlight-orange">7 days</span></td>
+                        <td>$192.40 / $180.00</td>
+                        <td><span class="highlight-green">+6.4%</span></td>
+                        <td>-0.12 (+12 eqv)</td>
+                        <td>$4.20 / $0.45</td>
+                        <td><span class="highlight-green">+$375.00 (+89.3%)</span></td>
+                        <td>4.8% APY</td>
+                        <td><span class="tag tag-green">Wide Moat 8.8/10</span></td>
+                        <td><span class="tag tag-blue">BTC (Profit Take)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>MSFT</strong> 2026-09-05 $410.00 Put</td>
+                        <td>21 days</td>
+                        <td>$432.50 / $410.00</td>
+                        <td><span class="highlight-green">+5.2%</span></td>
+                        <td>-0.18 (+18 eqv)</td>
+                        <td>$5.80 / $1.70</td>
+                        <td><span class="highlight-green">+$410.00 (+70.7%)</span></td>
+                        <td>12.4% APY</td>
+                        <td><span class="tag tag-green">Bullish 9.2/10</span></td>
+                        <td><span class="tag tag-green">Greedy Hold</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>IBIT</strong> 2026-09-19 $34.00 Put</td>
+                        <td>35 days</td>
+                        <td>$36.20 (BTC $64,200) / $34.00</td>
+                        <td><span class="highlight-green">+6.1%</span></td>
+                        <td>-0.24 (+24 eqv)</td>
+                        <td>$1.65 / $0.95</td>
+                        <td><span class="highlight-green">+$70.00 (+42.4%)</span></td>
+                        <td>19.8% APY</td>
+                        <td><span class="tag tag-blue">Core Asset</span></td>
+                        <td><span class="tag tag-green">Standard Hold</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>ASHR</strong> 2026-10-17 $23.00 Put</td>
+                        <td>63 days</td>
+                        <td>$24.15 / $23.00</td>
+                        <td><span class="highlight-green">+4.8%</span></td>
+                        <td>-0.28 (+28 eqv)</td>
+                        <td>$1.10 / $0.90</td>
+                        <td><span class="highlight-green">+$20.00 (+18.2%)</span></td>
+                        <td>14.2% APY</td>
+                        <td><span class="tag tag-blue">China Broad ETF</span></td>
+                        <td><span class="tag tag-green">Standard Hold</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Task 2: Recommended Candidates -->
+        <div class="section-header">
+            <h2 class="section-title">Task 2: Quantitative Sell Put Candidate Recommendations</h2>
+        </div>
+        <div class="card" style="padding: 0; overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank & Symbol</th>
+                        <th>GICS Sector</th>
+                        <th>Spot Price</th>
+                        <th>200-SMA Dev / 52w RP</th>
+                        <th>Risk Tier</th>
+                        <th>Expiration & Strike</th>
+                        <th>Delta & Cushion</th>
+                        <th>Mark Premium</th>
+                        <th>Option APY</th>
+                        <th>Total Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>#1 LULU</strong></td>
+                        <td>Consumer Discretionary</td>
+                        <td>$192.40</td>
+                        <td><span class="highlight-green">-14.2% (Deep Value)</span></td>
+                        <td><span class="tag tag-green">Conservative</span></td>
+                        <td>2026-09-19 $175.00 P</td>
+                        <td>-0.16 (Cushion +9.0%)</td>
+                        <td>$3.85</td>
+                        <td>22.9% APY</td>
+                        <td><strong class="highlight-green">89.5 / 100</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>#2 ACN</strong></td>
+                        <td>Information Technology</td>
+                        <td>$268.50</td>
+                        <td><span class="highlight-green">-12.1% (Value Trough)</span></td>
+                        <td><span class="tag tag-blue">Balanced</span></td>
+                        <td>2026-09-19 $250.00 P</td>
+                        <td>-0.20 (Cushion +6.9%)</td>
+                        <td>$5.60</td>
+                        <td>23.3% APY</td>
+                        <td><strong class="highlight-green">87.2 / 100</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>#3 INTU</strong></td>
+                        <td>Information Technology</td>
+                        <td>$585.00</td>
+                        <td><span class="highlight-green">-8.5% (Oversold)</span></td>
+                        <td><span class="tag tag-blue">Balanced</span></td>
+                        <td>2026-09-19 $550.00 P</td>
+                        <td>-0.22 (Cushion +6.0%)</td>
+                        <td>$12.50</td>
+                        <td>23.7% APY</td>
+                        <td><strong class="highlight-green">85.8 / 100</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>#4 IBIT</strong></td>
+                        <td>Crypto / Bitcoin ETF</td>
+                        <td>$36.20 (BTC $64,200)</td>
+                        <td><span class="highlight-blue">RP 0.35 (Consolidation)</span></td>
+                        <td><span class="tag tag-orange">Aggressive</span></td>
+                        <td>2026-09-19 $33.00 P</td>
+                        <td>-0.28 (Cushion +8.8%)</td>
+                        <td>$1.40</td>
+                        <td>44.2% APY</td>
+                        <td><strong class="highlight-green">84.1 / 100</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="chart-grid">
+            <div class="card">
+                <div style="font-weight: 600; font-size: 14px; margin-bottom: 12px;">Portfolio Delta Notional by Asset</div>
+                <div style="height: 240px; position: relative;">
+                    <canvas id="deltaChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <div style="font-weight: 600; font-size: 14px; margin-bottom: 12px;">Candidate Score vs Annualized Yield (APY)</div>
+                <div style="height: 240px; position: relative;">
+                    <canvas id="scoreChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctxDelta = document.getElementById('deltaChart').getContext('2d');
+        new Chart(ctxDelta, {
+            type: 'doughnut',
+            data: {
+                labels: ['LULU ($23.1k)', 'MSFT ($24.8k)', 'IBIT ($18.5k)', 'ASHR ($17.7k)'],
+                datasets: [{
+                    data: [23.1, 24.8, 18.5, 17.7],
+                    backgroundColor: ['#60a5fa', '#34d399', '#fbbf24', '#c084fc'],
+                    borderColor: '#18181b',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#a1a1aa', font: { size: 11 } }
+                    }
+                }
+            }
+        });
+
+        const ctxScore = document.getElementById('scoreChart').getContext('2d');
+        new Chart(ctxScore, {
+            type: 'bar',
+            data: {
+                labels: ['LULU (89.5)', 'ACN (87.2)', 'INTU (85.8)', 'IBIT (84.1)'],
+                datasets: [{
+                    label: 'Annualized Option Yield (APY %)',
+                    data: [22.9, 23.3, 23.7, 44.2],
+                    backgroundColor: 'rgba(52, 211, 153, 0.7)',
+                    borderColor: '#34d399',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#a1a1aa', callback: v => v + '%' },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    },
+                    x: {
+                        ticks: { color: '#a1a1aa' },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
