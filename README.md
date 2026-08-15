@@ -11,7 +11,7 @@
 
 Production-grade quantitative options engine for **Sell Put (Cash Secured Put)** and **Covered Call** strategy recommendation, [**InvestSkill**](https://github.com/yennanliu/InvestSkill) institutional equity research synthesis, automated **Robinhood** portfolio management, and real-time **Portfolio Delta Notional Exposure / Leverage Ratio** risk governance.
 
-> **Instant Live Preview**: Explore the [**Interactive English Strategy & Portfolio Dashboard**](https://iamtroyh.github.io/the-sell-put-king/examples/sample_report_en.html) live via GitHub Pages without any local setup.
+> **Instant Live Preview**: Explore the [**Interactive Strategy & Portfolio Dashboard**](https://iamtroyh.github.io/the-sell-put-king/examples/sample_report_en.html) live via GitHub Pages without any local setup.
 
 ---
 
@@ -106,7 +106,7 @@ the-sell-put-king insider LULU
 
 ### Step 4: Review Deliverables & Execute Trades
 
-- **Instant Live Report (Zero Setup)**: Open the [**Live Interactive Sample Dashboard**](https://iamtroyh.github.io/the-sell-put-king/examples/sample_report_en.html) (or local file [`examples/sample_report_en.html`](examples/sample_report_en.html)) to inspect the full English interactive dashboard, DTE-sorted positions table, Action Plan decision badges, multi-factor ranking tables, and Chart.js visualizations.
+- **Instant Live Report (Zero Setup)**: Open the [**Live Interactive Sample Dashboard**](https://iamtroyh.github.io/the-sell-put-king/examples/sample_report_en.html) (or local file [`examples/sample_report_en.html`](examples/sample_report_en.html)) to inspect the full interactive dashboard, DTE-sorted positions table, Action Plan decision badges, multi-factor ranking tables, and Chart.js visualizations.
 - **Live Interactive Dashboard**: Open [`report.html`](report.html) generated after running `the-sell-put-king run` or issuing `research` to review current position action plans, 3-tab candidate workbenches (Option Contracts / InvestSkill Deep Dive / Fundamental Valuation), and collateral budget metrics.
 - **TradingView Import List**: Open [`data/tradingview_watchlist.txt`](data/tradingview_watchlist.txt), copy the comma-separated ticker list with accurate exchange prefixes (e.g. `NASDAQ:LULU, NYSE:ACN...`), and paste into TradingView.
 - **Robinhood Mobile App**: Open the Robinhood App, navigate to the `Sell Put Candidate` Watchlist, and execute ranked contracts in descending score order.
@@ -141,8 +141,8 @@ The project adheres to professional modular architecture: core package encapsula
 ├── requirements.txt                   # Production dependency manifest
 ├── report.html                        # Live interactive dashboard (runtime artifact, gitignored)
 ├── report_template.html               # HTML dashboard template framework (Chart.js & dark theme)
-├── examples/                          # Standalone English sample deliverables (tracked in git)
-│   ├── sample_report_en.html          # Full English interactive dashboard sample
+├── examples/                          # Standalone sample deliverables (tracked in git)
+│   ├── sample_report_en.html          # Full interactive dashboard sample
 │   ├── sample_account_info.json       # Account balance & theta data schema sample
 │   └── sample_current_positions.json  # Open options position schema sample
 ├── src/option_quant/                  # Core quantitative options engineering package
@@ -444,9 +444,9 @@ pytest tests/test_market_data.py
 
 ## Output Deliverables & Interactive Reports
 
-1. **Instant Static Sample Report (English)**: [**Live GitHub Pages Dashboard**](https://iamtroyh.github.io/the-sell-put-king/examples/sample_report_en.html) / [`examples/sample_report_en.html`](examples/sample_report_en.html)
+1. **Instant Static Sample Report**: [**Live GitHub Pages Dashboard**](https://iamtroyh.github.io/the-sell-put-king/examples/sample_report_en.html) / [`examples/sample_report_en.html`](examples/sample_report_en.html)
    - Tracked in git and deployed on GitHub Pages; immediately viewable in any browser without configuration.
-   - Includes full English quantitative portfolio dashboard, DTE sorting, Action Plan decision badges, multi-factor candidate recommendations, and interactive Chart.js visualizations.
+   - Includes full quantitative portfolio dashboard, DTE sorting, Action Plan decision badges, multi-factor candidate recommendations, and interactive Chart.js visualizations.
    - Accompanying data schema samples: [`examples/sample_account_info.json`](examples/sample_account_info.json) and [`examples/sample_current_positions.json`](examples/sample_current_positions.json).
 
 2. **Live Interactive Dashboard**: [`report.html`](report.html)
