@@ -105,53 +105,77 @@ def scan_investskill_reports(
                         with open(filepath, "r", encoding="utf-8", errors="ignore") as fp:
                             content = fp.read()
 
-                            # Score regex patterns
-                            score_m = (
-                                re.search(r"hero-meta-label[^>]*>\s*(?:多因子综合评分|综合评分|综合得分|量化评分|Score)[^<]*</span>\s*<span[^>]*class=[\"\x27][^\"\x27]*hero-meta-value[^\"\x27]*[\"\x27][^>]*>\s*([\d\.]+)", content, re.I) or
-                                re.search(r"hero-meta-label[^>]*>\s*(?:多因子综合评分|综合评分|综合得分|量化评分|Score)[^<]*</span>\s*<span[^>]*class=[\"\x27][^\"\x27]*hero-meta-value[^\"\x27]*[\"\x27][^>]*>\s*([^\n<]+)", content, re.I) or
-                                re.search(r"signal-item-label[^>]*>\s*(?:综合得分|综合评分|量化评分|Score)[^<]*</div>\s*<div[^>]*class=[\"\x27][^\"\x27]*signal-item-val[^\"\x27]*[\"\x27][^>]*>\s*([\d\.]+)", content, re.I) or
-                                re.search(r"sig-label[^>]*>\s*(?:多因子综合评分|综合评分|综合得分|量化评分|Score)[^<]*</div>\s*<div[^>]*class=[\"\x27][^\"\x27]*sig-val[^\"\x27]*[\"\x27][^>]*>\s*([\d\.]+)", content, re.I) or
-                                re.search(r"class=[\"\x27][^\"\x27]*signal-score[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I) or
-                                re.search(r"综合评分[^\n\d<]*[:：║\s]*([\d\.]+)\s*/\s*10", content, re.I) or
-                                re.search(r"综合得分[^\n\d<]*[:：║\s]*([\d\.]+)\s*/\s*10", content, re.I) or
-                                re.search(r"量化评分[^\n\d<]*[:：║\s]*([\d\.]+)\s*/\s*10", content, re.I) or
-                                re.search(r"SCORE:\s*([\d\.]+\s*/\s*10)", content, re.I) or
-                                re.search(r"Score:\s*([\d\.]+)\s*/\s*10", content, re.I) or
-                                re.search(r"Composite:\s*([\d\.]+)\s*/\s*10", content, re.I) or
-                                re.search(r"加权综合量化总分[^\n<]*</td>\s*<td[^>]*>\s*<strong>\s*([\d\.]+)", content, re.I)
+                            # 1. Hero Badge / Hero Signal / Hero Meta extraction (Highest priority)
+                            hero_sig_m = (
+                                re.search(r'class=["\x27][^"\x27]*(?:badge-hero-signal|hero-signal)["\x27][^>]*>([^<]+)</span>', content, re.I) or
+                                re.search(r'hero-kpi-lbl[^>]*>\s*(?:多因子综合(?:量化)?评分|综合评分|综合得分|量化评分|Score)[^<]*</div>\s*<div[^>]*class=[\"\x27][^\"\x27]*hero-kpi-val[^\"\x27]*[\"\x27][^>]*>\s*([\d\.\s/]+(?:•|·|\s|&middot;)[^<]+|[\d\.\s/]+)', content, re.I)
                             )
-                            if score_m:
-                                raw_s = score_m.group(1).replace('SCORE:', '').replace('Score:', '').strip()
-                                num_m = re.search(r'([\d\.]+)', raw_s)
-                                if num_m:
-                                    score = float(num_m.group(1))
+                            if hero_sig_m:
+                                raw_badge = hero_sig_m.group(1).strip()
+                                if "•" in raw_badge or "·" in raw_badge or "&middot;" in raw_badge:
+                                    parts = re.split(r'[•·]|&middot;', raw_badge, maxsplit=1)
+                                    p1, p2 = parts[0].strip(), parts[1].strip()
+                                    num_m1 = re.search(r'([\d\.]+)\s*(?:/\s*10)?', p1)
+                                    num_m2 = re.search(r'([\d\.]+)\s*(?:/\s*10)?', p2)
+                                    if num_m1 and not re.search(r'[\u4e00-\u9fa5a-zA-Z]', p1):
+                                        score = float(num_m1.group(1))
+                                        verdict = p2
+                                    elif num_m2:
+                                        score = float(num_m2.group(1))
+                                        verdict = p1
+                                else:
+                                    num_m = re.search(r'([\d\.]+)\s*/\s*10', raw_badge)
+                                    if num_m:
+                                        score = float(num_m.group(1))
+                                    else:
+                                        verdict = raw_badge
 
-                            # Verdict regex patterns
-                            verdict_m = (
-                                re.search(r"hero-meta-label[^>]*>\s*(?:综合评级|投资结论|投资信号|评级|Verdict|Signal)[^<]*</span>\s*<span[^>]*class=[\"\x27][^\"\x27]*hero-meta-value[^\"\x27]*[\"\x27][^>]*>([^<]+)</span>", content, re.I) or
-                                re.search(r"INVESTMENT SIGNAL & VERDICT[\s\S]*?<h2[^>]*>([^<]+)</h2>", content, re.I) or
-                                re.search(r"class=[\"\x27][^\"\x27]*signal-badge[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I) or
-                                re.search(r"class=[\"\x27][^\"\x27]*signal-verdict[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I) or
-                                re.search(r"signal-verdict[^>]*>([\s\S]*?)</div>", content, re.I) or
-                                re.search(r"投资信号[^\n:]*[:：║\s]*([^\n\r<║]+)", content, re.I) or
-                                re.search(r"投资结论[^\n:]*[:：║\s]*([^\n\r<║]+)", content, re.I) or
-                                re.search(r"class=[\"\x27][^\"\x27]*tag-green[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I)
-                            )
-                            if verdict_m:
-                                verdict = re.sub(r'<[^>]+>', '', verdict_m.group(1)).strip().rstrip("║").strip()
+                            # 2. Score regex patterns
+                            if score is None:
+                                score_m = (
+                                    re.search(r"(?:hero-meta-label|signal-lbl|signal-item-label|sb-item-label|hero-kpi-lbl)[^>]*>\s*(?:多因子综合(?:量化)?评分|综合评分|综合得分|量化评分|加权综合量化总分|Score|Composite)[^<]*</(?:span|div|th|td)>\s*<(?:span|div|td)[^>]*class=[\"\x27][^\"\x27]*(?:hero-meta-value|signal-val|signal-item-val|sb-item-val|hero-kpi-val)[^\"\x27]*[\"\x27][^>]*>\s*([^\n<]+)", content, re.I) or
+                                    re.search(r"class=[\"\x27][^\"\x27]*(?:signal-score|sb-score-badge|score-badge)[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I) or
+                                    re.search(r"综合评分[^\n\d<]*[:：║\s]*([\d\.]+)\s*/\s*10", content, re.I) or
+                                    re.search(r"综合得分[^\n\d<]*[:：║\s]*([\d\.]+)\s*/\s*10", content, re.I) or
+                                    re.search(r"量化评分[^\n\d<]*[:：║\s]*([\d\.]+)\s*/\s*10", content, re.I) or
+                                    re.search(r"SCORE:\s*([\d\.]+\s*/\s*10)", content, re.I) or
+                                    re.search(r"Score:\s*([\d\.]+)\s*/\s*10", content, re.I) or
+                                    re.search(r"Composite:\s*([\d\.]+)\s*/\s*10", content, re.I) or
+                                    re.search(r"加权综合量化总分[^\n<]*</td>\s*<td[^>]*>\s*<strong>\s*([\d\.]+)", content, re.I)
+                                )
+                                if score_m:
+                                    raw_s = score_m.group(1).replace('SCORE:', '').replace('Score:', '').strip()
+                                    num_m = re.search(r'([\d\.]+)', raw_s)
+                                    if num_m:
+                                        score = float(num_m.group(1))
 
-                            # Action regex patterns
-                            action_m = (
-                                re.search(r"sig-label[^>]*>\s*(?:操作建议|行动指引|Action)[^<]*</div>\s*<div[^>]*class=[\"\x27][^\"\x27]*sig-val[^\"\x27]*[\"\x27][^>]*>([^<]+)</div>", content, re.I) or
-                                re.search(r"行动指引[^\n:]*[:：║\s]*([^\n\r<║]+)", content, re.I) or
-                                re.search(r"操作建议[^\n:]*[:：║\s]*([^\n\r<║]+)", content, re.I) or
-                                re.search(r"class=[\"\x27][^\"\x27]*sig-action[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I) or
-                                re.search(r"class=[\"\x27][^\"\x27]*signal-action[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I)
-                            )
-                            if action_m:
-                                action = re.sub(r'<[^>]+>', '', action_m.group(1)).strip().rstrip("║").strip()
+                            # 3. Verdict regex patterns
+                            if not verdict:
+                                verdict_m = (
+                                    re.search(r"(?:hero-meta-label|signal-lbl|signal-item-label|sb-item-label|hero-kpi-lbl)[^>]*>\s*(?:核心信号|综合评级|投资评级|投资结论|投资信号|评级|加权评级|Signal|Verdict)[^<]*</(?:span|div)>\s*<(?:span|div)[^>]*class=[\"\x27][^\"\x27]*(?:hero-meta-value|signal-val|signal-item-val|sb-item-val|hero-kpi-val|hero-kpi-sub)[^\"\x27]*[\"\x27][^>]*>([^<]+)</(?:span|div)>", content, re.I) or
+                                    re.search(r"hero-kpi-sub[^>]*>\s*加权评级[：:\s]*([^<]+)", content, re.I) or
+                                    re.search(r"INVESTMENT SIGNAL & VERDICT[\s\S]*?<h2[^>]*>([^<]+)</h2>", content, re.I) or
+                                    re.search(r"class=[\"\x27][^\"\x27]*(?:signal-badge|signal-verdict)[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I) or
+                                    re.search(r"signal-verdict[^>]*>([\s\S]*?)</div>", content, re.I) or
+                                    re.search(r"投资信号[^\n:]*[:：║\s]*([^\n\r<║]+)", content, re.I) or
+                                    re.search(r"投资结论[^\n:]*[:：║\s]*([^\n\r<║]+)", content, re.I)
+                                )
+                                if verdict_m:
+                                    verdict = re.sub(r'<[^>]+>', '', verdict_m.group(1)).strip().rstrip("║").strip()
+                                    verdict = re.sub(r'^(?:加权评级|投资评级|核心信号|投资结论|投资信号)[：:\s]*', '', verdict)
 
-                            # Summary regex patterns
+                            # 4. Action regex patterns
+                            if not action:
+                                action_m = (
+                                    re.search(r"(?:signal-lbl|sig-label|sb-item-label)[^>]*>\s*(?:建议操作|操作建议|行动指引|Action)[^<]*</div>\s*<div[^>]*class=[\"\x27][^\"\x27]*(?:signal-val|sig-val|sb-item-val)[^\"\x27]*[\"\x27][^>]*>([^<]+)</div>", content, re.I) or
+                                    re.search(r"行动指引[^\n:]*[:：║\s]*([^\n\r<║]+)", content, re.I) or
+                                    re.search(r"操作建议[^\n:]*[:：║\s]*([^\n\r<║]+)", content, re.I) or
+                                    re.search(r"class=[\"\x27][^\"\x27]*(?:sig-action|signal-action)[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I)
+                                )
+                                if action_m:
+                                    action = re.sub(r'<[^>]+>', '', action_m.group(1)).strip().rstrip("║").strip()
+
+                            # 5. Summary regex patterns
                             sum_m = (
                                 re.search(r"<strong>核心投资逻辑[：:]*</strong>([\s\S]*?)</p>", content, re.I) or
                                 re.search(r"<strong>核心投资论点[：:]*</strong>([\s\S]*?)</p>", content, re.I) or
