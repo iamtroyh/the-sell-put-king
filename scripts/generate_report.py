@@ -1707,6 +1707,11 @@ def main():
             pen_val = best_opt.get('trend_penalty', 0.0)
             pen_str = f"<span style='color: #ef4444; font-size: 10px;'> -{pen_val:.0f}</span>" if pen_val > 0 else ""
             
+            ev_d_val = best_opt.get('ev_dollar', 0.0)
+            neg_ev_tag = ""
+            if ev_d_val <= 0:
+                neg_ev_tag = f"<div style='margin-top: 3px;'><span style='background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;' title='纯净数学期望为负 (EV {ev_d_val:+.0f}$)，下行统计风险大于收取的权利金'>⚠️ 负期望</span></div>"
+
             score_cell = (
                 f"<div style='text-align: center;'>"
                 f"<strong style='{score_s} font-size: 15px;'>{b_score:.1f}</strong>"
@@ -1719,6 +1724,7 @@ def main():
                 f"<span style='color: #c084fc;' title='Pillar 3: 期权Alpha (20%)'>α{s_a_val:.0f}</span>"
                 f"{pen_str}"
                 f"</div>"
+                f"{neg_ev_tag}"
                 f"</div>"
             )
             
@@ -1922,6 +1928,11 @@ def main():
                 s_s_c = opt.get('s_safety', 0.0)
                 s_a_c = opt.get('s_option_alpha', 0.0)
                 penalty_str2 = f" <span style='color: #ef4444;'>-{opt['trend_penalty']:.0f}</span>" if opt.get('trend_penalty', 0.0) > 0 else ""
+                ev_c_val = opt.get('ev_dollar', 0.0)
+                neg_ev_tag2 = ""
+                if ev_c_val <= 0:
+                    neg_ev_tag2 = f"<br><span style='background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.5px 4px; border-radius: 3px; font-size: 9.5px; font-weight: 600;' title='纯净数学期望为负 (EV {ev_c_val:+.0f}$)'>⚠️ 负期望</span>"
+
                 score_cell2 = (
                     f"<strong style='{score_s2} font-size: 13.5px;'>{opt['total_score']:.1f}</strong><br>"
                     f"<span style='font-size: 10px; color: #a1a1aa; font-family: monospace;' "
@@ -1931,6 +1942,7 @@ def main():
                     f"<span style='color: #c084fc;' title='Pillar 3: 期权Alpha (20%)'>α{s_a_c:.0f}</span>"
                     f"{penalty_str2}"
                     f"</span>"
+                    f"{neg_ev_tag2}"
                 )
                 
                 reason2 = get_recommendation_reason(opt, mdata, wash_sale_history_map, insider_sentiment_map)
