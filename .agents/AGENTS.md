@@ -63,8 +63,9 @@ Conduct multi-factor quantitative screening across the market:
 ### 4-Tier Smooth Liquidity & Conservative Pricing Gatekeeper
 1. **Tier 1 (🟢 极佳流动性 - Spread $\le 20\%$ & OI $\ge 50$)**: 0 penalty, executed at 100% Mark.
 2. **Tier 2 (🟡 标准流动性 - Spread $\le 35\%$ 或 绝对点差 $\le \$0.15$，且 OI $\ge 20$)**: 0 penalty, conservatively priced as $\text{Price}_{\text{exec}} = \min(\text{Mark}, \text{Bid} \times 1.15)$.
-3. **Tier 3 (🟠 中度宽点差 - $35\% < \text{Spread} \le 50\%$ 或 $10 \le \text{OI} < 20$)**: Priced as $\min(\text{Mark}, \text{Bid} \times 1.10)$, modest **-5.0 pt penalty** with `[⚠️ 中度点差 (建议限价单)]` badge.
-4. **Tier 4 (🔴 严重匮乏 - Spread $> 50\%$ 或 $\text{OI} < 10$ 或 $\text{Bid} = 0$)**: Priced at $\text{Bid}$, **-15.0 pt penalty** with `[🚫 低流动性匮乏]` warning flag.
+3. **Tier 3 (🟠 中度宽点差 - $35\% < \text{Spread} \le 50\%$ 或 $10 \le \text{OI} < 20$)**: Conservatively priced as $\min(\text{Mark}, \text{Bid} \times 1.10)$, **0 pt penalty** (slippage already absorbed by price discount) with `[⚠️ 中度点差 (建议限价单)]` badge.
+4. **Tier 4 (🔴 宽幅点差 - Spread $> 50\%$ 或 $\text{OI} < 10$，且 $\text{Bid} > 0$)**: Conservatively priced as $\min(\text{Mark}, \text{Bid} \times 1.05)$, modest **-4.0 pt penalty** (execution difficulty warning, non-punitive) with `[⚠️ 宽点差 (建议限价单)]` badge.
+5. **Tier 5 (⛔ 零买盘 - $\text{Bid} = 0$)**: 0 price, **-15.0 pt penalty** with `[🚫 零买盘匮乏]` warning flag.
 
 ### Sell Put Three-Pillar Multi-Factor Scoring Model (50 / 30 / 20)
 $$\text{Total Score} = \max\left(0, 0.50 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.20 \times S_{\text{OptionAlpha}} - \text{Penalties} + \text{Bonuses}\right)$$
@@ -74,7 +75,8 @@ $$\text{Total Score} = \max\left(0, 0.50 \times S_{\text{Price}} + 0.30 \times S
   * Long-bull: $Dev_{\text{basis}} = \frac{\text{Net Basis} - \text{SMA}_{200}}{\text{SMA}_{200}}$ (capped at -15.0%). If $Dev \le 0.0$, $S_{\text{Price}} = \min(100, 70 - Dev \times 600)$; else $S_{\text{Price}} = \max(0, 70 - Dev \times 700)$.
   * High-vol: $RP_{\text{basis}} = \frac{\text{Net Basis} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. If $RP \le 0.20$, $S_{\text{Price}} = \min(100, 70 + (0.20 - RP) \times 200)$; else $S_{\text{Price}} = \max(0, 70 - (RP - 0.20) \times 87.5)$.
 - **Pillar 2: Safety Cushion & Gravitational Barrier ($S_{\text{Safety}}$ - 30%)**:
-  * Standard: $S_{\text{Safety}} = (1 - \vert\text{Delta}\vert) \times 100 + \Delta_{\text{Pain}}$ (Max Pain pinning barrier adds $+4$ pts if strike $\le \text{Max Pain} \times 0.95$, deducts $-4$ pts if strike $>$ Max Pain).
+- **Pillar 2: Safety Cushion & Gravitational Barrier ($S_{\text{Safety}}$ - 30%)**:
+  * Standard: $S_{\text{Safety}} = (1 - \vert\text{Delta}\vert) \times 100 + \Delta_{\text{Pain}}$ (Max Pain pinning barrier smooth linear ramp $\Delta_{\text{Pain}} = \text{clip}\left(\frac{d_{\text{pain}}}{5.0\%} \times 4.0, -4.0, +4.0\right)$).
   * Trough smooth transition: Smooth scaling toward 100 when spot is in deep value territory.
 - **Pillar 3: Mathematical Expectation & Option Alpha ($S_{\text{OptionAlpha}}$ - 20%)**:
   * $S_{\text{OptionAlpha}} = 0.70 \times S_{\text{EV\_APY}} + 0.30 \times S_{\text{Vol}}$.
@@ -93,12 +95,12 @@ $$\text{Total Score} = \max\left(0, 0.50 \times S_{\text{Price}} + 0.30 \times S
     - 🔴 **Toxic Falling Knife / Collapse (财务恶化暴雷)**: Drop with $F \le 3$, negative FCF, heavy insider selling $\implies$ Full trend penalty (-15 / -30 pts) + fundamental veto.
     - ⛔ **Black Swan Halt**: Drop > 35% on individual stocks or > 22% on ETFs triggers hard 50 pt veto.
   * Structural Negative FCF: Deducts 10 pts (equities only).
-  * Piotroski F-Score: $F \le 3$ deducts 50 pts (veto); $F \ge 7$ rewards +6 pts (calibrated fortress quality bonus).
+  * Piotroski F-Score Multi-Tier Smooth Health Ladder: $F \le 2$ deducts 50 pts (severe veto); $F = 3$ deducts 20 pts; $F = 4$ deducts 5 pts; $F = 5$ neutral (0 pts); $F = 6$ rewards +2.5 pts; $F = 7$ rewards +5.0 pts; $F \ge 8$ rewards +7.0 pts.
   * SEC Form 4 Insider Sentiment: Heavy selling (>= $10M net selling) deducts 5 pts; Net buying (>= $500K) rewards +5 pts.
-  * Extreme Debt ($D/E > 250\%$ for non-financials with interest coverage $< 3.5\times$): Deducts 15 pts.
-  * Earnings Expected Move: Deducts 25 pts if cushion $< 1.0 \times \sigma_{\text{earnings}}$; rewards $+3$ pts if cushion $\ge 1.5 \times \sigma_{\text{earnings}}$.
-  * Contrarian Sentiment (PCR): Rewards $+3$ pts when $\text{PCR}_{\text{OI}} \ge 1.40$ (extreme fear bottoming).
-  * High POP Bonus: Rewards $+2$ pts when mathematical probability of profit $\text{POP} \ge 86.0\%$.
+  * Extreme Debt: Continuous smooth ramp between 180% and 320% D/E up to 15 pts penalty.
+  * Earnings Expected Move: Continuous smooth ramp (5~15 pts when $0.60 \le m_{\text{earnings}} < 1.0$; 20 pts when $m_{\text{earnings}} < 0.60$; rewards $+3$ pts if cushion $\ge 1.5 \times \sigma_{\text{earnings}}$).
+  * Contrarian Sentiment (PCR): Continuous smooth ramp ($\ge 0.95$ rewards up to $+3.0$ pts; $\le 0.70$ deducts up to $-3.0$ pts).
+  * High POP Bonus: Continuous smooth win-rate ramp in $75\% \sim 90\%$ rewarding up to $+3.0$ pts.
 
 # Task 3: Sell Covered Call (Wheel Strategy Step 2)
 For equity holdings >= 100 shares:
@@ -136,10 +138,16 @@ For equity holdings >= 100 shares:
 
 3. **Data File Guidance**: All data files in `data/` are internal runtime artifacts; overwrite silently without prompting for user confirmation.
 4. **TradingView Exchange Precision & Dynamic Auto-Discovery**: Mandatory official exchange prefix resolution (`format_tradingview_ticker`). When encountering any new ticker, dynamically query authentic exchanges via yfinance fast_info (`NMS/NGM/NCM` -> `NASDAQ`, `NYQ/NYSE` -> `NYSE`, `PCX/ASE/BATS/ARCA` -> `AMEX`) and automatically persist into `config/ticker_metadata.json` to permanently eliminate invalid symbol lookups.
-5. **InvestSkill 15-Module Institutional Standard & 7-Day Freshness Strict Rule**:
+5. **InvestSkill 15-Module Institutional Standard & Universe Batch Research Rule (`research`)**:
    * **Full 15-Module Standard**: All generated InvestSkill research reports must strictly adhere to the 15-module / 5-phase / 9-chapter architecture (Executive KPI Cards, 5-Phase Scorecard, Segment Revenue Breakdown, 5-Year DCF Multi-Scenario Valuation, 13F & Short Interest Analysis, Key Technical Levels, Bear Case Red-Team Stress Test, 3-Tier Sell Put Gradients, and Normalized Signal Cards, accompanied by Radar/DCF/Technical interactive charts).
-   * **7-Day Freshness Guarantee**: Referenced research reports in `~/InvestSkill/output/` must be generated within 7 days ($\le 7$ days). Reports exceeding 7 days are deemed stale and must be regenerated via InvestSkill prompts.
+   * **Universe Batch Research Trigger (`research`)**: When the user issues `research`, automatically scan all underlying tickers in `report.html` (via `TradingView 一键复制自选股` or `标的池全景扫描与期权建仓研判` Table 2).
+   * **Three Research Trigger Conditions (满足任一即进行 15 模块深度研报)**:
+     1. **无 7 天内有效研报**: `output/` 目录下不存在该标的报告，或最新研报已超过 7 天。
+     2. **7 天内发布过最新财报**: 公司在最近 7 天内发布过财报。
+     3. **7 天内股价波动超过 5%**: 7 天内股价变动幅度超过 5% ($|\Delta P_{7\text{d}}| / P_{7\text{d}} > 5\%$)。
+   * **Zero Stale Data Iron Rule**: Strictly prohibit recycling old cached data or stale estimates. Always pull fresh live data.
    * **Three-Tab Workbench**: Main dashboard (`report.html`) Table 2 embeds `[Option Contracts]`, `[InvestSkill Institutional Report]`, and `[Fundamental & Valuation Dashboard]`.
    * **Sticky Freeze Header**: Clicking any row locks the ticker summary to the top (`position: sticky; top: 0; z-index: 45`) for seamless multi-thousand-pixel scrolling.
    * **Williams VixFix Synthetic Implied Volatility**: Integrates Larry Williams VixFix ($\text{VixFix} = \frac{\text{Highest(Close, 22)} - \text{Low}}{\text{Highest(Close, 22)}} \times 100$) as synthetic proxy IV when historical option IV is unavailable. Triggers `[VixFix Panic Alert]` when 30d VixFix IVP $\ge 75\%$ and 252d VixFix IVP $\ge 60\%$.
    * **Thesis Invalidation Triggers**: Explicit invalidation criteria for open positions and recommendation candidates.
+

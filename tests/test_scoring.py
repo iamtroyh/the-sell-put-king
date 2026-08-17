@@ -88,7 +88,7 @@ def test_sell_put_trend_and_fundamental_penalties():
         curr_hv=40.0,
         knife_level=2,  # -30 pts
         is_fcf_negative=True,  # -10 pts
-        f_score=3,  # -50 pts (bad financials veto)
+        f_score=2,  # -50 pts (severe collapse veto)
         insider_sentiment="heavy_selling",  # -5 pts
     )
 
@@ -157,7 +157,7 @@ def test_sell_put_derivative_enhancements():
 
 
 def test_earnings_expected_move_gatekeeper():
-    # Crossing earnings with tight cushion (4%) vs Expected Move (8%) -> M=0.5 < 1.0 -> -25 pt penalty
+    # Crossing earnings with tight cushion (4%) vs Expected Move (8%) -> M=0.5 < 0.60 -> 20 pt smooth penalty
     total_risky, _, _, _, _, penalty_risky = calculate_sell_put_score(
         ticker="NVDA",
         current_price=200.0,
@@ -174,7 +174,7 @@ def test_earnings_expected_move_gatekeeper():
         is_earnings_crosser=True,
         expected_move_pct=8.0,  # 8% expected move
     )
-    assert penalty_risky >= 25.0
+    assert penalty_risky >= 20.0
 
 
 def test_scoring_missing_data_compatibility():

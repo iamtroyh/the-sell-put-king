@@ -647,11 +647,12 @@ def main():
                 abs_spread = ask - bid
                 is_low_dollar_tight = (abs_spread <= 0.15 and mark <= 0.60)
 
-                # 4-Tier Smooth Liquidity Model
-                # Tier 1 (Excellent): Spread <= 20% & OI >= 50 -> Mark price, 0 penalty
-                # Tier 2 (Standard): (Spread <= 35% or tight low dollar) & OI >= 20 -> Conservative min(Mark, Bid*1.15), 0 penalty
-                # Tier 3 (Moderate Spread): (Spread <= 50% or abs_spread <= 0.25) & OI >= 10 -> Conservative min(Mark, Bid*1.10), modest -5.0 pt penalty
-                # Tier 4 (Illiquid): Spread > 50% or OI < 10 or Bid <= 0 -> Bid price, -15.0 pt penalty
+                # Refined 4-Tier Smooth Liquidity Model (Conservative Pricing + Non-Punitive Spread Handling)
+                # Tier 1 (🟢 极佳流动性): Spread <= 20% & OI >= 50 -> 100% Mark price, 0 penalty
+                # Tier 2 (🟡 标准流动性): (Spread <= 35% or is_low_dollar_tight) & OI >= 20 -> Conservative min(Mark, Bid*1.15), 0 penalty
+                # Tier 3 (🟠 中度点差): (Spread <= 50% or abs_spread <= 0.25) & OI >= 10 -> Conservative min(Mark, Bid*1.10), 0 penalty (price already discounted, limit order recommended)
+                # Tier 4 (🔴 宽幅点差): Spread > 50% or OI < 10 (with Bid > 0) -> Conservative min(Mark, Bid*1.05), modest -4.0 pt penalty
+                # Tier 5 (⛔ 零买盘): Bid <= 0 -> 0 price, -15.0 pt penalty
                 if (spread_ratio <= 0.20 and oi >= 50) or (abs_spread <= 0.10 and mark <= 0.60):
                     liq_tier = 1
                     liq_penalty = 0.0
@@ -666,16 +667,22 @@ def main():
                     exec_price = min(mark, bid * 1.15) if spread_ratio > 0.15 and bid > 0 else mark
                 elif (spread_ratio <= 0.50 or (abs_spread <= 0.25 and mark <= 0.80)) and (oi >= 10):
                     liq_tier = 3
-                    liq_penalty = 5.0
-                    passed_gatekeeper = False
-                    liq_warning = "中度点差"
+                    liq_penalty = 0.0
+                    passed_gatekeeper = True
+                    liq_warning = "中度点差 (建议限价单)"
                     exec_price = min(mark, bid * 1.10) if bid > 0 else mark
-                else:
+                elif bid > 0:
                     liq_tier = 4
+                    liq_penalty = 4.0
+                    passed_gatekeeper = False
+                    liq_warning = "宽点差 (建议限价单)"
+                    exec_price = min(mark, bid * 1.05) if bid > 0 else mark
+                else:
+                    liq_tier = 5
                     liq_penalty = 15.0
                     passed_gatekeeper = False
-                    liq_warning = "低流动性"
-                    exec_price = bid if bid > 0 else mark * 0.50
+                    liq_warning = "零买盘匮乏"
+                    exec_price = 0.0
                 
                 t_years = dte / 365.0
                 raw_delta = put.get('delta')
@@ -698,13 +705,17 @@ def main():
                     # Earnings-cross defense: tighten Delta upper bound to -0.20 and require safety cushion >= 10.0%
                     if not (-0.20 <= delta <= -0.10) or cushion < 10.0:
                         continue
+                elif is_low_position:
+                    # Valuation Trough (RP <= 0.20 or Dev <= 0.00): expand Delta allowance to [-0.40, -0.08] with cushion >= 3.0%
+                    delta_lower_limit = -0.40 if not is_high_vol_growth(display_ticker) else -0.35
+                    if not (delta_lower_limit <= delta <= -0.08) or cushion < 3.0:
+                        continue
                 elif is_high_vol_growth(display_ticker):
-                    # High volatility growth stock defense: Delta upper bound -0.25 and cushion >= 12.0%
-                    if not (-0.25 <= delta <= -0.10) or cushion < 12.0:
+                    # High volatility growth stock defense (non-trough): Delta upper bound -0.25 and cushion >= 10.0%
+                    if not (-0.25 <= delta <= -0.08) or cushion < 10.0:
                         continue
                 else:
-                    delta_lower_limit = -0.40 if is_low_position else -0.30
-                    if not (delta_lower_limit <= delta <= -0.10):
+                    if not (-0.30 <= delta <= -0.08) or cushion < 3.0:
                         continue
                     
                 abs_delta = abs(delta)
@@ -909,11 +920,11 @@ def main():
         t_opts = [opt for opt in all_options if opt['ticker'] == t]
         bal_opts = [opt for opt in t_opts if opt.get('risk_profile') == '平衡']
         if bal_opts:
-            best_bal = max(bal_opts, key=lambda x: x['total_score'])
-            ticker_balanced_score[t] = best_bal['total_score']
+            best_opt = max(bal_opts, key=lambda x: x['total_score'])
+            ticker_balanced_score[t] = best_opt['total_score']
         elif t_opts:
-            best_any = max(t_opts, key=lambda x: x['total_score'])
-            ticker_balanced_score[t] = best_any['total_score'] - 5.0
+            best_opt = max(t_opts, key=lambda x: x['total_score'])
+            ticker_balanced_score[t] = best_opt['total_score']
         else:
             ticker_balanced_score[t] = -999.0
 

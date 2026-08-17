@@ -428,13 +428,11 @@ def calculate_sell_put_score(
         else:
             s_safety = base_safety
 
-    # Max Pain gravitational adjustment (+4 / -4 pts) only if measured and valid
+    # Max Pain gravitational adjustment (continuous smooth ramp between -5% and +5% deviation)
     if max_pain is not None and max_pain > 0 and not np.isnan(float(max_pain)) and c_price > 0:
         d_pain = (float(max_pain) - c_strike) / c_price * 100.0
-        if d_pain >= 5.0:
-            s_safety = float(np.clip(s_safety + 4.0, 0.0, 100.0))  # Pinning barrier provides extra protection
-        elif d_pain <= -3.0:
-            s_safety = float(np.clip(s_safety - 4.0, 0.0, 100.0))  # Pinning pulls spot below strike
+        delta_pain = float(np.clip(d_pain / 5.0 * 4.0, -4.0, 4.0))
+        s_safety = float(np.clip(s_safety + delta_pain, 0.0, 100.0))
 
     # Three-Pillars Base Score: 50% Price + 30% Safety + 20% Option Alpha
     base_score = 0.50 * s_price + 0.30 * s_safety + 0.20 * s_option_alpha
@@ -476,12 +474,27 @@ def calculate_sell_put_score(
     if is_fcf_negative:
         trend_penalty += 10.0
 
+    # Piotroski F-Score Multi-Tier Smooth Health Ladder
     f_score_bonus = 0.0
     if f_score is not None and not is_etf:
-        if f_score <= 3:
-            trend_penalty += 50.0  # Bad financials veto
-        elif f_score >= 7:
-            f_score_bonus = 6.0   # Calibrated +6 pt reward for fortress quality
+        try:
+            f_val = int(f_score)
+            if f_val <= 2:
+                trend_penalty += 50.0  # Collapse / severe distress veto
+            elif f_val == 3:
+                trend_penalty += 20.0  # High financial risk alert
+            elif f_val == 4:
+                trend_penalty += 5.0   # Sub-optimal health
+            elif f_val == 5:
+                pass                   # Neutral baseline
+            elif f_val == 6:
+                f_score_bonus = 2.5    # Good financial health
+            elif f_val == 7:
+                f_score_bonus = 5.0    # Fortress quality
+            elif f_val >= 8:
+                f_score_bonus = 7.0    # Supreme monopoly fortress quality
+        except (ValueError, TypeError):
+            pass
 
     insider_bonus = 0.0
     if not is_etf:
@@ -490,23 +503,29 @@ def calculate_sell_put_score(
         elif insider_sentiment == "net_buying":
             insider_bonus = 5.0
 
-    # Contrarian Sentiment (PCR) only if authentically measured
+    # Contrarian Sentiment (PCR) smooth continuous ramp
     pcr_bonus = 0.0
     if pcr_oi is not None and pcr_oi > 0 and not np.isnan(float(pcr_oi)):
-        if pcr_oi >= 1.40:
-            pcr_bonus = 3.0   # Extreme market fear -> contrarian bottoming bonus
-        elif pcr_oi <= 0.50:
-            trend_penalty += 3.0  # Extreme euphoria / complacency penalty
+        pcr_val = float(pcr_oi)
+        if pcr_val >= 0.95:
+            # Fear / bottoming bonus: smooth ramp up to +3.0 pts at PCR >= 1.55
+            pcr_bonus = min(3.0, (pcr_val - 0.95) / 0.60 * 3.0)
+        elif pcr_val <= 0.70:
+            # Euphoria penalty: smooth ramp up to -3.0 pts at PCR <= 0.40
+            trend_penalty += min(3.0, (0.70 - pcr_val) / 0.30 * 3.0)
 
-    # Earnings Expected Move Gatekeeper
+    # Earnings Expected Move Gatekeeper (Continuous Smooth Ramp)
     earnings_safety_bonus = 0.0
     if is_earnings_crosser and expected_move_pct is not None and expected_move_pct > 0 and not np.isnan(float(expected_move_pct)) and c_price > 0:
         cushion_pct = (c_price - c_strike) / c_price * 100.0
         m_earnings = cushion_pct / float(expected_move_pct)
-        if m_earnings < 1.0:
-            trend_penalty += 25.0  # Strike is inside the market 1-sigma expected earnings move
+        if m_earnings < 0.60:
+            trend_penalty += 20.0  # Deep inside earnings expected move
+        elif m_earnings < 1.0:
+            # Smooth linear transition from 15 pts at m=0.60 down to 5 pts at m=1.00
+            trend_penalty += 5.0 + 10.0 * (1.0 - (m_earnings - 0.60) / 0.40)
         elif m_earnings >= 1.50:
-            earnings_safety_bonus = 3.0  # Mathematically deep beyond 1-sigma jump
+            earnings_safety_bonus = 3.0  # Mathematically deep beyond 1.5-sigma jump
 
     # Extreme Debt continuous smooth ramp
     debt_penalty = 0.0
@@ -518,10 +537,12 @@ def calculate_sell_put_score(
         debt_penalty = 15.0
     trend_penalty += debt_penalty
 
+    # High POP continuous smooth win-rate reward (in range 75% ~ 90% up to +3.0 pts)
     pop_bonus = 0.0
     if pop is not None and not np.isnan(float(pop)):
-        if float(pop) >= 86.0:
-            pop_bonus = 2.0  # High mathematical win-rate reward
+        pop_val = float(pop)
+        if pop_val >= 75.0:
+            pop_bonus = min(3.0, max(0.0, (pop_val - 75.0) / 15.0 * 3.0))
 
     total_score = max(0.0, base_score - trend_penalty + f_score_bonus + insider_bonus + pcr_bonus + earnings_safety_bonus + pop_bonus + contrarian_gold_bonus)
     return total_score, s_price, s_safety, s_option_alpha, s_ev, trend_penalty
