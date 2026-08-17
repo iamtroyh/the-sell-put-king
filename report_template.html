@@ -223,6 +223,43 @@
             white-space: nowrap;
         }
 
+        /* Sortable Table Headers */
+        th.sortable {
+            cursor: pointer !important;
+            user-select: none;
+            position: relative;
+            transition: background-color 0.15s, color 0.15s;
+        }
+        th.sortable:hover {
+            background-color: #27272a !important;
+            color: #60a5fa !important;
+        }
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 11px;
+            color: #71717a;
+            vertical-align: middle;
+            transition: color 0.15s;
+        }
+        th.sortable:hover .sort-indicator {
+            color: #60a5fa;
+        }
+        th.sortable.sort-asc {
+            color: #60a5fa !important;
+            border-bottom: 2px solid #3b82f6 !important;
+        }
+        th.sortable.sort-asc .sort-indicator {
+            color: #60a5fa !important;
+        }
+        th.sortable.sort-desc {
+            color: #60a5fa !important;
+            border-bottom: 2px solid #3b82f6 !important;
+        }
+        th.sortable.sort-desc .sort-indicator {
+            color: #60a5fa !important;
+        }
+
         td {
             padding: 12px 18px;
             vertical-align: middle;
@@ -802,7 +839,160 @@
                 ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
                 ctx.fill();
             }
+            
+            // Initialize Interactive Column Header Sorting
+            initTableSorting();
         });
+
+        function extractSortKey(cell) {
+            if (!cell) return -Infinity;
+            const dataVal = cell.getAttribute('data-sort-value');
+            if (dataVal !== null && dataVal !== '') {
+                const num = parseFloat(dataVal);
+                return isNaN(num) ? dataVal.toLowerCase() : num;
+            }
+            const text = cell.innerText.trim();
+            if (!text || text === '--' || text === 'N/A' || text === '暂无推荐' || text === '待生成') return -Infinity;
+            
+            // Check for InvestSkill score e.g. "8.7/10"
+            const scoreMatch = text.match(/([0-9]+(?:\.[0-9]+)?)\s*\/\s*10/);
+            if (scoreMatch) return parseFloat(scoreMatch[1]);
+
+            // Check for Health ratio e.g. "7/7" or "6/7"
+            const healthMatch = text.match(/([0-9]+)\s*\/\s*([0-9]+)/);
+            if (healthMatch) return parseFloat(healthMatch[1]);
+
+            // Check for RP % e.g. "RP: 35.0%"
+            const rpMatch = text.match(/RP:\s*([+-]?[0-9]+(?:\.[0-9]+)?)\s*%/i);
+            if (rpMatch) return parseFloat(rpMatch[1]);
+
+            // Check for Dev % e.g. "偏离: -5.8%"
+            const devMatch = text.match(/偏离:\s*([+-]?[0-9]+(?:\.[0-9]+)?)\s*%/i);
+            if (devMatch) return parseFloat(devMatch[1]);
+
+            // Check for DTE e.g. "33D" or "33天"
+            const dteMatch = text.match(/([0-9]+)\s*(?:D|天)/i);
+            if (dteMatch) return parseFloat(dteMatch[1]);
+
+            // Check for percentage e.g. "33%" or "+18.5%" or "-5.5%"
+            const pctMatch = text.match(/^([+-]?[0-9]+(?:\.[0-9]+)?)\s*%/);
+            if (pctMatch) return parseFloat(pctMatch[1]);
+
+            // Check for dollar price e.g. "$49.00"
+            const priceMatch = text.match(/\$\s*([0-9,]+(?:\.[0-9]+)?)/);
+            if (priceMatch) return parseFloat(priceMatch[1].replace(/,/g, ''));
+
+            // Check for date e.g. "2026-09-18"
+            const dateMatch = text.match(/\b(20\d{2}-\d{2}-\d{2})\b/);
+            if (dateMatch) return new Date(dateMatch[1]).getTime();
+
+            // Check for standalone leading float number e.g. "100.1"
+            const numMatch = text.match(/^([+-]?[0-9]+(?:\.[0-9]+)?)/);
+            if (numMatch) return parseFloat(numMatch[1]);
+
+            return text.toLowerCase();
+        }
+
+        function initTableSorting() {
+            const tables = document.querySelectorAll("table");
+            tables.forEach(table => {
+                const thead = table.querySelector("thead");
+                const tbody = table.querySelector("tbody");
+                if (!thead || !tbody) return;
+
+                const headers = thead.querySelectorAll("th");
+                headers.forEach((th, colIdx) => {
+                    th.classList.add("sortable");
+                    const origTitle = th.getAttribute("title") || "";
+                    th.setAttribute("title", (origTitle ? origTitle + " • " : "") + "点击按此列排序 (升序/降序)");
+                    
+                    // Add sort indicator icon
+                    const indicator = document.createElement("span");
+                    indicator.className = "sort-indicator";
+                    indicator.innerHTML = " ⇅";
+                    th.appendChild(indicator);
+
+                    let currentDirection = null;
+
+                    th.addEventListener("click", (e) => {
+                        // Avoid triggering if clicking on nested buttons/links
+                        if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+
+                        // Toggle direction: null -> desc -> asc -> desc
+                        const newDirection = (currentDirection === "desc") ? "asc" : "desc";
+                        currentDirection = newDirection;
+
+                        // Reset all other headers in this table
+                        headers.forEach(h => {
+                            if (h !== th) {
+                                h.classList.remove("sort-asc", "sort-desc");
+                                const ind = h.querySelector(".sort-indicator");
+                                if (ind) ind.innerHTML = " ⇅";
+                            }
+                        });
+
+                        th.classList.remove("sort-asc", "sort-desc");
+                        th.classList.add(newDirection === "asc" ? "sort-asc" : "sort-desc");
+                        indicator.innerHTML = (newDirection === "asc") ? " ▲" : " ▼";
+
+                        // Check if this table has master-detail row pairs (Table 2)
+                        const masterRows = tbody.querySelectorAll('tr[id^="master-"]');
+                        if (masterRows.length > 0) {
+                            const rowPairs = [];
+                            masterRows.forEach(mRow => {
+                                const masterId = mRow.id;
+                                const detailId = masterId.replace("master-", "details-");
+                                const dRow = document.getElementById(detailId);
+                                const cells = mRow.querySelectorAll("td");
+                                const cell = cells[colIdx];
+                                const key = extractSortKey(cell);
+                                rowPairs.push({ master: mRow, detail: dRow, key: key });
+                            });
+
+                            rowPairs.sort((a, b) => {
+                                if (typeof a.key === "number" && typeof b.key === "number") {
+                                    return newDirection === "asc" ? a.key - b.key : b.key - a.key;
+                                }
+                                const sa = String(a.key);
+                                const sb = String(b.key);
+                                return newDirection === "asc" ? sa.localeCompare(sb) : sb.localeCompare(sa);
+                            });
+
+                            // Re-append in sorted order (keeps master and detail rows strictly paired)
+                            const fragment = document.createDocumentFragment();
+                            rowPairs.forEach(p => {
+                                fragment.appendChild(p.master);
+                                if (p.detail) fragment.appendChild(p.detail);
+                            });
+                            tbody.appendChild(fragment);
+                        } else {
+                            // Standard single-row tables (Table 1, Table 3, and child sub-tables)
+                            const rows = Array.from(tbody.querySelectorAll("tr"));
+                            if (rows.length <= 1) return;
+
+                            const rowData = rows.map(r => {
+                                const cells = r.querySelectorAll("td");
+                                const cell = cells[colIdx];
+                                return { row: r, key: extractSortKey(cell) };
+                            });
+
+                            rowData.sort((a, b) => {
+                                if (typeof a.key === "number" && typeof b.key === "number") {
+                                    return newDirection === "asc" ? a.key - b.key : b.key - a.key;
+                                }
+                                const sa = String(a.key);
+                                const sb = String(b.key);
+                                return newDirection === "asc" ? sa.localeCompare(sb) : sb.localeCompare(sa);
+                            });
+
+                            const fragment = document.createDocumentFragment();
+                            rowData.forEach(item => fragment.appendChild(item.row));
+                            tbody.appendChild(fragment);
+                        }
+                    });
+                });
+            });
+        }
 
         function triggerSync() {
             navigator.clipboard.writeText("research").then(() => {

@@ -76,6 +76,22 @@ def get_robinhood_account_id() -> str:
     return os.environ.get("ROBINHOOD_ACCOUNT_ID") or _credentials.get("robinhood_account_id", "")
 
 
+def get_marketdata_token() -> str:
+    """
+    Retrieve the configured Market Data API token.
+    Prioritizes environment variables (MARKETDATA_TOKEN / MARKETDATA_API_KEY) over credentials.json.
+
+    Returns:
+        Token string or empty string if not configured.
+    """
+    return (
+        os.environ.get("MARKETDATA_TOKEN")
+        or os.environ.get("MARKETDATA_API_KEY")
+        or _credentials.get("marketdata_token", "")
+        or _credentials.get("marketdata_api_key", "")
+    )
+
+
 def mask_account_id(acc_id: str) -> str:
     """
     Mask an account ID for secure display in logs or UI.
@@ -93,6 +109,7 @@ def mask_account_id(acc_id: str) -> str:
 
 # Global static metadata & pools
 ROBINHOOD_ACCOUNT_ID = get_robinhood_account_id()
+MARKETDATA_TOKEN = get_marketdata_token()
 
 PRESELECTED_TICKERS: List[str] = _scan_config.get("preselected_tickers", [
     'IBIT', 'BRK-B', 'SPYM', 'ASHR', 'QQQM', 'IWM', 'VTV', 'TLT', 'XLV', 'XLP', 'XLE'

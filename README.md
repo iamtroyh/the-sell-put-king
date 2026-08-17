@@ -4,7 +4,7 @@
 > **最赚钱的 4 门生意 —— 开赌场，卖保险，收租子，放贷子。收割恐惧（Vega），贪婪（Gamma），时间（Theta），空间（Delta）。**
 
 [![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-20%20passed-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-29%20passed-brightgreen.svg)](tests/)
 [![Architecture](https://img.shields.io/badge/architecture-modular%20decoupled-purple.svg)](src/option_quant/)
 [![Interactive Report](https://img.shields.io/badge/sample%20report-live%20preview-emerald.svg)](https://iamtroyh.github.io/the-sell-put-king/examples/sample_report_en.html)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -71,7 +71,7 @@ Open the project workspace in your MCP-equipped AI coding environment and issue 
 
 | Command to Agent | Pipeline Execution Flow | Target Scenario & Deliverables |
 | :--- | :--- | :--- |
-| **`research`** | 1. Ingests unleveraged buying power, active option/stock positions, and past 30-day Wash Sale losses;<br>2. Concurrently scans 80+ blue-chip equities & ETFs for 200-SMA and 52-week valuation troughs;<br>3. Fetches DTE 15~60 option chains, executing multi-factor scoring (Valuation, Cushion, HV30-adjusted APY, IVP, Piotroski, Insider Sentiment);<br>4. Compiles the interactive research dashboard [`report.html`](report.html);<br>5. Synchronizes top-ranked candidates to Robinhood App `Sell Put Candidate` Watchlist via LIFO reverse insertion. | **Daily / Weekly Portfolio Review**.<br>One-click portfolio action plan, market-wide opening recommendations, and mobile watchlist update. |
+| **`research`** | 1. Ingests unleveraged buying power, active option/stock positions, and past 30-day Wash Sale losses;<br>2. Concurrently scans 80+ blue-chip equities & ETFs for 200-SMA and 52-week valuation troughs;<br>3. Fetches DTE 15~60 option chains, executing Three-Pillar 30/30/40 quantitative scoring (Valuation Floor, Cushion & Max Pain, Option Alpha EV expectation, Kelly sizing, True IVP/IVR, Panic Skew, Piotroski & Insider Sentiment);<br>4. Compiles the interactive research dashboard [`report.html`](report.html);<br>5. Synchronizes top-ranked candidates to Robinhood App `Sell Put Candidate` Watchlist via LIFO reverse insertion. | **Daily / Weekly Portfolio Review**.<br>One-click portfolio action plan, market-wide opening recommendations, and mobile watchlist update. |
 | **`research <TICKER>`**<br>*(e.g. `research AAPL` or `research LULU`)* | 1. Triggers the [`InvestSkill`](https://github.com/yennanliu/InvestSkill) 15-module institutional equity research engine;<br>2. Executes moat evaluation, 5-year DCF scenario valuation, bear-case red-team stress test, and 3-tier Sell Put gradient modeling;<br>3. Generates a standalone HTML report in `~/InvestSkill/output/` and embeds it seamlessly into Tab 2 of [`report.html`](report.html). | **Single-Stock Deep Dive**.<br>Comprehensive fundamental penetration and assignment suitability verification. |
 | **`sync`**<br>*(or: `refresh watchlist` / `update positions`)* | 1. Refreshes live balances and open positions;<br>2. Recalculates portfolio Delta notional exposure and leverage ratio;<br>3. Re-pushes candidate rankings to Robinhood Watchlist. | **Intraday Quick Sync**.<br>Fast balance calibration and mobile watchlist alignment. |
 
@@ -152,18 +152,22 @@ The project adheres to professional modular architecture: core package encapsula
 │   ├── config.py                      # Centralized path resolution, masking, and atomic JSON I/O
 │   ├── mcp_client.py                  # Resilient Robinhood MCP JSON-RPC client (pagination & retries)
 │   ├── market_data.py                 # Multi-threaded market fetcher, Piotroski F-Score, insider data
-│   ├── scoring.py                     # Sell Put & CC multi-factor scoring algorithms and Delta/APY engine
+│   ├── marketdata_client.py           # High-speed MarketData API client, panic skew, Max Pain, PCR
+│   ├── scoring.py                     # Three-Pillar Sell Put & CC scoring models, lognormal EV, Kelly sizing
 │   ├── portfolio.py                   # Portfolio Delta notional exposure, leverage ratio, Wash Sale audit
 │   ├── investskill.py                 # InvestSkill report indexing, mtime caching, and signal extraction
 │   ├── html_renderer.py               # Modular HTML report generator & UI component builder
 │   └── pipeline.py                    # Master workflow orchestrator and watchlist synchronizer
-├── scripts/                           # Backward-compatible script wrappers
+├── scripts/                           # Backward-compatible script wrappers & utilities
 │   ├── run_research.py                # Main research entry script
+│   ├── fast_option_scan.py            # High-speed concurrent option chain scanner (<3s)
+│   ├── fetch_true_iv.py               # True 252d IVP / IVR & derivative metrics fetcher
 │   ├── sync_data.py                   # Account data & position ETL
 │   ├── get_scan_targets.py            # Market-wide valuation trough scanner
 │   ├── filter_instruments.py          # Strike & Delta initial contract filtering
 │   ├── get_quote_batches.py           # 40-item quote batching slicer to prevent packet loss
 │   ├── build_options_cache.py         # Local structured options database compiler
+│   ├── generate_report.py             # Multi-factor scoring and interactive report generator
 │   ├── sync_watchlist_mcp.py          # Robinhood Watchlist LIFO reverse synchronizer
 │   ├── portfolio_delta.py             # Portfolio Delta notional exposure CLI tool
 │   ├── option_apy_calculator.py       # Annualized yield (APY) interactive CLI calculator
@@ -243,23 +247,27 @@ flowchart TD
 
 ## Quantitative Multi-Factor Scoring Models & Risk Controls
 
-### 1. Sell Put Multi-Factor Model (Total Score Max 100)
-$$\text{Total Score} = \max\left(0, 0.30 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.25 \times S_{\text{Yield}} + 0.15 \times S_{\text{IV}} - \text{TrendPenalty} + \text{Bonuses}\right)$$
+### 1. Sell Put Three-Pillar Multi-Factor Scoring Model (50 / 30 / 20)
+$$\text{Total Score} = \max\left(0, 0.50 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.20 \times S_{\text{OptionAlpha}} - \text{Penalties} + \text{Bonuses}\right)$$
 
-| Factor | Weight | Calculation Logic & Formula | Strategic Purpose |
+| Factor Pillar | Weight | Underlying Quantitative Drivers & Formulations | Strategic & Risk Objectives |
 | :--- | :---: | :--- | :--- |
-| **Price Valuation ($S_{\text{Price}}$)** | 30% | **Long-Bull Assets**: Deviation $Dev = \frac{\text{Price} - \text{SMA}_{200}}{\text{SMA}_{200}}$. At $Dev = 0\%$, score = 70. Reaching $Dev \le -5\%$ yields 100 points (hard truncation floor at **-15%**).<br>**High-Vol Assets**: 52-week position $RP = \frac{\text{Price} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. $RP \le 0.20$ awards bonus points. | Rewards mean-reversion at valuation troughs; prevents buying tops. |
-| **Safety Margin ($S_{\text{Safety}}$)** | 30% | Base: $(1 - \vert\text{Delta}\vert) \times 100$. Valuation trough assets utilize a smooth transition scaling up to 100 to encourage disciplined bottom-fishing. | Evaluates probability of profit and cushion depth. |
-| **Annualized Yield ($S_{\text{Yield}}$)** | 25% | Adjusted by $\text{HV}_{30}$ historical volatility penalty: $S_{\text{Yield}} = \min\left(100, \frac{\text{Annualized Option APY}}{1.0 + 1.5 \times (\text{HV}_{30} / 100)} \times 400\right)$. | Eliminates superficial high yields driven solely by wild volatility. |
-| **Implied Volatility ($S_{\text{IV}}$)** | 15% | $S_{\text{IV}} = IVP \times 100$ (Current IV percentile against 1-year historical distribution). | Captures elevated volatility premium to harvest post-entry IV Crush. |
+| **Pillar 1: Valuation Floor ($S_{\text{Price}}$)** | 50% | **Long-Bull Equities**: Deviation $Dev = \frac{\text{Price} - \text{SMA}_{200}}{\text{SMA}_{200}}$ (truncated floor at **-15.0%** to prevent knife skew). If $Dev \le 0.0$, $S_{\text{Price}} = \min(100, 70 - Dev \times 600)$; else $S_{\text{Price}} = \max(0, 70 - Dev \times 700)$.<br>**High-Vol Growth Assets**: 52-week position $RP = \frac{\text{Price} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. If $RP \le 0.20$, $S_{\text{Price}} = \min(100, 70 + (0.20 - RP) \times 200)$; else $S_{\text{Price}} = \max(0, 70 - (RP - 0.20) \times 87.5)$. | Enforces disciplined value-entry and margin of safety (50% fundamental weight); ensures only deep-value or mean-reverting assets rank at the top. |
+| **Pillar 2: Safety Cushion & Gravitational Barrier ($S_{\text{Safety}}$)** | 30% | **Contract Safety Cushion**: Base $S_{\text{Safety}} = (1 - \vert\text{Delta}\vert) \times 100$. For valuation-trough assets ($Dev \le 0$ or $RP \le 0.20$), smooth scaling transitions toward 100.<br>**Max Pain Pinning Barrier ($\Delta_{\text{Pain}}$)**: Adds **+4.0 pts** if strike $\le \text{Max Pain} \times 0.95$ (options magnet pinning support); deducts **-4.0 pts** if strike is pinned in gravitational headwind above Max Pain. | Prevents pure EV model bias from selecting dangerous near-the-money (ATM) strikes; rewards structural pinning defenses. |
+| **Pillar 3: Mathematical Expectation & Option Alpha ($S_{\text{OptionAlpha}}$)** | 20% | **Unified Option Alpha Engine**: $S_{\text{OptionAlpha}} = 0.70 \times S_{\text{EV\_APY}} + 0.30 \times S_{\text{Vol}}$.<br>• **Square-Root Smooth Saturation EV ($S_{\text{EV\_APY}}$)**: $S_{\text{EV\_APY}} = \min\left(100, 100 \times \sqrt{\frac{\mathbf{EV\ APY}}{20.0\%}}\right)$, where $\text{EV} = 100 \times [P_{\text{market}} - \text{BS\_Put}(\text{HV})]$ under lognormal distribution. Prevents low-volatility anchor assets (e.g. TLT, MCD) from being artificially penalized while preserving reward for high-volatility alpha.<br>• **Tri-Factor Volatility Surface ($S_{\text{Vol}}$)**: $S_{\text{Vol}} = 0.50 \times \text{IVP} + 0.20 \times \text{IVR} + 0.30 \times S_{\text{Skew}}$ utilizing true 252-day implied volatility percentiles and 25-Delta panic put skew. | Balances mathematical expectation and volatility mispricing without letting pure premium thickness overwhelm fundamental valuation and safety. |
 
-#### Trend Penalties & Fundamental Deductions ($\text{TrendPenalty}$)
-- **Stepped Downtrend Penalty**: 30-day stock drop > 15% (ETF > 8%) deducts **15 pts**; > 25% (ETF > 15%) deducts **30 pts**; > 35% (ETF > 25%) triggers **Black Swan Veto (Disqualification)**.
-- **Negative FCF Penalty**: Negative trailing 12-month free cash flow deducts **10 pts** (equities only).
-- **Low IV Penalty**: $IVP \le 25\%$ deducts **10 pts** to avoid collateral lockup on negligible yields.
-- **Piotroski F-Score**: $F \le 3$ deducts **50 pts** (Veto); $F \ge 7$ rewards **+10 pts**.
-- **SEC Form 4 Insider Sentiment**: Heavy selling (net selling >= $10M) deducts **5 pts**; Net buying (>= $500K) rewards **+5 pts**.
-- **Excessive Debt**: $D/E > 250\%$ for non-financials deducts **15 pts**.
+#### Calibrated Risk Penalties & Fortress Bonuses ($\text{Penalties}$ & $\text{Bonuses}$)
+- **Stepped Falling Knife Penalty**:
+  * **Individual Equities**: 30-day drop > 15% deducts **15 pts**; > 25% deducts **30 pts**; > 35% triggers **Black Swan Veto (Disqualification)**.
+  * **Broad / Sector ETFs**: 30-day drop > 10% deducts **10 pts**; > 16% deducts **25 pts**; > 22% triggers **ETF Veto**.
+- **Negative EV Penalty ($\text{EV} \le 0$)**: If option premium fails to cover underlying statistical down-tail risk, deducts **15 pts**.
+- **Piotroski F-Score Quality Filter**: $F \le 3$ deducts **50 pts** (Veto distressed/accounting risk); $F \ge 7$ awards **+6.0 pts** (calibrated fortress balance sheet bonus).
+- **Structural Negative Free Cash Flow**: Deducts **10 pts** (equities only).
+- **SEC Form 4 Insider Sentiment**: Heavy insider selling ($\ge \$10\text{M}$ net selling) deducts **5 pts**; Net insider buying ($\ge \$500\text{K}$) awards **+5.0 pts**.
+- **Extreme Debt Leverage**: $D/E > 250\%$ with interest coverage $< 3.5\times$ deducts **15 pts** (excludes Financials & Utilities).
+- **Earnings Expected Move Gatekeeper**: If option crosses earnings date and safety cushion $< 1.0 \times \sigma_{\text{earnings}}$, deducts **25 pts**; if cushion $\ge 1.5 \times \sigma_{\text{earnings}}$, awards **+3.0 pts**.
+- **Contrarian Market Fear (PCR)**: Put/Call OI ratio $\ge 1.40$ awards **+3.0 pts** (contrarian bottoming bonus); PCR $\le 0.50$ deducts **3 pts** (complacency penalty).
+- **High POP Certainty Bonus**: Mathematical probability of profit $\text{POP} \ge 86.0\%$ awards **+2.0 pts**.
 
 ---
 
@@ -376,41 +384,51 @@ the-sell-put-king insider LULU
 
 ```python
 from option_quant.scoring import (
-    calculate_annualized_yield,
+    calculate_apy,
     calculate_put_delta,
+    calculate_option_ev_and_pop,
     calculate_sell_put_score,
 )
 from option_quant.market_data import calculate_piotroski_f_score, get_fundamental_info
 from option_quant.portfolio import calculate_portfolio_delta_exposure
 
-# 1. Calculate Black-Scholes Put Delta and APY
-delta = calculate_put_delta(spot=192.40, strike=180.0, t_years=34/365.0, r=0.045, iv=0.32)
-apy = calculate_annualized_yield(premium=4.05, strike=180.0, dte=34)
-print(f"Delta: {delta:.2f}, APY: {apy:.2f}%")
-
-# 2. Compute Multi-Factor Total Score
-score, details = calculate_sell_put_score(
+# 1. Calculate Option Delta, APY, EV Expectation & POP
+delta = calculate_put_delta(S=192.40, K=180.0, t=34/365.0, r=0.045, sigma=0.32)
+apy_res = calculate_apy(dte=34, strike=180.0, premium=4.05)
+ev_res = calculate_option_ev_and_pop(
     spot=192.40,
     strike=180.0,
-    delta=delta,
-    annualized_yield=apy,
-    hv_30=28.5,
+    dte=34,
+    premium=4.05,
     iv=0.32,
-    ivp=65.0,
-    sma_200=224.0,
-    high_52w=260.0,
-    low_52w=175.0,
-    ticker="LULU",
-    return_30d=-0.142,
-    knife_level=0,
-    is_fcf_negative=False
+    hv=0.285
 )
-print(f"Total Score: {score:.1f}/100 -> {details}")
+print(f"Delta: {delta:.2f}, Simple APY: {apy_res['simple_apy']:.1f}%, POP: {ev_res['pop']:.1f}%, EV: ${ev_res['ev_dollar']:+.2f}")
 
-# 3. Analyze Piotroski F-Score
+# 2. Compute Three-Pillar Multi-Factor Total Score (30 / 30 / 40)
+total_score, s_price, s_safety, s_option_alpha, s_yield, penalty = calculate_sell_put_score(
+    ticker="LULU",
+    current_price=192.40,
+    strike=180.0,
+    delta=delta,
+    mark=4.05,
+    annualized_yield=apy_res['simple_apy'],
+    ivp=65.0,
+    dte=34,
+    sma_200=224.0,
+    low_52w=175.0,
+    high_52w=260.0,
+    curr_hv=28.5,
+    ev_apy=ev_res['ev_apy'],
+    ev_dollar=ev_res['ev_dollar'],
+    pop=ev_res['pop'],
+)
+print(f"Total Score: {total_score:.1f}/100 (Price:{s_price:.0f} / Safety:{s_safety:.0f} / Alpha:{s_option_alpha:.0f})")
+
+# 3. Analyze Piotroski F-Score Fortress Quality
 fund_info = get_fundamental_info("MSFT")
-f_score, f_details = calculate_piotroski_f_score(fund_info)
-print(f"MSFT Piotroski F-Score: {f_score}/9")
+f_score, f_checks = calculate_piotroski_f_score(fund_info)
+print(f"MSFT Piotroski F-Score: {f_score}/9 -> {f_checks}")
 ```
 
 ---

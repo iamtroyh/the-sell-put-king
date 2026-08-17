@@ -11,11 +11,59 @@ import pandas as pd
 import requests
 import yfinance as yf
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from ticker_config import PRESELECTED_TICKERS, is_long_bull, is_etf_symbol, is_high_vol_growth, get_tradingview_url, normalize_symbol, atomic_write_json, TICKER_EXCHANGE_MAP
-from insider_sentiment import batch_get_insider_sentiment, get_insider_sentiment
-from portfolio_delta import calculate_portfolio_delta_exposure
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC_DIR = os.path.join(BASE_DIR, "src")
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+
+from option_quant.config import (
+    BASE_DIR,
+    INVESTSKILL_DIR,
+    INVESTSKILL_OUTPUT_DIR,
+    PRESELECTED_TICKERS,
+    RISK_FREE_RATE,
+    SECTOR_MAP,
+    TICKER_EXCHANGE_MAP,
+    TICKER_FUNDAMENTALS,
+    TICKER_INTROS,
+    TICKER_RISKS,
+    atomic_write_json,
+    get_tradingview_url,
+    is_etf_symbol,
+    is_high_vol_growth,
+    is_long_bull,
+    normalize_symbol,
+    to_display_symbol,
+    to_rh_symbol,
+    to_yf_symbol,
+)
+from option_quant.investskill import scan_investskill_reports
+from option_quant.market_data import (
+    calculate_piotroski_f_score,
+    check_eva_and_moat,
+    get_insider_sentiment,
+    batch_get_insider_sentiment,
+)
+from option_quant.marketdata_client import (
+    batch_get_derivative_metrics,
+    calculate_roll_candidate,
+    get_derivative_metrics,
+    get_filtered_csp_candidates,
+    get_true_ivp_and_ivr,
+    MarketDataClient,
+)
+from option_quant.portfolio import calculate_portfolio_delta_exposure
+from option_quant.scoring import (
+    calculate_call_delta,
+    calculate_covered_call_score,
+    calculate_option_ev_and_pop,
+    calculate_put_delta,
+    calculate_sell_put_score,
+    get_recommendation_reason,
+    norm_cdf,
+)
+
 INVESTSKILL_DIR = os.environ.get("INVESTSKILL_DIR", os.path.expanduser("~/InvestSkill"))
 INVESTSKILL_OUTPUT_DIR = os.environ.get("INVESTSKILL_OUTPUT_DIR", os.path.join(INVESTSKILL_DIR, "output"))
 
@@ -44,103 +92,8 @@ def fetch_chart_df(symbol, range_str='1y'):
         return pd.DataFrame()
 
 
-RISK_FREE_RATE = 0.05  # 5% risk-free rate for Delta calculation
 DTE_MIN = 15
 DTE_MAX = 60
-
-CONFIG_DIR = os.path.join(BASE_DIR, "config")
-TICKER_METADATA_PATH = os.path.join(CONFIG_DIR, "ticker_metadata.json")
-
-def load_ticker_metadata():
-    if os.path.exists(TICKER_METADATA_PATH):
-        with open(TICKER_METADATA_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
-
-_metadata = load_ticker_metadata()
-TICKER_INTROS = _metadata.get("ticker_intros", {})
-TICKER_RISKS = _metadata.get("ticker_risks", {})
-SECTOR_MAP = _metadata.get("sector_map", {})
-TICKER_FUNDAMENTALS = _metadata.get("ticker_fundamentals", {})
-
-
-def to_yf_symbol(sym):
-    if sym == "BRKB" or sym == "BRK.B":
-        return "BRK-B"
-    return sym.replace('.', '-')
-    
-def to_display_symbol(sym):
-    if sym == "BRKB" or sym == "BRK-B":
-        return "BRK.B"
-    return sym.replace('-', '.')
-
-def norm_cdf(x):
-    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
-
-def calculate_put_delta(S, K, t, r, sigma):
-    if t <= 0 or sigma <= 0:
-        return 0.0
-    d1 = (math.log(S / K) + (r + 0.5 * sigma ** 2) * t) / (sigma * math.sqrt(t))
-    return norm_cdf(d1) - 1.0
-
-def calculate_call_delta(S, K, t, r, sigma):
-    if t <= 0 or sigma <= 0:
-        return 0.0
-    d1 = (math.log(S / K) + (r + 0.5 * sigma ** 2) * t) / (sigma * math.sqrt(t))
-    return norm_cdf(d1)
-
-def calculate_piotroski_f_score(info):
-    if not info:
-        return None, []
-    score = 0
-    checks = []
-    roa = info.get("returnOnAssets")
-    if roa is not None and roa > 0:
-        score += 1
-        checks.append("ROA>0")
-    fcf = info.get("freeCashflow")
-    if fcf is not None and fcf > 0:
-        score += 1
-        checks.append("FCF>0")
-    roe = info.get("returnOnEquity")
-    if roe is not None and roe > 0.08:
-        score += 1
-        checks.append("ROE良好")
-    net_inc = info.get("netIncomeToCommon")
-    if fcf is not None and net_inc is not None and fcf > net_inc:
-        score += 1
-        checks.append("现金流质量高于净利润")
-    de = info.get("debtToEquity")
-    if de is not None and de <= 150:
-        score += 1
-        checks.append("负债率可控")
-    cr = info.get("currentRatio")
-    if cr is not None and cr >= 1.0:
-        score += 1
-        checks.append("流动比率健康")
-    gm = info.get("grossMargins")
-    if gm is not None and gm >= 0.25:
-        score += 1
-        checks.append("毛利率充沛")
-    rg = info.get("revenueGrowth")
-    if rg is not None and rg > 0:
-        score += 1
-        checks.append("营收正增长")
-    om = info.get("operatingMargins")
-    if om is not None and om > 0.05:
-        score += 1
-        checks.append("营业利润率良好")
-    return score, checks
-
-def check_eva_and_moat(symbol, info):
-    if is_etf_symbol(symbol):
-        return True, "宽基/行业 ETF 分散持有"
-    roe = info.get("returnOnEquity")
-    de = info.get("debtToEquity")
-    is_eva_pos = (roe is not None and roe >= 0.12 and (de is None or de <= 150))
-    wide_moats = ["MSFT", "AAPL", "COST", "MCD", "ISRG", "NVDA", "GOOGL", "META", "V", "MA", "ORCL", "CME", "ICE", "ACN", "BSX", "SNPS", "IBM", "DHR", "MDT", "ABT"]
-    is_moat = (symbol in wide_moats) or is_long_bull(symbol)
-    return (is_eva_pos or is_moat), ("Wide Moat 垄断壁垒" if is_moat else "ROIC>WACC 资本增加值>0")
 
 GLOBAL_FUNDAMENTAL_CACHE = {}
 
@@ -151,297 +104,7 @@ def get_fundamental_info(ticker_symbol):
     return {}
 
 
-def scan_investskill_reports(output_dir=None, max_age_days=7, current_date_str=None):
-    """
-    Scans the InvestSkill output directory (~/InvestSkill/output) and maps tickers
-    to their latest HTML reports, extracting score, verdict, action, and core summary.
-    Enforces a strict max_age_days (default 7 days) freshness threshold.
-    Optimized with mtime-based JSON disk caching to achieve sub-millisecond lookups.
-    """
-    if output_dir is None:
-        output_dir = INVESTSKILL_OUTPUT_DIR
-    reports = {}
-    if not os.path.exists(output_dir):
-        return reports
-        
-    cache_file = os.path.join(BASE_DIR, "data", "investskill_cache.json")
-    disk_cache = {}
-    if os.path.exists(cache_file):
-        try:
-            with open(cache_file, "r", encoding="utf-8") as fp:
-                disk_cache = json.load(fp)
-        except Exception:
-            disk_cache = {}
-            
-    cache_updated = False
-    try:
-        if current_date_str:
-            try:
-                curr_d = datetime.datetime.strptime(current_date_str, "%Y-%m-%d").date()
-            except Exception:
-                curr_d = datetime.date.today()
-        else:
-            curr_d = datetime.date.today()
 
-        for f in os.listdir(output_dir):
-            if f.endswith(".html") and "_report_" in f:
-                parts = f.split("_report_")
-                raw_t = parts[0].strip()
-                date_str = parts[1].replace(".html", "").strip()
-                clean_t = raw_t.upper()
-                filepath = os.path.join(output_dir, f)
-                
-                try:
-                    r_date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
-                    age_days = (curr_d - r_date).days
-                except Exception:
-                    age_days = 0
-                    
-                is_stale = (age_days > max_age_days)
-                mtime = os.path.getmtime(filepath)
-                
-                # Check if cached
-                if f in disk_cache and disk_cache[f].get("mtime") == mtime:
-                    cached_data = disk_cache[f]
-                    score = cached_data.get("score")
-                    verdict = cached_data.get("verdict", "")
-                    action = cached_data.get("action", "")
-                    summary = cached_data.get("summary", "")
-                else:
-                    score = None
-                    verdict = ""
-                    action = ""
-                    summary = ""
-                    try:
-                        with open(filepath, "r", encoding="utf-8", errors="ignore") as fp:
-                            content = fp.read()
-                            
-                            # 1. Hero Badge / Hero Signal / Hero Meta extraction (Highest priority)
-                            hero_sig_m = (
-                                re.search(r'class=["\x27][^"\x27]*(?:badge-hero-signal|hero-signal)["\x27][^>]*>([^<]+)</span>', content, re.I) or
-                                re.search(r'hero-kpi-lbl[^>]*>\s*(?:多因子综合(?:量化)?评分|综合评分|综合得分|量化评分|Score)[^<]*</div>\s*<div[^>]*class=[\"\x27][^\"\x27]*hero-kpi-val[^\"\x27]*[\"\x27][^>]*>\s*([\d\.\s/]+(?:•|·|\s|&middot;)[^<]+|[\d\.\s/]+)', content, re.I)
-                            )
-                            if hero_sig_m:
-                                raw_badge = hero_sig_m.group(1).strip()
-                                if "•" in raw_badge or "·" in raw_badge or "&middot;" in raw_badge:
-                                    parts = re.split(r'[•·]|&middot;', raw_badge, maxsplit=1)
-                                    p1, p2 = parts[0].strip(), parts[1].strip()
-                                    num_m1 = re.search(r'([\d\.]+)\s*(?:/\s*10)?', p1)
-                                    num_m2 = re.search(r'([\d\.]+)\s*(?:/\s*10)?', p2)
-                                    if num_m1 and not re.search(r'[\u4e00-\u9fa5a-zA-Z]', p1):
-                                        score = float(num_m1.group(1))
-                                        verdict = p2
-                                    elif num_m2:
-                                        score = float(num_m2.group(1))
-                                        verdict = p1
-                                else:
-                                    num_m = re.search(r'([\d\.]+)\s*/\s*10', raw_badge)
-                                    if num_m:
-                                        score = float(num_m.group(1))
-                                    else:
-                                        verdict = raw_badge
-
-                            # 2. Score regex patterns
-                            if score is None:
-                                score_m = (
-                                    re.search(r"(?:hero-meta-label|signal-lbl|signal-item-label|sb-item-label|hero-kpi-lbl)[^>]*>\s*(?:多因子综合(?:量化)?评分|综合评分|综合得分|量化评分|加权综合量化总分|Score|Composite)[^<]*</(?:span|div|th|td)>\s*<(?:span|div|td)[^>]*class=[\"\x27][^\"\x27]*(?:hero-meta-value|signal-val|signal-item-val|sb-item-val|hero-kpi-val)[^\"\x27]*[\"\x27][^>]*>\s*([^\n<]+)", content, re.I) or
-                                    re.search(r"class=[\"\x27][^\"\x27]*(?:signal-score|sb-score-badge|score-badge)[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I) or
-                                    re.search(r"综合评分[^\n\d<]*[:：║\s]*([\d\.]+)\s*/\s*10", content, re.I) or
-                                    re.search(r"综合得分[^\n\d<]*[:：║\s]*([\d\.]+)\s*/\s*10", content, re.I) or
-                                    re.search(r"量化评分[^\n\d<]*[:：║\s]*([\d\.]+)\s*/\s*10", content, re.I) or
-                                    re.search(r"SCORE:\s*([\d\.]+\s*/\s*10)", content, re.I) or
-                                    re.search(r"Score:\s*([\d\.]+)\s*/\s*10", content, re.I) or
-                                    re.search(r"Composite:\s*([\d\.]+)\s*/\s*10", content, re.I) or
-                                    re.search(r"加权综合量化总分[^\n<]*</td>\s*<td[^>]*>\s*<strong>\s*([\d\.]+)", content, re.I)
-                                )
-                                if score_m:
-                                    raw_s = score_m.group(1).replace('SCORE:', '').replace('Score:', '').strip()
-                                    num_m = re.search(r'([\d\.]+)', raw_s)
-                                    if num_m:
-                                        score = float(num_m.group(1))
-
-                            # 3. Verdict regex patterns
-                            if not verdict:
-                                verdict_m = (
-                                    re.search(r"(?:hero-meta-label|signal-lbl|signal-item-label|sb-item-label|hero-kpi-lbl)[^>]*>\s*(?:核心信号|综合评级|投资评级|投资结论|投资信号|评级|加权评级|Signal|Verdict)[^<]*</(?:span|div)>\s*<(?:span|div)[^>]*class=[\"\x27][^\"\x27]*(?:hero-meta-value|signal-val|signal-item-val|sb-item-val|hero-kpi-val|hero-kpi-sub)[^\"\x27]*[\"\x27][^>]*>([^<]+)</(?:span|div)>", content, re.I) or
-                                    re.search(r"hero-kpi-sub[^>]*>\s*加权评级[：:\s]*([^<]+)", content, re.I) or
-                                    re.search(r"INVESTMENT SIGNAL & VERDICT[\s\S]*?<h2[^>]*>([^<]+)</h2>", content, re.I) or
-                                    re.search(r"class=[\"\x27][^\"\x27]*(?:signal-badge|signal-verdict)[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I) or
-                                    re.search(r"signal-verdict[^>]*>([\s\S]*?)</div>", content, re.I) or
-                                    re.search(r"投资信号[^\n:]*[:：║\s]*([^\n\r<║]+)", content, re.I) or
-                                    re.search(r"投资结论[^\n:]*[:：║\s]*([^\n\r<║]+)", content, re.I)
-                                )
-                                if verdict_m:
-                                    verdict = re.sub(r'<[^>]+>', '', verdict_m.group(1)).strip().rstrip("║").strip()
-                                    verdict = re.sub(r'^(?:加权评级|投资评级|核心信号|投资结论|投资信号)[：:\s]*', '', verdict)
-
-                            # 4. Action regex patterns
-                            if not action:
-                                action_m = (
-                                    re.search(r"(?:signal-lbl|sig-label|sb-item-label)[^>]*>\s*(?:建议操作|操作建议|行动指引|Action)[^<]*</div>\s*<div[^>]*class=[\"\x27][^\"\x27]*(?:signal-val|sig-val|sb-item-val)[^\"\x27]*[\"\x27][^>]*>([^<]+)</div>", content, re.I) or
-                                    re.search(r"行动指引[^\n:]*[:：║\s]*([^\n\r<║]+)", content, re.I) or
-                                    re.search(r"操作建议[^\n:]*[:：║\s]*([^\n\r<║]+)", content, re.I) or
-                                    re.search(r"class=[\"\x27][^\"\x27]*(?:sig-action|signal-action)[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I)
-                                )
-                                if action_m:
-                                    action = re.sub(r'<[^>]+>', '', action_m.group(1)).strip().rstrip("║").strip()
-
-                            # 5. Summary regex patterns
-                            sum_m = (
-                                re.search(r"<strong>核心投资逻辑[：:]*</strong>([\s\S]*?)</p>", content, re.I) or
-                                re.search(r"<strong>核心投资论点[：:]*</strong>([\s\S]*?)</p>", content, re.I) or
-                                re.search(r"<strong>核心投资主线[：:]*</strong>([\s\S]*?)(?:</div>|</p>)", content, re.I) or
-                                re.search(r"class=[\"\x27][^\"\x27]*signal-main[^\"\x27]*[\"\x27][\s\S]*?<div[^>]*style=[\"\x27][^\"\x27]*max-width:\s*800px[^\"\x27]*[\"\x27][^>]*>([\s\S]*?)</div>", content, re.I) or
-                                re.search(r"class=[\"\x27][^\"\x27]*signal-card[^\"\x27]*[\"\x27][\s\S]*?<p[^>]*>([\s\S]*?)</p>", content, re.I)
-                            )
-                            if sum_m:
-                                summary = re.sub(r'<[^>]+>', '', sum_m.group(1)).strip()
-                    except Exception:
-                        pass
-                        
-                    disk_cache[f] = {
-                        "mtime": mtime,
-                        "score": score,
-                        "verdict": verdict,
-                        "action": action,
-                        "summary": summary
-                    }
-                    cache_updated = True
-                    
-                if clean_t not in reports or date_str > reports[clean_t]["date"]:
-                    file_uri = f"file://{filepath}"
-                    reports[clean_t] = {
-                        "file": f,
-                        "file_path": filepath,
-                        "file_url": file_uri,
-                        "rel_path": file_uri,
-                        "date": date_str,
-                        "age_days": age_days,
-                        "is_stale": is_stale,
-                        "score": score,
-                        "verdict": verdict,
-                        "action": action,
-                        "summary": summary,
-                        "raw_ticker": raw_t
-                    }
-        if cache_updated:
-            atomic_write_json(cache_file, disk_cache)
-    except Exception as e:
-        print(f"Warning: Error scanning InvestSkill reports: {e}")
-    return reports
-
-
-def get_recommendation_reason(opt, mdata, wash_sale_history_map=None, insider_sentiment_map=None):
-    ticker = opt['ticker']
-    curr_price = opt['current_price']
-    strike = opt['strike']
-    ivp = opt['ivp']
-    annualized_yield = opt['annualized_yield']
-    warning = opt['warning']
-    risk_profile = opt['risk_profile']
-    
-    # 1. Price Position
-    pos_text = ""
-    if is_long_bull(ticker):
-        sma_200 = mdata.get('sma_200', curr_price)
-        dev = (curr_price - sma_200) / sma_200 if sma_200 > 0 else 0.0
-        if dev <= -0.05:
-            pos_text = f"股价低于200日线 {abs(dev)*100:.1f}%，超跌严重。"
-        elif dev <= 0.00:
-            pos_text = f"股价位于200日线及以下（偏离 {dev*100:+.1f}%），安全边际高。"
-        else:
-            pos_text = f"股价位于200日线上方（偏离 {dev*100:+.1f}%），呈多头排列。"
-    else:
-        low_52w = mdata.get('low_52w', curr_price)
-        high_52w = mdata.get('high_52w', curr_price)
-        rp = (curr_price - low_52w) / (high_52w - low_52w) * 100 if (high_52w - low_52w) > 0 else 50.0
-        if rp <= 10.0:
-            pos_text = f"股价触及52周绝对底部（RP={rp:.1f}%），接股成本极低。"
-        elif rp <= 20.0:
-            pos_text = f"股价处于52周低位区间（RP={rp:.1f}%），筑底信号明显。"
-        else:
-            pos_text = f"股价处于52周区间中位（RP={rp:.1f}%），警惕小幅震荡。"
-            
-    # 2. IV Premium & Strategy Mode
-    vixfix_30d_ivp = mdata.get('vixfix_30d_ivp', 0.0)
-    vixfix_252d_ivp = mdata.get('vixfix_252d_ivp', 0.0)
-    vixfix_tag = ""
-    if vixfix_30d_ivp >= 75.0 and vixfix_252d_ivp >= 60.0:
-        vixfix_tag = f"<span style='color: #ec4899; font-weight: bold; background: rgba(236, 72, 153, 0.15); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(236, 72, 153, 0.4); margin-left: 4px;'>[⚡VixFix 恐慌高波]</span>"
-
-    iv_text = ""
-    if ivp >= 80:
-        iv_text = f"IVP达 {ivp:.0f}% <span style='color: #a855f7; font-weight: bold; background: rgba(168, 85, 247, 0.15); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(168, 85, 247, 0.4);'>[🚀 IV-Crush 爆发型]</span><span style='color: #f59e0b; font-weight: bold; background: rgba(245, 158, 11, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.3); margin-left: 4px;'>[🔥高IV权利金盛宴]</span>{vixfix_tag} 极其适合开仓后捕获 IV 暴跌极速止盈。"
-    elif ivp >= 60:
-        iv_text = f"IVP为 {ivp:.0f}% <span style='color: #a855f7; font-weight: bold; background: rgba(168, 85, 247, 0.15); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(168, 85, 247, 0.4);'>[🚀 IV-Crush 爆发型]</span>{vixfix_tag} 波动率溢价优异，容易获得 Vega 坍塌加速度。"
-    elif ivp <= 25:
-        iv_text = f"IVP仅 {ivp:.0f}% <span style='color: #3b82f6; font-weight: bold; background: rgba(59, 130, 246, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.3);'>[⏳ Theta-静水收租型]</span><span style='color: #ef4444; font-weight: bold; background: rgba(239, 68, 68, 0.1); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.25); margin-left: 4px;'>[⚠️低IV权金微薄 (-10分)]</span>{vixfix_tag} 缺乏 IV Crush 红利，需做好买入防守或长线低价接股准备。"
-    elif ivp >= 50:
-        iv_text = f"IVP为 {ivp:.0f}%{vixfix_tag}，波动率溢价良好。"
-    else:
-        iv_text = f"IVP仅 {ivp:.0f}%{vixfix_tag}，权利金期权溢价普通。"
-        
-    # 3. Risk Profile & Strike Drop
-    pct_drop = (curr_price - strike) / curr_price * 100.0
-    risk_text = ""
-    if risk_profile == "保守":
-        risk_text = f"【保守】行权距现价 {pct_drop:.1f}%，安全垫厚，稳收 {annualized_yield:.1f}% 年化收益。"
-    elif risk_profile == "平衡":
-        risk_text = f"【平衡】行权距现价 {pct_drop:.1f}%，攻守均衡，获取 {annualized_yield:.1f}% 年化收益。"
-    elif risk_profile == "激进":
-        risk_text = f"【激进】行权距现价仅 {pct_drop:.1f}%，极易接股，博取 {annualized_yield:.1f}% 高年化收益。"
-        
-    # 4. Liquidity Warning
-    liq_text = ""
-    if warning:
-        liq_text = f" <span style='color: #ef4444; font-weight: bold;'>[🚨极低流动性警告]</span>"
-        
-    # 5. Falling Knife Warning
-    knife_text = ""
-    if mdata.get('is_falling_knife', False):
-        ret_30 = mdata.get('return_30d', 0.0)
-        knife_text = f" <span style='color: #f87171; font-weight: bold; text-shadow: 0 0 10px rgba(248,113,113,0.25);'>[⚠️急跌飞刀：近30天跌幅达 {abs(ret_30)*100:.1f}%，请确认基本面]</span>"
-
-    # 6. F-Score & Moat Conviction Badges
-    f_score, _ = calculate_piotroski_f_score(get_fundamental_info(ticker))
-    is_eva, moat_label = check_eva_and_moat(ticker, get_fundamental_info(ticker))
-    quality_badge = ""
-    if f_score is not None and f_score >= 7:
-        quality_badge += f" <span style='color: #34d399; font-weight: bold; background: rgba(52, 211, 153, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.3);'>[🛡️ F-Score {f_score}/9 极高质]</span>"
-    elif f_score is not None and f_score <= 3 and not is_etf_symbol(ticker):
-        quality_badge += f" <span style='color: #ef4444; font-weight: bold; background: rgba(239, 68, 68, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.3);'>[🚨 F-Score {f_score}/9 劣质财务否决]</span>"
-        
-    if is_eva and not is_etf_symbol(ticker):
-        quality_badge += f" <span style='color: #c084fc; font-weight: bold; background: rgba(168, 85, 247, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(168, 85, 247, 0.3);'>[🏰 {moat_label}]</span>"
-
-    # 7. Wash Sale Warning
-    wash_text = ""
-    if wash_sale_history_map and ticker in wash_sale_history_map:
-        info_list = wash_sale_history_map[ticker]
-        unlock_dts = ", ".join([f"{item['unlock_date']}" for item in info_list])
-        wash_text = f" <span style='color: #f87171; font-weight: bold;'>[🚨Wash Sale 避税风险预警：该标在近30天内有平仓亏损记录，在 {unlock_dts} 解封前买入或卖Put将导致亏损无法当期抵税！]</span>"
-
-    # 8. Earnings Crosser Badge
-    earnings_cross_text = ""
-    if opt.get('is_earnings_crosser', False):
-        earnings_cross_text = f" <span style='color: #fbbf24; font-weight: bold; background: rgba(251, 191, 36, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(251, 191, 36, 0.3);'>[📅财报延展防守：智能跨越财报并锁死低Delta]</span>"
-
-    # 9. Insider Sentiment Badge
-    insider_badge = ""
-    if insider_sentiment_map and not is_etf_symbol(ticker):
-        i_data = insider_sentiment_map.get(ticker, {})
-        i_sent = i_data.get("sentiment")
-        if i_sent == "net_buying":
-            insider_badge = f" <span style='color: #34d399; font-weight: bold; background: rgba(52, 211, 153, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.3);'>[👔 高管增持自购]</span>"
-        elif i_sent == "heavy_selling":
-            insider_badge = f" <span style='color: #f87171; font-weight: bold; background: rgba(239, 68, 68, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.3);'>[🚨 高管大额减持]</span>"
-
-    # 10. Heavy Debt Badge
-    debt_badge = ""
-    if opt.get('is_heavy_debt', False):
-        debt_badge = f" <span style='color: #f87171; font-weight: bold; background: rgba(239, 68, 68, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.3);'>[🚨 极端高负债风险 D/E>250%]</span>"
-
-    return f"{pos_text} {iv_text} {risk_text}{quality_badge}{insider_badge}{earnings_cross_text}{debt_badge}{liq_text}{knife_text}{wash_text}"
 
 def main():
     today = datetime.date.today()
@@ -709,6 +372,11 @@ def main():
         print(f"🟡 YELLOW ALERT MODE (VIX>=25/Drop>=8%)! Reasons: {', '.join(cb_reasons)}")
     else:
         print("✅ Macro Circuit Breaker & VIX check passed (normal market sentiment).")
+
+    print(f"Pre-fetching derivative metrics (Max Pain, Skew, PCR) concurrently for {len(active_tickers)} tickers...")
+    t0_dm = time.time()
+    derivative_map = batch_get_derivative_metrics(list(active_tickers.keys()), max_workers=20)
+    print(f"✅ Pre-fetched derivative metrics for {len(derivative_map)} tickers in {time.time()-t0_dm:.2f}s.")
     
     for display_ticker, yf_ticker in active_tickers.items():
         hist = ticker_history_map.get(display_ticker)
@@ -728,6 +396,11 @@ def main():
             hv_30 = returns.rolling(30).std() * np.sqrt(252) * 100
             hv_30_clean = hv_30.dropna()
             
+            # Long-Short Term Combined HV: min(HV_30, HV_252) to eliminate single-day gap down spikes
+            hv_252_val = float(returns.std() * np.sqrt(252) * 100.0) if len(returns) >= 50 else (float(hv_30_clean.iloc[-1]) if not hv_30_clean.empty else 30.0)
+            curr_hv_30_val = float(hv_30_clean.iloc[-1]) if not hv_30_clean.empty else 30.0
+            effective_hv_val = min(curr_hv_30_val, hv_252_val) if (curr_hv_30_val > 0 and hv_252_val > 0) else curr_hv_30_val
+            
             price_22d_ago = hist['Close'].iloc[-22] if len(hist) >= 22 else hist['Close'].iloc[0]
             return_30d = float((current_price - price_22d_ago) / price_22d_ago) if price_22d_ago > 0 else 0.0
 
@@ -739,13 +412,16 @@ def main():
             current_vixfix = vixfix_clean.iloc[-1] if not vixfix_clean.empty else 0.0
             vixfix_252d_ivp = (vixfix_clean.values < current_vixfix).mean() * 100.0 if len(vixfix_clean) > 0 else 0.0
             vixfix_30d_clean = vixfix_clean.iloc[-30:] if len(vixfix_clean) >= 30 else vixfix_clean
-            vixfix_30d_ivp = (vixfix_30d_clean.values < current_vixfix).mean() * 100.0 if len(vixfix_30d_clean) > 0 else 0.0
+            vixfix_30d_ivp = (vixfix_30d_clean.values < current_vixfix).mean() * 100.0 if len(vixfix_clean) > 0 else 0.0
         elif cached_m:
             current_price = cached_m.get("current_price", st_info.get("current_price", 100.0))
             high_52w = cached_m.get("high_52w", current_price * 1.25)
             low_52w = cached_m.get("low_52w", current_price * 0.80)
             sma_200 = cached_m.get("sma_200", current_price)
-            hv_30_clean = pd.Series([cached_m.get("hv_30", 30.0)])
+            curr_hv_30_val = cached_m.get("hv_30", 30.0)
+            hv_252_val = cached_m.get("hv_252", curr_hv_30_val)
+            effective_hv_val = min(curr_hv_30_val, hv_252_val)
+            hv_30_clean = pd.Series([curr_hv_30_val])
             return_30d = cached_m.get("return_30d", 0.0)
             current_vixfix = cached_m.get("current_vixfix", 20.0)
             vixfix_252d_ivp = cached_m.get("vixfix_252d_ivp", 50.0)
@@ -755,6 +431,9 @@ def main():
             high_52w = current_price * 1.25
             low_52w = current_price * 0.80
             sma_200 = current_price
+            curr_hv_30_val = 30.0
+            hv_252_val = 30.0
+            effective_hv_val = 30.0
             hv_30_clean = pd.Series([30.0])
             return_30d = 0.0
             current_vixfix = 20.0
@@ -814,16 +493,24 @@ def main():
                 else:
                     is_fcf_negative = True
 
+        # True IVP & IVR via Market Data API
+        true_iv_info = get_true_ivp_and_ivr(display_ticker)
+        derivative_metrics = derivative_map.get(display_ticker) or get_derivative_metrics(display_ticker)
+
         ticker_market_data[display_ticker] = {
             'current_price': current_price,
             'high_52w': high_52w,
             'low_52w': low_52w,
             'sma_200': sma_200,
             'hv_distribution': hv_30_clean.values,
-            'current_hv_30': hv_30_clean.iloc[-1] if not hv_30_clean.empty else 0.0,
+            'current_hv_30': curr_hv_30_val,
+            'current_hv_252': hv_252_val,
+            'effective_hv': effective_hv_val,
             'current_vixfix': current_vixfix,
             'vixfix_252d_ivp': vixfix_252d_ivp,
             'vixfix_30d_ivp': vixfix_30d_ivp,
+            'true_iv_info': true_iv_info,
+            'derivative_metrics': derivative_metrics,
             'return_30d': return_30d,
             'knife_level': knife_level,
             'is_falling_knife': is_falling_knife,
@@ -870,16 +557,28 @@ def main():
                 except Exception:
                     pass
 
-        ticker_options = []
+        # Filter expirations: strictly prioritize Standard Monthly Expirations (3rd Friday of the month, day 15-21)
+        valid_exp_dates = []
         for exp_str in exp_dates:
             try:
                 exp_date = datetime.datetime.strptime(exp_str, "%Y-%m-%d").date()
             except ValueError:
                 continue
             dte = (exp_date - today).days
-            if not (DTE_MIN <= dte <= DTE_MAX):
-                continue
-                
+            if DTE_MIN <= dte <= DTE_MAX:
+                valid_exp_dates.append((exp_str, exp_date, dte))
+
+        # Filter for standard monthly expirations (3rd Friday of the month)
+        monthly_exp_dates = [
+            (exp_str, exp_date, dte)
+            for exp_str, exp_date, dte in valid_exp_dates
+            if exp_date.weekday() == 4 and (15 <= exp_date.day <= 21)
+        ]
+
+        target_exp_dates = monthly_exp_dates if monthly_exp_dates else valid_exp_dates
+
+        ticker_options = []
+        for exp_str, exp_date, dte in target_exp_dates:
             # Earnings-DTE Smart Buffer defense rules
             is_earnings_crosser = False
             if dte_earnings is not None and 0 <= dte_earnings <= 30:
@@ -989,81 +688,80 @@ def main():
                         risk_profile = "激进"
                     
                 annualized_yield = (mark / strike) * (365.0 / max(1, dte)) * 100.0
-                curr_hv = ticker_market_data[display_ticker]['current_hv_30']
-                hv_factor = max(10.0, curr_hv) / 100.0
-                adj_annualized_yield = annualized_yield / (1.0 + 1.5 * hv_factor)
-                s_yield = min(100.0, adj_annualized_yield * 4.0)
-                
-                iv_percent = iv * 100.0
-                ivp = (hv_30_clean.values < iv_percent).mean() * 100.0 if len(hv_30_clean) > 0 else 0.0
-                s_iv = ivp
-                
-                base_safety = (1.0 - abs(delta)) * 100.0
-                if is_long_bull(display_ticker):
-                    dev = (current_price - sma_200) / sma_200 if sma_200 > 0 else 0.0
-                    s_price = min(100.0, 70.0 - dev * 600.0) if dev <= 0.00 else max(0.0, 70.0 - dev * 700.0)
-                    if dev <= 0.00:
-                        s_safety = 100.0
-                    elif dev <= 0.05:
-                        s_safety = max(base_safety, 100.0 - (dev / 0.05) * (100.0 - base_safety))
-                    else:
-                        s_safety = base_safety
-                else:
-                    rp = (current_price - low_52w) / (high_52w - low_52w) if (high_52w - low_52w) > 0 else 0.5
-                    s_price = min(100.0, 70.0 + (0.20 - rp) * 200.0) if rp <= 0.20 else max(0.0, 70.0 - (rp - 0.20) * 87.5)
-                    if rp <= 0.20:
-                        s_safety = 100.0
-                    elif rp <= 0.35:
-                        s_safety = max(base_safety, 100.0 - ((rp - 0.20) / 0.15) * (100.0 - base_safety))
-                    else:
-                        s_safety = base_safety
-                    
-                total_score = 0.30 * s_price + 0.30 * s_safety + 0.25 * s_yield + 0.15 * s_iv
-                trend_penalty = 0.0
-                if knife_level == 1:
-                    trend_penalty += 15.0
-                elif knife_level == 2:
-                    trend_penalty += 30.0
-                elif knife_level == 3:
-                    trend_penalty += 50.0
-                    
-                if is_fcf_negative:
-                    trend_penalty += 10.0
-                    
-                # Low IV penalty: IVP <= 25% penalizes 10 points
-                if ivp <= 25.0:
-                    trend_penalty += 10.0
-                
-                # Piotroski F-Score financial quality assessment
+                curr_hv_30 = ticker_market_data[display_ticker].get('current_hv_30', 30.0)
+                eff_hv = ticker_market_data[display_ticker].get('effective_hv', curr_hv_30)
+
+                # Quantitative EV & POP Calculation under lognormal distribution (Dual-Damping Volatility Estimator)
+                ev_res = calculate_option_ev_and_pop(
+                    spot=current_price,
+                    strike=strike,
+                    dte=dte,
+                    premium=mark,
+                    iv=iv,
+                    hv=(eff_hv / 100.0) if eff_hv > 0 else iv,
+                )
+                pop = ev_res["pop"]
+                ev_dollar = ev_res["ev_dollar"]
+                ev_apy = ev_res["ev_apy"]
+                trade_sharpe = ev_res["trade_sharpe"]
+                breakeven = ev_res["breakeven"]
+                half_kelly_pct = ev_res["half_kelly_pct"]
+
                 fund_info = get_fundamental_info(display_ticker)
                 f_score, _ = calculate_piotroski_f_score(fund_info)
-                f_score_bonus = 0.0
-                if f_score is not None and not is_etf_symbol(display_ticker):
-                    if f_score <= 3:
-                        trend_penalty += 50.0  # Veto low quality financials
-                    elif f_score >= 7:
-                        f_score_bonus = 10.0  # Bonus for high financial quality
-
-                # Insider Sentiment from SEC Form 4
                 insider_info = insider_sentiment_map.get(display_ticker, {})
                 insider_sent = insider_info.get("sentiment", "neutral")
-                insider_bonus = 0.0
-                if not is_etf_symbol(display_ticker):
-                    if insider_sent == "heavy_selling":
-                        trend_penalty += 5.0  # Penalize heavy insider dumping
-                    elif insider_sent == "net_buying":
-                        insider_bonus = 5.0  # Reward insider net purchases
 
-                # Extreme leverage / debt penalty: D/E > 250% penalizes 15 points (excludes Financials/Utilities/ETFs)
                 sec = SECTOR_MAP.get(display_ticker, "")
                 is_financial_or_utility = (sec in ["Financials & Crypto", "ETF", "Financials", "Utilities"]) or (display_ticker in ["XLU", "XLF", "VNQ", "XLRE"])
                 de_ratio = fund_info.get("debtToEquity") if fund_info else None
-                is_heavy_debt = False
-                if de_ratio is not None and de_ratio > 250.0 and not is_financial_or_utility and not is_etf_symbol(display_ticker):
-                    trend_penalty += 15.0  # Penalize excessive debt leverage
-                    is_heavy_debt = True
+                is_heavy_debt = bool(de_ratio is not None and de_ratio > 250.0 and not is_financial_or_utility and not is_etf_symbol(display_ticker))
 
-                total_score = max(0.0, total_score - trend_penalty + f_score_bonus + insider_bonus)
+                deriv = ticker_market_data[display_ticker].get('derivative_metrics', {})
+                put_skew = deriv.get('put_skew')
+                max_pain = deriv.get('max_pain')
+                pcr_oi = deriv.get('pcr_oi')
+                expected_move_pct = deriv.get('expected_move_pct')
+
+                true_iv = ticker_market_data[display_ticker].get('true_iv_info', {})
+                iv_percent = iv * 100.0
+                if true_iv.get('has_true_iv'):
+                    ivp = true_iv['ivp']
+                    ivr = true_iv['ivr']
+                    has_true_iv = True
+                else:
+                    ivp = (hv_30_clean.values < iv_percent).mean() * 100.0 if len(hv_30_clean) > 0 else 0.0
+                    ivr = None
+                    has_true_iv = False
+
+                total_score, s_price, s_safety, s_option_alpha, s_yield, trend_penalty = calculate_sell_put_score(
+                    ticker=display_ticker,
+                    current_price=current_price,
+                    strike=strike,
+                    delta=delta,
+                    mark=mark,
+                    annualized_yield=annualized_yield,
+                    ivp=ivp,
+                    dte=dte,
+                    sma_200=sma_200,
+                    low_52w=low_52w,
+                    high_52w=high_52w,
+                    curr_hv=eff_hv,
+                    knife_level=knife_level,
+                    is_fcf_negative=is_fcf_negative,
+                    f_score=f_score,
+                    insider_sentiment=insider_sent,
+                    is_heavy_debt=is_heavy_debt,
+                    ivr=ivr,
+                    put_skew=put_skew,
+                    max_pain=max_pain,
+                    pcr_oi=pcr_oi,
+                    expected_move_pct=expected_move_pct,
+                    is_earnings_crosser=is_earnings_crosser,
+                    ev_apy=ev_apy,
+                    ev_dollar=ev_dollar,
+                    pop=pop,
+                )
                     
                 opt_info = {
                     'ticker': display_ticker,
@@ -1079,9 +777,22 @@ def main():
                     'open_interest': int(oi) if not pd.isna(oi) else 0,
                     'iv': iv_percent,
                     'ivp': ivp,
+                    'ivr': ivr,
+                    'has_true_iv': has_true_iv,
+                    'put_skew': put_skew,
+                    'max_pain': max_pain,
+                    'pcr_oi': pcr_oi,
+                    'expected_move_pct': expected_move_pct,
+                    'pop': pop,
+                    'ev_dollar': ev_dollar,
+                    'ev_apy': ev_apy,
+                    'trade_sharpe': trade_sharpe,
+                    'breakeven': breakeven,
+                    'half_kelly_pct': half_kelly_pct,
                     's_yield': s_yield,
                     's_safety': s_safety,
-                    's_iv': s_iv,
+                    's_option_alpha': s_option_alpha,
+                    's_iv': s_option_alpha,
                     's_price': s_price,
                     'total_score': total_score,
                     'trend_penalty': trend_penalty,
@@ -1301,20 +1012,33 @@ def main():
                     continue
                     
                 annualized_yield = (mark / strike) * (365.0 / max(1, dte)) * 100.0
-                s_yield = min(100.0, annualized_yield * 4.0)
-                s_safety = (1.0 - delta) * 100.0
                 iv_percent = iv * 100.0
-                ivp = (hv_30_clean.values < iv_percent).mean() * 100.0 if len(hv_30_clean) > 0 else 0.0
-                s_iv = ivp
-                
-                if is_long_bull(pos_ticker):
-                    dev = (current_price - sma_200) / sma_200 if sma_200 > 0 else 0.0
-                    s_price = 100.0 if dev >= 0.03 else max(0.0, dev * 1000.0)
+                true_iv = ticker_market_data.get(pos_ticker, {}).get('true_iv_info', {})
+                if true_iv.get('has_true_iv'):
+                    ivp = true_iv['ivp']
+                    ivr = true_iv['ivr']
+                    s_iv = true_iv['composite_s_iv']
+                    has_true_iv = True
                 else:
-                    rp = (current_price - low_52w) / (high_52w - low_52w) if (high_52w - low_52w) > 0 else 0.5
-                    s_price = rp * 100.0
-                    
-                total_score = 0.30 * s_yield + 0.35 * s_safety + 0.20 * s_iv + 0.15 * s_price
+                    ivp = (hv_30_clean.values < iv_percent).mean() * 100.0 if len(hv_30_clean) > 0 else 0.0
+                    ivr = None
+                    s_iv = ivp
+                    has_true_iv = False
+                
+                total_score, s_yield, s_safety, s_iv, s_price = calculate_covered_call_score(
+                    ticker=pos_ticker,
+                    current_price=current_price,
+                    avg_cost=avg_cost,
+                    strike=strike,
+                    delta=delta,
+                    mark=mark,
+                    annualized_yield=annualized_yield,
+                    ivp=ivp,
+                    dte=dte,
+                    sma_200=sma_200,
+                    low_52w=low_52w,
+                    high_52w=high_52w,
+                )
                 
                 opt_info = {
                     'ticker': pos_ticker,
@@ -1331,6 +1055,8 @@ def main():
                     'open_interest': int(oi) if not pd.isna(oi) else 0,
                     'iv': iv_percent,
                     'ivp': ivp,
+                    'ivr': ivr,
+                    'has_true_iv': has_true_iv,
                     's_yield': s_yield,
                     's_safety': s_safety,
                     's_iv': s_iv,
@@ -1843,10 +1569,10 @@ def main():
             <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">财务健康度</th>
             <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">52周区间与位置 (RP)</th>
             <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">200日均线偏离度</th>
-            <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">分析师目标价折让</th>
             <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">首选行权价 (平衡型)</th>
+            <th style="padding: 12px 14px; font-weight: 600; text-align: center; white-space: nowrap;" title="252日真实历史隐含波动率百分位 (IVP)">IVP</th>
             <th style="padding: 12px 14px; font-weight: 600; text-align: center; white-space: nowrap;">InvestSkill 研报信号</th>
-            <th style="padding: 12px 14px; font-weight: 600; text-align: center; white-space: nowrap;">期权评分 (平衡型)</th>
+            <th style="padding: 12px 14px; font-weight: 600; text-align: center; white-space: nowrap;" title="三支柱多因子打分: 估值底 (50%) / 接股安全 (30%) / 期权Alpha (20%)">期权评分 (平衡型)<br><span style="font-size: 10px; font-weight: normal; color: #a1a1aa;">(估值 / 安全 / Alpha)</span></th>
           </tr>
         </thead>
         <tbody>"""
@@ -1974,11 +1700,54 @@ def main():
                 strike_cell = f"<strong style='color: #ffffff; font-size: 14px;'>${b_strike:.2f}</strong> <span style='font-size: 10px; color: #a1a1aa;'>(BTC ${b_strike_btc:,.0f})</span><br><span style='color: {cush_color}; font-size: 11px; font-weight: 600;'>接股缓冲: {cushion:+.1f}%</span>"
             else:
                 strike_cell = f"<strong style='color: #ffffff; font-size: 14px;'>${b_strike:.2f}</strong><br><span style='color: {cush_color}; font-size: 11px; font-weight: 600;'>接股缓冲: {cushion:+.1f}%</span>"
-            score_s = "color: #4ade80; font-weight: bold;" if b_score >= 80 else "color: #e4e4e7;"
-            score_cell = f"<span style='{score_s} font-size: 14.5px;'>{b_score:.1f}</span>"
+            score_s = "color: #4ade80; font-weight: bold;" if b_score >= 80 else "color: #e4e4e7; font-weight: bold;"
+            s_p_val = best_opt.get('s_price', 0.0)
+            s_s_val = best_opt.get('s_safety', 0.0)
+            s_a_val = best_opt.get('s_option_alpha', 0.0)
+            pen_val = best_opt.get('trend_penalty', 0.0)
+            pen_str = f"<span style='color: #ef4444; font-size: 10px;'> -{pen_val:.0f}</span>" if pen_val > 0 else ""
+            
+            score_cell = (
+                f"<div style='text-align: center;'>"
+                f"<strong style='{score_s} font-size: 15px;'>{b_score:.1f}</strong>"
+                f"<div style='font-size: 10.5px; display: flex; gap: 2px; align-items: center; justify-content: center; margin-top: 2px; font-family: monospace;' "
+                f"title='三支柱得分: 估值底 (50%) {s_p_val:.0f} / 接股安全 (30%) {s_s_val:.0f} / 期权Alpha (20%) {s_a_val:.0f}'>"
+                f"<span style='color: #60a5fa;' title='Pillar 1: 估值底 (50%)'>估{s_p_val:.0f}</span>"
+                f"<span style='color: #52525b;'>/</span>"
+                f"<span style='color: #34d399;' title='Pillar 2: 接股安全 (30%)'>安{s_s_val:.0f}</span>"
+                f"<span style='color: #52525b;'>/</span>"
+                f"<span style='color: #c084fc;' title='Pillar 3: 期权Alpha (20%)'>α{s_a_val:.0f}</span>"
+                f"{pen_str}"
+                f"</div>"
+                f"</div>"
+            )
+            
+            # IVP Single Number Cell for Master Row
+            ivp_val = best_opt.get('ivp', 50.0)
+            iv_val = best_opt.get('iv', 0.0)
+            ivr_val = best_opt.get('ivr')
+            has_t_iv = best_opt.get('has_true_iv', False)
+            
+            if ivp_val >= 75:
+                ivp_color = "#c084fc"  # High IVP (purple)
+            elif ivp_val <= 25:
+                ivp_color = "#f87171"  # Low IVP (red)
+            else:
+                ivp_color = "#38bdf8"  # Normal IVP (cyan)
+                
+            ivr_title_str = f", IVR: {ivr_val:.0f}%" if ivr_val is not None else ""
+            t_tag = "真 252d IVP" if has_t_iv else "IVP"
+            
+            iv_cell_master = (
+                f"<div style='text-align: center;'>"
+                f"<strong style='color: {ivp_color}; font-size: 14px;' "
+                f"title='{t_tag}: {ivp_val:.0f}% (当前期权 IV: {iv_val:.1f}%{ivr_title_str})'>{ivp_val:.0f}%</strong>"
+                f"</div>"
+            )
         else:
             strike_cell = "<span style='color: #a1a1aa;'>暂无推荐</span>"
             score_cell = "<span style='color: #a1a1aa;'>N/A</span>"
+            iv_cell_master = "<div style='text-align: center;'><span style='color: #a1a1aa;'>--</span></div>"
             
         badges = []
         if t in current_position_tickers:
@@ -2104,8 +1873,8 @@ def main():
             <td style="padding: 10px 14px;">{health_cell}</td>
             <td style="padding: 10px 14px;">{rp_cell}</td>
             <td style="padding: 10px 14px;">{dev_cell}</td>
-            <td style="padding: 10px 14px;">{disc_cell}</td>
             <td style="padding: 10px 14px;">{strike_cell}</td>
+            <td style="padding: 10px 14px; text-align: center;">{iv_cell_master}</td>
             <td style="padding: 10px 14px; text-align: center;">{investskill_cell}</td>
             <td style="padding: 10px 14px; text-align: center;">{score_cell}</td>
           </tr>"""
@@ -2144,10 +1913,25 @@ def main():
             for o_idx, opt in enumerate(t_opts):
                 o_bg = "#09090b" if o_idx % 2 == 0 else "#18181b"
                 score_s2 = "color: #4ade80; font-weight: bold;" if opt['total_score'] >= 80 else "color: #e4e4e7;"
-                ivp_text_style2 = "color: #60a5fa; font-weight: 600;" if opt['ivp'] >= 80 else "color: #a1a1aa;"
-                iv_cell2 = f"<span style='color: #f4f4f5;'>{opt['iv']:.1f}%</span><br><span style='{ivp_text_style2} font-size: 10px;'>IVP: {opt['ivp']:.0f}%</span>"
-                penalty_str2 = f" - {opt['trend_penalty']:.0f}" if opt.get('trend_penalty', 0.0) > 0 else ""
-                score_cell2 = f"<span style='{score_s2}'>{opt['total_score']:.1f}</span><br><span style='color: #a1a1aa; font-size: 10px;'>({opt['s_price']:.0f}/{opt['s_safety']:.0f}/{opt['s_yield']:.0f}/{opt['s_iv']:.0f}{penalty_str2})</span>"
+                ivp_text_style2 = "color: #c084fc; font-weight: 600;" if opt.get('has_true_iv') else "color: #a1a1aa;"
+                if opt.get('has_true_iv') and opt.get('ivr') is not None:
+                    iv_cell2 = f"<span style='color: #f4f4f5;'>{opt['iv']:.1f}%</span><br><span style='{ivp_text_style2} font-size: 10px;' title='True 252d IVP: {opt['ivp']:.0f}%, True 252d IVR: {opt['ivr']:.0f}%'>真IVP:{opt['ivp']:.0f}% <span style=\"color:#38bdf8;\">IVR:{opt['ivr']:.0f}%</span></span>"
+                else:
+                    iv_cell2 = f"<span style='color: #f4f4f5;'>{opt['iv']:.1f}%</span><br><span style='{ivp_text_style2} font-size: 10px;'>IVP: {opt['ivp']:.0f}%</span>"
+                s_p_c = opt.get('s_price', 0.0)
+                s_s_c = opt.get('s_safety', 0.0)
+                s_a_c = opt.get('s_option_alpha', 0.0)
+                penalty_str2 = f" <span style='color: #ef4444;'>-{opt['trend_penalty']:.0f}</span>" if opt.get('trend_penalty', 0.0) > 0 else ""
+                score_cell2 = (
+                    f"<strong style='{score_s2} font-size: 13.5px;'>{opt['total_score']:.1f}</strong><br>"
+                    f"<span style='font-size: 10px; color: #a1a1aa; font-family: monospace;' "
+                    f"title='三支柱明细: 估值底 {s_p_c:.0f} / 接股安全 {s_s_c:.0f} / 期权Alpha {s_a_c:.0f}'>"
+                    f"<span style='color: #60a5fa;' title='Pillar 1: 估值底 (50%)'>估{s_p_c:.0f}</span>/"
+                    f"<span style='color: #34d399;' title='Pillar 2: 接股安全 (30%)'>安{s_s_c:.0f}</span>/"
+                    f"<span style='color: #c084fc;' title='Pillar 3: 期权Alpha (20%)'>α{s_a_c:.0f}</span>"
+                    f"{penalty_str2}"
+                    f"</span>"
+                )
                 
                 reason2 = get_recommendation_reason(opt, mdata, wash_sale_history_map, insider_sentiment_map)
                 pct_drop2 = (opt['strike'] - opt['current_price']) / opt['current_price'] * 100.0 if opt['current_price']>0 else 0.0
@@ -2159,6 +1943,12 @@ def main():
                 else:
                     strike_cell2 = f"<span style='color: #ffffff; font-weight: 600;'>${opt['strike']:.2f}</span><br><span style='color: #a1a1aa; font-size: 10px;'>({pct_drop2:+.1f}%)</span>"
                     
+                if opt.get('ev_dollar') is not None and opt.get('pop') is not None:
+                    ev_col = "#34d399" if opt['ev_dollar'] > 0 else "#f87171"
+                    yield_cell2 = f"<span style='color: #f4f4f5; font-weight: 600;'>{opt['annualized_yield']:.1f}%</span><br><span style='color: {ev_col}; font-size: 10.5px; font-weight: 600;'>POP {opt['pop']:.0f}% | EV {opt['ev_dollar']:+.0f}$</span>"
+                else:
+                    yield_cell2 = f"<span style='color: #f4f4f5;'>{opt['annualized_yield']:.1f}%</span>"
+                    
                 opts_table_html += f"""
                   <tr style="background-color: {o_bg}; border-bottom: 1px solid #27272a;">
                     <td style="padding: 8px 12px; text-align: center; color: #a1a1aa;">{o_idx+1}</td>
@@ -2167,7 +1957,7 @@ def main():
                     <td style="padding: 8px 12px;">{strike_cell2}</td>
                     <td style="padding: 8px 12px;"><span style='color: #f4f4f5;'>{opt['delta']:.2f}</span></td>
                     <td style="padding: 8px 12px;"><span style='color: #f4f4f5;'>${opt['mark']:.2f}</span></td>
-                    <td style="padding: 8px 12px;"><span style='color: #f4f4f5;'>{opt['annualized_yield']:.1f}%</span></td>
+                    <td style="padding: 8px 12px;">{yield_cell2}</td>
                     <td style="padding: 8px 12px;">{iv_cell2}</td>
                     <td style="padding: 8px 12px;">{score_cell2}</td>
                     <td style="padding: 8px 12px; color: #a1a1aa; font-size: 12px;">{reason2}</td>
@@ -2331,8 +2121,11 @@ def main():
             for idx, opt in enumerate(ticker_opts):
                 bg_c = "#09090b" if idx % 2 == 0 else "#18181b"
                 score_s = "color: #4ade80; font-weight: bold;" if opt['total_score'] >= 80 else "color: #e4e4e7;"
-                ivp_text_style = "color: #60a5fa; font-weight: 600;" if opt['ivp'] >= 80 else "color: #a1a1aa;"
-                iv_cell = f"<span style='color: #f4f4f5;'>{opt['iv']:.1f}%</span><br><span style='{ivp_text_style} font-size: 10px;'>IVP: {opt['ivp']:.0f}%</span>"
+                ivp_text_style = "color: #c084fc; font-weight: 600;" if opt.get('has_true_iv') else "color: #a1a1aa;"
+                if opt.get('has_true_iv') and opt.get('ivr') is not None:
+                    iv_cell = f"<span style='color: #f4f4f5;'>{opt['iv']:.1f}%</span><br><span style='{ivp_text_style} font-size: 10px;' title='True 252d IVP: {opt['ivp']:.0f}%, True 252d IVR: {opt['ivr']:.0f}%'>真IVP:{opt['ivp']:.0f}% <span style=\"color:#38bdf8;\">IVR:{opt['ivr']:.0f}%</span></span>"
+                else:
+                    iv_cell = f"<span style='color: #f4f4f5;'>{opt['iv']:.1f}%</span><br><span style='{ivp_text_style} font-size: 10px;'>IVP: {opt['ivp']:.0f}%</span>"
                 score_cell = f"<span style='{score_s}'>{opt['total_score']:.1f}</span><br><span style='color: #a1a1aa; font-size: 10px;'>({opt['s_price']:.0f}/{opt['s_safety']:.0f}/{opt['s_yield']:.0f}/{opt['s_iv']:.0f})</span>"
                 
                 warning_lbl = ""
@@ -2492,7 +2285,12 @@ def main():
                 decision = "择机展期或接股"
                 decision_class = "highlight-orange"
                 decision_cell = f"<strong style='color: #fbbf24;'>择机展期或接股</strong><br><span style='font-size: 10.5px; color: #34d399; font-weight: 600;'>{badge_text}</span>"
-                roll_tip = "若希望进一步拉大安全垫并获取额外 Net Credit 净权利金，建议向下向后展期 (Roll Down & Out) 30~45 天；若选择现金接股，成本极低，接股后可立即卖出 Covered Call" if curr_hv >= 25.0 else "由于标的 IV 偏低，展期 Net Credit 空间有限，建议直接准备全额现金低价接股并开启车轮 CC"
+                roll_res = calculate_roll_candidate(ticker, strike, curr_p, dte)
+                if roll_res.get("has_roll"):
+                    roll_tip = f"{roll_res['summary_html']}<br><span style='color: #a1a1aa; font-size: 11px;'>（亦可直接准备全额现金低价接股并开启车轮 Covered Call）</span>"
+                else:
+                    roll_tip = "若希望进一步拉大安全垫并获取额外 Net Credit 净权利金，建议向下向后展期 (Roll Down & Out) 30~45 天；若选择现金接股，成本极低，接股后可立即卖出 Covered Call" if curr_hv >= 25.0 else "由于标的 IV 偏低，展期 Net Credit 空间有限，建议直接准备全额现金低价接股并开启车轮 CC"
+                
                 action_plan_recs.append(
                     f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🔄【临界到期·从容展期或接股】</strong>：距离到期仅剩 {dte} 天，现价距行权价仅剩 <strong class='highlight-red'>{safety_cushion:+.1f}%</strong> 安全垫。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}<br><span style='color: #f4f4f5; font-size: 12px;'>👉 <strong>操作指引</strong>：{roll_tip}。<strong>标的基本面扎实，坚决无需市价割肉平仓！</strong></span></li>"
                 )
@@ -2509,8 +2307,10 @@ def main():
                 decision = "准备现金接股 (备战CC)"
                 decision_class = "highlight-green"
                 decision_cell = f"<strong style='color: #34d399;'>准备现金接股 (备战CC)</strong><br><span style='font-size: 10.5px; color: #34d399; font-weight: 600;'>{badge_text}</span>"
+                roll_res = calculate_roll_candidate(ticker, strike, curr_p, dte)
+                roll_extra = f"<br><span style='color: #38bdf8; font-size: 11.5px;'>{roll_res['summary_html']}</span>" if roll_res.get("has_roll") else ""
                 action_plan_recs.append(
-                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🛡️【深实值·安心备战现金接股与CC】</strong>：标的现价暂低于行权价 <strong class='highlight-red'>{abs(safety_cushion):.1f}%</strong> (Delta {delta:.2f})，距离到期仍有 {dte} 天。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}<br><span style='color: #34d399; font-size: 12px;'>👉 <strong>操作指引</strong>：标的估值具备强大支撑，低位接股完全契合长线底仓理念。建议提前核查账户可用现金以备行权，或等待股价技术反弹契机向下/向后展期增厚权利金。无需恐慌割肉！</span></li>"
+                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🛡️【深实值·安心备战现金接股与CC】</strong>：标的现价暂低于行权价 <strong class='highlight-red'>{abs(safety_cushion):.1f}%</strong> (Delta {delta:.2f})，距离到期仍有 {dte} 天。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}{roll_extra}<br><span style='color: #34d399; font-size: 12px;'>👉 <strong>操作指引</strong>：标的估值具备强大支撑，低位接股完全契合长线底仓理念。建议提前核查账户可用现金以备行权，或等待股价技术反弹契机向下/向后展期增厚权利金。无需恐慌割肉！</span></li>"
                 )
             else:
                 decision = "割肉平仓 (BTC 避险)"
@@ -2545,10 +2345,14 @@ def main():
         row_class_attr = 'class="danger-pulse"' if (not assignment_safe) else ''
         row_style = '' if (not assignment_safe) else f'style="background-color: {"#09090b" if idx % 2 == 0 else "#18181b"};"'
         
-        # Position Delta & Notional
+        # Position Delta, Gamma & Pin Risk
         pos_delta_shares = -delta * qty * 100.0
         pos_delta_notional = pos_delta_shares * curr_stock_price
-        delta_cell = f"<strong style='color: #ffffff;'>{delta:.3f}</strong><br><span style='font-size: 10.5px; color: #60a5fa;'>等效 {pos_delta_shares:+.1f}股 • ${pos_delta_notional:,.0f}</span>"
+        gamma = float(pos.get('gamma', 0.0))
+        is_pin_risk = (dte <= 14 and safety_cushion < 3.0 and gamma >= 0.06)
+        gamma_badge = " <span style='color: #ef4444; font-size: 10px; font-weight: bold; background: rgba(239, 68, 68, 0.15); padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(239,68,68,0.3);'>[⚡Pin Risk]</span>" if is_pin_risk else ""
+        gamma_str = f" • &Gamma; {gamma:.3f}" if gamma > 0 else ""
+        delta_cell = f"<strong style='color: #ffffff;'>{delta:.3f}</strong>{gamma_badge}<br><span style='font-size: 10.5px; color: #60a5fa;'>等效 {pos_delta_shares:+.1f}股 • ${pos_delta_notional:,.0f}{gamma_str}</span>"
         
         table_task1 += f"""
         <tr {row_class_attr} {row_style}>

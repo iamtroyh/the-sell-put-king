@@ -89,6 +89,7 @@ def calculate_portfolio_delta_exposure(spot_prices: Optional[Dict[str, float]] =
     total_delta_notional = 0.0
     total_full_notional = 0.0
     total_equity_value = 0.0
+    total_gamma_notional = 0.0
 
     # 1. Process Options
     for p in opt_positions:
@@ -97,6 +98,7 @@ def calculate_portfolio_delta_exposure(spot_prices: Optional[Dict[str, float]] =
         qty = float(p.get("quantity", 1.0))
         opt_type = p.get("type", "put").lower()
         delta = float(p.get("delta", -0.25))
+        gamma = float(p.get("gamma", 0.0))
         spot = float(spot_prices.get(sym, strike))
 
         # Position Delta for Short Option: -delta * qty * 100
@@ -104,8 +106,12 @@ def calculate_portfolio_delta_exposure(spot_prices: Optional[Dict[str, float]] =
         pos_delta_notional = pos_delta_shares * spot
         pos_full_notional = (strike * qty * 100.0) if opt_type == "put" else 0.0
 
+        # Position Gamma Notional ($ Delta change per 1% spot move)
+        pos_gamma_notional = abs(gamma) * qty * 100.0 * (spot ** 2) * 0.01
+
         total_delta_notional += pos_delta_notional
         total_full_notional += pos_full_notional
+        total_gamma_notional += pos_gamma_notional
 
         detailed_results.append({
             "symbol": sym,
@@ -114,9 +120,11 @@ def calculate_portfolio_delta_exposure(spot_prices: Optional[Dict[str, float]] =
             "expiration": p.get("expiration"),
             "quantity": qty,
             "delta": delta,
+            "gamma": gamma,
             "spot_price": spot,
             "delta_shares": pos_delta_shares,
             "delta_notional": pos_delta_notional,
+            "gamma_notional": pos_gamma_notional,
             "full_notional": pos_full_notional,
         })
 
@@ -176,6 +184,7 @@ def calculate_portfolio_delta_exposure(spot_prices: Optional[Dict[str, float]] =
     summary = {
         "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "total_delta_notional": total_delta_notional,
+        "total_gamma_notional": total_gamma_notional,
         "total_full_notional": total_full_notional,
         "total_equity_value": total_equity_value,
         "net_liquidity": net_liquidity,
