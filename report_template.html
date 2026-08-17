@@ -480,6 +480,37 @@
             animation: none !important;
             background-color: rgba(239, 68, 68, 0.2) !important;
         }
+
+        /* Ticker Search & Filter Bar */
+        .filter-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #3f3f46;
+            color: #d4d4d8;
+            padding: 4px 11px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .filter-chip:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border-color: #52525b;
+        }
+        .filter-chip.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #60a5fa;
+            font-weight: 600;
+        }
+        #tickerSearchInput:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+        }
     </style>
 </head>
 
@@ -624,6 +655,44 @@
             </a>
         </div>
 
+        <!-- ================= CANDIDATE SEARCH & FILTER BAR ================= -->
+        <div class="search-filter-container" style="background: rgba(24, 24, 27, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid #27272a; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 10px;">
+                <div style="position: relative; flex: 1; min-width: 280px; max-width: 520px;">
+                    <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 15px; color: #a1a1aa; pointer-events: none;">🔍</span>
+                    <input type="text" id="tickerSearchInput" placeholder="按标的代码、名称、行业搜索 (如: LULU, 阿里巴巴, PDD, NVDA)... [/ 快捷键]" 
+                           oninput="handleTickerSearch(this.value)" 
+                           style="width: 100%; box-sizing: border-box; padding: 10px 38px 10px 40px; background: #09090b; border: 1px solid #3f3f46; border-radius: 8px; color: #ffffff; font-size: 13.5px; font-family: inherit; outline: none; transition: all 0.2s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+                    <button id="searchClearBtn" onclick="clearTickerSearch()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #71717a; font-size: 16px; cursor: pointer; display: none; padding: 4px; line-height: 1; transition: color 0.15s;" title="清空搜索">✕</button>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span id="searchResultCount" style="font-size: 12.5px; color: #a1a1aa; background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 6px; border: 1px solid #27272a; font-family: monospace;">
+                        共 75 只标的
+                    </span>
+                    <button onclick="expandAllMatchingRows()" style="background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s;" title="展开当前所有匹配标的详情">
+                        ▼ 全部展开
+                    </button>
+                    <button onclick="collapseAllMatchingRows()" style="background: rgba(255, 255, 255, 0.06); border: 1px solid #3f3f46; color: #d4d4d8; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s;" title="收起所有标的详情">
+                        ▲ 全部收起
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Filter Chips -->
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06);">
+                <span style="color: #71717a; font-weight: 600;">快速筛选:</span>
+                <button class="filter-chip active" onclick="applyQuickFilter('', this)">全部 (All)</button>
+                <button class="filter-chip" onclick="applyQuickFilter('持仓', this)">📌 活跃持仓</button>
+                <button class="filter-chip" onclick="applyQuickFilter('溢价收租', this)">💰 溢价收租</button>
+                <button class="filter-chip" onclick="applyQuickFilter('折扣建仓', this)">💎 折扣建仓</button>
+                <button class="filter-chip" onclick="applyQuickFilter('稳健收租', this)">🟢 稳健收租</button>
+                <button class="filter-chip" onclick="applyQuickFilter('ETF', this)">🏛️ 宽基/ETF</button>
+                <button class="filter-chip" onclick="applyQuickFilter('F-Score', this)">🛡️ 城堡资产</button>
+                <button class="filter-chip" onclick="applyQuickFilter('黄金坑', this)">💎 黄金坑错杀</button>
+            </div>
+        </div>
+
         <div id="table-grouped-container" style="margin-bottom: 12px;">
             <!-- TABLE_GROUPED_PLACEHOLDER -->
         </div>
@@ -643,6 +712,126 @@
     </div>
 
     <script>
+        let currentSearchQuery = "";
+
+        function handleTickerSearch(query) {
+            currentSearchQuery = (query || "").trim().toLowerCase();
+            const clearBtn = document.getElementById("searchClearBtn");
+            if (clearBtn) {
+                clearBtn.style.display = currentSearchQuery ? "block" : "none";
+            }
+
+            const masterRows = document.querySelectorAll('tr[id^="master-"]');
+            let matchedCount = 0;
+            const totalCount = masterRows.length;
+
+            masterRows.forEach(mRow => {
+                const masterId = mRow.id;
+                const detailId = masterId.replace("master-", "details-");
+                const dRow = document.getElementById(detailId);
+                
+                // Get all searchable text from master row and data attributes
+                const searchText = (mRow.innerText + " " + (mRow.getAttribute("data-search") || "") + " " + (mRow.getAttribute("data-ticker") || "")).toLowerCase();
+                
+                const isMatch = !currentSearchQuery || searchText.includes(currentSearchQuery);
+
+                if (isMatch) {
+                    mRow.style.display = "";
+                    matchedCount++;
+                    if (dRow && dRow.getAttribute("data-expanded") === "true") {
+                        dRow.style.display = "table-row";
+                    }
+                } else {
+                    mRow.style.display = "none";
+                    if (dRow) {
+                        dRow.style.display = "none";
+                    }
+                }
+            });
+
+            // Update match result counter badge
+            const countBadge = document.getElementById("searchResultCount");
+            if (countBadge) {
+                if (currentSearchQuery) {
+                    countBadge.innerHTML = `匹配 <strong style="color: #60a5fa;">${matchedCount}</strong> / ${totalCount} 只标的`;
+                } else {
+                    countBadge.innerHTML = `共 ${totalCount} 只标的`;
+                }
+            }
+        }
+
+        function clearTickerSearch() {
+            const input = document.getElementById("tickerSearchInput");
+            if (input) {
+                input.value = "";
+                input.focus();
+            }
+            document.querySelectorAll(".filter-chip").forEach((chip, idx) => {
+                if (idx === 0) chip.classList.add("active");
+                else chip.classList.remove("active");
+            });
+            handleTickerSearch("");
+        }
+
+        function applyQuickFilter(tag, btn) {
+            document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+            if (btn) btn.classList.add("active");
+            
+            const input = document.getElementById("tickerSearchInput");
+            if (input) {
+                input.value = tag;
+            }
+            handleTickerSearch(tag);
+        }
+
+        function expandAllMatchingRows() {
+            const masterRows = document.querySelectorAll('tr[id^="master-"]');
+            masterRows.forEach(mRow => {
+                if (mRow.style.display !== "none") {
+                    const masterId = mRow.id;
+                    const detailId = masterId.replace("master-", "details-");
+                    const dRow = document.getElementById(detailId);
+                    if (dRow) {
+                        dRow.style.display = "table-row";
+                        dRow.setAttribute("data-expanded", "true");
+                        const btn = mRow.querySelector(".collapse-toggle-btn");
+                        if (btn) btn.innerHTML = "▲ 收起";
+                    }
+                }
+            });
+        }
+
+        function collapseAllMatchingRows() {
+            const masterRows = document.querySelectorAll('tr[id^="master-"]');
+            masterRows.forEach(mRow => {
+                const masterId = mRow.id;
+                const detailId = masterId.replace("master-", "details-");
+                const dRow = document.getElementById(detailId);
+                if (dRow) {
+                    dRow.style.display = "none";
+                    dRow.setAttribute("data-expanded", "false");
+                    const btn = mRow.querySelector(".collapse-toggle-btn");
+                    if (btn) btn.innerHTML = "▼ 展开";
+                }
+            });
+        }
+
+        // Global Keyboard Shortcut: '/' or 'Cmd+K' / 'Ctrl+K' focuses search input
+        document.addEventListener("keydown", function(e) {
+            if ((e.key === "/" && document.activeElement.tagName !== "INPUT") ||
+                ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k")) {
+                e.preventDefault();
+                const input = document.getElementById("tickerSearchInput");
+                if (input) {
+                    input.focus();
+                    input.select();
+                }
+            } else if (e.key === "Escape" && document.activeElement.id === "tickerSearchInput") {
+                clearTickerSearch();
+                document.activeElement.blur();
+            }
+        });
+
         function toggleDetails(rowId, masterRowId) {
             const row = document.getElementById(rowId);
             const masterRow = document.getElementById(masterRowId);
@@ -651,6 +840,7 @@
             const isHidden = (row.style.display === 'none' || !row.style.display);
             if (isHidden) {
                 row.style.display = 'table-row';
+                row.setAttribute('data-expanded', 'true');
                 if (masterRow) {
                     masterRow.classList.add('is-sticky-active');
                     const collapseBtn = masterRow.querySelector('.collapse-toggle-btn');
@@ -658,6 +848,7 @@
                 }
             } else {
                 row.style.display = 'none';
+                row.setAttribute('data-expanded', 'false');
                 if (masterRow) {
                     masterRow.classList.remove('is-sticky-active');
                     const collapseBtn = masterRow.querySelector('.collapse-toggle-btn');

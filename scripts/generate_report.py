@@ -23,6 +23,7 @@ from option_quant.config import (
     INVESTSKILL_OUTPUT_DIR,
     PRESELECTED_TICKERS,
     RISK_FREE_RATE,
+    get_dynamic_risk_free_rate,
     SECTOR_MAP,
     TICKER_EXCHANGE_MAP,
     TICKER_FUNDAMENTALS,
@@ -495,10 +496,14 @@ def main():
         is_fcf_negative = False
         if not is_etf:
             f_info = GLOBAL_FUNDAMENTAL_CACHE.get(display_ticker, {}).get("info", {})
+            sec_name = SECTOR_MAP.get(display_ticker) or f_info.get('sector', "")
+            is_fin_or_reit = sec_name in ['Financial Services', 'Financials', 'Real Estate', 'Utilities']
             fcf = f_info.get('freeCashflow')
             ocf = f_info.get('operatingCashflow')
             ebitda_margin = f_info.get('ebitdaMargins')
-            if fcf is not None and fcf < 0:
+            if is_fin_or_reit:
+                is_fcf_negative = False
+            elif fcf is not None and fcf < 0:
                 # If operating cashflow is positive and EBITDA margin is healthy, it is M&A amortization/Capex, not operational burn
                 if ocf is not None and ocf > 0 and ebitda_margin is not None and ebitda_margin > 0.08:
                     is_fcf_negative = False
@@ -583,17 +588,20 @@ def main():
             if DTE_MIN <= dte <= DTE_MAX:
                 valid_exp_dates.append((exp_str, exp_date, dte))
 
-        # Filter for standard monthly expirations (3rd Friday of the month)
+        # Filter for standard monthly expirations (3rd Friday, or 3rd Thursday if holiday early closure)
+        def _is_monthly_exp(d: datetime.date) -> bool:
+            return (d.weekday() == 4 and (15 <= d.day <= 21)) or (d.weekday() == 3 and (14 <= d.day <= 20))
+
         monthly_exp_dates = [
             (exp_str, exp_date, dte)
             for exp_str, exp_date, dte in valid_exp_dates
-            if exp_date.weekday() == 4 and (15 <= exp_date.day <= 21)
+            if _is_monthly_exp(exp_date)
         ]
 
         # If earnings are scheduled within 30 days, smart buffer defense:
-        # Prioritize expirations that have at least 14 days post-earnings buffer (and DTE >= 35)
+        # Prioritize expirations that have at least 14 days post-earnings buffer (DTE >= dte_earnings + 14)
         if dte_earnings is not None and 0 <= dte_earnings <= 30:
-            min_buf_dte = max(35, dte_earnings + 14)
+            min_buf_dte = max(DTE_MIN, dte_earnings + 14)
             buffered_exps = [x for x in valid_exp_dates if x[2] >= min_buf_dte]
             if buffered_exps:
                 target_exp_dates = [x for x in buffered_exps if x in monthly_exp_dates] + [x for x in buffered_exps if x not in monthly_exp_dates]
@@ -636,7 +644,38 @@ def main():
                     continue
                     
                 spread_ratio = (ask - bid) / mark if mark > 0 else 0.0
-                passed_gatekeeper = (spread_ratio <= 0.35) and (oi >= 20)
+                abs_spread = ask - bid
+                is_low_dollar_tight = (abs_spread <= 0.15 and mark <= 0.60)
+
+                # 4-Tier Smooth Liquidity Model
+                # Tier 1 (Excellent): Spread <= 20% & OI >= 50 -> Mark price, 0 penalty
+                # Tier 2 (Standard): (Spread <= 35% or tight low dollar) & OI >= 20 -> Conservative min(Mark, Bid*1.15), 0 penalty
+                # Tier 3 (Moderate Spread): (Spread <= 50% or abs_spread <= 0.25) & OI >= 10 -> Conservative min(Mark, Bid*1.10), modest -5.0 pt penalty
+                # Tier 4 (Illiquid): Spread > 50% or OI < 10 or Bid <= 0 -> Bid price, -15.0 pt penalty
+                if (spread_ratio <= 0.20 and oi >= 50) or (abs_spread <= 0.10 and mark <= 0.60):
+                    liq_tier = 1
+                    liq_penalty = 0.0
+                    passed_gatekeeper = True
+                    liq_warning = ""
+                    exec_price = mark
+                elif (spread_ratio <= 0.35 or is_low_dollar_tight) and (oi >= 20):
+                    liq_tier = 2
+                    liq_penalty = 0.0
+                    passed_gatekeeper = True
+                    liq_warning = ""
+                    exec_price = min(mark, bid * 1.15) if spread_ratio > 0.15 and bid > 0 else mark
+                elif (spread_ratio <= 0.50 or (abs_spread <= 0.25 and mark <= 0.80)) and (oi >= 10):
+                    liq_tier = 3
+                    liq_penalty = 5.0
+                    passed_gatekeeper = False
+                    liq_warning = "中度点差"
+                    exec_price = min(mark, bid * 1.10) if bid > 0 else mark
+                else:
+                    liq_tier = 4
+                    liq_penalty = 15.0
+                    passed_gatekeeper = False
+                    liq_warning = "低流动性"
+                    exec_price = bid if bid > 0 else mark * 0.50
                 
                 t_years = dte / 365.0
                 raw_delta = put.get('delta')
@@ -707,14 +746,6 @@ def main():
                         risk_profile = "平衡"
                     elif risk_profile == "平衡":
                         risk_profile = "激进"
-                    
-                # Conservative Executable Price for wide spreads (Bid <= exec_price <= Mark)
-                if spread_ratio > 0.15 and bid > 0:
-                    exec_price = min(mark, bid * 1.15)
-                elif bid > 0:
-                    exec_price = mark
-                else:
-                    exec_price = mark * 0.50  # Heavy penalty for 0 bid contracts
                 
                 annualized_yield = (exec_price / strike) * (365.0 / max(1, dte)) * 100.0
                 curr_hv_30 = ticker_market_data[display_ticker].get('current_hv_30', 30.0)
@@ -741,10 +772,10 @@ def main():
                 insider_info = insider_sentiment_map.get(display_ticker, {})
                 insider_sent = insider_info.get("sentiment", "neutral")
 
-                sec = SECTOR_MAP.get(display_ticker, "")
-                is_financial_or_utility = (sec in ["Financials & Crypto", "ETF", "Financials", "Utilities"]) or (display_ticker in ["XLU", "XLF", "VNQ", "XLRE"])
+                sec = SECTOR_MAP.get(display_ticker) or (fund_info.get("sector") if fund_info else None) or ("ETF" if is_etf_symbol(display_ticker) else "Other")
+                is_financial_or_utility = (sec in ["Financial Services", "Financials & Crypto", "ETF", "Financials", "Utilities", "Real Estate"]) or (display_ticker in ["XLU", "XLF", "VNQ", "XLRE"])
                 de_ratio = fund_info.get("debtToEquity") if fund_info else None
-                is_heavy_debt = bool(de_ratio is not None and de_ratio > 250.0 and not is_financial_or_utility and not is_etf_symbol(display_ticker))
+                is_heavy_debt = (float(de_ratio) if (de_ratio is not None and not is_financial_or_utility and not is_etf_symbol(display_ticker)) else False)
 
                 deriv = ticker_market_data[display_ticker].get('derivative_metrics', {})
                 put_skew = deriv.get('put_skew')
@@ -826,6 +857,9 @@ def main():
                     'total_score': total_score,
                     'trend_penalty': trend_penalty,
                     'passed_gatekeeper': passed_gatekeeper,
+                    'liq_tier': liq_tier,
+                    'liq_penalty': liq_penalty,
+                    'liq_warning': liq_warning,
                     'annualized_yield': annualized_yield,
                     'warning': False,
                     'risk_profile': risk_profile,
@@ -853,10 +887,12 @@ def main():
                 passed.sort(key=lambda x: x['total_score'], reverse=True)
                 selected_ticker_options.append(passed[0])
             elif failed:
-                failed.sort(key=lambda x: x['spread_ratio'])
+                # Rank failed options by lowest penalty tier, then tightest spread, then highest score
+                failed.sort(key=lambda x: (x.get('liq_penalty', 15.0), x['spread_ratio'], -x['total_score']))
                 fallback_opt = failed[0]
-                fallback_opt['warning'] = True
-                fallback_opt['total_score'] = max(0.0, fallback_opt['total_score'] - 30.0)
+                pen = fallback_opt.get('liq_penalty', 5.0)
+                fallback_opt['warning'] = (pen > 0)
+                fallback_opt['total_score'] = max(0.0, fallback_opt['total_score'] - pen)
                 selected_ticker_options.append(fallback_opt)
         all_options.extend(selected_ticker_options)
         
@@ -915,7 +951,7 @@ def main():
     for t in raw_sorted:
         if len(ordered_watchlist) >= 10:
             break
-        sec = SECTOR_MAP.get(t, 'Other')
+        sec = SECTOR_MAP.get(t) or GLOBAL_FUNDAMENTAL_CACHE.get(t, {}).get("info", {}).get("sector") or ('ETF' if is_etf_symbol(t) else 'Other')
         if sector_counts.get(sec, 0) < 3:
             ordered_watchlist.append(t)
             sector_counts[sec] = sector_counts.get(sec, 0) + 1
@@ -1904,8 +1940,11 @@ def main():
         else:
             investskill_cell = "<div style='text-align: center;'><span style='background: rgba(255, 255, 255, 0.05); color: #71717a; font-size: 10.5px; padding: 2px 6px; border-radius: 4px; border: 1px dashed #3f3f46;'>待生成</span></div>"
 
+        search_terms = f"{t.upper()} {to_yf_symbol(t)} {to_display_symbol(t)} {cname} {intro_t} {'持仓' if t in current_position_tickers else ''}"
+        safe_search_terms = html.escape(search_terms, quote=True)
+
         table_grouped += f"""
-          <tr id="{master_id}" onclick="toggleDetails('{row_id}', '{master_id}')" style="background-color: {bg_c}; border-bottom: 1px solid #27272a; cursor: pointer; transition: background-color 0.15s;">
+          <tr id="{master_id}" data-ticker="{t.upper()}" data-search="{safe_search_terms}" onclick="toggleDetails('{row_id}', '{master_id}')" style="background-color: {bg_c}; border-bottom: 1px solid #27272a; cursor: pointer; transition: background-color 0.15s;">
             <td style="padding: 10px 14px; text-align: center; color: #a1a1aa; font-weight: 500;">
               <span style="font-family: monospace; font-size: 12.5px;">{idx+1}</span>
               <br><span class="collapse-toggle-btn" style="font-size: 10.5px; color: #60a5fa; cursor: pointer; font-weight: 600;">▼ 展开</span>

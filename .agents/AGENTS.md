@@ -55,16 +55,16 @@ Conduct multi-factor quantitative screening across the market:
    * **Black Swan Halt (VIX >= 40)**: Suspend new CSP openings across the market.
 7. **Earnings-DTE Smart Buffer**:
    * If earnings are scheduled within 30 days and the option contract crosses the earnings date ($\text{DTE} > \text{DTE}_{\text{earnings}}$):
-     - Mandate post-earnings buffer of at least 14 days and total DTE >= 35 ($\text{DTE} \ge \max(35, \text{DTE}_{\text{earnings}} + 14)$).
+     - Mandate post-earnings buffer of at least 14 days ($\text{DTE} \ge \max(15, \text{DTE}_{\text{earnings}} + 14)$).
      - Tighten Delta to `0.10 ~ 0.20` (`[-0.20, -0.10]`) with safety cushion >= 10.0%.
 8. **Sector Concentration Limit**: In the top 10 recommended ranking, allow a maximum of 3 tickers per GICS sector, deferring additional same-sector tickers downward to ensure diversification.
 9. **Collateral & Budget Calculation**: Calculate Cash Secured Put collateral requirements for top 5 and top 10 positions against available unleveraged cash, highlighting purchasing power surplus or shortfall.
 
-### Liquidity & Conservative Pricing Gatekeeper
-1. **Spread Ratio**: $\text{Spread Ratio} = \frac{\text{Ask} - \text{Bid}}{\text{Mark}} \le 35\%$.
-2. **Open Interest**: $\text{Open Interest} \ge 20$ contracts.
-3. **Conservative Execution Pricing**: When $\text{Spread Ratio} > 15\%$ and $\text{Bid} > 0$, execution price is conservatively bounded as $\text{Price}_{\text{exec}} = \min(\text{Mark}, \text{Bid} \times 1.15)$ to prevent exaggerated APY / EV on illiquid quotes.
-*Fallback*: If no contracts pass for a ticker, output the single best available contract with an explicit `[Low Liquidity Warning]` flag.
+### 4-Tier Smooth Liquidity & Conservative Pricing Gatekeeper
+1. **Tier 1 (🟢 极佳流动性 - Spread $\le 20\%$ & OI $\ge 50$)**: 0 penalty, executed at 100% Mark.
+2. **Tier 2 (🟡 标准流动性 - Spread $\le 35\%$ 或 绝对点差 $\le \$0.15$，且 OI $\ge 20$)**: 0 penalty, conservatively priced as $\text{Price}_{\text{exec}} = \min(\text{Mark}, \text{Bid} \times 1.15)$.
+3. **Tier 3 (🟠 中度宽点差 - $35\% < \text{Spread} \le 50\%$ 或 $10 \le \text{OI} < 20$)**: Priced as $\min(\text{Mark}, \text{Bid} \times 1.10)$, modest **-5.0 pt penalty** with `[⚠️ 中度点差 (建议限价单)]` badge.
+4. **Tier 4 (🔴 严重匮乏 - Spread $> 50\%$ 或 $\text{OI} < 10$ 或 $\text{Bid} = 0$)**: Priced at $\text{Bid}$, **-15.0 pt penalty** with `[🚫 低流动性匮乏]` warning flag.
 
 ### Sell Put Three-Pillar Multi-Factor Scoring Model (50 / 30 / 20)
 $$\text{Total Score} = \max\left(0, 0.50 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.20 \times S_{\text{OptionAlpha}} - \text{Penalties} + \text{Bonuses}\right)$$

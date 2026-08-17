@@ -402,7 +402,7 @@ def calculate_sell_put_score(
     eval_price = min(c_price, net_basis)  # Reward OTM strike & premium discount
 
     base_safety = (1.0 - abs(c_delta)) * 100.0
-    if is_long_bull(ticker):
+    if is_long_bull(ticker, hv=curr_hv):
         s_sma = float(sma_200) if sma_200 is not None and not np.isnan(float(sma_200)) else c_price
         dev = (eval_price - s_sma) / s_sma if s_sma > 0 else 0.0
         spot_dev = (c_price - s_sma) / s_sma if s_sma > 0 else 0.0
@@ -508,8 +508,15 @@ def calculate_sell_put_score(
         elif m_earnings >= 1.50:
             earnings_safety_bonus = 3.0  # Mathematically deep beyond 1-sigma jump
 
-    if is_heavy_debt:
-        trend_penalty += 15.0
+    # Extreme Debt continuous smooth ramp
+    debt_penalty = 0.0
+    if isinstance(is_heavy_debt, (int, float)) and not isinstance(is_heavy_debt, bool):
+        de_val = float(is_heavy_debt)
+        if de_val > 180.0:
+            debt_penalty = min(15.0, (de_val - 180.0) / (320.0 - 180.0) * 15.0)
+    elif is_heavy_debt:
+        debt_penalty = 15.0
+    trend_penalty += debt_penalty
 
     pop_bonus = 0.0
     if pop is not None and not np.isnan(float(pop)):
@@ -623,7 +630,13 @@ def get_recommendation_reason(
     elif risk_profile == "激进":
         risk_text = f"【激进】行权距现价仅 {pct_drop:.1f}%，极易接股，博取 {annualized_yield:.1f}% 高年化收益。"
 
-    liq_text = " <span style='color: #ef4444; font-weight: bold;'>[🚨极低流动性警告]</span>" if warning else ""
+    liq_warning_type = opt.get('liq_warning', '')
+    if liq_warning_type == "中度点差":
+        liq_text = " <span style='color: #f59e0b; font-weight: bold; background: rgba(245, 158, 11, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.3);'>[⚠️ 中度点差 (建议限价单)]</span>"
+    elif liq_warning_type == "低流动性" or warning:
+        liq_text = " <span style='color: #ef4444; font-weight: bold; background: rgba(239, 68, 68, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.3);'>[🚫 低流动性匮乏]</span>"
+    else:
+        liq_text = ""
 
     knife_text = ""
     if mdata.get('is_falling_knife', False):

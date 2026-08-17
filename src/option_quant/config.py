@@ -28,8 +28,35 @@ CREDENTIALS_PATH = os.path.join(CONFIG_DIR, "credentials.json")
 INVESTSKILL_DIR = os.environ.get("INVESTSKILL_DIR", os.path.expanduser("~/InvestSkill"))
 INVESTSKILL_OUTPUT_DIR = os.environ.get("INVESTSKILL_OUTPUT_DIR", os.path.join(INVESTSKILL_DIR, "output"))
 
-# Risk-free rate constant
+# Risk-free rate constant and dynamic resolver
 RISK_FREE_RATE = 0.05
+_DYNAMIC_RFR: Optional[float] = None
+_DYNAMIC_RFR_LOCK = threading.Lock()
+
+
+def get_dynamic_risk_free_rate() -> float:
+    """
+    Dynamically fetch real-time 3-Month US Treasury Bill rate (^IRX),
+    caching in memory and falling back gracefully to 0.045 / RISK_FREE_RATE.
+    """
+    global _DYNAMIC_RFR
+    with _DYNAMIC_RFR_LOCK:
+        if _DYNAMIC_RFR is not None:
+            return _DYNAMIC_RFR
+        try:
+            import yfinance as yf
+            irx = yf.Ticker("^IRX")
+            hist = irx.history(period="5d")
+            if not hist.empty:
+                rate_pct = float(hist['Close'].iloc[-1])
+                if 0.0 < rate_pct < 20.0:
+                    _DYNAMIC_RFR = rate_pct / 100.0
+                    return _DYNAMIC_RFR
+        except Exception:
+            pass
+        _DYNAMIC_RFR = RISK_FREE_RATE
+        return _DYNAMIC_RFR
+
 
 _FILE_LOCK = threading.Lock()
 
@@ -189,12 +216,28 @@ def to_rh_symbol(symbol: Optional[str]) -> str:
     return norm
 
 
-def is_long_bull(symbol: Optional[str]) -> bool:
-    """Check if symbol is classified as a steady long bull or core index."""
+def is_long_bull(symbol: Optional[str], hv: Optional[float] = None, beta: Optional[float] = None) -> bool:
+    """
+    Check if symbol is classified as a steady long bull or core index.
+    Combines whitelist override with dynamic statistical volatility & beta profiling.
+    """
     if not symbol:
         return False
     norm = normalize_symbol(symbol)
-    return norm in LONG_BULL_TICKERS or str(symbol).upper() in LONG_BULL_TICKERS
+    if norm in LONG_BULL_TICKERS or str(symbol).upper() in LONG_BULL_TICKERS or is_etf_symbol(symbol):
+        return True
+    if norm in HIGH_VOL_GROWTH_TICKERS or str(symbol).upper() in HIGH_VOL_GROWTH_TICKERS:
+        return False
+    # Dynamic Statistical Profiling: Steady asset with HV <= 35%
+    if hv is not None:
+        try:
+            val_hv = float(hv)
+            if val_hv <= 35.0 and (beta is None or float(beta) <= 1.25):
+                return True
+            return False
+        except Exception:
+            pass
+    return False
 
 
 def is_etf_symbol(symbol: Optional[str]) -> bool:
@@ -207,12 +250,26 @@ def is_etf_symbol(symbol: Optional[str]) -> bool:
     return norm in ['SPY', 'QQQ', 'IWM', 'VTV', 'TLT', 'XLV', 'XLP', 'XLE', 'XLU', 'ASHR', 'IBIT', 'SPYM', 'QQQM', 'CTA']
 
 
-def is_high_vol_growth(symbol: Optional[str]) -> bool:
-    """Check if symbol is classified as a high-volatility growth asset."""
+def is_high_vol_growth(symbol: Optional[str], hv: Optional[float] = None, beta: Optional[float] = None) -> bool:
+    """
+    Check if symbol is classified as a high-volatility growth asset.
+    Combines whitelist override with dynamic statistical volatility & beta profiling.
+    """
     if not symbol:
         return False
     norm = normalize_symbol(symbol)
-    return norm in HIGH_VOL_GROWTH_TICKERS or str(symbol).upper() in HIGH_VOL_GROWTH_TICKERS
+    if norm in HIGH_VOL_GROWTH_TICKERS or str(symbol).upper() in HIGH_VOL_GROWTH_TICKERS:
+        return True
+    if norm in LONG_BULL_TICKERS or str(symbol).upper() in LONG_BULL_TICKERS or is_etf_symbol(symbol):
+        return False
+    # Dynamic Statistical Profiling: Volatile asset with HV > 35% or Beta > 1.30
+    if hv is not None:
+        try:
+            val_hv = float(hv)
+            return val_hv > 35.0 or (beta is not None and float(beta) > 1.30)
+        except Exception:
+            pass
+    return False
 
 
 def get_ticker_exchange(symbol: Optional[str]) -> str:

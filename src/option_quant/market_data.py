@@ -89,8 +89,10 @@ def fetch_chart_df(symbol: str, range_str: str = '1y') -> pd.DataFrame:
 def calculate_piotroski_f_score(info: Optional[Dict[str, Any]]) -> Tuple[Optional[int], List[str]]:
     """
     Calculate Piotroski 9-point fundamental financial health score (0-9).
+    Includes sector-specific adaptation for Financial Services and REITs
+    to prevent structural omission of non-applicable corporate metrics.
     F-Score <= 3 triggers one-vote veto penalty (-50 pts).
-    F-Score >= 7 earns quality bonus (+10 pts).
+    F-Score >= 7 earns quality bonus (+6 pts).
 
     Args:
         info: Yahoo Finance company info dict.
@@ -103,39 +105,88 @@ def calculate_piotroski_f_score(info: Optional[Dict[str, Any]]) -> Tuple[Optiona
 
     score = 0
     checks = []
+    sector = info.get("sector", "")
+    is_financial = sector in ["Financial Services", "Financials"]
+    is_reit = sector in ["Real Estate"]
+
+    # 1. Profitability: ROA > 0
     roa = info.get("returnOnAssets")
     if roa is not None and roa > 0:
         score += 1
         checks.append("ROA>0")
-    fcf = info.get("freeCashflow")
-    if fcf is not None and fcf > 0:
+    elif is_financial and (info.get("operatingMargins") or 0) > 0.15:
         score += 1
-        checks.append("FCF>0")
+        checks.append("金融营业利润充沛")
+
+    # 2. Cash Flow: FCF > 0 or OCF > 0
+    fcf = info.get("freeCashflow")
+    ocf = info.get("operatingCashflow")
+    if (fcf is not None and fcf > 0) or (is_reit and ocf is not None and ocf > 0):
+        score += 1
+        checks.append("现金流充沛")
+    elif is_financial and (info.get("netIncomeToCommon") or 0) > 0:
+        score += 1
+        checks.append("金融净利润充沛")
+
+    # 3. Capital Efficiency: ROE
     roe = info.get("returnOnEquity")
     if roe is not None and roe > 0.08:
         score += 1
         checks.append("ROE良好")
+
+    # 4. Quality of Earnings: FCF / OCF vs Net Income
     net_inc = info.get("netIncomeToCommon")
-    if fcf is not None and net_inc is not None and fcf > net_inc:
+    if (fcf is not None and net_inc is not None and fcf > net_inc) or (ocf is not None and net_inc is not None and ocf > net_inc):
         score += 1
         checks.append("现金流质量高于净利润")
+    elif is_financial and (info.get("profitMargins") or 0) > 0.15:
+        score += 1
+        checks.append("金融高净利率")
+
+    # 5. Leverage & Solvency: Debt to Equity
     de = info.get("debtToEquity")
-    if de is not None and de <= 150:
+    if is_financial:
+        score += 1
+        checks.append("金融资本充沛")
+    elif is_reit and de is not None and de <= 300:
+        score += 1
+        checks.append("REITs负债率可控")
+    elif de is not None and de <= 150:
         score += 1
         checks.append("负债率可控")
+
+    # 6. Liquidity: Current Ratio or Capital Adequacy
     cr = info.get("currentRatio")
-    if cr is not None and cr >= 1.0:
+    if is_financial:
+        if (info.get("quickRatio") or 0) >= 0.8 or (info.get("profitMargins") or 0) > 0.10:
+            score += 1
+            checks.append("金融流动性良好")
+    elif is_reit:
+        if (info.get("operatingCashflow") or 0) > 0:
+            score += 1
+            checks.append("REITs营运资金良好")
+    elif cr is not None and cr >= 1.0:
         score += 1
         checks.append("流动比率健康")
+
+    # 7. Margins: Gross Margin or Operating Margin
     gm = info.get("grossMargins")
-    if gm is not None and gm >= 0.25:
+    om = info.get("operatingMargins")
+    if is_financial or is_reit:
+        if om is not None and om >= 0.20:
+            score += 1
+            checks.append("行业营业利润率充沛")
+    elif gm is not None and gm >= 0.25:
         score += 1
         checks.append("毛利率充沛")
+
+    # 8. Growth: Revenue Growth
     rg = info.get("revenueGrowth")
     if rg is not None and rg > 0:
         score += 1
         checks.append("营收正增长")
-    om = info.get("operatingMargins")
+
+    # 9. Operating Efficiency: Operating Margins
     if om is not None and om > 0.05:
         score += 1
         checks.append("营业利润率良好")
