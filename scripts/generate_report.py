@@ -2064,7 +2064,7 @@ def main():
                 ETF 标的自带一篮子资产分散风险与内生再平衡机制，无单一公司财务造假破产或做空风险。期权建仓以大盘宏观估值、点位支撑及波动率收益率为核心依据。
               </p>
               <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-                <a href="file://~/InvestSkill/output/index.html" target="_blank" style="background: rgba(255,255,255,0.06); border: 1px solid #3f3f46; color: #e4e4e7; text-decoration: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;">
+                <a href="file://{os.path.join(INVESTSKILL_OUTPUT_DIR, 'index.html')}" target="_blank" style="background: rgba(255,255,255,0.06); border: 1px solid #3f3f46; color: #e4e4e7; text-decoration: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;">
                   📂 查看 InvestSkill 研报索引库 ↗
                 </a>
               </div>
@@ -2080,7 +2080,7 @@ def main():
                 InvestSkill 提供了 25 个专业投资分析框架（包含 <code>stock-eval</code> 财务质量评分、<code>dcf-valuation</code> 内在价值折现、<code>bear-case</code> 做空红队压力测试与 <code>options-analysis</code> 期权微观结构）。
               </p>
               <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-                <a href="file://~/InvestSkill/output/index.html" target="_blank" style="background: rgba(255,255,255,0.06); border: 1px solid #3f3f46; color: #e4e4e7; text-decoration: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;">
+                <a href="file://{os.path.join(INVESTSKILL_OUTPUT_DIR, 'index.html')}" target="_blank" style="background: rgba(255,255,255,0.06); border: 1px solid #3f3f46; color: #e4e4e7; text-decoration: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;">
                   📂 查看 InvestSkill 研报索引库 ↗
                 </a>
               </div>
