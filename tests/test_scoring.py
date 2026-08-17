@@ -289,3 +289,171 @@ def test_ev_driven_scoring_penalizes_negative_ev():
 
     assert s_ev == 0.0  # S_EV zeroed out
     assert penalty >= 15.0  # Mathematical negative expectation penalty triggered
+
+
+def test_multi_horizon_hv_calculation():
+    import numpy as np
+    import pandas as pd
+    from option_quant.scoring import calculate_multi_horizon_hv
+
+    # Normal returns with std ~ 0.015 (daily) -> annualized ~ 23.8%
+    np.random.seed(42)
+    daily_returns = pd.Series(np.random.normal(0.0005, 0.015, 252))
+    
+    # Introduce a single-day anomaly in the last 15 days (e.g. -12% shock)
+    daily_returns.iloc[-10] = -0.12
+
+    hv_res = calculate_multi_horizon_hv(daily_returns)
+
+    assert "hv_30" in hv_res
+    assert "hv_60" in hv_res
+    assert "hv_90" in hv_res
+    assert "hv_252" in hv_res
+    assert "hv_blend" in hv_res
+    assert "effective_hv" in hv_res
+
+    # 30D HV should be spiked by the single-day anomaly
+    assert hv_res["hv_30"] > hv_res["hv_90"]
+    
+    # Multi-horizon blend should be smoother than raw 30D HV
+    assert hv_res["hv_blend"] < hv_res["hv_30"]
+    assert hv_res["effective_hv"] <= hv_res["hv_blend"]
+    assert hv_res["effective_hv"] > 10.0
+
+
+def test_net_basis_valuation_rewards_deep_otm():
+    # Long bull stock at Spot=210 (above SMA200=200, dev=+5%)
+    # Case A: ATM Put strike=210, mark=5.0 -> eval_price = 205 (above SMA200)
+    # Case B: OTM Put strike=180, mark=2.0 -> eval_price = 178 (well below SMA200, dev=-11%)
+    total_atm, s_price_atm, _, _, _, _ = calculate_sell_put_score(
+        ticker="AAPL",
+        current_price=210.0,
+        strike=210.0,
+        delta=-0.50,
+        mark=5.0,
+        annualized_yield=20.0,
+        ivp=50.0,
+        dte=30,
+        sma_200=200.0,
+        low_52w=170.0,
+        high_52w=230.0,
+        curr_hv=25.0,
+    )
+
+    total_otm, s_price_otm, _, _, _, _ = calculate_sell_put_score(
+        ticker="AAPL",
+        current_price=210.0,
+        strike=180.0,
+        delta=-0.15,
+        mark=2.0,
+        annualized_yield=12.0,
+        ivp=50.0,
+        dte=30,
+        sma_200=200.0,
+        low_52w=170.0,
+        high_52w=230.0,
+        curr_hv=25.0,
+    )
+
+    # Net basis for OTM (178) is below SMA200 (200), so s_price should be significantly higher
+    assert s_price_otm > s_price_atm
+    assert s_price_otm >= 90.0
+
+
+def test_quality_aware_ev_protects_moat_assets():
+    # High-quality stock (F-Score 8, positive FCF) with negative EV on a compressed dip
+    total_qual, _, _, s_alpha_qual, s_ev_qual, pen_qual = calculate_sell_put_score(
+        ticker="GOOGL",
+        current_price=160.0,
+        strike=145.0,
+        delta=-0.20,
+        mark=1.50,
+        annualized_yield=12.0,
+        ivp=30.0,
+        dte=30,
+        sma_200=170.0,
+        low_52w=130.0,
+        high_52w=190.0,
+        curr_hv=28.0,
+        ev_dollar=-30.0,  # Negative EV
+        ev_apy=-2.5,
+        pop=82.0,
+        f_score=8,
+        is_fcf_negative=False,
+    )
+
+    # Low-quality stock (F-Score 4, negative FCF) with negative EV
+    total_low, _, _, s_alpha_low, s_ev_low, pen_low = calculate_sell_put_score(
+        ticker="JUNK",
+        current_price=160.0,
+        strike=145.0,
+        delta=-0.20,
+        mark=1.50,
+        annualized_yield=12.0,
+        ivp=30.0,
+        dte=30,
+        sma_200=170.0,
+        low_52w=130.0,
+        high_52w=190.0,
+        curr_hv=28.0,
+        ev_dollar=-30.0,  # Negative EV
+        ev_apy=-2.5,
+        pop=82.0,
+        f_score=4,
+        is_fcf_negative=True,
+    )
+
+    # Quality moat asset gets EV discount protection without harsh -15 penalty
+    assert pen_qual == 0.0
+    assert pen_low >= 25.0  # -15 negative EV + -10 negative FCF
+    assert total_qual > total_low
+
+
+def test_stepped_drop_relief_for_insider_and_quality():
+    # 20% drop (knife_level 1) on stock with heavy insider buying
+    score_insider, _, _, _, _, pen_insider = calculate_sell_put_score(
+        ticker="BUYER",
+        current_price=100.0,
+        strike=90.0,
+        delta=-0.20,
+        mark=2.0,
+        annualized_yield=15.0,
+        ivp=50.0,
+        dte=30,
+        sma_200=120.0,
+        low_52w=95.0,
+        high_52w=140.0,
+        curr_hv=30.0,
+        knife_level=1,
+        insider_sentiment="net_buying",
+        f_score=8,
+        is_fcf_negative=False,
+    )
+
+    # Same drop on stock without insider/quality support
+    score_normal, _, _, _, _, pen_normal = calculate_sell_put_score(
+        ticker="NORM",
+        current_price=100.0,
+        strike=90.0,
+        delta=-0.20,
+        mark=2.0,
+        annualized_yield=15.0,
+        ivp=50.0,
+        dte=30,
+        sma_200=120.0,
+        low_52w=95.0,
+        high_52w=140.0,
+        curr_hv=30.0,
+        knife_level=1,
+        insider_sentiment="neutral",
+        f_score=5,
+        is_fcf_negative=False,
+    )
+
+    # Insider / high-quality stock gets 100% knife penalty relief (0.0 penalty) while normal stock gets 7.5
+    assert pen_insider == 0.0
+    assert pen_normal == 7.5
+    assert score_insider > score_normal + 10.0
+
+
+

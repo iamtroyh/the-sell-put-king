@@ -57,6 +57,7 @@ from option_quant.portfolio import calculate_portfolio_delta_exposure
 from option_quant.scoring import (
     calculate_call_delta,
     calculate_covered_call_score,
+    calculate_multi_horizon_hv,
     calculate_option_ev_and_pop,
     calculate_put_delta,
     calculate_sell_put_score,
@@ -396,10 +397,14 @@ def main():
             hv_30 = returns.rolling(30).std() * np.sqrt(252) * 100
             hv_30_clean = hv_30.dropna()
             
-            # Long-Short Term Combined HV: min(HV_30, HV_252) to eliminate single-day gap down spikes
-            hv_252_val = float(returns.std() * np.sqrt(252) * 100.0) if len(returns) >= 50 else (float(hv_30_clean.iloc[-1]) if not hv_30_clean.empty else 30.0)
-            curr_hv_30_val = float(hv_30_clean.iloc[-1]) if not hv_30_clean.empty else 30.0
-            effective_hv_val = min(curr_hv_30_val, hv_252_val) if (curr_hv_30_val > 0 and hv_252_val > 0) else curr_hv_30_val
+            # Multi-Horizon Weighted Realized Volatility Blend (30D 50% + 60D 30% + 90D 20% anchored by 252D ceiling)
+            hv_metrics = calculate_multi_horizon_hv(returns)
+            curr_hv_30_val = hv_metrics["hv_30"]
+            curr_hv_60_val = hv_metrics["hv_60"]
+            curr_hv_90_val = hv_metrics["hv_90"]
+            hv_252_val = hv_metrics["hv_252"]
+            hv_blend_val = hv_metrics["hv_blend"]
+            effective_hv_val = hv_metrics["effective_hv"]
             
             price_22d_ago = hist['Close'].iloc[-22] if len(hist) >= 22 else hist['Close'].iloc[0]
             return_30d = float((current_price - price_22d_ago) / price_22d_ago) if price_22d_ago > 0 else 0.0
@@ -419,8 +424,11 @@ def main():
             low_52w = cached_m.get("low_52w", current_price * 0.80)
             sma_200 = cached_m.get("sma_200", current_price)
             curr_hv_30_val = cached_m.get("hv_30", 30.0)
+            curr_hv_60_val = cached_m.get("hv_60", curr_hv_30_val)
+            curr_hv_90_val = cached_m.get("hv_90", curr_hv_60_val)
             hv_252_val = cached_m.get("hv_252", curr_hv_30_val)
-            effective_hv_val = min(curr_hv_30_val, hv_252_val)
+            hv_blend_val = cached_m.get("hv_blend", 0.50 * curr_hv_30_val + 0.30 * curr_hv_60_val + 0.20 * curr_hv_90_val)
+            effective_hv_val = cached_m.get("effective_hv", min(hv_blend_val, hv_252_val))
             hv_30_clean = pd.Series([curr_hv_30_val])
             return_30d = cached_m.get("return_30d", 0.0)
             current_vixfix = cached_m.get("current_vixfix", 20.0)
@@ -432,7 +440,10 @@ def main():
             low_52w = current_price * 0.80
             sma_200 = current_price
             curr_hv_30_val = 30.0
+            curr_hv_60_val = 30.0
+            curr_hv_90_val = 30.0
             hv_252_val = 30.0
+            hv_blend_val = 30.0
             effective_hv_val = 30.0
             hv_30_clean = pd.Series([30.0])
             return_30d = 0.0
@@ -504,7 +515,10 @@ def main():
             'sma_200': sma_200,
             'hv_distribution': hv_30_clean.values,
             'current_hv_30': curr_hv_30_val,
+            'current_hv_60': curr_hv_60_val,
+            'current_hv_90': curr_hv_90_val,
             'current_hv_252': hv_252_val,
+            'current_hv_blend': hv_blend_val,
             'effective_hv': effective_hv_val,
             'current_vixfix': current_vixfix,
             'vixfix_252d_ivp': vixfix_252d_ivp,
@@ -687,7 +701,15 @@ def main():
                     elif risk_profile == "平衡":
                         risk_profile = "激进"
                     
-                annualized_yield = (mark / strike) * (365.0 / max(1, dte)) * 100.0
+                # Conservative Executable Price for wide spreads (Bid <= exec_price <= Mark)
+                if spread_ratio > 0.15 and bid > 0:
+                    exec_price = min(mark, bid * 1.15)
+                elif bid > 0:
+                    exec_price = mark
+                else:
+                    exec_price = mark * 0.50  # Heavy penalty for 0 bid contracts
+                
+                annualized_yield = (exec_price / strike) * (365.0 / max(1, dte)) * 100.0
                 curr_hv_30 = ticker_market_data[display_ticker].get('current_hv_30', 30.0)
                 eff_hv = ticker_market_data[display_ticker].get('effective_hv', curr_hv_30)
 
@@ -696,7 +718,7 @@ def main():
                     spot=current_price,
                     strike=strike,
                     dte=dte,
-                    premium=mark,
+                    premium=exec_price,
                     iv=iv,
                     hv=(eff_hv / 100.0) if eff_hv > 0 else iv,
                 )
@@ -1008,10 +1030,15 @@ def main():
                 
                 if strike < avg_cost:
                     continue
-                if not (0.10 <= delta <= 0.30):
-                    continue
+                # Conservative Executable Price for Covered Calls
+                if spread_ratio > 0.15 and bid > 0:
+                    exec_price = min(mark, bid * 1.15)
+                elif bid > 0:
+                    exec_price = mark
+                else:
+                    exec_price = mark * 0.50
                     
-                annualized_yield = (mark / strike) * (365.0 / max(1, dte)) * 100.0
+                annualized_yield = (exec_price / strike) * (365.0 / max(1, dte)) * 100.0
                 iv_percent = iv * 100.0
                 true_iv = ticker_market_data.get(pos_ticker, {}).get('true_iv_info', {})
                 if true_iv.get('has_true_iv'):
@@ -1709,8 +1736,12 @@ def main():
             
             ev_d_val = best_opt.get('ev_dollar', 0.0)
             neg_ev_tag = ""
+            is_high_qual_best = is_etf_symbol(t) or (fund_info and calculate_piotroski_f_score(fund_info)[0] is not None and calculate_piotroski_f_score(fund_info)[0] >= 7) or (insider_sentiment_map.get(t, {}).get('sentiment') == 'net_buying')
             if ev_d_val <= 0:
-                neg_ev_tag = f"<div style='margin-top: 3px;'><span style='background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;' title='纯净数学期望为负 (EV {ev_d_val:+.0f}$)，下行统计风险大于收取的权利金'>⚠️ 负期望</span></div>"
+                if is_high_qual_best:
+                    neg_ev_tag = f"<div style='margin-top: 3px;'><span style='background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;' title='期权处于波动率折价期 (EV {ev_d_val:+.0f}$)，标的基本面极佳，适合以深度折扣接下优质正股'>💎 折价接股</span></div>"
+                else:
+                    neg_ev_tag = f"<div style='margin-top: 3px;'><span style='background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;' title='纯净数学期望为负 (EV {ev_d_val:+.0f}$)，下行统计风险大于收取的权利金'>⚠️ 负期望</span></div>"
 
             score_cell = (
                 f"<div style='text-align: center;'>"
@@ -1930,8 +1961,12 @@ def main():
                 penalty_str2 = f" <span style='color: #ef4444;'>-{opt['trend_penalty']:.0f}</span>" if opt.get('trend_penalty', 0.0) > 0 else ""
                 ev_c_val = opt.get('ev_dollar', 0.0)
                 neg_ev_tag2 = ""
+                is_high_qual_opt = is_etf_symbol(t) or (fund_info and calculate_piotroski_f_score(fund_info)[0] is not None and calculate_piotroski_f_score(fund_info)[0] >= 7) or (insider_sentiment_map.get(t, {}).get('sentiment') == 'net_buying')
                 if ev_c_val <= 0:
-                    neg_ev_tag2 = f"<br><span style='background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.5px 4px; border-radius: 3px; font-size: 9.5px; font-weight: 600;' title='纯净数学期望为负 (EV {ev_c_val:+.0f}$)'>⚠️ 负期望</span>"
+                    if is_high_qual_opt:
+                        neg_ev_tag2 = f"<br><span style='background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 0.5px 4px; border-radius: 3px; font-size: 9.5px; font-weight: 600;' title='期权处于波动率折价期 (EV {ev_c_val:+.0f}$)，标的基本面极佳，适合以深度折扣接下优质正股'>💎 折价接股</span>"
+                    else:
+                        neg_ev_tag2 = f"<br><span style='background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.5px 4px; border-radius: 3px; font-size: 9.5px; font-weight: 600;' title='纯净数学期望为负 (EV {ev_c_val:+.0f}$)'>⚠️ 负期望</span>"
 
                 score_cell2 = (
                     f"<strong style='{score_s2} font-size: 13.5px;'>{opt['total_score']:.1f}</strong><br>"
