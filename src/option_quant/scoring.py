@@ -685,18 +685,25 @@ def get_recommendation_reason(
     if pcr_oi and pcr_oi >= 1.40:
         pcr_badge = f" <span style='color: #38bdf8; font-weight: bold; background: rgba(56, 189, 248, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);'>[📊 逆向超卖筑底 PCR {pcr_oi:.2f}]</span>"
 
-    # Quant EV & POP badge
+    # Quant EV & POP badge (Option C: 4-Character Action Taxonomy)
     pop = opt.get('pop')
     ev_dollar = opt.get('ev_dollar')
-    trade_sharpe = opt.get('trade_sharpe')
-    is_high_qual = is_etf_symbol(ticker) or (f_score is not None and f_score >= 7) or (insider_sentiment_map and insider_sentiment_map.get(ticker, {}).get("sentiment") == "net_buying")
+    f_score_val = opt.get('f_score')
+    if f_score_val is None and fundamental_info:
+        f_score_val, _ = calculate_piotroski_f_score(fundamental_info)
+    is_high_qual = bool(opt.get('is_high_qual')) or is_etf_symbol(ticker) or (f_score_val is not None and f_score_val >= 7) or (insider_sentiment_map and insider_sentiment_map.get(ticker, {}).get("sentiment") == "net_buying")
     ev_badge = ""
-    if pop is not None and ev_dollar is not None and ev_dollar > 0:
-        ev_badge = f" <span style='color: #10b981; font-weight: bold; background: rgba(16, 185, 129, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);'>[🎯 POP {pop:.1f}% | EV +${ev_dollar:.0f} (夏普 {trade_sharpe:.1f})]</span>"
-    elif ev_dollar is not None and ev_dollar <= 0:
-        if is_high_qual:
-            ev_badge = f" <span style='color: #38bdf8; font-weight: bold; background: rgba(56, 189, 248, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);'>[💎 波动折价·优质接股 (EV -${abs(ev_dollar):.0f})]</span>"
+    if pop is not None and ev_dollar is not None:
+        opt_ivp = opt.get('ivp', 50.0)
+        if ev_dollar > 10 and (opt_ivp is None or opt_ivp >= 35.0):
+            ev_badge = f" <span style='color: #10b981; font-weight: bold; background: rgba(16, 185, 129, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);'>[💰 溢价收租 +${ev_dollar:.0f} (POP {pop:.0f}%)]</span>"
+        elif ev_dollar >= -150 or (ev_dollar > 10 and opt_ivp < 35.0):
+            ev_badge = f" <span style='color: #0ea5e9; font-weight: bold; background: rgba(14, 165, 233, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(14, 165, 233, 0.3);'>[🟢 稳健收租 (POP {pop:.0f}%)]</span>"
         else:
-            ev_badge = f" <span style='color: #ef4444; font-weight: bold; background: rgba(239, 68, 68, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.3);'>[⚠️ 负期望交易 EV -${abs(ev_dollar):.0f}]</span>"
+            # Deep negative EV (< -150)
+            if is_high_qual:
+                ev_badge = f" <span style='color: #8b5cf6; font-weight: bold; background: rgba(139, 92, 246, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(139, 92, 246, 0.3);'>[💎 折扣建仓 (POP {pop:.0f}%)]</span>"
+            else:
+                ev_badge = f" <span style='color: #f59e0b; font-weight: bold; background: rgba(245, 158, 11, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.3);'>[⚠️ 收益偏薄 (POP {pop:.0f}%)]</span>"
 
     return f"{pos_text} {iv_text} {risk_text}{ev_badge}{pain_badge}{skew_badge}{pcr_badge}{quality_badge}{insider_badge}{earnings_cross_text}{debt_badge}{liq_text}{knife_text}{wash_text}"

@@ -60,27 +60,38 @@ Conduct multi-factor quantitative screening across the market:
 8. **Sector Concentration Limit**: In the top 10 recommended ranking, allow a maximum of 3 tickers per GICS sector, deferring additional same-sector tickers downward to ensure diversification.
 9. **Collateral & Budget Calculation**: Calculate Cash Secured Put collateral requirements for top 5 and top 10 positions against available unleveraged cash, highlighting purchasing power surplus or shortfall.
 
-### Liquidity Gatekeeper
-Contracts failing the following dual liquidity thresholds are strictly vetoed:
+### Liquidity & Conservative Pricing Gatekeeper
 1. **Spread Ratio**: $\text{Spread Ratio} = \frac{\text{Ask} - \text{Bid}}{\text{Mark}} \le 35\%$.
 2. **Open Interest**: $\text{Open Interest} \ge 20$ contracts.
+3. **Conservative Execution Pricing**: When $\text{Spread Ratio} > 15\%$ and $\text{Bid} > 0$, execution price is conservatively bounded as $\text{Price}_{\text{exec}} = \min(\text{Mark}, \text{Bid} \times 1.15)$ to prevent exaggerated APY / EV on illiquid quotes.
 *Fallback*: If no contracts pass for a ticker, output the single best available contract with an explicit `[Low Liquidity Warning]` flag.
 
-### Sell Put Three-Pillar Multi-Factor Scoring Model (30 / 30 / 40)
+### Sell Put Three-Pillar Multi-Factor Scoring Model (50 / 30 / 20)
 $$\text{Total Score} = \max\left(0, 0.50 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.20 \times S_{\text{OptionAlpha}} - \text{Penalties} + \text{Bonuses}\right)$$
 
-- **Pillar 1: Valuation Floor ($S_{\text{Price}}$ - 50%)**:
-  * Long-bull: $Dev = \frac{\text{Price} - \text{SMA}_{200}}{\text{SMA}_{200}}$ (capped at -15.0%). If $Dev \le 0.0$, $S_{\text{Price}} = \min(100, 70 - Dev \times 600)$; else $S_{\text{Price}} = \max(0, 70 - Dev \times 700)$.
-  * High-vol: $RP = \frac{\text{Price} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. If $RP \le 0.20$, $S_{\text{Price}} = \min(100, 70 + (0.20 - RP) \times 200)$; else $S_{\text{Price}} = \max(0, 70 - (RP - 0.20) \times 87.5)$.
+- **Pillar 1: Net Basis Valuation Floor ($S_{\text{Price}}$ - 50%)**:
+  * Evaluated on net acquisition cost $\text{Net Basis} = \min(\text{Spot}, K - P_{\text{market}})$ to reward deep OTM strike discounts.
+  * Long-bull: $Dev_{\text{basis}} = \frac{\text{Net Basis} - \text{SMA}_{200}}{\text{SMA}_{200}}$ (capped at -15.0%). If $Dev \le 0.0$, $S_{\text{Price}} = \min(100, 70 - Dev \times 600)$; else $S_{\text{Price}} = \max(0, 70 - Dev \times 700)$.
+  * High-vol: $RP_{\text{basis}} = \frac{\text{Net Basis} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. If $RP \le 0.20$, $S_{\text{Price}} = \min(100, 70 + (0.20 - RP) \times 200)$; else $S_{\text{Price}} = \max(0, 70 - (RP - 0.20) \times 87.5)$.
 - **Pillar 2: Safety Cushion & Gravitational Barrier ($S_{\text{Safety}}$ - 30%)**:
   * Standard: $S_{\text{Safety}} = (1 - \vert\text{Delta}\vert) \times 100 + \Delta_{\text{Pain}}$ (Max Pain pinning barrier adds $+4$ pts if strike $\le \text{Max Pain} \times 0.95$, deducts $-4$ pts if strike $>$ Max Pain).
-  * Trough smooth transition: Smooth scaling toward 100 for deep value assets.
+  * Trough smooth transition: Smooth scaling toward 100 when spot is in deep value territory.
 - **Pillar 3: Mathematical Expectation & Option Alpha ($S_{\text{OptionAlpha}}$ - 20%)**:
   * $S_{\text{OptionAlpha}} = 0.70 \times S_{\text{EV\_APY}} + 0.30 \times S_{\text{Vol}}$.
-  * $S_{\text{EV\_APY}} = \min\left(100, 100 \times \sqrt{\frac{\mathbf{EV\ APY}}{20.0\%}}\right)$ driven by closed-form lognormal Black-Scholes expectation $\text{EV} = 100 \times [P_{\text{market}} - \text{BS\_Put}(\text{HV})]$. Square-root smooth saturation prevents low-volatility anchor assets from being unfairly penalized. If $\text{EV} \le 0$, $S_{\text{EV\_APY}} = 0$ and triggers $-15$ pt penalty.
-  * $S_{\text{Vol}} = 0.50 \times \text{IVP} + 0.20 \times \text{IVR} + 0.30 \times S_{\text{Skew}}$ (authentic implied volatility percentiles and 25-Delta panic put skew).
+  * Realized Volatility: **Multi-Horizon Weighted Blend** $\text{HV}_{\text{blend}} = 0.50 \times \text{HV}_{30} + 0.30 \times \text{HV}_{60} + 0.20 \times \text{HV}_{90}$, anchored by $\text{HV}_{\text{effective}} = \min(\text{HV}_{\text{blend}}, \text{HV}_{252})$.
+  * $S_{\text{EV\_APY}} = \min\left(100, 100 \times \sqrt{\frac{\mathbf{EV\ APY}}{20.0\%}}\right)$ driven by closed-form lognormal Black-Scholes expectation $\text{EV} = 100 \times [P_{\text{exec}} - \text{BS\_Put}(\text{HV}_{\text{effective}})]$.
+  * **Quality-Aware EV Protection & 4-Character Action Taxonomy**:
+    - **`💰 溢价收租 (Premium Focus)`** ($\text{EV} > +\$10$ and $\text{IVP} \ge 35\%$): Elevated implied volatility providing rich premium buffer.
+    - **`🟢 稳健收租 (Theta Focus)`** ($-\$150 \le \text{EV} \le +\$10$, or $\text{EV} > +\$10$ with low $\text{IVP} < 35\%$): Quiet market volatility steady-state with fair premium decay.
+    - **`💎 折扣建仓 (Assignment Focus)`** ($\text{EV} < -\$150$ on broad ETFs or fortress assets $F \ge 7$ & $\text{FCF} > 0$): Deep implied volatility compression with 100% exemption from the -15 pt penalty, prioritizing assignment at discounted valuation floor.
+    - **`⚠️ 收益偏薄 (Thin Reward)`** ($\text{EV} < -\$150$ on non-quality assets): Compressed premium failing to justify downside tail risk ($S_{\text{EV}} = 0$ and -15 pt penalty).
+  * $S_{\text{Vol}} = 0.50 \times \text{IVP} + 0.20 \times \text{IVR} + 0.30 \times S_{\text{Skew}}$ (authentic 252d implied volatility percentiles and 25-Delta panic put skew).
 - **Penalties & Bonuses ($\text{Penalties}$ & $\text{Bonuses}$)**:
-  * Stepped Drop: Individual stock 30d drop > 15% (-15 pts), > 25% (-30 pts), > 35% (veto); ETF 30d drop > 10% (-10 pts), > 16% (-25 pts), > 22% (veto).
+  * **Smart Drop Classifier (智能急跌分类器)**:
+    - 🟢 **Contrarian Golden Pit (黄金坑错杀)**: Drop 15%~30% on fortress assets ($F \ge 7$ & $\text{FCF} > 0$, or ETF, or Insider Net Buying $\ge \$500\text{K}$) $\implies$ 100% exempt from knife penalty + rewards **$+4$ pts** contrarian entry bonus.
+    - 🟡 **Pure Technical Drop (常态技术回调)**: Drop 15%~25% on normal quality assets $\implies$ Moderate penalty (-7.5 pts stock / -5.0 pts ETF for level 1; -15.0 pts stock / -12.5 pts ETF for level 2).
+    - 🔴 **Toxic Falling Knife / Collapse (财务恶化暴雷)**: Drop with $F \le 3$, negative FCF, heavy insider selling $\implies$ Full trend penalty (-15 / -30 pts) + fundamental veto.
+    - ⛔ **Black Swan Halt**: Drop > 35% on individual stocks or > 22% on ETFs triggers hard 50 pt veto.
   * Structural Negative FCF: Deducts 10 pts (equities only).
   * Piotroski F-Score: $F \le 3$ deducts 50 pts (veto); $F \ge 7$ rewards +6 pts (calibrated fortress quality bonus).
   * SEC Form 4 Insider Sentiment: Heavy selling (>= $10M net selling) deducts 5 pts; Net buying (>= $500K) rewards +5 pts.
@@ -104,7 +115,7 @@ For equity holdings >= 100 shares:
 
 # Workflows & Command Triggers
 1. **Master Strategy Pipeline (`research`)**:
-   a. **Sync Account Data**: Fetch balances, buying power, active option/equity positions, and 30-day PnL history (`fetch_pnl_history_mcp.py` & `sync_data.py`).
+   a. **Sync Account Data**: Fetch live balances, unleveraged buying power, active option/equity positions, and 30-day PnL history (`sync_data.py` & `fetch_pnl_history_mcp.py`).
       * **Account Binding**: Must target Joint Tenancy account ID from `config/credentials.json`.
       * **Buying Power**: Mandatorily extract `unleveraged_buying_power` from `get_portfolio`.
    b. **Target Scanning**: Run `python3 scripts/get_scan_targets.py` to generate `scan_targets.json`.
@@ -113,7 +124,7 @@ For equity holdings >= 100 shares:
    e. **Filter Contracts**: Run `filter_instruments.py` to bound strikes and Deltas.
    f. **Batched Quote Fetching**: Slice instrument IDs into batches of <= 40 to prevent API packet dropping.
    g. **Compile Cache**: Run `build_options_cache.py` to generate `robinhood_options_cache.json`.
-   h. **Generate Report**: Run `python3 scripts/generate_report.py` to score contracts with the 30/30/40 Three-Pillar multi-factor engine, compute Wash Sale risks, and render `report.html`.
+   h. **Generate Report**: Run `python3 scripts/generate_report.py` to score contracts with the 50/30/20 Three-Pillar multi-factor engine, compute Wash Sale risks, and render `report.html`.
    i. **Sync Watchlist**: Run `sync_watchlist_mcp.py` to synchronize `Sell Put Candidate` Watchlist.
 
 2. **Single-Ticker Deep Research (`research <TICKER>`)**:
@@ -124,7 +135,7 @@ For equity holdings >= 100 shares:
    e. Deliver core thesis, valuation, and assignment decision in conversational response.
 
 3. **Data File Guidance**: All data files in `data/` are internal runtime artifacts; overwrite silently without prompting for user confirmation.
-4. **TradingView Exchange Precision**: Maintain strict exchange mappings (`config/ticker_metadata.json`) to prevent invalid symbol lookups.
+4. **TradingView Exchange Precision & Dynamic Auto-Discovery**: Mandatory official exchange prefix resolution (`format_tradingview_ticker`). When encountering any new ticker, dynamically query authentic exchanges via yfinance fast_info (`NMS/NGM/NCM` -> `NASDAQ`, `NYQ/NYSE` -> `NYSE`, `PCX/ASE/BATS/ARCA` -> `AMEX`) and automatically persist into `config/ticker_metadata.json` to permanently eliminate invalid symbol lookups.
 5. **InvestSkill 15-Module Institutional Standard & 7-Day Freshness Strict Rule**:
    * **Full 15-Module Standard**: All generated InvestSkill research reports must strictly adhere to the 15-module / 5-phase / 9-chapter architecture (Executive KPI Cards, 5-Phase Scorecard, Segment Revenue Breakdown, 5-Year DCF Multi-Scenario Valuation, 13F & Short Interest Analysis, Key Technical Levels, Bear Case Red-Team Stress Test, 3-Tier Sell Put Gradients, and Normalized Signal Cards, accompanied by Radar/DCF/Technical interactive charts).
    * **7-Day Freshness Guarantee**: Referenced research reports in `~/InvestSkill/output/` must be generated within 7 days ($\le 7$ days). Reports exceeding 7 days are deemed stale and must be regenerated via InvestSkill prompts.

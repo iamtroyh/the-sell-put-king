@@ -215,6 +215,71 @@ def is_high_vol_growth(symbol: Optional[str]) -> bool:
     return norm in HIGH_VOL_GROWTH_TICKERS or str(symbol).upper() in HIGH_VOL_GROWTH_TICKERS
 
 
+def get_ticker_exchange(symbol: Optional[str]) -> str:
+    """
+    Dynamically and reliably resolve the authentic exchange (NYSE, NASDAQ, AMEX)
+    for any US symbol, with dynamic yfinance auto-discovery and automatic persistence.
+    """
+    if not symbol:
+        return "NYSE"
+
+    clean_sym = normalize_symbol(symbol)
+    current_map = _ticker_metadata.get("ticker_exchange_map", {}) if _ticker_metadata else {}
+    exch = current_map.get(clean_sym) or current_map.get(str(symbol).upper().strip()) or TICKER_EXCHANGE_MAP.get(clean_sym)
+    if exch:
+        return exch
+
+    # Dynamic discovery via yfinance
+    try:
+        import yfinance as yf
+        yf_sym = to_yf_symbol(clean_sym)
+        t = yf.Ticker(yf_sym)
+        raw_exch = t.fast_info.get("exchange", "")
+        if raw_exch in ["NMS", "NGM", "NCM", "NAS", "NASDAQ", "NasdaqNM", "Nasdaq"]:
+            discovered = "NASDAQ"
+        elif raw_exch in ["PCX", "ASE", "BATS", "AMEX", "ARCA", "NYSEArca", "BATS Exchange"]:
+            discovered = "AMEX"
+        elif raw_exch in ["NYQ", "NYSE", "NYE"]:
+            discovered = "NYSE"
+        else:
+            discovered = "NYSE"
+
+        # Persist to ticker_metadata.json
+        if _ticker_metadata and "ticker_exchange_map" in _ticker_metadata:
+            _ticker_metadata["ticker_exchange_map"][clean_sym] = discovered
+            TICKER_EXCHANGE_MAP[clean_sym] = discovered
+            meta_path = os.path.join(CONFIG_DIR, "ticker_metadata.json")
+            if os.path.exists(meta_path):
+                atomic_write_json(meta_path, _ticker_metadata)
+        return discovered
+    except Exception:
+        # Static fallback
+        if clean_sym in ETF_TICKERS or clean_sym in [
+            'SPY', 'IWM', 'DIA', 'GLD', 'SLV', 'USO', 'GDX', 'ASHR', 'SPYM', 'VTV',
+            'XLK', 'XLF', 'XLV', 'XLE', 'XLI', 'XLY', 'XLP', 'XLRE', 'XLU', 'XLB',
+            'XBI', 'KWEB', 'URA', 'CTA'
+        ]:
+            return 'AMEX'
+        return 'NASDAQ' if clean_sym in [
+            'CMCSA', 'QQQ', 'QQQM', 'IBIT', 'TLT', 'SOXX', 'SMH', 'TSLA', 'HOOD',
+            'SOFI', 'NFLX', 'MSFT', 'META', 'AMZN', 'INTU', 'SNPS', 'ISRG', 'PDD',
+            'TCOM', 'UPST', 'VEEV', 'LULU', 'AAPL', 'NVDA', 'AVGO', 'AMD', 'QCOM',
+            'ASML', 'AMAT', 'LRCX', 'KLAC', 'MRVL', 'TXN', 'ADI', 'CDNS', 'COST',
+            'SBUX', 'PEP', 'ADBE', 'ABNB', 'CME', 'MU', 'ANET', 'CEG', 'PYPL',
+            'ULTA', 'SKHY', 'CRWD', 'PANW', 'FTNT', 'DDOG', 'ZS', 'COIN', 'WMT',
+            'MARA', 'DKNG', 'FSLR', 'IDXX', 'HON', 'LIN', 'DUOL', 'GOOGL', 'BTDR'
+        ] else 'NYSE'
+
+
+def format_tradingview_ticker(symbol: Optional[str]) -> str:
+    """Format symbol as EXACT TradingView format (e.g. NASDAQ:SKHY, NYSE:BRK.B, AMEX:KWEB)."""
+    if not symbol:
+        return ""
+    clean_sym = normalize_symbol(symbol)
+    exch = get_ticker_exchange(clean_sym)
+    return f"{exch}:{clean_sym}"
+
+
 def get_tradingview_url(symbol: Optional[str], exchange_hint: Optional[str] = None) -> str:
     """
     Generate the TradingView chart link for a given symbol with correct exchange prefix.
@@ -229,40 +294,8 @@ def get_tradingview_url(symbol: Optional[str], exchange_hint: Optional[str] = No
     if not symbol:
         return "https://www.tradingview.com/"
 
-    clean_sym = normalize_symbol(symbol).replace('-', '.')
-    current_map = _ticker_metadata.get("ticker_exchange_map", {}) if _ticker_metadata else {}
-    exch = current_map.get(clean_sym) or current_map.get(str(symbol).upper().strip()) or TICKER_EXCHANGE_MAP.get(clean_sym)
-
-    if not exch:
-        if exchange_hint:
-            eh = exchange_hint.upper()
-            if eh in ['NMS', 'NGM', 'NCM', 'NAS', 'NASDAQ']:
-                exch = 'NASDAQ'
-            elif eh in ['NYQ', 'NYSE', 'NYE']:
-                exch = 'NYSE'
-            elif eh in ['PCX', 'ASE', 'AMEX', 'ARCA', 'NYSEARCA']:
-                exch = 'AMEX'
-            else:
-                exch = eh
-        else:
-            if clean_sym in [
-                'SPY', 'IWM', 'DIA', 'GLD', 'SLV', 'USO', 'GDX', 'ASHR', 'SPYM', 'VTV',
-                'XLK', 'XLF', 'XLV', 'XLE', 'XLI', 'XLY', 'XLP', 'XLRE', 'XLU', 'XLB',
-                'XBI', 'KWEB', 'URA', 'CTA'
-            ]:
-                exch = 'AMEX'
-            elif clean_sym in [
-                'CMCSA', 'QQQ', 'QQQM', 'IBIT', 'TLT', 'SOXX', 'SMH', 'TSLA', 'HOOD',
-                'SOFI', 'NFLX', 'MSFT', 'META', 'AMZN', 'INTU', 'SNPS', 'ISRG', 'PDD',
-                'TCOM', 'UPST', 'VEEV', 'LULU', 'AAPL', 'NVDA', 'AVGO', 'AMD', 'QCOM',
-                'ASML', 'AMAT', 'LRCX', 'KLAC', 'MRVL', 'TXN', 'ADI', 'CDNS', 'COST',
-                'SBUX', 'PEP', 'ADBE', 'ABNB', 'CME', 'MU', 'ANET', 'CEG', 'PYPL',
-                'ULTA', 'SKHY', 'CRWD', 'PANW', 'FTNT', 'DDOG', 'ZS', 'COIN'
-            ]:
-                exch = 'NASDAQ'
-            else:
-                exch = 'NYSE'
-
+    clean_sym = normalize_symbol(symbol)
+    exch = exchange_hint if exchange_hint else get_ticker_exchange(clean_sym)
     return f"https://www.tradingview.com/symbols/{exch}-{clean_sym}/?timeframe=12M"
 
 

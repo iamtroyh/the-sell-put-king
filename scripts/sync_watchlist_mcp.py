@@ -17,6 +17,7 @@ if SRC_DIR not in sys.path:
 from option_quant.config import (
     TICKER_EXCHANGE_MAP,
     TICKER_METADATA_PATH,
+    format_tradingview_ticker,
     load_json_config,
     to_rh_symbol,
 )
@@ -39,26 +40,11 @@ def main():
     print(f"Loaded {len(tickers)} tickers for Robinhood Watchlist sync: {tickers}")
 
     # Export TradingView watchlists
-    meta_cfg = load_json_config(TICKER_METADATA_PATH)
-    dyn_map = meta_cfg.get("ticker_exchange_map", {}) or TICKER_EXCHANGE_MAP
-
     tv_file = os.path.join(BASE_DIR, "data", "tradingview_watchlist.txt")
     tv_plain_file = os.path.join(BASE_DIR, "data", "tradingview_watchlist_plain.txt")
 
-    tv_lines = []
-    plain_lines = []
-    for t in tickers:
-        clean_t = to_rh_symbol(t)
-        exch = dyn_map.get(t.upper().strip()) or dyn_map.get(clean_t)
-        if not exch:
-            if clean_t in ['SPY', 'IWM', 'DIA', 'GLD', 'SLV', 'USO', 'GDX', 'ASHR', 'SPYM', 'VTV', 'XLK', 'XLF', 'XLV', 'XLE', 'XLI', 'XLY', 'XLP', 'XLRE', 'XLU', 'XLB', 'XBI', 'KWEB', 'URA', 'CTA']:
-                exch = 'AMEX'
-            elif clean_t in ['CMCSA', 'QQQ', 'QQQM', 'IBIT', 'TLT', 'SOXX', 'SMH', 'TSLA', 'HOOD', 'SOFI', 'NFLX', 'MSFT', 'META', 'AMZN', 'INTU', 'SNPS', 'ISRG', 'PDD', 'TCOM', 'UPST', 'VEEV', 'LULU', 'AAPL', 'NVDA', 'AVGO', 'AMD', 'QCOM', 'ASML', 'AMAT', 'LRCX', 'KLAC', 'MRVL', 'TXN', 'ADI', 'CDNS', 'COST', 'SBUX', 'PEP', 'ADBE', 'ABNB', 'CME', 'MU', 'ANET', 'CEG', 'PYPL', 'ULTA', 'SKHY', 'CRWD', 'PANW', 'FTNT', 'DDOG', 'ZS', 'COIN']:
-                exch = 'NASDAQ'
-            else:
-                exch = 'NYSE'
-        tv_lines.append(f"{exch}:{clean_t}")
-        plain_lines.append(clean_t)
+    tv_lines = [format_tradingview_ticker(t) for t in tickers]
+    plain_lines = [to_rh_symbol(t) for t in tickers]
 
     with open(tv_file, "w", encoding="utf-8") as f:
         f.write("\n".join(tv_lines) + "\n")

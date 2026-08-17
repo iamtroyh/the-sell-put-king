@@ -29,6 +29,7 @@ from option_quant.config import (
     TICKER_INTROS,
     TICKER_RISKS,
     atomic_write_json,
+    format_tradingview_ticker,
     get_tradingview_url,
     is_etf_symbol,
     is_high_vol_growth,
@@ -589,7 +590,17 @@ def main():
             if exp_date.weekday() == 4 and (15 <= exp_date.day <= 21)
         ]
 
-        target_exp_dates = monthly_exp_dates if monthly_exp_dates else valid_exp_dates
+        # If earnings are scheduled within 30 days, smart buffer defense:
+        # Prioritize expirations that have at least 14 days post-earnings buffer (and DTE >= 35)
+        if dte_earnings is not None and 0 <= dte_earnings <= 30:
+            min_buf_dte = max(35, dte_earnings + 14)
+            buffered_exps = [x for x in valid_exp_dates if x[2] >= min_buf_dte]
+            if buffered_exps:
+                target_exp_dates = [x for x in buffered_exps if x in monthly_exp_dates] + [x for x in buffered_exps if x not in monthly_exp_dates]
+            else:
+                target_exp_dates = monthly_exp_dates if monthly_exp_dates else valid_exp_dates
+        else:
+            target_exp_dates = monthly_exp_dates if monthly_exp_dates else valid_exp_dates
 
         ticker_options = []
         for exp_str, exp_date, dte in target_exp_dates:
@@ -597,10 +608,6 @@ def main():
             is_earnings_crosser = False
             if dte_earnings is not None and 0 <= dte_earnings <= 30:
                 if dte > dte_earnings:
-                    # Require at least 14 days buffer post-earnings and total DTE >= 35
-                    required_min_dte = max(35, dte_earnings + 14)
-                    if dte < required_min_dte:
-                        continue
                     is_earnings_crosser = True
 
             if use_cache:
@@ -823,7 +830,9 @@ def main():
                     'warning': False,
                     'risk_profile': risk_profile,
                     'is_earnings_crosser': is_earnings_crosser,
-                    'is_heavy_debt': is_heavy_debt
+                    'is_heavy_debt': is_heavy_debt,
+                    'f_score': f_score,
+                    'is_high_qual': is_etf_symbol(display_ticker) or (f_score is not None and f_score >= 7) or (insider_sent == 'net_buying'),
                 }
                 ticker_options.append(opt_info)
                 
@@ -1550,19 +1559,7 @@ def main():
     }
 
     # Generate Candidate Watchlist Table (Grouped by Ticker & Valuation Monitor)
-    tv_formatted_tickers = []
-    for t in ordered_watchlist:
-        clean_t = normalize_symbol(t)
-        exch = TICKER_EXCHANGE_MAP.get(t.upper().strip()) or TICKER_EXCHANGE_MAP.get(clean_t)
-        if not exch:
-            if clean_t in ['SPY', 'IWM', 'DIA', 'GLD', 'SLV', 'USO', 'GDX', 'ASHR', 'CTA']:
-                exch = 'AMEX'
-            elif clean_t in ['QQQ', 'QQQM', 'IBIT', 'TLT', 'SOXX', 'SMH', 'TSLA', 'HOOD', 'SOFI', 'NFLX', 'MSFT', 'META', 'AMZN', 'INTU', 'SNPS', 'ISRG', 'PDD', 'TCOM', 'UPST', 'VEEV', 'LULU', 'ULTA', 'SKHY', 'WMT']:
-                exch = 'NASDAQ'
-            else:
-                exch = 'NYSE'
-        tv_formatted_tickers.append(f"{exch}:{clean_t}")
-        
+    tv_formatted_tickers = [format_tradingview_ticker(t) for t in ordered_watchlist]
     tv_copy_str = ", ".join(tv_formatted_tickers)
     
     tv_card_html = f"""
@@ -1636,6 +1633,10 @@ def main():
         bg_c = "#09090b" if idx % 2 == 0 else "#18181b"
         mdata = ticker_market_data.get(t, {})
         tinfo = ticker_info_map.get(t, {})
+        fund_info = get_fundamental_info(t)
+        f_score_tuple = calculate_piotroski_f_score(fund_info)
+        f_score_t = f_score_tuple[0] if f_score_tuple else None
+        is_high_qual_t = is_etf_symbol(t) or (f_score_t is not None and f_score_t >= 7) or (insider_sentiment_map.get(t, {}).get('sentiment') == 'net_buying')
         
         curr_p = mdata.get('current_price', 0.0)
         low_52 = mdata.get('low_52w', 0.0)
@@ -1735,13 +1736,18 @@ def main():
             pen_str = f"<span style='color: #ef4444; font-size: 10px;'> -{pen_val:.0f}</span>" if pen_val > 0 else ""
             
             ev_d_val = best_opt.get('ev_dollar', 0.0)
-            neg_ev_tag = ""
-            is_high_qual_best = is_etf_symbol(t) or (fund_info and calculate_piotroski_f_score(fund_info)[0] is not None and calculate_piotroski_f_score(fund_info)[0] >= 7) or (insider_sentiment_map.get(t, {}).get('sentiment') == 'net_buying')
-            if ev_d_val <= 0:
+            b_ivp = best_opt.get('ivp', 50.0)
+            is_high_qual_best = best_opt.get('is_high_qual', is_high_qual_t)
+            if ev_d_val > 10 and (b_ivp is None or b_ivp >= 35.0):
+                neg_ev_tag = f"<div style='margin-top: 3px;'><span style='background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;' title='期权处于超额波动率溢价区 (EV +${ev_d_val:.0f}, IVP {b_ivp:.0f}%)，享有丰厚权利金'>💰 溢价收租</span></div>"
+            elif ev_d_val >= -150 or (ev_d_val > 10 and b_ivp < 35.0):
+                neg_ev_tag = f"<div style='margin-top: 3px;'><span style='background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;' title='期权处于公允波动率稳态区 (EV ${ev_d_val:+.0f})，平稳收获时间价值'>🟢 稳健收租</span></div>"
+            else:
+                # Deep negative EV (< -150)
                 if is_high_qual_best:
-                    neg_ev_tag = f"<div style='margin-top: 3px;'><span style='background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;' title='期权处于波动率折价期 (EV {ev_d_val:+.0f}$)，标的基本面极佳，适合以深度折扣接下优质正股'>💎 折价接股</span></div>"
+                    neg_ev_tag = f"<div style='margin-top: 3px;'><span style='background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;' title='期权费处于低波压缩区 (EV ${ev_d_val:+.0f})，标的基本面极佳，行权价处于估值击球区，适合折扣接股'>💎 折扣建仓</span></div>"
                 else:
-                    neg_ev_tag = f"<div style='margin-top: 3px;'><span style='background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;' title='纯净数学期望为负 (EV {ev_d_val:+.0f}$)，下行统计风险大于收取的权利金'>⚠️ 负期望</span></div>"
+                    neg_ev_tag = f"<div style='margin-top: 3px;'><span style='background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;' title='期权费被过度压缩 (EV ${ev_d_val:+.0f})，收取的权利金不足以覆盖潜在尾部风险'>⚠️ 收益偏薄</span></div>"
 
             score_cell = (
                 f"<div style='text-align: center;'>"
@@ -1960,13 +1966,17 @@ def main():
                 s_a_c = opt.get('s_option_alpha', 0.0)
                 penalty_str2 = f" <span style='color: #ef4444;'>-{opt['trend_penalty']:.0f}</span>" if opt.get('trend_penalty', 0.0) > 0 else ""
                 ev_c_val = opt.get('ev_dollar', 0.0)
-                neg_ev_tag2 = ""
-                is_high_qual_opt = is_etf_symbol(t) or (fund_info and calculate_piotroski_f_score(fund_info)[0] is not None and calculate_piotroski_f_score(fund_info)[0] >= 7) or (insider_sentiment_map.get(t, {}).get('sentiment') == 'net_buying')
-                if ev_c_val <= 0:
+                o_ivp = opt.get('ivp', 50.0)
+                is_high_qual_opt = opt.get('is_high_qual', is_high_qual_t)
+                if ev_c_val > 10 and (o_ivp is None or o_ivp >= 35.0):
+                    neg_ev_tag2 = f"<br><span style='background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0.5px 4px; border-radius: 3px; font-size: 9.5px; font-weight: 600;' title='期权处于超额波动率溢价区 (EV +${ev_c_val:.0f}, IVP {o_ivp:.0f}%)，享有丰厚权利金'>💰 溢价收租</span>"
+                elif ev_c_val >= -150 or (ev_c_val > 10 and o_ivp < 35.0):
+                    neg_ev_tag2 = f"<br><span style='background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.4); padding: 0.5px 4px; border-radius: 3px; font-size: 9.5px; font-weight: 600;' title='期权处于公允波动率稳态区 (EV ${ev_c_val:+.0f})，平稳收获时间价值'>🟢 稳健收租</span>"
+                else:
                     if is_high_qual_opt:
-                        neg_ev_tag2 = f"<br><span style='background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 0.5px 4px; border-radius: 3px; font-size: 9.5px; font-weight: 600;' title='期权处于波动率折价期 (EV {ev_c_val:+.0f}$)，标的基本面极佳，适合以深度折扣接下优质正股'>💎 折价接股</span>"
+                        neg_ev_tag2 = f"<br><span style='background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4); padding: 0.5px 4px; border-radius: 3px; font-size: 9.5px; font-weight: 600;' title='期权费处于低波压缩区 (EV ${ev_c_val:+.0f})，标的基本面极佳，行权价处于估值击球区，适合折扣接股'>💎 折扣建仓</span>"
                     else:
-                        neg_ev_tag2 = f"<br><span style='background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.5px 4px; border-radius: 3px; font-size: 9.5px; font-weight: 600;' title='纯净数学期望为负 (EV {ev_c_val:+.0f}$)'>⚠️ 负期望</span>"
+                        neg_ev_tag2 = f"<br><span style='background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 0.5px 4px; border-radius: 3px; font-size: 9.5px; font-weight: 600;' title='期权费被过度压缩 (EV ${ev_c_val:+.0f})，收取的权利金不足以覆盖潜在尾部风险'>⚠️ 收益偏薄</span>"
 
                 score_cell2 = (
                     f"<strong style='{score_s2} font-size: 13.5px;'>{opt['total_score']:.1f}</strong><br>"
@@ -1980,7 +1990,7 @@ def main():
                     f"{neg_ev_tag2}"
                 )
                 
-                reason2 = get_recommendation_reason(opt, mdata, wash_sale_history_map, insider_sentiment_map)
+                reason2 = get_recommendation_reason(opt, mdata, wash_sale_history_map, insider_sentiment_map, fund_info)
                 pct_drop2 = (opt['strike'] - opt['current_price']) / opt['current_price'] * 100.0 if opt['current_price']>0 else 0.0
                 prof_tag2 = profile_tags.get(opt['risk_profile'], opt['risk_profile'])
                 
