@@ -1,0 +1,210 @@
+<div align="center">
+
+# InvestSkill
+
+**Professional investment analysis frameworks for US stocks — works on every AI platform**
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+
+[Gemini Guide](GEMINI.md) · [Claude Guide](CLAUDE.md) · [FAQ](FAQ.md) · [Changelog](CHANGELOG.md)
+
+</div>
+
+---
+
+## What is InvestSkill?
+
+InvestSkill is a collection of **25 structured analysis frameworks** that turn any AI assistant into an institutional-quality investment analyst. There is no runtime — every skill is a prompt that works in Claude Code, Cursor, Gemini CLI, GitHub Copilot, ChatGPT, or any other LLM.
+
+```
+Ask your AI:  "Evaluate AAPL using the stock-eval framework"
+Get back:     Piotroski score · ROIC · moat rating · buy/hold/sell signal
+```
+
+---
+
+## Quick Start
+
+**Claude Code** — recommended, full slash-command support:
+```bash
+claude
+/plugin marketplace add yennanliu/InvestSkill
+/plugin install us-stock-analysis
+/us-stock-analysis:stock-eval AAPL
+```
+
+**Cursor / Gemini CLI / Any LLM**:
+```bash
+# Cursor
+# → @prompts/stock-eval.md Evaluate Apple
+
+# Gemini CLI
+gemini
+# → @prompts/stock-eval.md Evaluate Apple
+
+# Any LLM — paste the prompt file directly
+cat prompts/stock-eval.md | pbcopy
+```
+
+> Full platform guides: [Gemini CLI](GEMINI.md) · [Claude Code](CLAUDE.md) · [Platform Compatibility](PLATFORM-COMPATIBILITY.md)
+
+---
+
+## The 25 Frameworks
+
+### Core Stock Analysis
+
+| Skill | What it produces |
+|-------|-----------------|
+| `stock-eval` | Piotroski F-Score, ROIC, quality rating, go/no-go signal |
+| `fundamental-analysis` | Income statement, balance sheet, cash flow deep dive |
+| `technical-analysis` | MA chart (30/60/90/200/365d) with trade entry/target/stop, chart patterns, RSI/MACD, MTF alignment, Ichimoku |
+| `dcf-valuation` | DCF intrinsic value, WACC sensitivity, bear/base/bull scenarios |
+| `stock-valuation` | P/E · P/S · EV/EBITDA · comparable company multiples |
+| `economics-analysis` | Macro indicators, recession probability, rate sensitivity |
+
+### Financial Reports
+
+| Skill | What it produces |
+|-------|-----------------|
+| `financial-report-analyst` | 10-K / 10-Q key findings, red flags, accounting quality |
+| `10k-digest` | Structured markdown digest — abstract, section summaries, metrics table, refs (EN / 繁中) |
+| `earnings-call-analysis` | Management tone, guidance delta, hidden risks |
+
+### Market Monitoring
+
+| Skill | What it produces |
+|-------|-----------------|
+| `insider-trading` | SEC Form 4 patterns, net buy/sell sentiment |
+| `institutional-ownership` | 13F holdings changes, smart money flows |
+| `dividend-analysis` | Payout safety score, yield trap detection |
+| `short-interest` | Short ratio, days-to-cover, squeeze probability |
+
+### Advanced Research
+
+| Skill | What it produces |
+|-------|-----------------|
+| `competitor-analysis` | Moat score, Porter's Five Forces, market share |
+| `industry-map` | Supply/value-chain graph (upstream→downstream), chokepoints, margin-pool migration, second-order ideas |
+| `options-analysis` | Greeks, IV rank, earnings play strategy selection |
+| `portfolio-review` | Allocation health, concentration risk scoring, correlation analysis, tax-loss harvesting, rebalancing plan |
+| `sector-analysis` | Sector rotation signals, valuation tables, seasonality calendar, momentum scoring |
+| `stock-screener` | Multi-ticker ranking across valuation, quality, momentum, sentiment, and growth; leaderboard + top picks + avoid list |
+| `catalyst-calendar` | Forward-looking 90-day event calendar: earnings, macro events, catalysts, impact scoring, event-driven strategies |
+| `bear-case` | Deliberate short-seller red-team: bear thesis, accounting red flags, downside target, thesis-killers (counterevidence for any bull thesis) |
+
+### Meta & Output
+
+| Skill | What it produces |
+|-------|-----------------|
+| `research-bundle` | Chains all frameworks into one unified investment thesis |
+| `full-report` | Runs all 15 modules and saves a standalone HTML report |
+| `report-generator` | Converts any analysis into a professional HTML/PDF report |
+| `chart-master` | Mermaid · ASCII · Chart.js visualizations from financial data |
+| `result-validator` | Scores any analysis on data quality, methodology, and signal consistency |
+
+---
+
+## Example Workflows
+
+**5-minute stock screen**
+```
+/stock-eval NVDA
+/stock-eval AMD
+→ Piotroski scores + quality rating for quick go/no-go
+```
+
+**Complete due diligence**
+```
+/stock-eval AAPL
+/fundamental-analysis AAPL
+/stock-valuation AAPL --methods all
+/competitor-analysis AAPL
+/financial-report-analyst AAPL 10-K
+→ Full investment thesis in one session
+```
+
+**Earnings season playbook**
+```
+/fundamental-analysis TICKER          ← pre-earnings baseline
+/earnings-call-analysis TICKER        ← post-earnings [paste transcript]
+/options-analysis TICKER --earnings   ← vol expectations + strategy
+→ Complete earnings thesis
+```
+
+**Export a professional report**
+```
+/full-report AAPL
+→ Saves output/AAPL_report_2026-05-12.html
+   (hero header · metric cards · interactive Chart.js · signal block)
+```
+
+---
+
+## Output Format
+
+Every skill ends with a standardized **Investment Signal Block**:
+
+```
+╔══════════════════════════════════════════════╗
+║              INVESTMENT SIGNAL               ║
+╠══════════════════════════════════════════════╣
+║ Signal:      BULLISH / NEUTRAL / BEARISH     ║
+║ Confidence:  HIGH / MEDIUM / LOW             ║
+║ Horizon:     SHORT / MEDIUM / LONG-TERM      ║
+║ Score:       X.X / 10                        ║
+╠══════════════════════════════════════════════╣
+║ Action:      BUY / HOLD / SELL               ║
+║ Conviction:  STRONG / MODERATE / WEAK        ║
+╚══════════════════════════════════════════════╝
+```
+
+HTML reports render this as a styled dark panel with a score progress bar, ghost watermark text, and a teal/sky gradient accent — see [report-generator](prompts/report-generator.md) for the full design system.
+
+---
+
+## Platform Support
+
+| Platform | Setup | How it works |
+|----------|-------|-------------|
+| **Gemini CLI** | Run `gemini` in root | Auto-loads `GEMINI.md` |
+| **Cursor IDE** | Open workspace in Cursor | Auto-loads `.cursor/rules/` |
+| **Claude Code** | Marketplace install | Native plugin slash commands |
+| **ChatGPT / Claude.ai** | Paste any `prompts/*.md` file | Works in any chat interface |
+| **Any other LLM** | Reference or paste prompt files | Platform-agnostic markdown |
+
+---
+
+## Documentation
+
+| Resource | Description |
+|----------|-------------|
+| [Gemini CLI Guide](GEMINI.md) | Auto-loading prompt framework guide |
+| [Claude Code Guide](CLAUDE.md) | Plugin install + slash commands guide |
+| [Platform Compatibility](PLATFORM-COMPATIBILITY.md) | Cross-AI compatibility notes |
+| [Adding Skills](ADDING-NEW-SKILLS.md) | 12-step skill addition walkthrough |
+| [FAQ](FAQ.md) | 50+ answers covering all platforms |
+| [Changelog](CHANGELOG.md) | Version history |
+
+---
+
+## Adding New Skills
+
+See [ADDING-NEW-SKILLS.md](ADDING-NEW-SKILLS.md) for the full process:
+
+1. Create `plugins/us-stock-analysis/skills/<name>/SKILL.md` with YAML frontmatter
+2. Create `prompts/<name>.md` — same content, no frontmatter, AI-agnostic syntax
+3. Run `npm test` to ensure all tests pass
+
+---
+
+**Version:** 1.10.0 · **Skills:** 25 · **License:** MIT · **Tests:** 350+ passing
+
+---
+
+<div align="center">
+
+*For educational and research purposes only. Not financial advice.*  
+*Always consult a qualified financial advisor before making investment decisions.*
+
+</div>

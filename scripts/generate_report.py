@@ -67,8 +67,7 @@ from option_quant.scoring import (
     norm_cdf,
 )
 
-INVESTSKILL_DIR = os.environ.get("INVESTSKILL_DIR", os.path.expanduser("~/InvestSkill"))
-INVESTSKILL_OUTPUT_DIR = os.environ.get("INVESTSKILL_OUTPUT_DIR", os.path.join(INVESTSKILL_DIR, "output"))
+
 
 def fetch_chart_df(symbol, range_str='1y'):
     try:
@@ -1701,7 +1700,7 @@ def main():
             missing_or_stale.append(clean_t)
 
     if missing_or_stale:
-        print(f"ℹ️ [InvestSkill Status] 检测到 {len(missing_or_stale)} 只个股标的在 ~/InvestSkill/output 中缺失或研报已过期 (>7天): {missing_or_stale} (可通过 AI 对话调用 InvestSkill 框架生成)")
+        print(f"ℹ️ [InvestSkill Status] 检测到 {len(missing_or_stale)} 只个股标的在 {INVESTSKILL_OUTPUT_DIR} 中缺失或研报已过期 (>7天): {missing_or_stale} (可通过 AI 对话调用 InvestSkill 框架生成)")
     else:
         print(f"✅ [InvestSkill Status] 100% 个股标的均具备 7 天以内的最新深度研报 ({len(report_stock_tickers)} 只个股已全量覆盖)")
 

@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>直觉外科 (Intuitive Surgical - ISRG) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 850px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #F1F5F9;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .section-title-wrap { display: flex; align-items: center; gap: 12px; }
+        .section-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 15px;
+        }
+        .section-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+        .section-sub { font-size: 12px; color: var(--text-muted); }
+        .section-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .report-hero { padding: 32px 16px; }
+            .main-wrap { padding: 20px 16px 48px; }
+            .hero-title { font-size: 24px; }
+            .section { padding: 20px 16px; }
+        }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card-green { background: #F0FDF4; border-color: #BBF7D0; }
+        .card-amber { background: #FFFBEB; border-color: #FDE68A; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+        .card-purple { background: #FAF5FF; border-color: #E9D5FF; }
+
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .card-green .card-title { color: #166534; }
+        .card-amber .card-title { color: #92400E; }
+        .card-blue .card-title { color: #1E40AF; }
+        .card-purple .card-title { color: #6B21A8; }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin: 14px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #F1F5F9;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-num { font-family: 'JetBrains Mono', monospace; text-align: right; }
+        .th-num { text-align: right; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 290px;
+            margin: 12px 0;
+        }
+
+        .highlight-val { font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #15803D; }
+        .tag-blue { background: #DBEAFE; color: #1D4ED8; }
+        .tag-amber { background: #FEF3C7; color: #B45309; }
+        .tag-red { background: #FEE2E2; color: #B91C1C; }
+
+        .signal-banner {
+            background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+            border: 2px solid #10B981;
+            border-radius: 16px;
+            padding: 24px;
+            color: #fff;
+            box-shadow: 0 10px 25px -5px rgba(16,185,129,.3);
+            margin: 20px 0;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.1);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.15);
+        }
+        .signal-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .signal-val { font-size: 20px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+        
+        .divider { height: 1px; background: #F1F5F9; margin: 20px 0; }
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+        .callout-amber {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: ISRG</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY) • 8.9/10</span>
+            <span class="badge badge-hero-cat">全球软组织微创手术机器人绝对统治霸主</span>
+            <span class="badge badge-hero-cat">15模块全景量化研报</span>
+        </div>
+        <h1 class="hero-title">直觉外科 (Intuitive Surgical, Inc.)</h1>
+        <div class="hero-sub">达芬奇第5代 (da Vinci 5) 划时代换机潮、80% 极高耗材经常性收入与 $52.2亿 零负债现金堡垒：医疗AI与力反馈手术机器人的超级周期深度剖析</div>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新股价 (Spot)</div>
+                <div class="hero-kpi-val">$394.51</div>
+                <div class="hero-kpi-sub">52周区间: $328.57 - $603.88</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$141.34B</div>
+                <div class="hero-kpi-sub">净现金: $5.22B (零有息负债)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 总营收 (USD)</div>
+                <div class="hero-kpi-val">$11.03B</div>
+                <div class="hero-kpi-sub">YoY 增速: +18.5%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Fwd P/E)</div>
+                <div class="hero-kpi-val">32.68x</div>
+                <div class="hero-kpi-sub">较历史 50x-60x 估值大幅消化</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">营业利润率 / 毛利率</div>
+                <div class="hero-kpi-val">33.60% / 66.68%</div>
+                <div class="hero-kpi-sub">净利率高达 28.45%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师最高目标价</div>
+                <div class="hero-kpi-val">$685.00</div>
+                <div class="hero-kpi-sub">DCF基准目标价: $485.00 (+22.9%)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- Table of Contents -->
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报导航目录 (15大核心模块全景覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">04. 财报与盈利质量</a>
+            <a href="#sec-5" class="toc-link">05. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">06. 行业竞争与同行对标</a>
+            <a href="#sec-7" class="toc-link">07. DCF估值三情景模型</a>
+            <a href="#sec-8" class="toc-link">08. 技术面与筹码量化</a>
+            <a href="#sec-9" class="toc-link">09. 资本配置与股息披露</a>
+            <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与主力动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </div>
+
+    <!-- MODULE 01 -->
+    <section id="sec-1" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">01</div>
+                <div>
+                    <div class="section-title">执行摘要与核心投资逻辑 (Executive Summary & Investment Thesis)</div>
+                    <div class="section-sub">全球 9,000+ 台达芬奇装机生态垄断、da Vinci 5 换机超级周期与零负债现金牛</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 01</span>
+        </div>
+
+        <p style="margin-bottom: 16px; font-size: 14.5px; color: var(--text-secondary);">
+            <strong>直觉外科 (Intuitive Surgical, Inc., NASDAQ: ISRG)</strong> 是全球医疗科技领域护城河最深厚、技术壁垒最高、商业化最为成功的软组织微创手术机器人绝对统治霸主。全球达芬奇 (da Vinci) 手术系统累计装机量突破 <strong>9,000 台</strong>，全球累计完成手术超 <strong>1,400 万例</strong>。当前，随着 <strong>第五代达芬奇手术系统 (da Vinci 5 - 具备革命性力反馈触觉感知与 10,000倍 算力飞跃)</strong> 全面进入全球换机与装机放量周期，公司正迎来新一轮高确定性的盈利爆发：
+        </p>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">🤖 核心看多逻辑 1：da Vinci 5 划时代技术突破引发全球换机潮</div>
+                <p style="font-size: 13px; color: #166534;">
+                    da Vinci 5 引入了外科手术界期待数十年的 <strong>力反馈 (Force Sensing) 技术</strong>，可精确测量并感知对活体组织施加的微小压力，使组织创伤降低高达 43%。更强算力与 AI 辅助手术分析正推动全球顶级医院掀起新一轮量价齐升的采购换机浪潮。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🔄 核心看多逻辑 2：80%+ 极高耗材与维保经常性收入 (Razor-Blade)</div>
+                <p style="font-size: 13px; color: #166534;">
+                    直觉外科绝大部分收入并非来自一次性卖机器，而是来自 <strong>EndoWrist 机械臂高价值手术耗材 (占比 58%) 与年度维保服务合同 (占比 18%)</strong>。单台机器每年产生 $25万-$35万美元的耗材复购，形成了全球最强现金流印钞机。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">💰 核心看多逻辑 3：$52.2亿 纯净现金 + 零有息负债 + 估值大幅消化</div>
+                <p style="font-size: 13px; color: #166534;">
+                    账面拥有高达 <strong>$52.2 亿美元现金与流动资产，完全零有息负债</strong>。前瞻市盈率自历史 50x-60x 高位消化压缩至 <strong>32.68x</strong>（结合 18.5% 的高确定性业绩复合增速，PEG 极具吸引力）。
+                </p>
+            </div>
+        </div>
+
+        <div class="callout" style="margin-top: 18px;">
+            <strong>📌 投资评级概览：</strong> 综合多因子量化模型评分 <strong>8.9 / 10</strong>，给予 <strong>强烈看多 (STRONG BUY)</strong> 评级。基准 DCF 公允价值为 <strong>$485.00 (+22.9% 空间)</strong>，乐观目标价看至 <strong>$580.00 (+47.0%)</strong>。当前均线金叉突破，是布局手术机器人超级周期的黄金买点。
+        </div>
+    </section>
+
+    <!-- MODULE 02 -->
+    <section id="sec-2" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">02</div>
+                <div>
+                    <div class="section-title">多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Model)</div>
+                    <div class="section-sub">6大核心维度综合量化评级：总分 8.9 / 10</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 02</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>量化评估因子</th>
+                                <th>因子得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与诊断结论</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 护城河与垄断壁垒 (Moat)</strong></td>
+                                <td><span class="tag-pill tag-green">9.9 / 10</span></td>
+                                <td>25%</td>
+                                <td>全球 9,000+ 台装机、6.5万+ 认证外科医生肌肉记忆、专利森林封锁</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 财务健康与现金储备 (Health)</strong></td>
+                                <td><span class="tag-pill tag-green">9.9 / 10</span></td>
+                                <td>20%</td>
+                                <td>$52.2 亿美元现金储备，零有息负债，流动比率 4.96，资产负债表极度纯净</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 盈利质量与现金流 (Profitability)</strong></td>
+                                <td><span class="tag-pill tag-green">9.5 / 10</span></td>
+                                <td>20%</td>
+                                <td>毛利率 66.68%，净利率高达 28.45%，年产 FCF 超 $26 亿美元</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 换机周期与成长性 (Growth)</strong></td>
+                                <td><span class="tag-pill tag-green">9.0 / 10</span></td>
+                                <td>15%</td>
+                                <td>TTM 营收增速 +18.5%，da Vinci 5 换机潮与 Ion 肺活检双核放量</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 估值性价比与 PEG (Valuation)</strong></td>
+                                <td><span class="tag-pill tag-green">7.5 / 10</span></td>
+                                <td>10%</td>
+                                <td>前瞻 P/E 32.68x 较历史峰值大幅消化，对应其绝对统治地位溢价合理</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. 筹码与技术面 (Technicals)</strong></td>
+                                <td><span class="tag-pill tag-green">8.0 / 10</span></td>
+                                <td>10%</td>
+                                <td>放量突破 50日均线，MACD 翻红金叉，多头上升通道完全确立</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权评分 (Composite Score)</strong></td>
+                                <td><span class="tag-pill tag-green" style="font-size: 13px;">8.9 / 10</span></td>
+                                <td>100%</td>
+                                <td><strong>强烈看多 (STRONG BUY / 医疗机器人皇冠明珠)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <div class="chart-box">
+                    <canvas id="isrgFactorRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 03 -->
+    <section id="sec-3" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">03</div>
+                <div>
+                    <div class="section-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+                    <div class="section-sub">系统销售 + 机械臂耗材 + 维保合同：教科书级飞轮生态</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 03</span>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 20px;">
+            <div class="card card-green">
+                <div class="card-title">🤖 达芬奇多孔手术系统 (da Vinci 5 / Xi / X)</div>
+                <p style="font-size: 12.5px;"><strong>普外科、泌尿外科、妇科与胸外科绝对核心</strong><br>四臂微创手术机器人，具备 540 度自由度仿生腕关节 (EndoWrist) 与 3D 高清放大视野。单台售价 $150万 - $250万美元。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🫁 Ion 腔内呼吸介入机器人系统</div>
+                <p style="font-size: 12.5px;"><strong>肺部微创活检与早癌诊断第二增长曲线</strong><br>超细可弯曲导管结合光纤形状感知技术，精准到达外周肺部深处病灶，装机与耗材使用量同比暴增 50%+。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">🔄 耗材与维保经常性收入 (Recurring ~80%)</div>
+                <p style="font-size: 12.5px;"><strong>每台手术消耗 $1,800 - $3,500 耗材</strong><br>高精度机械臂使用特定次数后必须更换，加上每年每台机器 $10万-$18万美元维保费，现金流源源不断。</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🛡️ 波特五力模型与护城河结构深度剖析</div>
+            <div class="grid-2" style="margin-top: 10px; font-size: 13px;">
+                <div>
+                    <p><strong>1. 外科医生培训与肌肉记忆壁垒 (绝对垄断)：</strong> 全球顶级医学院与住院医师规范化培训均以达芬奇为教具，超 6.5 万名主刀医生已形成终身肌肉记忆，极难改用其他品牌。</p>
+                    <p style="margin-top: 8px;"><strong>2. 庞大的临床循证医学数据库 (极强)：</strong> 1,400 万例真实手术数据与数万篇学术论文背书，证明其在失血量、住院时间和并发症上的显著优势。</p>
+                    <p style="margin-top: 8px;"><strong>3. 专利森林与先发优势 (极强)：</strong> 拥有数千项关于机械臂力矩控制、主从遥控低延迟与光学显影的专利，强生 (JNJ) 与美敦力 (MDT) 研发同类产品屡次受阻推迟。</p>
+                </div>
+                <div>
+                    <p><strong>4. 替代品威胁客观评估 (极低)：</strong> 腹腔镜手工手术对主刀体力与手部抖动要求极高，机器人手术是微创外科不可逆转的终极进化方向。</p>
+                    <p style="margin-top: 8px;"><strong>5. 买方议价权 (弱)：</strong> 顶级医院为了招揽病患和吸引顶尖外科名医，必须标配最新款达芬奇系统作为金字招牌。</p>
+                    <p style="margin-top: 8px;"><strong>💡 护城河综合评级：超宽护城河 (Wide Moat / 行业绝对标准+医生心智+专利闭环)</strong>。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 04 -->
+    <section id="sec-4" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">04</div>
+                <div>
+                    <div class="section-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</div>
+                    <div class="section-sub">年营收跨越 110 亿美元、66.7% 高毛利与 28.5% 暴利净利率</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 04</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (单位: 百万美元 / USD)</th>
+                        <th class="th-num">FY2022</th>
+                        <th class="th-num">FY2023</th>
+                        <th class="th-num">FY2024</th>
+                        <th class="th-num">FY2025</th>
+                        <th class="th-num">TTM (最新)</th>
+                        <th>结构特征与趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="td-num">$6,222</td>
+                        <td class="td-num">$7,124</td>
+                        <td class="td-num">$8,352</td>
+                        <td class="td-num">$10,065</td>
+                        <td class="td-num highlight-val">$11,034</td>
+                        <td><span class="tag-pill tag-green">年复合增速 18%+，跨越 110 亿美元</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="td-num">$4,196</td>
+                        <td class="td-num">$4,730</td>
+                        <td class="td-num">$5,634</td>
+                        <td class="td-num">$6,642</td>
+                        <td class="td-num highlight-val">$7,357</td>
+                        <td><span class="tag-pill tag-green">毛利率高达 66.68%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="td-num">$1,577</td>
+                        <td class="td-num">$1,767</td>
+                        <td class="td-num">$2,349</td>
+                        <td class="td-num">$2,946</td>
+                        <td class="td-num highlight-val">$3,708</td>
+                        <td><span class="tag-pill tag-green">营业利润率高达 33.60%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="td-num">$1,322</td>
+                        <td class="td-num">$1,798</td>
+                        <td class="td-num">$2,323</td>
+                        <td class="td-num">$2,856</td>
+                        <td class="td-num highlight-val">$3,139</td>
+                        <td><strong>净利率达到惊人的 28.45%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating Cash Flow)</strong></td>
+                        <td class="td-num">$1,491</td>
+                        <td class="td-num">$1,814</td>
+                        <td class="td-num">$2,415</td>
+                        <td class="td-num">$3,031</td>
+                        <td class="td-num highlight-val">$3,706</td>
+                        <td><strong>经营现金流突破 37 亿美元</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="td-num">-$532</td>
+                        <td class="td-num">-$1,064</td>
+                        <td class="td-num">-$1,111</td>
+                        <td class="td-num">-$540</td>
+                        <td class="td-num">-$550</td>
+                        <td>扩建制造基地峰值已过，CapEx 显著收窄</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="td-num">$958</td>
+                        <td class="td-num">$750</td>
+                        <td class="td-num">$1,304</td>
+                        <td class="td-num">$2,491</td>
+                        <td class="td-num highlight-val">$2,615</td>
+                        <td><span class="tag-pill tag-green">年产超 26 亿美元纯现金流</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="isrgRevenueIncomeChart"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 05 -->
+    <section id="sec-5" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">05</div>
+                <div>
+                    <div class="section-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+                    <div class="section-sub">零负债杠杆下的 17.42% 极致纯净内生资本回报剖析</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 05</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-blue">
+                <div class="card-title">1. 盈利能力 (净利润率 Net Margin)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">28.45% (医疗器械顶峰)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">66.7% 高毛利与 80%+ 经常性耗材复购支撑，每 100 美元收入沉淀超 28 美元纯利。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">2. 营运效率 (资产周转率 Asset Turnover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">0.54x ~ 0.58x</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">资产端包含 $52.2 亿美元冗余现金，扣除现金后真实运营资产周转率超 1.2x，ROA 达 <strong>10.51%</strong>。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">3. 财务杠杆 (权益乘数 Equity Multiplier)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">1.15x (100% 零债务)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">完全没有任何有息银行贷款或债券负债，负债端仅为运营性应付款，抗风险能力全市场第一。</p>
+            </div>
+        </div>
+
+        <div class="callout callout-amber" style="margin-top: 16px;">
+            <strong>💡 杜邦综合诊断：</strong> 净资产收益率 <strong>ROE 达到 17.42%</strong>，总资产回报率 <strong>ROA 达到 10.51%</strong>。直觉外科是在**完全不使用任何财务杠杆（零负债）**的前提下实现的高 ROE，含金量冠绝全球医疗器械行业。
+        </div>
+    </section>
+
+    <!-- MODULE 06 -->
+    <section id="sec-6" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">06</div>
+                <div>
+                    <div class="section-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+                    <div class="section-sub">Intuitive Surgical vs Stryker vs Medtronic vs Boston Scientific 对标</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 06</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (代码)</th>
+                        <th class="th-num">最新股价</th>
+                        <th class="th-num">市值 (Cap)</th>
+                        <th class="th-num">前瞻 P/E</th>
+                        <th class="th-num">营收增速</th>
+                        <th class="th-num">毛利率</th>
+                        <th class="th-num">净利润率</th>
+                        <th class="th-num">有息负债</th>
+                        <th>核心赛道与定位</th>
+                        <th>投资评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>直觉外科 (ISRG)</strong></td>
+                        <td class="td-num highlight-val">$394.51</td>
+                        <td class="td-num">$141.34B</td>
+                        <td class="td-num highlight-val">32.68x</td>
+                        <td class="td-num highlight-val"><strong>+18.5% (最高)</strong></td>
+                        <td class="td-num highlight-val">66.68%</td>
+                        <td class="td-num highlight-val"><strong>28.45% (最高)</strong></td>
+                        <td class="td-num highlight-val"><strong>$0 (零负债)</strong></td>
+                        <td><span class="tag-pill tag-green">软组织微创手术机器人绝对统治霸主</span></td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>史赛克 (SYK)</strong></td>
+                        <td class="td-num">$339.21</td>
+                        <td class="td-num">$130.11B</td>
+                        <td class="td-num">20.24x</td>
+                        <td class="td-num">+9.4%</td>
+                        <td class="td-num">65.59%</td>
+                        <td class="td-num">14.43%</td>
+                        <td class="td-num">$15.45B</td>
+                        <td>骨科关节置换与 Mako 手术机器人</td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>美敦力 (MDT)</strong></td>
+                        <td class="td-num">$91.27</td>
+                        <td class="td-num">$116.83B</td>
+                        <td class="td-num">14.23x</td>
+                        <td class="td-num">+4.5%</td>
+                        <td class="td-num">65.31%</td>
+                        <td class="td-num">13.20%</td>
+                        <td class="td-num">$26.50B</td>
+                        <td>心血管、神经与 Hugo 手术机器人(研发中)</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>强生 (JNJ)</strong></td>
+                        <td class="td-num">$260.35</td>
+                        <td class="td-num">$627.42B</td>
+                        <td class="td-num">21.15x</td>
+                        <td class="td-num">+6.6%</td>
+                        <td class="td-num">68.14%</td>
+                        <td class="td-num">21.48%</td>
+                        <td class="td-num">$34.00B</td>
+                        <td>制药 + Ottava 手术机器人(临床阶段)</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🔍 对标核心结论</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                在软组织腹腔镜微创手术领域，直觉外科**市场占有率超过 80%**。强生 (Ottava) 与美敦力 (Hugo) 虽然持续尝试入局，但在医生临床生态、力反馈技术与全球装机基数上已被拉开 10 年以上的代际差距。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 07 -->
+    <section id="sec-7" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">07</div>
+                <div>
+                    <div class="section-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+                    <div class="section-sub">基准内在价值 $485.00，呈现 22.9% ~ 47.0% 坚实安全边际</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 07</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-amber">
+                <div class="card-title">🐻 悲观情景 (Bear Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">$330.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在跌幅: -16.4%</strong><br>
+                    假设: da Vinci 5 推广遇医院预算缩减，营收增速放缓至 8%；年化 FCF 降至 $22亿，WACC 9.5%，永续增长率 2.5%。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🎯 基准情景 (Base Case) - 核心预测</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">$485.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +22.9%</strong><br>
+                    假设: da Vinci 5 全球加速替代 Xi；Ion 维持 40%+ 高增；5年复合营收增速 15.5%；自由现金流于 2029 年达 $48亿；WACC 8.0%，永续增长率 3.5%。
+                </p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🐂 乐观情景 (Bull Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">$580.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +47.0%</strong><br>
+                    假设: da Vinci 5 催化普外科与心胸外科全面机器人化；全球装机突破 1.5 万台；年 FCF 突破 $65亿；WACC 7.5%，永续增长率 4.0%。
+                </p>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 20px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="th-num">2.5%</th>
+                        <th class="th-num">3.0%</th>
+                        <th class="th-num">3.5% (基准)</th>
+                        <th class="th-num">4.0%</th>
+                        <th class="th-num">4.5%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 7.0%</strong></td>
+                        <td class="td-num">$532.40</td>
+                        <td class="td-num">$588.60</td>
+                        <td class="td-num">$662.80</td>
+                        <td class="td-num">$768.40</td>
+                        <td class="td-num">$928.50</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 7.5%</strong></td>
+                        <td class="td-num">$456.20</td>
+                        <td class="td-num">$498.50</td>
+                        <td class="td-num">$552.80</td>
+                        <td class="td-num">$626.40</td>
+                        <td class="td-num">$731.80</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>WACC 8.0% (基准)</strong></td>
+                        <td class="td-num">$408.50</td>
+                        <td class="td-num">$442.10</td>
+                        <td class="td-num highlight-val">$485.00</td>
+                        <td class="td-num">$541.20</td>
+                        <td class="td-num">$618.50</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 8.5%</strong></td>
+                        <td class="td-num">$368.40</td>
+                        <td class="td-num">$395.80</td>
+                        <td class="td-num">$429.60</td>
+                        <td class="td-num">$472.50</td>
+                        <td class="td-num">$528.90</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 9.0%</strong></td>
+                        <td class="td-num">$334.80</td>
+                        <td class="td-num">$357.20</td>
+                        <td class="td-num">$384.50</td>
+                        <td class="td-num">$418.60</td>
+                        <td class="td-num">$462.40</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 08 -->
+    <section id="sec-8" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">08</div>
+                <div>
+                    <div class="section-title">技术面量化、均线系统与关键筹码位 (Technical Analysis & Levels)</div>
+                    <div class="section-sub">放量突破 50日均线 $391.61 与 20日均线 $367.73、MACD 翻红多头</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 08</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 16px;">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">20日均线 (SMA 20)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$367.73</div>
+                <div style="font-size: 11px; color: #15803D;">短线企稳强力向上</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">50日均线 (SMA 50)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$391.61</div>
+                <div style="font-size: 11px; color: #15803D;">现价放量站稳 50日线</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">14日 RSI 动量指标</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">71.88</div>
+                <div style="font-size: 11px; color: #15803D;">强劲多头突破动能</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">MACD 柱状图</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">+6.22</div>
+                <div style="font-size: 11px; color: #15803D;">底部金叉翻红展开主升</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🟢 关键支撑位 (Support Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>S1 (第一支撑): $390.00 - $392.00</strong> — 50日均线与突破颈线回踩确认位</li>
+                    <li><strong>S2 (核心支撑): $365.00 - $368.00</strong> — 20日均线与放量起涨强中枢</li>
+                    <li><strong>S3 (极限铁底): $328.57</strong> — 52 周历史最低大底（$52亿纯净现金托底）</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🔴 关键阻力位 (Resistance Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>R1 (短线突破点): $412.00</strong> — 布林上轨与前期阻力</li>
+                    <li><strong>R2 (中期目标): $477.00</strong> — 200日均线 ($476.94) 与华尔街平均目标价</li>
+                    <li><strong>R3 (历史峰值): $603.88</strong> — 52 周历史最高峰值</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 09 -->
+    <section id="sec-9" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">09</div>
+                <div>
+                    <div class="section-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</div>
+                    <div class="section-sub">严格遵循合规披露准则：公司股息政策与股东回报全景</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 09</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-amber">
+                <div class="card-title">📢 股息指标明确披露 (Mandatory Dividend Disclosure)</div>
+                <div class="table-scroll" style="margin: 8px 0;">
+                    <table>
+                        <tr>
+                            <td><strong>股息率 (Dividend Yield)</strong></td>
+                            <td class="td-num highlight-val"><strong>无 / 没有 (0.00% / Dividend: None)</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>年度派息金额 (Annual Payout)</strong></td>
+                            <td class="td-num">$0.00 / 股 (不派发常规现金股息)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>股息支付率 (Payout Ratio)</strong></td>
+                            <td class="td-num">0.00%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>资本配置战略说明</strong></td>
+                            <td class="td-num">全额留存用于 da Vinci 5 扩产、AI 研发与回购</td>
+                        </tr>
+                    </table>
+                </div>
+                <p style="font-size: 12px; color: #92400E; margin-top: 6px;">
+                    <strong>明确说明：</strong> 直觉外科目前<strong>不派发常规现金股息 (无/没有)</strong>。公司将每年产生的超 $26 亿美元自由现金流全额留存用于强化高达 <strong>$52.2 亿美元的零负债现金堡垒</strong>，并投资于 da Vinci 5 扩产、单孔 SP 系统与 Ion 腔内手术平台的全球研发。
+                </p>
+            </div>
+
+            <div class="card card-green">
+                <div class="card-title">💰 核心股东回报：极高质量现金累积与高 ROIC 内生复利</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>$52.2 亿美元纯净现金：</strong> 零有息负债，为公司在行业周期波动中提供极强的战略研发与逆周期扩产定力。</li>
+                    <li><strong>极致资本内生复利 (ROE 17.4% / ROA 10.5%)：</strong> 将资金投入到 66.7% 高毛利的手术耗材与机器人研发中能够创造远高于分红的长期股东价值。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="sec-10" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">10</div>
+                <div>
+                    <div class="section-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+                    <div class="section-sub">34天 DTE (2026-09-18) 三档结构化建仓与权利金增强方案</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 10</span>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">
+            当前 ISRG 股价为 <strong>$394.51</strong>，隐含波动率 (IV) 约为 <strong>30.2% - 34.6%</strong>，采用 <strong>30-45天 DTE 的 Cash-Secured Put</strong> 策略可锁定极高胜率的折价建仓与年化 15%-35% 权利金：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>行权价 (Strike)</th>
+                        <th>到期日 (DTE)</th>
+                        <th>Delta / 虚值程度</th>
+                        <th class="th-num">权利金 (Mid)</th>
+                        <th class="th-num">期间收益率</th>
+                        <th class="th-num">年化收益率 (Ann. Yield)</th>
+                        <th>实质建仓成本 / 适用投资人画像</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tag-pill tag-green">🛡️ 保守档 (Conservative)</span></td>
+                        <td><strong>$370.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.20 (6.2% OTM)</td>
+                        <td class="td-num highlight-val">$5.20</td>
+                        <td class="td-num">1.41%</td>
+                        <td class="td-num highlight-val"><strong>~15.1%</strong></td>
+                        <td><strong>$364.80</strong> (未平仓超 500 张，跌破 20日均线才接货，极高安全边际)</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><span class="tag-pill tag-blue">⚖️ 稳健档 (Moderate)</span></td>
+                        <td><strong>$380.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.32 (3.7% OTM)</td>
+                        <td class="td-num highlight-val">$8.55</td>
+                        <td class="td-num">2.25%</td>
+                        <td class="td-num highlight-val"><strong>~24.1%</strong></td>
+                        <td><strong>$371.45</strong> (跌破 50日均线接货，年化 24% 攻守兼备)</td>
+                    </tr>
+                    <tr style="background: #FAF5FF;">
+                        <td><span class="tag-pill tag-purple">🚀 进取档 (Aggressive)</span></td>
+                        <td><strong>$390.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.45 (1.1% OTM)</td>
+                        <td class="td-num highlight-val">$12.90</td>
+                        <td class="td-num">3.31%</td>
+                        <td class="td-num highlight-val"><strong>~35.5%</strong></td>
+                        <td><strong>$377.10</strong> (平值抢高额权利金，实质建仓成本落在 50日均线下方)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="sec-11" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">11</div>
+                <div>
+                    <div class="section-title">机构持仓与主力资金动向 (Institutional Ownership & 13F)</div>
+                    <div class="section-sub">全球顶级长线科技公募基金重仓锁定 85%+ 流通筹码</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 11</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者 (Institutional Holder)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持股市值 (Value)</th>
+                        <th>占总流通股比 (pctHeld)</th>
+                        <th>报告期变动 (pctChange)</th>
+                        <th>投资性质与风格</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vanguard Group, Inc. (先锋领航)</strong></td>
+                        <td class="td-num">31,200,000</td>
+                        <td class="td-num">$12.31B</td>
+                        <td class="td-num"><strong>8.71%</strong></td>
+                        <td>+1.80% (增持)</td>
+                        <td>全球最大被动指数基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BlackRock, Inc. (贝莱德)</strong></td>
+                        <td class="td-num">26,500,000</td>
+                        <td class="td-num">$10.45B</td>
+                        <td class="td-num"><strong>7.40%</strong></td>
+                        <td>+2.20% (增持)</td>
+                        <td>全球最大资产管理公司</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corp (道富银行)</strong></td>
+                        <td class="td-num">14,800,000</td>
+                        <td class="td-num">$5.84B</td>
+                        <td class="td-num"><strong>4.13%</strong></td>
+                        <td>+0.80% (增持)</td>
+                        <td>长线机构托管机构</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Baillie Gifford & Co. (柏基投资)</strong></td>
+                        <td class="td-num">12,400,000</td>
+                        <td class="td-num">$4.89B</td>
+                        <td class="td-num"><strong>3.46%</strong></td>
+                        <td>+5.40% (主动大幅加仓)</td>
+                        <td>长线颠覆性创新投资巨擘</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Geode Capital Management LLC</strong></td>
+                        <td class="td-num">8,900,000</td>
+                        <td class="td-num">$3.51B</td>
+                        <td class="td-num"><strong>2.48%</strong></td>
+                        <td>+1.90% (增持)</td>
+                        <td>量化与基本面超额投资机构</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
+            <strong>主力动向解析：</strong> 机构持股比例高达 <strong>85.2%+</strong>。柏基投资 (Baillie Gifford) 与先锋在股价突破 50日均线时积极加仓，长线机构筹码锁定度极高。
+        </p>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="sec-12" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">12</div>
+                <div>
+                    <div class="section-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Tone)</div>
+                    <div class="section-sub">CEO Gary Guthart 强调 da Vinci 5 力反馈技术深受顶级外科专家盛赞</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 12</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🎙️ 财报电话会要点与管理层情绪 (Sentiment: Bullish)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>da Vinci 5 换机热度空前：</strong> 早期试用外科医生对力反馈触觉感知的评价极高，复杂结直肠切除、胸外科与胰腺手术的手术时间与创伤均显著缩短。</li>
+                    <li><strong>Ion 肺穿刺活检爆发式增长：</strong> Ion 全球程序量同比增长超 50%，与达芬奇形成协同，在早期肺癌诊疗一体化中建立黄金闭环。</li>
+                    <li><strong>充沛现金支持持续创新：</strong> 制造基地扩产峰值已过，未来自由现金流转化率将进一步攀升至 90%+。</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📝 卓越管理层与科技信仰文化</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>CEO Gary Guthart 掌舵逾 20 年：</strong> 斯坦福大学工程博士，从最初的 SRI 军工外科遥控项目一步步将直觉外科带入千亿美元市值殿堂。</li>
+                    <li><strong>深厚工程师文化：</strong> 研发费用率长期维持在 12%-14% 高位，技术迭代始终领先行业 1-2 代。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="sec-13" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">13</div>
+                <div>
+                    <div class="section-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</div>
+                    <div class="section-sub">做空占比仅 1.88%，平仓天数 1.71 天</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 13</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">做空股数 (Shares Short)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">662万 股</div>
+                <div style="font-size: 11px; color: var(--text-muted);">流通股占比: 1.88% (极低空头)</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">平仓天数 (Days to Cover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">1.71 天</div>
+                <div style="font-size: 11px; color: var(--text-muted);">市场完全无做空意愿</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">空头压力评级</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">极低风险 (Very Low)</div>
+                <div style="font-size: 11px; color: #15803D;">纯正基本面长期机构重仓长牛形态</div>
+            </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 14px;">
+            <strong>空头分析：</strong> 做空比例不足 2%，显示机构投资者对直觉外科 66.7% 高毛利、零负债以及 da Vinci 5 换机超级周期的确定性充满信心。
+        </p>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="sec-14" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">14</div>
+                <div>
+                    <div class="section-title">核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+                    <div class="section-sub">系统性审视医院资本开支预算、中国本土审批与 GLP-1 影响</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 14</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子 (Risk Factor)</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>综合风险等级</th>
+                        <th>对冲机制与缓冲垫 (Mitigation & Buffer)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 医院短期资本预算收紧推迟整机采购</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>暂时 (Transitory)</td>
+                        <td><span class="tag-pill tag-amber">中等关注</span></td>
+                        <td>直觉外科提供灵活的经营性租赁 (Operating Lease) 模式，且 80% 收入来自刚性消耗的耗材与维保</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 中国本土手术机器人竞争与医疗集采政策</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低-中风险</span></td>
+                        <td>中国本土合资公司加速国产化落地，且高端复杂三甲手术依然高度依赖达芬奇系统</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. GLP-1 减重药对减重代谢手术量的短期分流</strong></td>
+                        <td>低-中等 (Low-Mod)</td>
+                        <td>极轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低风险</span></td>
+                        <td>减重手术仅占总手术量不到 4%，泌尿外科、妇科、普外科疝气与结直肠手术需求极度刚性</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="sec-15" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">15</div>
+                <div>
+                    <div class="section-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+                    <div class="section-sub">未来 6-18 个月核心估值催化事件序列</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 15</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">📅 催化剂 1: da Vinci 5 欧盟 CE 认证与全球全面放量</div>
+                <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">2026年 下半年</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">欧洲与亚太主要市场获批上市，推动全球 9,000 台老旧达芬奇装机进入加速置换升级阶段。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📅 催化剂 2: Ion 腔内系统国际市场注册获批</div>
+                <div style="font-size: 12px; font-weight: 700; color: #1E40AF; margin-bottom: 6px;">2026年 Q4</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">Ion 呼吸介入系统在日韩及欧洲落地，推动第二增长曲线收入突破 10 亿美元大关。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">📅 催化剂 3: 估值向 $485 - $580 历史中枢强劲修复</div>
+                <div style="font-size: 12px; font-weight: 700; color: #6B21A8; margin-bottom: 6px;">持续推进</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">随着 da Vinci 5 盈利全面兑现，戴维斯双击将驱动股价向历史最高峰值发起有力冲击。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 16 -->
+    <section id="sec-16" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">16</div>
+                <div>
+                    <div class="section-title">最终投资评级与执行建议 (Final Verdict & Execution Plan)</div>
+                    <div class="section-sub">标准化投资决策模块与分步建仓指引</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 16</span>
+        </div>
+
+        <div class="signal-banner">
+            <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700;">INVESTMENT SIGNAL MATRIX</div>
+            <div style="font-size: 26px; font-weight: 800; margin: 4px 0 14px;">强烈看多 (STRONG BUY) • 8.9 / 10</div>
+            
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-lbl">核心信号 (Signal)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">STRONG BUY (强烈看多)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">置信度 (Confidence)</div>
+                    <div class="signal-val">HIGH (极高)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">投资期限 (Horizon)</div>
+                    <div class="signal-val">12 - 36 个月</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">综合评分 (Score)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">8.9 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">建议操作 (Action)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">BUY (均线突破坚决买入)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">目标价 (Target Price)</div>
+                    <div class="signal-val">$485.00 (+22.9%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">🎯 具体交易执行指引 (Actionable Strategy)</div>
+            <ol style="padding-left: 20px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.8;">
+                <li><strong>正股分批建仓区间：</strong> 建议在 <strong>$380.00 - $395.00</strong> 50日均线与突破颈线回踩区间建立 50%-60% 重仓底仓。零负债与 $52.2 亿美元现金提供极强下行防护。</li>
+                <li><strong>期权收益增强执行：</strong> 推荐卖出 2026-09-18 到期、行权价 <strong>$370.00 Put</strong>（权利金 ~$5.20，年化收益率 ~15.1%）或 <strong>$380.00 Put</strong>（权利金 ~$8.55，年化收益率 ~24.1%），以跌破强支撑的实质成本抢筹。</li>
+                <li><strong>持股目标与止盈规划：</strong> 第一目标位 <strong>$440.00</strong>（分批止盈 25%），核心 DCF 公允目标位 <strong>$485.00 (+22.9%)</strong>，长期超级周期目标看至 <strong>$580.00 - $685.00 (+47.0% ~ +73.6%)</strong>。</li>
+            </ol>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+            <strong>免责声明 (Disclaimer)：</strong> 本研报基于公开市场数据、公司官方财务披露及行业量化模型生成，仅供投资研究与学术交流参考，不构成任何具体的投资建议或买卖要约。股票及金融衍生品交易存在本金损失风险，投资者应根据自身风险承受能力独立决策。
+        </div>
+    </section>
+
+</div>
+
+<!-- JAVASCRIPT FOR CHARTS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Radar Chart
+        const radarCtx = document.getElementById('isrgFactorRadarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['护城河与垄断壁垒 (9.9)', '财务健康/零负债 (9.9)', '盈利质量/现金流 (9.5)', 'da Vinci 5换机成长 (9.0)', '估值性价比 (7.5)', '筹码与技术突破 (8.0)'],
+                datasets: [{
+                    label: '直觉外科 (ISRG) 因子得分',
+                    data: [9.9, 9.9, 9.5, 9.0, 7.5, 8.0],
+                    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                    borderColor: '#10B981',
+                    pointBackgroundColor: '#059669',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#059669',
+                    borderWidth: 2
+                }, {
+                    label: '全球高值医疗器械板块均值 (Benchmark)',
+                    data: [7.0, 6.5, 6.5, 6.0, 6.0, 5.5],
+                    backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                    borderColor: '#94A3B8',
+                    pointBackgroundColor: '#94A3B8',
+                    pointBorderColor: '#fff',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#E2E8F0' },
+                        grid: { color: '#F1F5F9' },
+                        pointLabels: {
+                            font: { size: 11, weight: '600', family: 'Inter' },
+                            color: '#475569'
+                        },
+                        ticks: { min: 0, max: 10, stepSize: 2, display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+
+        // 2. Revenue & Free Cash Flow Bar/Line Chart
+        const revCtx = document.getElementById('isrgRevenueIncomeChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024', '2025', 'TTM (最新)'],
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: '营业总收入 Revenue ($M)',
+                        data: [6222, 7124, 8352, 10065, 11034],
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#059669',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: '自由现金流 FCF ($M)',
+                        data: [958, 750, 1304, 2491, 2615],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#D97706',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '总营收 ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { color: '#F1F5F9' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: '自由现金流 FCF ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

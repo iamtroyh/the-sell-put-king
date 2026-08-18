@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>声田 (Spotify - SPOT) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 850px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #F1F5F9;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .section-title-wrap { display: flex; align-items: center; gap: 12px; }
+        .section-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 15px;
+        }
+        .section-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+        .section-sub { font-size: 12px; color: var(--text-muted); }
+        .section-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .report-hero { padding: 32px 16px; }
+            .main-wrap { padding: 20px 16px 48px; }
+            .hero-title { font-size: 24px; }
+            .section { padding: 20px 16px; }
+        }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card-green { background: #F0FDF4; border-color: #BBF7D0; }
+        .card-amber { background: #FFFBEB; border-color: #FDE68A; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+        .card-purple { background: #FAF5FF; border-color: #E9D5FF; }
+
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .card-green .card-title { color: #166534; }
+        .card-amber .card-title { color: #92400E; }
+        .card-blue .card-title { color: #1E40AF; }
+        .card-purple .card-title { color: #6B21A8; }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin: 14px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #F1F5F9;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-num { font-family: 'JetBrains Mono', monospace; text-align: right; }
+        .th-num { text-align: right; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 290px;
+            margin: 12px 0;
+        }
+
+        .highlight-val { font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #15803D; }
+        .tag-blue { background: #DBEAFE; color: #1D4ED8; }
+        .tag-amber { background: #FEF3C7; color: #B45309; }
+        .tag-red { background: #FEE2E2; color: #B91C1C; }
+
+        .signal-banner {
+            background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+            border: 2px solid #10B981;
+            border-radius: 16px;
+            padding: 24px;
+            color: #fff;
+            box-shadow: 0 10px 25px -5px rgba(16,185,129,.3);
+            margin: 20px 0;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.1);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.15);
+        }
+        .signal-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .signal-val { font-size: 20px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+        
+        .divider { height: 1px; background: #F1F5F9; margin: 20px 0; }
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+        .callout-amber {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: SPOT</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY) • 8.6/10</span>
+            <span class="badge badge-hero-cat">全球流媒体音频与数字音乐绝对垄断霸主</span>
+            <span class="badge badge-hero-cat">15模块全景量化研报</span>
+        </div>
+        <h1 class="hero-title">声田 (Spotify Technology S.A.)</h1>
+        <div class="hero-sub">6.3亿月活用户、毛利率突破32.8%、年自由现金流达28.7亿美元：从“纯流媒体通道”向“高毛利双边音乐音频生态”的史诗级蜕变深度剖析</div>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新股价 (Spot)</div>
+                <div class="hero-kpi-val">$512.82</div>
+                <div class="hero-kpi-sub">52周区间: $405.00 - $745.00</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$105.45B</div>
+                <div class="hero-kpi-sub">净现金: ~$6.52B (占市值6.2%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 总营收 (USD)</div>
+                <div class="hero-kpi-val">$18.11B</div>
+                <div class="hero-kpi-sub">YoY 增速: +13.9%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">毛利率 (Gross Margin)</div>
+                <div class="hero-kpi-val">32.77%</div>
+                <div class="hero-kpi-sub">结构性突破 30% 天花板</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">净资产收益率 (ROE)</div>
+                <div class="hero-kpi-val">44.48%</div>
+                <div class="hero-kpi-sub">经营杠杆迎来爆发兑现期</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师最高目标价</div>
+                <div class="hero-kpi-val">$723.50</div>
+                <div class="hero-kpi-sub">DCF基准目标价: $640.00 (+24.8%)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- Table of Contents -->
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报导航目录 (15大核心模块全景覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">04. 财报与盈利质量</a>
+            <a href="#sec-5" class="toc-link">05. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">06. 行业竞争与同行对标</a>
+            <a href="#sec-7" class="toc-link">07. DCF估值三情景模型</a>
+            <a href="#sec-8" class="toc-link">08. 技术面与筹码量化</a>
+            <a href="#sec-9" class="toc-link">09. 资本配置与股息披露</a>
+            <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与主力动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </div>
+
+    <!-- MODULE 01 -->
+    <section id="sec-1" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">01</div>
+                <div>
+                    <div class="section-title">执行摘要与核心投资逻辑 (Executive Summary & Investment Thesis)</div>
+                    <div class="section-sub">全球 6.3 亿月活音频超级入口、双边市场打破版税桎梏与超 $28 亿纯现金流</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 01</span>
+        </div>
+
+        <p style="margin-bottom: 16px; font-size: 14.5px; color: var(--text-secondary);">
+            <strong>声田 (Spotify Technology S.A., NYSE: SPOT)</strong> 是全球规模最大、用户体验最极致的数字音乐、播客与有声书流媒体垄断巨头。月活跃用户 (MAU) 突破 <strong>6.3 亿</strong>，付费订阅用户突破 <strong>2.5 亿</strong>。此前市场长期受制于“Spotify 是三大唱片公司的高级打工人、毛利率永远无法突破 25%”的刻板偏见。然而，随着公司成功推出 <strong>双边市场营销工具 (Two-Sided Marketplace: Discovery Mode / Marquee / Showcase)</strong>、裁撤冗余播客独占开支并全面导入有声书商业化，公司毛利率实现历史性跨越至 <strong>32.77%</strong>，营业利润从 2022 年的亏损 $6.59 亿爆发式跃升至 <strong>$22.0 亿美元</strong>，全面蜕变成为高盈利能力的数字内容基础设施。
+        </p>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">🎵 核心看多逻辑 1：极强提价权与近 99% 的订阅留存壁垒</div>
+                <p style="font-size: 13px; color: #166534;">
+                    Spotify 过去两年在欧美及全球主要市场连续进行 2-3 轮提价，流失率 (Churn Rate) 创历史新低。个性化算法歌单（Discover Weekly / Wrapped）与跨设备无缝流转（Spotify Connect）构成了极强的用户转换成本，提价增量几乎 100% 转化为纯利润。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🚀 核心看多逻辑 2：双边市场营销工具 (Marketplace) 彻底击碎毛利天花板</div>
+                <p style="font-size: 13px; color: #166534;">
+                    唱片公司与音乐人为了在 6.3 亿用户中获得推荐曝光，主动向 Spotify 支付推广分成或接受更低版税率（Discovery Mode）。该高毛利技术服务收入以 40%+ 速度增长，推动综合毛利率向 35%+ 长期目标稳步迈进。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">💰 核心看多逻辑 3：$65.2亿 纯净现金堡垒 + 年产 $28.7亿 自由现金流</div>
+                <p style="font-size: 13px; color: #166534;">
+                    账面拥有高达 <strong>$69.8 亿美元总现金，净现金达 $65.2 亿美元</strong>，无任何重大短期偿债风险。轻资本运营模式（年 CapEx 仅 $6,100 万美元），年化自由现金流 (FCF) 高达 <strong>$28.7 亿美元</strong>，支撑管理层进行持续股票回购。
+                </p>
+            </div>
+        </div>
+
+        <div class="callout" style="margin-top: 18px;">
+            <strong>📌 投资评级概览：</strong> 综合多因子量化模型评分 <strong>8.6 / 10</strong>，给予 <strong>强烈看多 (STRONG BUY)</strong> 评级。基准 DCF 公允价值为 <strong>$640.00 (+24.8% 空间)</strong>，乐观目标价看至 <strong>$780.00 (+52.1%)</strong>。建议在 $490 - $515 均线支撑带坚决布局。
+        </div>
+    </section>
+
+    <!-- MODULE 02 -->
+    <section id="sec-2" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">02</div>
+                <div>
+                    <div class="section-title">多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Model)</div>
+                    <div class="section-sub">6大核心维度综合量化评级：总分 8.6 / 10</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 02</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>量化评估因子</th>
+                                <th>因子得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与诊断结论</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 护城河与用户网络 (Moat)</strong></td>
+                                <td><span class="tag-pill tag-green">9.8 / 10</span></td>
+                                <td>25%</td>
+                                <td>全球 6.3亿 MAU 绝对垄断、Spotify Connect 跨设备生态、极高粘性算法</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 财务健康与现金储备 (Health)</strong></td>
+                                <td><span class="tag-pill tag-green">9.5 / 10</span></td>
+                                <td>20%</td>
+                                <td>净现金高达 $65.2 亿美元，流动比率 2.11，无偿债压力</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 盈利质量与 ROE (Profitability)</strong></td>
+                                <td><span class="tag-pill tag-green">9.0 / 10</span></td>
+                                <td>20%</td>
+                                <td>毛利率达 32.77%，年产 FCF $28.7 亿美元，ROE 高达 44.48%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 估值与成长匹配 (Valuation)</strong></td>
+                                <td><span class="tag-pill tag-green">8.0 / 10</span></td>
+                                <td>15%</td>
+                                <td>P/S 仅 5.82x（低于 Apple 9.6x / Netflix 6.7x），经营杠杆释放进入黄金期</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 业绩增长与新曲线 (Growth)</strong></td>
+                                <td><span class="tag-pill tag-green">8.0 / 10</span></td>
+                                <td>10%</td>
+                                <td>TTM 营收增速 +13.9%，有声书与提价推动 ARPU 与总毛利双击</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. 筹码与技术面 (Technicals)</strong></td>
+                                <td><span class="tag-pill tag-green">7.5 / 10</span></td>
+                                <td>10%</td>
+                                <td>回踩 50日均线 $483 强劲反弹，站稳 20日均线，RSI 58.4 动能良好</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权评分 (Composite Score)</strong></td>
+                                <td><span class="tag-pill tag-green" style="font-size: 13px;">8.6 / 10</span></td>
+                                <td>100%</td>
+                                <td><strong>强烈看多 (STRONG BUY / 消费互联网龙头)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <div class="chart-box">
+                    <canvas id="spotFactorRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 03 -->
+    <section id="sec-3" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">03</div>
+                <div>
+                    <div class="section-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+                    <div class="section-sub">Premium 订阅 + 广告支持双轮驱动，双边市场构筑高维壁垒</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 03</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 20px;">
+            <div class="card card-green">
+                <div class="card-title">🎧 Premium 付费订阅</div>
+                <p style="font-size: 12.5px;"><strong>核心创收压舱石 (~88% 营收)</strong><br>全球超 2.5 亿高净值付费家庭与个人用户，无广告、高品质串流，多轮提价几乎零流失。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📢 广告支持免费层 (Ad-Supported)</div>
+                <p style="font-size: 12.5px;"><strong>全球获客流量大漏斗 (~12% 营收)</strong><br>覆盖近 4 亿免费月活用户，通过音频广告、视频广告与赞助歌单变现，并持续向付费转化。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">⚡ 双边市场营销 (Marketplace)</div>
+                <p style="font-size: 12.5px;"><strong>高毛利率利润加速器</strong><br>Discovery Mode, Marquee, Showcase，帮助音乐人与唱片厂牌精准触达粉丝，享受高纯利分成。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">📚 有声书与播客生态</div>
+                <p style="font-size: 12.5px;"><strong>音频大娱乐新边界</strong><br>为订阅会员提供每月 15 小时免费有声书试听，超额按本购买，打开比单纯音乐更广阔的知识消费场景。</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🛡️ 波特五力模型与护城河结构深度剖析</div>
+            <div class="grid-2" style="margin-top: 10px; font-size: 13px;">
+                <div>
+                    <p><strong>1. 供应商议价权反转 (重大改善)：</strong> 过去三大唱片公司（环球、索尼、华纳）握有垄断定价权；如今 Spotify 成为全球音乐行业 60%+ 流媒体收入来源，已具备极强博弈能力。</p>
+                    <p style="margin-top: 8px;"><strong>2. 用户网络效应与转换成本 (极强)：</strong> 用户的歌单积累、算法偏好记忆与跨设备 Spotify Connect 控制，使得用户几乎不可能转移到 Apple Music。</p>
+                    <p style="margin-top: 8px;"><strong>3. 潜在进入者威胁 (极低)：</strong> 获取全球数千万首版权许可、建立超大规模低延迟音频 CDN 网络并积累 15 年算法数据，新玩家已无入局可能。</p>
+                </div>
+                <div>
+                    <p><strong>4. 同行竞争格局稳固 (强)：</strong> 尽管 Apple Music 与 Amazon Music 背靠科技巨头，但其作为非核心附属业务，在产品创新、UI 交互与算法推荐上被 Spotify 全面碾压。</p>
+                    <p style="margin-top: 8px;"><strong>5. 替代品威胁 (极低)：</strong> 短视频（TikTok）虽然碎片化抢占时间，但开车、健身、工作等伴随性“背景音频”需求具有不可替代的刚性。</p>
+                    <p style="margin-top: 8px;"><strong>💡 护城河综合评级：宽护城河 (Wide Moat / 产品体验垄断+双边市场+高转换成本)</strong>。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 04 -->
+    <section id="sec-4" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">04</div>
+                <div>
+                    <div class="section-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</div>
+                    <div class="section-sub">年营收超 180 亿美元、毛利率结构性跳升与 $28.7亿+ 自由现金流</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 04</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (单位: 百万美元 / USD)</th>
+                        <th class="th-num">FY2022</th>
+                        <th class="th-num">FY2023</th>
+                        <th class="th-num">FY2024</th>
+                        <th class="th-num">FY2025</th>
+                        <th class="th-num">TTM (最新)</th>
+                        <th>结构特征与趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="td-num">$11,727</td>
+                        <td class="td-num">$13,247</td>
+                        <td class="td-num">$15,673</td>
+                        <td class="td-num">$17,186</td>
+                        <td class="td-num highlight-val">$18,113</td>
+                        <td><span class="tag-pill tag-green">年稳健增长，突破 180 亿美元</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="td-num">$2,926</td>
+                        <td class="td-num">$3,397</td>
+                        <td class="td-num">$4,724</td>
+                        <td class="td-num">$5,496</td>
+                        <td class="td-num highlight-val">$5,935</td>
+                        <td><span class="tag-pill tag-green">毛利率跨越至 32.77%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="td-num">-$659</td>
+                        <td class="td-num">-$446</td>
+                        <td class="td-num">$1,365</td>
+                        <td class="td-num">$2,198</td>
+                        <td class="td-num highlight-val">$2,484</td>
+                        <td><span class="tag-pill tag-green">经营杠杆爆发，利润率达 13.7%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="td-num">-$430</td>
+                        <td class="td-num">-$532</td>
+                        <td class="td-num">$1,138</td>
+                        <td class="td-num">$2,212</td>
+                        <td class="td-num highlight-val">$3,339</td>
+                        <td>全面释放利润，净利率达 18.4%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating Cash Flow)</strong></td>
+                        <td class="td-num">$46</td>
+                        <td class="td-num">$680</td>
+                        <td class="td-num">$2,301</td>
+                        <td class="td-num">$2,933</td>
+                        <td class="td-num highlight-val">$3,337</td>
+                        <td><strong>经营现金流突破 33 亿美元</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="td-num">-$25</td>
+                        <td class="td-num">-$6</td>
+                        <td class="td-num">-$17</td>
+                        <td class="td-num">-$61</td>
+                        <td class="td-num">-$60</td>
+                        <td>纯云端软件架构，CapEx 几乎忽略不计</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="td-num">$21</td>
+                        <td class="td-num">$674</td>
+                        <td class="td-num">$2,284</td>
+                        <td class="td-num">$2,872</td>
+                        <td class="td-num highlight-val">$1,541</td>
+                        <td><span class="tag-pill tag-green">年产近 29 亿美元纯现金</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="spotRevenueIncomeChart"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 05 -->
+    <section id="sec-5" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">05</div>
+                <div>
+                    <div class="section-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+                    <div class="section-sub">ROE 44.48% 极高盈利模式的底层因子剖析</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 05</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-blue">
+                <div class="card-title">1. 盈利能力 (净利润率 Net Margin)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">18.43% (显著改善)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">随着毛利率突破 32% 且行政与营销费用率严格控制，公司从过去的微亏微利一举跃升为高净利率软件平台。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">2. 营运效率 (资产周转率 Asset Turnover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">1.21x ~ 1.30x (高周转)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">资产端主要由 $69.8 亿美元现金构成，资产周转效率极高，总资产回报率 ROA 达到 <strong>12.19%</strong>。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">3. 财务杠杆 (权益乘数 Equity Multiplier)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">1.80x (低杠杆)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">仅有极少量的可转债与经营租赁负债，有息负债率不足 6%，属于极度健康的内生资本运作模式。</p>
+            </div>
+        </div>
+
+        <div class="callout callout-amber" style="margin-top: 16px;">
+            <strong>💡 杜邦综合诊断：</strong> 净资产收益率 <strong>ROE 达到 44.48%</strong>，资产回报率 <strong>ROA 达到 12.19%</strong>。Spotify 展现出教科书级的 SaaS 经营杠杆释放过程，随着用户规模扩张，边际利润率呈现指数级上升。
+        </div>
+    </section>
+
+    <!-- MODULE 06 -->
+    <section id="sec-6" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">06</div>
+                <div>
+                    <div class="section-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+                    <div class="section-sub">Spotify vs 苹果 (Apple) vs 奈飞 (Netflix) vs 华纳音乐 (WMG) 多维度对标</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 06</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (代码)</th>
+                        <th class="th-num">最新股价</th>
+                        <th class="th-num">市值 (Cap)</th>
+                        <th class="th-num">前瞻 P/E</th>
+                        <th class="th-num">P/S (市销率)</th>
+                        <th class="th-num">毛利率</th>
+                        <th class="th-num">ROE</th>
+                        <th class="th-num">现金储备</th>
+                        <th>核心赛道与定位</th>
+                        <th>投资评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>声田 (SPOT)</strong></td>
+                        <td class="td-num highlight-val">$512.82</td>
+                        <td class="td-num">$105.45B</td>
+                        <td class="td-num highlight-val">28.74x</td>
+                        <td class="td-num highlight-val">5.82x</td>
+                        <td class="td-num highlight-val">32.77%</td>
+                        <td class="td-num highlight-val">44.48%</td>
+                        <td class="td-num highlight-val"><strong>$6.98B (极安全)</strong></td>
+                        <td><span class="tag-pill tag-green">全球流媒体音频第一霸主</span></td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>苹果 (AAPL)</strong></td>
+                        <td class="td-num">$305.93</td>
+                        <td class="td-num">$4,464.8B</td>
+                        <td class="td-num">32.18x</td>
+                        <td class="td-num">9.56x</td>
+                        <td class="td-num">48.65%</td>
+                        <td class="td-num">150%+</td>
+                        <td>$65.0B</td>
+                        <td>硬件消费电子 + Apple Services (含Music)</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>奈飞 (NFLX)</strong></td>
+                        <td class="td-num">$78.16</td>
+                        <td class="td-num">$325.45B</td>
+                        <td class="td-num">20.48x</td>
+                        <td class="td-num">6.73x</td>
+                        <td class="td-num">49.12%</td>
+                        <td class="td-num">35.20%</td>
+                        <td>$7.5B</td>
+                        <td>全球流媒体视频绝对第一龙头</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>华纳音乐 (WMG)</strong></td>
+                        <td class="td-num">$25.65</td>
+                        <td class="td-num">$13.42B</td>
+                        <td class="td-num">13.02x</td>
+                        <td class="td-num">1.84x</td>
+                        <td class="td-num">45.77%</td>
+                        <td class="td-num">48.50%</td>
+                        <td>$0.8B</td>
+                        <td>全球三大传统唱片版权厂牌之一</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🔍 对标核心结论</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                Spotify 在流媒体领域的地位正在快速演变为“音频界的 Netflix”。随着双边市场推广费用与有声书业务的放量，Spotify 的市销率 (5.82x P/S) 明显低于苹果服务 (9.56x) 与 Netflix (6.73x)，兼具垄断防御性与高现金流弹性。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 07 -->
+    <section id="sec-7" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">07</div>
+                <div>
+                    <div class="section-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+                    <div class="section-sub">基准内在价值 $640.00，呈现 24.8% ~ 52.1% 坚实安全边际</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 07</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-amber">
+                <div class="card-title">🐻 悲观情景 (Bear Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">$420.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在跌幅: -18.1%</strong><br>
+                    假设: 付费用户增速降至 6%，唱片公司版税谈判施压；年化 FCF 降至 $20亿，WACC 10.5%，永续增长率 2.0%。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🎯 基准情景 (Base Case) - 核心预测</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">$640.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +24.8%</strong><br>
+                    假设: 提价顺利传导；双边市场推动毛利率升至 35%；5年营收复合增速 13.5%；FCF 于 2029 年达 $45亿；WACC 8.5%，永续增长率 3.0%。
+                </p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🐂 乐观情景 (Bull Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">$780.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +52.1%</strong><br>
+                    假设: Supremium 高端套餐与有声书全面爆发；MAU 突破 8 亿；年 FCF 突破 $60亿；WACC 8.0%，永续增长率 3.5%。
+                </p>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 20px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="th-num">2.0%</th>
+                        <th class="th-num">2.5%</th>
+                        <th class="th-num">3.0% (基准)</th>
+                        <th class="th-num">3.5%</th>
+                        <th class="th-num">4.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 7.5%</strong></td>
+                        <td class="td-num">$712.50</td>
+                        <td class="td-num">$768.20</td>
+                        <td class="td-num">$838.40</td>
+                        <td class="td-num">$929.10</td>
+                        <td class="td-num">$1,052.80</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 8.0%</strong></td>
+                        <td class="td-num">$628.10</td>
+                        <td class="td-num">$670.70</td>
+                        <td class="td-num">$724.50</td>
+                        <td class="td-num">$793.20</td>
+                        <td class="td-num">$884.90</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>WACC 8.5% (基准)</strong></td>
+                        <td class="td-num">$561.80</td>
+                        <td class="td-num">$595.90</td>
+                        <td class="td-num highlight-val">$640.00</td>
+                        <td class="td-num">$693.40</td>
+                        <td class="td-num">$762.60</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 9.0%</strong></td>
+                        <td class="td-num">$508.40</td>
+                        <td class="td-num">$535.80</td>
+                        <td class="td-num">$568.20</td>
+                        <td class="td-num">$610.50</td>
+                        <td class="td-num">$664.10</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 9.5%</strong></td>
+                        <td class="td-num">$463.70</td>
+                        <td class="td-num">$486.30</td>
+                        <td class="td-num">$512.50</td>
+                        <td class="td-num">$544.70</td>
+                        <td class="td-num">$584.90</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 08 -->
+    <section id="sec-8" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">08</div>
+                <div>
+                    <div class="section-title">技术面量化、均线系统与关键筹码位 (Technical Analysis & Levels)</div>
+                    <div class="section-sub">依托 20日/50日均线强劲反弹、RSI 58.4 处于良性上升通道</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 08</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 16px;">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">20日均线 (SMA 20)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$493.24</div>
+                <div style="font-size: 11px; color: #15803D;">短线核心多头支撑</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">50日均线 (SMA 50)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$483.76</div>
+                <div style="font-size: 11px; color: #15803D;">中期均线稳健向上金叉</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">14日 RSI 动量指标</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">58.35</div>
+                <div style="font-size: 11px; color: #15803D;">处于健康多头动量区间</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">200日均线 (SMA 200)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--amber);">$514.84</div>
+                <div style="font-size: 11px; color: #B45309;">现价 $512.8 正在发起突破</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🟢 关键支撑位 (Support Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>S1 (第一支撑): $493.00 - $500.00</strong> — 20日均线与心理整数关口</li>
+                    <li><strong>S2 (核心支撑): $480.00 - $484.00</strong> — 50日均线与近期放量起涨点</li>
+                    <li><strong>S3 (历史大底): $405.00</strong> — 52 周历史最低大底（净现金极强支撑）</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🔴 关键阻力位 (Resistance Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>R1 (短线突破点): $525.00</strong> — 布林上轨与近期冲高回落阻力</li>
+                    <li><strong>R2 (中期目标): $610.00</strong> — 华尔街平均目标价与筹码密集区</li>
+                    <li><strong>R3 (历史峰值): $745.00</strong> — 52 周历史最高阻力位</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 09 -->
+    <section id="sec-9" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">09</div>
+                <div>
+                    <div class="section-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</div>
+                    <div class="section-sub">严格遵循合规披露准则：公司股息政策与股东回报全景</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 09</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-amber">
+                <div class="card-title">📢 股息指标明确披露 (Mandatory Dividend Disclosure)</div>
+                <div class="table-scroll" style="margin: 8px 0;">
+                    <table>
+                        <tr>
+                            <td><strong>股息率 (Dividend Yield)</strong></td>
+                            <td class="td-num highlight-val"><strong>无 / 没有 (0.00% / Dividend: None)</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>年度派息金额 (Annual Payout)</strong></td>
+                            <td class="td-num">$0.00 / 股 (不派发常规现金股息)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>股息支付率 (Payout Ratio)</strong></td>
+                            <td class="td-num">0.00%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>资本配置战略说明</strong></td>
+                            <td class="td-num">全额留存用于强化现金堡垒、回购与高ROIC业务</td>
+                        </tr>
+                    </table>
+                </div>
+                <p style="font-size: 12px; color: #92400E; margin-top: 6px;">
+                    <strong>明确说明：</strong> Spotify 目前<strong>不派发常规现金股息 (无/没有)</strong>。公司将每年产生的近 $30 亿美元自由现金流全额留存用于构建高达 <strong>$65.2 亿美元的净现金安全气囊</strong>，并适时执行股票回购以注销股本。
+                </p>
+            </div>
+
+            <div class="card card-green">
+                <div class="card-title">💰 核心股东回报：极高质量现金储备与潜在回购</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>$65.2 亿美元纯净现金：</strong> 占总市值超 6%，赋予管理层在低估值阶段启动大额回购授权的极高灵活性。</li>
+                    <li><strong>极高资本回报率 (ROE 44.5%)：</strong> 随着经营杠杆全面释放，将资金投入到高利润率的双边市场与有声书生态中能够创造更高的长期股东复利。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="sec-10" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">10</div>
+                <div>
+                    <div class="section-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+                    <div class="section-sub">34天 DTE (2026-09-18) 三档结构化建仓与权利金增强方案</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 10</span>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">
+            当前 SPOT 股价为 <strong>$512.82</strong>，隐含波动率 (IV) 约为 <strong>35.6% - 38.8%</strong>，采用 <strong>30-45天 DTE 的 Cash-Secured Put</strong> 策略可实现极高胜率的折价建仓与年化 15%-35% 权利金收益：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>行权价 (Strike)</th>
+                        <th>到期日 (DTE)</th>
+                        <th>Delta / 虚值程度</th>
+                        <th class="th-num">权利金 (Mid)</th>
+                        <th class="th-num">期间收益率</th>
+                        <th class="th-num">年化收益率 (Ann. Yield)</th>
+                        <th>实质建仓成本 / 适用投资人画像</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tag-pill tag-green">🛡️ 保守档 (Conservative)</span></td>
+                        <td><strong>$460.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.15 (10.3% OTM)</td>
+                        <td class="td-num highlight-val">$5.025</td>
+                        <td class="td-num">1.09%</td>
+                        <td class="td-num highlight-val"><strong>~11.7%</strong></td>
+                        <td><strong>$454.975</strong> (未平仓近 2,000 张，跌至强支撑才接货，极端安全)</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><span class="tag-pill tag-blue">⚖️ 稳健档 (Moderate)</span></td>
+                        <td><strong>$480.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.26 (6.4% OTM)</td>
+                        <td class="td-num highlight-val">$9.125</td>
+                        <td class="td-num">1.90%</td>
+                        <td class="td-num highlight-val"><strong>~20.4%</strong></td>
+                        <td><strong>$470.875</strong> (锚定 50日均线 $483.76 支撑，年化 20% 攻守兼备)</td>
+                    </tr>
+                    <tr style="background: #FAF5FF;">
+                        <td><span class="tag-pill tag-purple">🚀 进取档 (Aggressive)</span></td>
+                        <td><strong>$500.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.38 (2.5% OTM)</td>
+                        <td class="td-num highlight-val">$15.90</td>
+                        <td class="td-num">3.18%</td>
+                        <td class="td-num highlight-val"><strong>~34.1%</strong></td>
+                        <td><strong>$484.10</strong> (平值抢高额权利金，实质建仓成本落在 50日均线)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="sec-11" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">11</div>
+                <div>
+                    <div class="section-title">机构持仓与主力资金动向 (Institutional Ownership & 13F)</div>
+                    <div class="section-sub">腾讯、普徕仕、柏基投资与先锋领航等长线资本重仓锁定</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 11</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者 (Institutional Holder)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持股市值 (Value)</th>
+                        <th>占总流通股比 (pctHeld)</th>
+                        <th>报告期变动 (pctChange)</th>
+                        <th>投资性质与风格</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>T. Rowe Price Associates, Inc. (普徕仕)</strong></td>
+                        <td class="td-num">18,200,000</td>
+                        <td class="td-num">$9.33B</td>
+                        <td class="td-num"><strong>8.85%</strong></td>
+                        <td>+3.20% (增持)</td>
+                        <td>全球顶级主动价值成长公募基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Baillie Gifford & Co. (柏基投资)</strong></td>
+                        <td class="td-num">16,500,000</td>
+                        <td class="td-num">$8.46B</td>
+                        <td class="td-num"><strong>8.02%</strong></td>
+                        <td>+1.80% (增持)</td>
+                        <td>长线颠覆性创新投资巨擘</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tencent Holdings Ltd. (腾讯控股)</strong></td>
+                        <td class="td-num">15,800,000</td>
+                        <td class="td-num">$8.10B</td>
+                        <td class="td-num"><strong>7.68%</strong></td>
+                        <td>0.00% (战略交叉持股锁定)</td>
+                        <td>全球数字娱乐与社交超级巨头</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Group, Inc. (先锋领航)</strong></td>
+                        <td class="td-num">14,300,000</td>
+                        <td class="td-num">$7.33B</td>
+                        <td class="td-num"><strong>6.95%</strong></td>
+                        <td>+2.10% (增持)</td>
+                        <td>全球最大指数基金与被动配置机构</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BlackRock, Inc. (贝莱德)</strong></td>
+                        <td class="td-num">11,900,000</td>
+                        <td class="td-num">$6.10B</td>
+                        <td class="td-num"><strong>5.79%</strong></td>
+                        <td>+2.50% (增持)</td>
+                        <td>全球最大资产管理公司</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
+            <strong>主力动向解析：</strong> 机构持股比例高达 <strong>82%+</strong>。腾讯与柏基投资等战略长线资本数十年来坚定持有，普徕仕在回调中连续主动增持，流通筹码锁定度极高。
+        </p>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="sec-12" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">12</div>
+                <div>
+                    <div class="section-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Tone)</div>
+                    <div class="section-sub">CEO Daniel Ek 强调经营杠杆兑现年与有声书超级新曲线</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 12</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🎙️ 财报电话会要点与管理层情绪 (Sentiment: Bullish)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>毛利率向 35%+ 目标坚定迈进：</strong> 管理层指出，双边市场（Marketplace）与播客效率优化正在持续释放利润，毛利率提升具备高度结构性与确定性。</li>
+                    <li><strong>有声书成为第二大收听品类：</strong> 有声书使用时长环比增长超 40%，有效拉长用户单日 App 驻留时间，进一步提升订阅粘性。</li>
+                    <li><strong>现金流全面充裕：</strong> 自由现金流转化率超预期，未来将持续保持精简运营，将现金流倾斜于股东回报与产品创新。</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📝 创始人兼 CEO 领导力与长期愿景</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>创始人 Daniel Ek 卓越远见：</strong> 从反盗版数字音乐破局到全球音频垄断，Daniel Ek 展现出极强的商业敏锐度与果断的降本增效执行力。</li>
+                    <li><strong>高管利益绑定：</strong> 管理层股权激励计划与自由现金流目标和长期股东总回报 (TSR) 深度挂钩。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="sec-13" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">13</div>
+                <div>
+                    <div class="section-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</div>
+                    <div class="section-sub">做空占比 4.09%，平仓天数 3.93 天</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 13</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">做空股数 (Shares Short)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">646万 股</div>
+                <div style="font-size: 11px; color: var(--text-muted);">流通股占比: 4.09%</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">平仓天数 (Days to Cover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--amber);">3.93 天</div>
+                <div style="font-size: 11px; color: #B45309;">平仓周期中等，具良好反弹弹性</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">空头压力评级</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">低-中风险 (Low-Med)</div>
+                <div style="font-size: 11px; color: #15803D;">空头回补买盘将支撑股价突破</div>
+            </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 14px;">
+            <strong>空头分析：</strong> 做空力量主要押注唱片公司版税纠纷。然而随着财报连续确认自由现金流爆发式增长，<strong>近 4 天的平仓天数</strong> 将在股价突破 200日均线 ($514.84) 时转化为强劲的空头回补买盘。
+        </p>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="sec-14" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">14</div>
+                <div>
+                    <div class="section-title">核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+                    <div class="section-sub">系统性审视唱片公司版税博弈、宏观广告需求与平台抽成风险</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 14</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子 (Risk Factor)</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>综合风险等级</th>
+                        <th>对冲机制与缓冲垫 (Mitigation & Buffer)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 三大唱片公司版税重新谈判提高分成比例</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>暂时 (Transitory)</td>
+                        <td><span class="tag-pill tag-amber">中等关注</span></td>
+                        <td>Spotify 是唱片公司最大现金流命脉，双方深度共生；双边市场推广费用有效对冲版税成本</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 欧美宏观消费疲软导致订阅提价受阻</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低-中风险</span></td>
+                        <td>音乐流媒体属于仅需 $10/月 的廉价高刚性日常娱乐，流失率不足 1.5%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 欧盟数字市场法案 (DMA) 执行波折</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低风险</span></td>
+                        <td>DMA 反而迫使苹果开放 App 内直接支付，长期来看将降低应用商店抽成费用</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 股价 Beta 偏高带来的短期宽幅震荡</strong></td>
+                        <td>高 (High)</td>
+                        <td>短期波动</td>
+                        <td><span class="tag-pill tag-amber">中等关注</span></td>
+                        <td>通过卖出高安全垫的 Cash-Secured Put 策略捕获年化 20%-35% 权利金对冲波动</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="sec-15" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">15</div>
+                <div>
+                    <div class="section-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+                    <div class="section-sub">未来 6-18 个月核心估值催化事件序列</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 15</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">📅 催化剂 1: Supremium 无损音质高阶套餐发布</div>
+                <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">2026年 下半年</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">推出面向发烧友的 Hi-Fi 无损音频与专属歌单工具，额外收取 $5/月 溢价，拉升综合 ARPU。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📅 催化剂 2: 全球新一轮订阅提价落地</div>
+                <div style="font-size: 12px; font-weight: 700; color: #1E40AF; margin-bottom: 6px;">2026年 Q4</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">覆盖主流欧美市场的提价顺利落地，增量收入直接转化为数十亿美元毛利与自由现金流。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">📅 催化剂 3: 估值向 $640 - $720 历史高位强劲修复</div>
+                <div style="font-size: 12px; font-weight: 700; color: #6B21A8; margin-bottom: 6px;">持续推进</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">随着毛利率结构性企稳在 33%-35%，戴维斯双击将驱动股价向历史峰值发起有力冲击。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 16 -->
+    <section id="sec-16" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">16</div>
+                <div>
+                    <div class="section-title">最终投资评级与执行建议 (Final Verdict & Execution Plan)</div>
+                    <div class="section-sub">标准化投资决策模块与分步建仓指引</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 16</span>
+        </div>
+
+        <div class="signal-banner">
+            <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700;">INVESTMENT SIGNAL MATRIX</div>
+            <div style="font-size: 26px; font-weight: 800; margin: 4px 0 14px;">强烈看多 (STRONG BUY) • 8.6 / 10</div>
+            
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-lbl">核心信号 (Signal)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">STRONG BUY (强烈看多)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">置信度 (Confidence)</div>
+                    <div class="signal-val">HIGH (极高)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">投资期限 (Horizon)</div>
+                    <div class="signal-val">12 - 36 个月</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">综合评分 (Score)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">8.6 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">建议操作 (Action)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">BUY (均线支撑带坚决买入)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">目标价 (Target Price)</div>
+                    <div class="signal-val">$640.00 (+24.8%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">🎯 具体交易执行指引 (Actionable Strategy)</div>
+            <ol style="padding-left: 20px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.8;">
+                <li><strong>正股分批建仓区间：</strong> 建议在 <strong>$490.00 - $515.00</strong> 20日均线与 50日均线支撑区间建立 50%-60% 重仓底仓。下行空间已被 $65.2 亿美元净现金储备与结构性毛利扩张牢固托底。</li>
+                <li><strong>期权收益增强执行：</strong> 推荐卖出 2026-09-18 到期、行权价 <strong>$480.00 Put</strong>（权利金 ~$9.13，年化收益率 ~20.4%）或 <strong>$500.00 Put</strong>（权利金 ~$15.90，年化收益率 ~34.1%），以跌破强支撑的实质成本抢筹。</li>
+                <li><strong>持股目标与止盈规划：</strong> 第一目标位 <strong>$580.00</strong>（分批止盈 25%），核心 DCF 公允目标位 <strong>$640.00 (+24.8%)</strong>，长期乐观目标可看至 <strong>$720.00 - $780.00 (+52.1%)</strong>。</li>
+            </ol>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+            <strong>免责声明 (Disclaimer)：</strong> 本研报基于公开市场数据、公司官方财务披露及行业量化模型生成，仅供投资研究与学术交流参考，不构成任何具体的投资建议或买卖要约。股票及金融衍生品交易存在本金损失风险，投资者应根据自身风险承受能力独立决策。
+        </div>
+    </section>
+
+</div>
+
+<!-- JAVASCRIPT FOR CHARTS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Radar Chart
+        const radarCtx = document.getElementById('spotFactorRadarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['护城河与用户网络 (9.8)', '财务健康/净现金 (9.5)', '盈利质量/ROE (9.0)', '估值与成长匹配 (8.0)', '业绩增长/提价 (8.0)', '筹码与技术面 (7.5)'],
+                datasets: [{
+                    label: '声田 (SPOT) 因子得分',
+                    data: [9.8, 9.5, 9.0, 8.0, 8.0, 7.5],
+                    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                    borderColor: '#10B981',
+                    pointBackgroundColor: '#059669',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#059669',
+                    borderWidth: 2
+                }, {
+                    label: '全球流媒体与数字娱乐板块均值 (Benchmark)',
+                    data: [6.5, 6.0, 6.0, 6.0, 5.5, 5.5],
+                    backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                    borderColor: '#94A3B8',
+                    pointBackgroundColor: '#94A3B8',
+                    pointBorderColor: '#fff',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#E2E8F0' },
+                        grid: { color: '#F1F5F9' },
+                        pointLabels: {
+                            font: { size: 11, weight: '600', family: 'Inter' },
+                            color: '#475569'
+                        },
+                        ticks: { min: 0, max: 10, stepSize: 2, display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+
+        // 2. Revenue & Free Cash Flow Bar/Line Chart
+        const revCtx = document.getElementById('spotRevenueIncomeChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024', '2025', 'TTM (最新)'],
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: '营业总收入 Revenue ($M)',
+                        data: [11727, 13247, 15673, 17186, 18113],
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#059669',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: '自由现金流 FCF ($M)',
+                        data: [21, 674, 2284, 2872, 1541],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#D97706',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '总营收 ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { color: '#F1F5F9' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: '自由现金流 FCF ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

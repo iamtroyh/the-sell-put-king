@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>美国运通 (American Express - AXP) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 28px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+        
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title-wrap { display: flex; align-items: center; gap: 10px; }
+        .sec-num {
+            width: 28px; height: 28px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 13px;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .sec-title { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+        
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left; }
+        th { background: #F8FAFC; color: var(--text-secondary); font-weight: 600; padding: 10px 12px; border-bottom: 2px solid var(--border); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:hover td { background: #F8FAFC; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .card-box { background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+        .card-box-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+        
+        .signal-block {
+            background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.95));
+            border: 2px solid var(--primary);
+            border-radius: 14px;
+            padding: 24px;
+            color: #fff;
+            margin-top: 16px;
+        }
+        .signal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 16px 0; }
+        .signal-item { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 12px 14px; border-radius: 8px; }
+        .sig-label { font-size: 11px; text-transform: uppercase; color: #94A3B8; font-weight: 600; }
+        .sig-val { font-size: 16px; font-weight: 700; color: #fff; margin-top: 4px; }
+        .signal-score { font-size: 26px; font-weight: 800; color: #34D399; font-family: 'JetBrains Mono', monospace; }
+        .signal-verdict { font-size: 18px; font-weight: 800; color: #6EE7B7; }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">🏛️ AXP · American Express Co.</span>
+            <span class="badge badge-hero-stock">📂 优质金融服务 | 高端闭环支付网络龙头</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-stock">📅 报告基准日: 2026-08-17</span>
+        </div>
+        <h1 class="hero-title">美国运通 (American Express - AXP) 15模块全景量化投研报告</h1>
+        <p class="hero-sub">高端消费客群心智绝对垄断、独特的闭环发卡与清算商户网络（Closed-Loop）、年轻千禧一代与Z世代高渗透率扩张、巴菲特长期重仓 21.3%+ 压舱石与持续超 34% 的顶级 ROE 盈利能力。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前市场现价</div>
+                <div class="hero-kpi-val">$337.00</div>
+                <div class="hero-kpi-sub">52周: $290.97 ~ $387.49 (RP 47.7%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">多因子综合评分</div>
+                <div class="hero-kpi-val">8.7 / 10</div>
+                <div class="hero-kpi-sub">评级: 强烈看多 (STRONG BUY)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$227.58B</div>
+                <div class="hero-kpi-sub">市盈率 P/E: 20.5x | 前瞻 P/E: 16.8x</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息收益率 (Dividend)</div>
+                <div class="hero-kpi-val">1.11%</div>
+                <div class="hero-kpi-sub">年派息: $3.80/股 | 派息率 21.5% (持续回购)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报导航目录 (15大核心模块全景覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">04. 财报与盈利质量</a>
+            <a href="#sec-5" class="toc-link">05. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">06. 行业竞争与同行对标</a>
+            <a href="#sec-7" class="toc-link">07. DCF估值三情景模型</a>
+            <a href="#sec-8" class="toc-link">08. 技术面与筹码量化</a>
+            <a href="#sec-9" class="toc-link">09. 资本配置与股息披露</a>
+            <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与巴菲特动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵与信贷周期测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </div>
+
+    <!-- 模块 1: 执行摘要与投资核心逻辑 -->
+    <section id="sec-1" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">01</div>
+                <h2 class="sec-title">执行摘要与投资核心逻辑 (Executive Summary & Thesis)</h2>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="card-box">
+                <div class="card-box-title">💡 核心投资论点 (Core Investment Thesis)</div>
+                <p>1. <b>高净值闭环生态网络与不可替代的商户费率溢价</b>：不同于 Visa/Mastercard 仅充当管道，运通兼具发卡行与清算网络，直连全球高净值持卡人与商户。持卡人客单价与年度刷卡额显著高出普通卡 3 倍以上，商户折扣费率（Discount Rate）常年稳定在 2.2%~2.3% 行业最高水平。</p>
+                <p style="margin-top:8px;">2. <b>年轻千禧一代/Z世代获客飞轮与类 SaaS 净卡费收入</b>：Millennial 和 Gen-Z 占新增个人白金卡（Platinum）与金卡（Gold）获客比例超 60%，推动订阅式年费收入（Net Card Fees）实现两位数复合高增长，构筑极强现金流底座。</p>
+                <p style="margin-top:8px;">3. <b>顶尖资产质量与 SMA200 黄金均线建仓赔率</b>：坏账核销率（Net Write-off Rate）长期低于 2.0%（远优于传统商业银行 3.5%~4.5%）。股价精确回踩 SMA200 均线 $337.64 强支撑位，前瞻 P/E 仅 16.8x，具备极佳的中长线确定性赔率。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🎯 关键财务与运营指标速览</div>
+                <div class="table-scroll">
+                    <table>
+                        <tr><th>核心指标</th><th>最新数据</th><th>行业地位与评级</th></tr>
+                        <tr><td>营业收入增长率 (YoY)</td><td><b>+12.8%</b></td><td>显著优于传统大型银行平均（5-8%）</td></tr>
+                        <tr><td>毛利率 / 营业利润率</td><td>62.3% / 20.3%</td><td>免除中间分润，盈利厚度优异</td></tr>
+                        <tr><td>净资产收益率 (ROE)</td><td><b>34.4%</b></td><td>顶级资本运营效率，巴菲特第一重仓金融资产</td></tr>
+                        <tr><td>股息收益率 / 派息率</td><td>1.11% / 21.5%</td><td>充足现金流支撑高频加息与股份注销</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 2: 多因子量化评分雷达模型 -->
+    <section id="sec-2" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">02</div>
+                <h2 class="sec-title">多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</h2>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div style="height: 280px; position: relative;">
+                <canvas id="radarChart"></canvas>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">📊 5大核心维度综合量化评分 (Composite: 8.7 / 10)</div>
+                <div class="table-scroll">
+                    <table>
+                        <tr><th>量化维度</th><th>得分</th><th>权重</th><th>核心驱动因素</th></tr>
+                        <tr><td>商业质量 (Business Quality)</td><td><b>9.6 / 10</b></td><td>25%</td><td>独家闭环支付网络、高端生活方式品牌溢价与 34.4% 高 ROE</td></tr>
+                        <tr><td>内在估值 (Valuation)</td><td><b>8.9 / 10</b></td><td>25%</td><td>前瞻 P/E 16.8x，PEG ~1.2，性价比显著优于 V/MA (26-28x)</td></tr>
+                        <tr><td>市场信号 (Market Signals)</td><td><b>8.4 / 10</b></td><td>20%</td><td>巴菲特持仓 21.3%+ 终身锁定，管理层上调全年 EPS 增长指引</td></tr>
+                        <tr><td>技术结构 (Technical Setup)</td><td><b>8.2 / 10</b></td><td>15%</td><td>现价 $337.00 精确踩在 SMA200 长期牛市支撑均线上方</td></tr>
+                        <tr><td>风险防御 (Risk Profile)</td><td><b>8.3 / 10</b></td><td>15%</td><td>高信用分客群抗周期违约率低，做空比例仅 2.3%</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 3: 商业模式与波特五力 -->
+    <section id="sec-3" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">03</div>
+                <h2 class="sec-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">💳 1. 闭环生态网络与大数据洞察</div>
+                <p style="font-size:13px; color:var(--text-secondary);">自建持卡人与商户双边直连通道，掌握全链条高净值第一手消费数据，能够精准为商户定制营销活动，商业变现维度远超传统四方清算卡组织。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">✈️ 2. 会员生活方式与奢华权益壁垒</div>
+                <p style="font-size:13px; color:var(--text-secondary);">百夫长贵宾厅（Centurion Lounges）、全球高端酒店与米其林餐饮独家预订礼遇，将信用卡深度绑定为高净值人群的生活方式身份象征。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🏢 3. 全球企业商用卡与 B2B 支付</div>
+                <p style="font-size:13px; color:var(--text-secondary);">与全球《财富》500 强跨国公司及中小企业深度捆绑，差旅管理系统粘性极高，带来抗周期、高频次、大额度的稳健企业支付结算流。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 4: 核心财务报表剖析 -->
+    <section id="sec-4" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">04</div>
+                <h2 class="sec-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</h2>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <tr><th>财务指标</th><th>当前最新数据</th><th>行业对标/基准</th><th>财务质量评估</th></tr>
+                <tr><td>营业收入 (Revenue YoY)</td><td><b>+12.8%</b></td><td>+6.5% (同行中位数)</td><td>刷卡交易量（Billed Business）与年费双轮驱动</td></tr>
+                <tr><td>毛利率 (Gross Margin)</td><td><b>62.3%</b></td><td>45.0%</td><td>闭环商业模式免除中介分润，毛利厚度极佳</td></tr>
+                <tr><td>营业利润率 (Operating Margin)</td><td>20.3%</td><td>18.0%</td><td>营销投放与客户奖励成本控制精准高效</td></tr>
+                <tr><td>净利润率 (Net Margin)</td><td>16.1%</td><td>12.5%</td><td>高确定性信贷利息净收入增厚利润</td></tr>
+                <tr><td>净资产收益率 (ROE)</td><td><b>34.4%</b></td><td>12.8% (大行平均)</td><td>顶级资本效率，无过度杠杆支撑的高 ROE</td></tr>
+                <tr><td>总现金与流动资产</td><td>$457.5 亿美元</td><td>-</td><td>流动性充沛，完全满足美联储压力测试要求</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 5: 杜邦三因子拆解 -->
+    <section id="sec-5" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">05</div>
+                <h2 class="sec-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">1. 净利润率 (Net Margin)</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">16.1%</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">高客单价刷卡费率与高端卡年费提供强劲净利率支撑</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">2. 资产周转率 (Asset Turnover)</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">0.28x</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">持卡人应收账款与流动性存款资产周转稳健可控</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">3. 权益乘数 (Financial Leverage)</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">7.6x</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">在严格符合美联储一级资本充足率（Tier 1）监管下高效运作</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 6: 行业同行全景对标 -->
+    <section id="sec-6" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">06</div>
+                <h2 class="sec-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</h2>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <tr><th>标的名称</th><th>代码</th><th>总市值</th><th>P/E (TTM)</th><th>前瞻 P/E</th><th>ROE</th><th>模式与估值评价</th></tr>
+                <tr style="background:var(--primary-light); font-weight:600;"><td>美国运通 (AXP)</td><td>AXP</td><td>$227.6B</td><td><b>20.5x</b></td><td><b>16.8x</b></td><td><b>34.4%</b></td><td><b>兼具高ROE与极低前瞻估值，巴菲特第一重仓金融股</b></td></tr>
+                <tr><td>Visa Inc.</td><td>V</td><td>$590.0B</td><td>30.5x</td><td>26.2x</td><td>48.0%</td><td>纯通道清算轻资产，估值存在大幅溢价</td></tr>
+                <tr><td>万事达 (Mastercard)</td><td>MA</td><td>$445.0B</td><td>34.2x</td><td>28.5x</td><td>52.0%</td><td>全球双寡头通道，估值处于高位区间</td></tr>
+                <tr><td>摩根大通 (JPMorgan)</td><td>JPM</td><td>$610.0B</td><td>12.8x</td><td>12.2x</td><td>17.5%</td><td>全能型商业银行，净息差周期敏感度高</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 7: DCF 估值三情景模型 -->
+    <section id="sec-7" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">07</div>
+                <h2 class="sec-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box" style="border-left: 4px solid #EF4444;">
+                <div class="card-box-title" style="color:#DC2626;">🐻 悲观情景 (Bear Case)</div>
+                <div style="font-size:24px; font-weight:800; font-family:'JetBrains Mono';">$290.00</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">假设美国经济深度衰退导致信贷坏账率升至 3.5%，WACC 10.0%</p>
+                <div style="margin-top:6px; font-size:12px; color:#DC2626;">极限下行空间: -13.9%</div>
+            </div>
+            <div class="card-box" style="border-left: 4px solid var(--primary); background:var(--primary-light);">
+                <div class="card-box-title" style="color:var(--primary);">🎯 基准情景 (Base Case)</div>
+                <div style="font-size:24px; font-weight:800; font-family:'JetBrains Mono'; color:var(--primary);">$395.00</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">刷卡量维持 10% 稳健增长，卡费收入两位数扩张，WACC 8.8%，永续增长率 3.0%</p>
+                <div style="margin-top:6px; font-size:12px; font-weight:700; color:var(--primary);"><b>公允价值空间: +17.2%</b></div>
+            </div>
+            <div class="card-box" style="border-left: 4px solid #10B981;">
+                <div class="card-box-title" style="color:#059669;">🐂 乐观情景 (Bull Case)</div>
+                <div style="font-size:24px; font-weight:800; font-family:'JetBrains Mono';">$460.00</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">千禧一代消费力超预期爆发，国际化商户覆盖率追平 Visa，WACC 8.0%</p>
+                <div style="margin-top:6px; font-size:12px; color:#059669;">上行空间: +36.5%</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 8: 技术面量化分析 -->
+    <section id="sec-8" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">08</div>
+                <h2 class="sec-title">技术面量化、均线系统与关键筹码位 (Technical Analysis)</h2>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="card-box">
+                <div class="card-box-title">📈 均线系统与关键支撑共振</div>
+                <div class="table-scroll">
+                    <table>
+                        <tr><th>均线/指标</th><th>当前数值</th><th>技术形态诊断</th></tr>
+                        <tr><td>20日均线 (SMA 20)</td><td>$340.73</td><td>短期微幅回踩整理</td></tr>
+                        <tr><td>50日均线 (SMA 50)</td><td>$340.16</td><td>中期筹码密集粘合区</td></tr>
+                        <tr><td>200日均线 (SMA 200)</td><td>$337.64</td><td><b>现价 $337.00 精确回踩 SMA200 牛市支撑位</b></td></tr>
+                        <tr><td>RSI 14 (相对强弱指标)</td><td>47.8</td><td>中性偏底部良性蓄势区域</td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🎯 关键买卖筹码位</div>
+                <p><b>第一阻力位 (R1)</b>: $360.00 (前期高位平台阻力)</p>
+                <p style="margin-top:8px;"><b>强支撑位 (S1)</b>: $335.00 - $337.00 (SMA200 与整数关口共振支撑)</p>
+                <p style="margin-top:8px;"><b>极限估值底 (S2)</b>: $300.00 (对应 14x 历史极端恐慌估值)</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 9: 资本配置与股息政策 (MANDATORY DIVIDEND DISCLOSURE) -->
+    <section id="sec-9" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">09</div>
+                <h2 class="sec-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</h2>
+            </div>
+        </div>
+        <div class="card-box" style="border-left: 4px solid var(--primary);">
+            <div class="card-box-title">💰 股息与股东回报核心披露 (Mandatory Dividend Disclosure)</div>
+            <p style="font-size:15px; font-weight:700; color:var(--primary); margin-bottom:6px;">股息状态：1.11% ($3.80/股 年派息，季度派发 $0.95/股，派息率 21.5%)</p>
+            <p style="font-size:13px; color:var(--text-secondary);">公司已连续多年稳健提高股息派发额，超低派息率提供了巨大的加息空间。每年通过数十亿美元公开市场股票回购注销股份，常年回购注销率达 2~3%，是典型的巴菲特式现金奶牛。</p>
+        </div>
+    </section>
+
+    <!-- 模块 10: 现金担保卖出看跌期权 (CSP) 策略 -->
+    <section id="sec-10" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">10</div>
+                <h2 class="sec-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</h2>
+            </div>
+        </div>
+        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+            鉴于美国运通当前股价已精准回踩 200日均线（$337.00 SMA200 长期牛市生命线），且具备 16.8x 超低前瞻 P/E 与 34.4% 顶级 ROE 支撑，采用 <strong>现金担保卖出看跌期权 (Cash-Secured Sell Put)</strong> 策略可以实现“在理想黄金均线支撑位买入巴菲特第一大金融重仓底仓，若未被行权则全额收获权利金”：
+        </p>
+
+        <div class="grid-3">
+            <div class="card-box" style="border: 1px solid var(--border);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="color:#0D9488; font-weight:800; font-size:14px;">🛡️ 保守型 (Conservative)</span>
+                    <span class="badge" style="background:#CCFBF1; color:#0D9488;">Delta ~0.20</span>
+                </div>
+                <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:var(--text-primary); margin:4px 0;">$310.00 Put</div>
+                <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                    <div><b>到期日：</b> 2026-09-18 (32天 DTE)</div>
+                    <div><b>预估权利金：</b> $4.20 / 股 ($420 / 张)</div>
+                    <div><b>保本买入价：</b> $305.80 (较现价折价 -9.3%)</div>
+                    <div><b>年化收益率 (APY)：</b> <b style="color:#059669; font-size:15px;">15.4%</b></div>
+                    <div style="margin-top:6px; font-size:11.5px; color:var(--text-muted);">远低于 SMA200 黄金均线，提供极厚安全垫，适合大资金稳健收租。</div>
+                </div>
+            </div>
+
+            <div class="card-box" style="border: 2px solid var(--primary); background: #FAFDFB;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="color:var(--primary); font-weight:800; font-size:14px;">🎯 稳健型 (Moderate - 推荐)</span>
+                    <span class="badge" style="background:var(--primary-light); color:var(--primary);">Delta ~0.32</span>
+                </div>
+                <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:var(--primary); margin:4px 0;">$325.00 Put</div>
+                <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                    <div><b>到期日：</b> 2026-09-18 (32天 DTE)</div>
+                    <div><b>预估权利金：</b> $7.80 / 股 ($780 / 张)</div>
+                    <div><b>保本买入价：</b> $317.20 (较现价折价 -5.9%)</div>
+                    <div><b>年化收益率 (APY)：</b> <b style="color:var(--primary); font-size:15px;">27.4%</b></div>
+                    <div style="margin-top:6px; font-size:11.5px; color:var(--text-muted);">挂单于 SMA200 ($337) 下方强支撑，兼顾超 27% 年化现金流与高胜率接盘建仓。</div>
+                </div>
+            </div>
+
+            <div class="card-box" style="border: 1px solid var(--amber);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="color:var(--amber); font-weight:800; font-size:14px;">⚡ 进取型 (Aggressive)</span>
+                    <span class="badge" style="background:var(--amber-light); color:var(--amber);">Delta ~0.48</span>
+                </div>
+                <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:#B45309; margin:4px 0;">$335.00 Put</div>
+                <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                    <div><b>到期日：</b> 2026-09-18 (32天 DTE)</div>
+                    <div><b>预估权利金：</b> $12.50 / 股 ($1250 / 张)</div>
+                    <div><b>保本买入价：</b> $322.50 (较现价折价 -4.3%)</div>
+                    <div><b>年化收益率 (APY)：</b> <b style="color:#D97706; font-size:15px;">42.6%</b></div>
+                    <div style="margin-top:6px; font-size:11.5px; color:var(--text-muted);">现价平值附近积极建仓，随时准备行权买入顶级金融消费底仓。</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 11: 机构持仓与主力资金 -->
+    <section id="sec-11" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">11</div>
+                <h2 class="sec-title">机构持仓与主力资金动向 (Institutional Ownership)</h2>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <tr><th>机构股东</th><th>持股比例估算</th><th>持股状态与态度</th></tr>
+                <tr><td>伯克希尔·哈撒韦 (Berkshire Hathaway / Warren Buffett)</td><td><b>21.3%</b></td><td><b>巴菲特长线持仓第二大重仓股，终身不卖的压舱石</b></td></tr>
+                <tr><td>先锋领航集团 (The Vanguard Group)</td><td>~6.8%</td><td>被动配置长线锁定</td></tr>
+                <tr><td>贝莱德集团 (BlackRock, Inc.)</td><td>~6.0%</td><td>稳健持有</td></tr>
+                <tr><td>机构投资者总体持股比例</td><td><b>65.7%</b></td><td><b>股权结构高度稳定，无非理性砸盘风险</b></td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 12: 内部人交易与财报电话会洞察 -->
+    <section id="sec-12" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">12</div>
+                <h2 class="sec-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Tone)</h2>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="card-box">
+                <div class="card-box-title">📝 SEC Form 4 内部人交易信号</div>
+                <p>• <b>高管行为</b>：董事长兼 CEO Stephen Squeri 与高管团队持股稳定，无集中抛售套现现象。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🎙️ 财报电话会管理层基调 (Management Tone)</div>
+                <p>• <b>业绩指引</b>：管理层重申全年中高双位数（10%~12%）营收增长与超 15% EPS 复合增长长期指引，对高端消费客群的消费韧性高度乐观。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 13: 做空比例与轧空风险 -->
+    <section id="sec-13" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">13</div>
+                <h2 class="sec-title">做空比例、平仓天数与轧空风险评估 (Short Interest)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">空头占流通盘比例 (Short % Float)</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">2.32%</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">做空比例极低，市场无实质空头力量压制</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">平仓所需天数 (Days to Cover)</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">3.84 天</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">流动性优异，回补顺畅</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">轧空风险评级 (Squeeze Risk)</div>
+                <div style="font-size:22px; font-weight:800; color:#059669;">极低 (Negligible)</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">机构长线持股锁仓，筹码高度纯净</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 14: 核心风险矩阵与压力测试 -->
+    <section id="sec-14" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">14</div>
+                <h2 class="sec-title">核心风险矩阵与压力测试 (Risk Matrix & Bear Case)</h2>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <tr><th>风险维度</th><th>风险等级</th><th>潜在影响分析</th><th>应对与对冲机制</th></tr>
+                <tr><td>宏观经济衰退与失业率上升</td><td>中等 (Medium)</td><td>商业差旅与大额非必需品消费支出放缓</td><td>客户群体主要为高收入阶层与优质企业，抗周期违约率显著优于同行</td></tr>
+                <tr><td>支付清算费率立法（CCCA法案）</td><td>低至中 (Low-Med)</td><td>国会提议削弱信用卡网络刷卡费率</td><td>运通闭环发卡模式不受四方清算路由限制，监管抗击打能力最强</td></tr>
+                <tr><td>高端卡权益竞争加剧</td><td>低 (Low)</td><td>Chase Sapphire 与 Capital One 争夺高端客群</td><td>运通深厚的全球顶级奢华酒店/机场贵宾厅排他性生态难以被复制</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 15: 未来关键催化剂日历 -->
+    <section id="sec-15" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">15</div>
+                <h2 class="sec-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">📅 季度财报与刷卡量披露</div>
+                <p style="font-size:13px; color:var(--text-secondary);">关注 Millennial & Gen-Z 客群消费贡献与卡费经常性收入增速。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">✈️ 全球差旅与国际商户扩张</div>
+                <p style="font-size:13px; color:var(--text-secondary);">国际商户受理率进一步提升，拉平与 Visa/Mastercard 在海外的普及度。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🏛️ 降息周期净息差与估值提振</div>
+                <p style="font-size:13px; color:var(--text-secondary);">美联储降息周期下信贷成本改善，金融龙头估值中枢全面向上修复。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 16: 最终投资评级与执行建议 (Standardized Signal Block) -->
+    <section id="sec-16" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">16</div>
+                <h2 class="sec-title">最终投资评级与执行建议 (Final Verdict & Execution Strategy)</h2>
+            </div>
+        </div>
+        
+        <div class="grid-2" style="margin-bottom: 16px;">
+            <div class="card-box" style="border-left: 4px solid var(--primary);">
+                <div class="card-box-title">📈 正股现货配置与建仓执行方案</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
+                    <li><b>建仓区间：</b> 现价 $337.00 或回踩 $325.00 - $335.00 支撑积极分批建仓；</li>
+                    <li><b>第一目标位：</b> <strong>$410.00</strong>（公允价值回归，空间 +21.7%）；</li>
+                    <li><b>长线牛市目标：</b> <strong>$480.00</strong>（年轻客群卡费与海外扩张，空间 +42.4%）；</li>
+                    <li><b>止损防守位：</b> 跌破 <strong>$295.00</strong>（-12.5%）减仓防守。</li>
+                </ul>
+            </div>
+            <div class="card-box" style="border-left: 4px solid #10B981; background: #F0FDF4;">
+                <div class="card-box-title" style="color: #064E3B;">💎 现金担保 Sell Put 期权增强策略推荐 (首选)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><b>推荐合约：</b> 卖出 <strong>2026-09-18 到期、$325.00 行权价的 Put</strong>（稳健型）；</li>
+                    <li><b>单张权利金：</b> 约 <strong>$7.80 / 股</strong>（收取 $780 纯现金权利金）；</li>
+                    <li><b>有效接盘价：</b> <strong>$317.20</strong>（较现价折价 -5.9%，安全垫极厚）；</li>
+                    <li><b>年化收益率：</b> <strong style="font-size:15px; color:#059669;">27.4%</strong>（若未跌破 $325 则全额保留权利金）。</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="signal-block">
+            <div style="font-size:13px; letter-spacing:1px; text-transform:uppercase; color:#94A3B8; margin-bottom:4px;">INVESTMENT SIGNAL BLOCK</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div class="signal-verdict">强烈看多 (STRONG BUY)</div>
+                <div class="signal-score">8.7 / 10</div>
+            </div>
+
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="sig-label">投资信号 (Signal)</div>
+                    <div class="sig-val" style="color:#6EE7B7;">强烈看多 (STRONG BUY)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">置信度 (Confidence)</div>
+                    <div class="sig-val">HIGH (极高置信度)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">投资周期 (Horizon)</div>
+                    <div class="sig-val">中长线 (12 - 36 个月)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">多因子综合分 (Score)</div>
+                    <div class="sig-val" style="color:#34D399;">8.7 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">执行建议 (Action)</div>
+                    <div class="sig-val" style="color:#6EE7B7;">BUY (SMA200 黄金均线位分批配置 / 卖出 2026-09-18 $325 Put)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">确定性等级 (Conviction)</div>
+                    <div class="sig-val">STRONG (顶级核心资产)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['商业质量', '内在估值', '市场信号', '技术动量', '风险防御'],
+            datasets: [{
+                label: 'AXP 多因子得分',
+                data: [9.6, 8.9, 8.4, 8.2, 8.3],
+                backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#10B981',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#10B981'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(0, 0, 0, 0.08)' },
+                    grid: { color: 'rgba(0, 0, 0, 0.08)' },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, display: false }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -199,11 +199,15 @@ def scan_investskill_reports(
 
                 if clean_t not in reports or date_str > reports[clean_t]["date"]:
                     file_uri = f"file://{filepath}"
+                    try:
+                        rel_path = os.path.relpath(filepath, BASE_DIR)
+                    except Exception:
+                        rel_path = file_uri
                     reports[clean_t] = {
                         "file": f,
                         "file_path": filepath,
                         "file_url": file_uri,
-                        "rel_path": file_uri,
+                        "rel_path": rel_path,
                         "date": date_str,
                         "age_days": age_days,
                         "is_stale": is_stale,

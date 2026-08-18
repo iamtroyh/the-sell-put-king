@@ -11,7 +11,8 @@ import subprocess
 import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-INVESTSKILL_DIR = os.environ.get("INVESTSKILL_DIR", os.path.expanduser("~/InvestSkill"))
+_default_investskill = os.path.join(BASE_DIR, "InvestSkill") if os.path.exists(os.path.join(BASE_DIR, "InvestSkill")) else os.path.expanduser("~/InvestSkill")
+INVESTSKILL_DIR = os.environ.get("INVESTSKILL_DIR", _default_investskill)
 
 def main():
     print("=== Syncing InvestSkill Reports to Dashboard ===")

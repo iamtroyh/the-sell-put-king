@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>硕腾 (Zoetis - ZTS) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 850px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #F1F5F9;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .section-title-wrap { display: flex; align-items: center; gap: 12px; }
+        .section-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 15px;
+        }
+        .section-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+        .section-sub { font-size: 12px; color: var(--text-muted); }
+        .section-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .report-hero { padding: 32px 16px; }
+            .main-wrap { padding: 20px 16px 48px; }
+            .hero-title { font-size: 24px; }
+            .section { padding: 20px 16px; }
+        }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card-green { background: #F0FDF4; border-color: #BBF7D0; }
+        .card-amber { background: #FFFBEB; border-color: #FDE68A; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+        .card-purple { background: #FAF5FF; border-color: #E9D5FF; }
+
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .card-green .card-title { color: #166534; }
+        .card-amber .card-title { color: #92400E; }
+        .card-blue .card-title { color: #1E40AF; }
+        .card-purple .card-title { color: #6B21A8; }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin: 14px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #F1F5F9;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-num { font-family: 'JetBrains Mono', monospace; text-align: right; }
+        .th-num { text-align: right; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 290px;
+            margin: 12px 0;
+        }
+
+        .highlight-val { font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #15803D; }
+        .tag-blue { background: #DBEAFE; color: #1D4ED8; }
+        .tag-amber { background: #FEF3C7; color: #B45309; }
+        .tag-red { background: #FEE2E2; color: #B91C1C; }
+
+        .signal-banner {
+            background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+            border: 2px solid #10B981;
+            border-radius: 16px;
+            padding: 24px;
+            color: #fff;
+            box-shadow: 0 10px 25px -5px rgba(16,185,129,.3);
+            margin: 20px 0;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.1);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.15);
+        }
+        .signal-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .signal-val { font-size: 20px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+        
+        .divider { height: 1px; background: #F1F5F9; margin: 20px 0; }
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+        .callout-amber {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: ZTS</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY) • 8.7/10</span>
+            <span class="badge badge-hero-cat">全球动物保健与宠物医药绝对第一霸主</span>
+            <span class="badge badge-hero-cat">15模块全景量化研报</span>
+        </div>
+        <h1 class="hero-title">硕腾 (Zoetis Inc.)</h1>
+        <div class="hero-sub">72% 极高毛利、41% 营业利润率、ROE 达 65% 的医疗消费白马：历史性超跌 60% 后的超级均值回归与价值重估深度剖析</div>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新股价 (Spot)</div>
+                <div class="hero-kpi-val">$73.79</div>
+                <div class="hero-kpi-sub">52周区间: $71.45 - $160.48</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$30.49B</div>
+                <div class="hero-kpi-sub">企业价值 EV: $38.07B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 总营收 (USD)</div>
+                <div class="hero-kpi-val">$9.53B</div>
+                <div class="hero-kpi-sub">伴侣动物占比 ~65%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Fwd P/E)</div>
+                <div class="hero-kpi-val">11.02x</div>
+                <div class="hero-kpi-sub">历史中枢 28x-35x | 深度错杀</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">年度股息率 (Yield)</div>
+                <div class="hero-kpi-val">2.87%</div>
+                <div class="hero-kpi-sub">派息 $2.12/股 | 派息率 33.6%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师平均目标价</div>
+                <div class="hero-kpi-val">$100.94</div>
+                <div class="hero-kpi-sub">潜在上涨空间: +36.79%</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- Table of Contents -->
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报导航目录 (15大核心模块全景覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">04. 财报与盈利质量</a>
+            <a href="#sec-5" class="toc-link">05. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">06. 行业竞争与同行对标</a>
+            <a href="#sec-7" class="toc-link">07. DCF估值三情景模型</a>
+            <a href="#sec-8" class="toc-link">08. 技术面与筹码量化</a>
+            <a href="#sec-9" class="toc-link">09. 资本配置与股息披露</a>
+            <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与主力动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </div>
+
+    <!-- MODULE 01 -->
+    <section id="sec-1" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">01</div>
+                <div>
+                    <div class="section-title">执行摘要与核心投资逻辑 (Executive Summary & Investment Thesis)</div>
+                    <div class="section-sub">动保赛道绝对领头羊、免受医保降价冲击、估值折价超 60% 的历史级黄金坑</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 01</span>
+        </div>
+
+        <p style="margin-bottom: 16px; font-size: 14.5px; color: var(--text-secondary);">
+            <strong>硕腾 (Zoetis Inc., NYSE: ZTS)</strong> 于 2013 年自辉瑞（Pfizer）拆分独立上市，是全球规模最大、创新研发能力最强的动物保健与宠物医药龙头。旗下拥有覆盖宠物皮肤病（Apoquel、Cytopoint）、骨关节炎长效单抗（Librela、Solensia）、驱虫药（Simparica Trio、Revolution）及畜牧疫苗等数十个重磅原研药。由于此前媒体对个别单抗药物不良反应的过度炒作以及疫情后宠物医院看诊率正常化，股价自高点 $160+ 大幅腰斩至 <strong>$73.79</strong>，前瞻 P/E 从历史常态的 28x-35x 暴跌至 <strong>11.02x</strong>，形成了极具安全边际与翻倍潜力的历史级“黄金坑”。
+        </p>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">💎 核心看多逻辑 1：极宽商业护城河与 100% 自费属性</div>
+                <p style="font-size: 13px; color: #166534;">
+                    与人类医药不同，宠物医疗 <strong>90%+ 属于主人纯自费消费</strong>，完全不受美国 IRA 医保控费、降价谈判或专利悬崖集中采购的政策冲击。宠物主人对“毛孩子”的健康支出具有极高的刚性与价格不敏感度，驱动公司长期维持 <strong>71.7% 毛利率与 40.7% 营业利润率</strong>。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">💰 核心看多逻辑 2：每年超 $22亿 纯现金流 + 2.87% 稳健股息</div>
+                <p style="font-size: 13px; color: #166534;">
+                    公司轻资本运作，研发与制造壁垒极高，年化自由现金流 (FCF) 超 <strong>$22.8 亿美元</strong>，现金转化率超 85%。当前派发 <strong>$2.12/股 现金股息（股息率 2.87%）</strong>，派息率仅 33.6%，股息极度安全且已连续十年保持强劲增长。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🚀 核心看多逻辑 3：估值断崖式错杀，均值回归确定性极高</div>
+                <p style="font-size: 13px; color: #166534;">
+                    欧美药品监管机构（FDA / EMA）已重新审查并重申了 Librela / Solensia 骨关节炎单抗的整体安全获益比。在基本面盈利创历史新高、ROE 达 64.91% 的背景下，<strong>11.02x 的前瞻市盈率</strong> 属于严重背离内在价值的非理性恐慌定价，估值修复空间巨大。
+                </p>
+            </div>
+        </div>
+
+        <div class="callout" style="margin-top: 18px;">
+            <strong>📌 投资评级概览：</strong> 综合多因子量化模型评分 <strong>8.7 / 10</strong>，给予 <strong>强烈看多 (STRONG BUY)</strong> 评级。基准 DCF 公允价值为 <strong>$105.00 (+42.3% 空间)</strong>。建议长线投资者在 $71.50 - $75.00 历史大底区间坚决重仓布局。
+        </div>
+    </section>
+
+    <!-- MODULE 02 -->
+    <section id="sec-2" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">02</div>
+                <div>
+                    <div class="section-title">多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Model)</div>
+                    <div class="section-sub">6大核心维度综合量化评级：总分 8.7 / 10</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 02</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>量化评估因子</th>
+                                <th>因子得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与诊断结论</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 估值性价比 (Valuation)</strong></td>
+                                <td><span class="tag-pill tag-green">9.5 / 10</span></td>
+                                <td>25%</td>
+                                <td>前瞻 P/E 仅 11.02x，较 10 年历史中枢 (30x) 折价超 60%，极端安全边际</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 盈利质量与 ROE (Profitability)</strong></td>
+                                <td><span class="tag-pill tag-green">9.5 / 10</span></td>
+                                <td>20%</td>
+                                <td>毛利率 71.74%，营业利润率 40.72%，ROE 高达 64.91%，医疗消费印钞机</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 护城河壁垒 (Moat)</strong></td>
+                                <td><span class="tag-pill tag-green">9.0 / 10</span></td>
+                                <td>20%</td>
+                                <td>全球最大动保销售团队、兽医高度信赖的处方品牌心智、重磅原研药专利集群</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 财务健康度 (Health)</strong></td>
+                                <td><span class="tag-pill tag-green">8.5 / 10</span></td>
+                                <td>15%</td>
+                                <td>流动比率 3.08，利息覆盖倍数超 12x，年产纯现金流 $22.8亿+</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 股东回报与分红 (Shareholder Return)</strong></td>
+                                <td><span class="tag-pill tag-green">8.5 / 10</span></td>
+                                <td>10%</td>
+                                <td>股息率 2.87%（派息率仅 33.6%）+ 每年数十亿美元股票回购注销</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. 筹码技术面 (Technicals)</strong></td>
+                                <td><span class="tag-pill tag-amber">7.0 / 10</span></td>
+                                <td>10%</td>
+                                <td>触及 52周底部 $71.45 后展开双底震荡筑底，RSI 43.3 呈现底部背离</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权评分 (Composite Score)</strong></td>
+                                <td><span class="tag-pill tag-green" style="font-size: 13px;">8.7 / 10</span></td>
+                                <td>100%</td>
+                                <td><strong>强烈看多 (STRONG BUY / 极品白马错杀)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <div class="chart-box">
+                    <canvas id="ztsFactorRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 03 -->
+    <section id="sec-3" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">03</div>
+                <div>
+                    <div class="section-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+                    <div class="section-sub">伴侣动物 + 经济动物双轮驱动，不可替代的处方药壁垒</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 03</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 20px;">
+            <div class="card card-green">
+                <div class="card-title">🐕 宠物皮肤科与过敏 (Dermatology)</div>
+                <p style="font-size: 12.5px;"><strong>年销超 $15亿 现金牛</strong><br>Apoquel（口服 JAK 抑制剂）与 Cytopoint（单抗注射液）。几乎垄断犬类特应性皮炎市场，高复购、终身用药。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🐈 骨关节炎单抗 (OA Pain mAbs)</div>
+                <p style="font-size: 12.5px;"><strong>百亿级革命性赛道</strong><br>Librela（犬用）与 Solensia（猫用）抗 NGF 单抗。每月注射一次显著缓解老龄宠物疼痛，已成为全球重磅炸弹。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">🪱 宠物寄生虫驱虫 (Parasiticides)</div>
+                <p style="font-size: 12.5px;"><strong>高频刚需用药</strong><br>Simparica Trio（三合一驱虫口服咀嚼片）覆盖跳蚤、蜱虫与心丝虫，增速持续超越传统单方驱虫药。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">🐄 畜牧与经济动物 (Livestock)</div>
+                <p style="font-size: 12.5px;"><strong>全球粮食安全压舱石</strong><br>涵盖牛、猪、家禽和水产养殖的疫苗、抗感染药与基因检测，为全球蛋白供应链提供全生命周期保护。</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🛡️ 波特五力模型与护城河结构深度剖析</div>
+            <div class="grid-2" style="margin-top: 10px; font-size: 13px;">
+                <div>
+                    <p><strong>1. 买方议价权 (极低)：</strong> 宠物医药属于兽医处方驱动（Rx）。兽医倾向于开具临床疗效最确切的行业金标准药物，宠物主极少因为价格而随意更换药方。</p>
+                    <p style="margin-top: 8px;"><strong>2. 规避医保与价格管制 (极强)：</strong> 90%+ 纯自费消费属性，完全免疫于人类制药企业面临的 Medicare 价格谈判、医保限价和集中带量采购。</p>
+                    <p style="margin-top: 8px;"><strong>3. 潜在进入者威胁 (极低)：</strong> 动保新药研发周期长达 5-8 年，且需要全球数万家独立宠物诊所的分销直销网络支持，行业壁垒极高。</p>
+                </div>
+                <div>
+                    <p><strong>4. 同业竞争与双寡头格局 (极强)：</strong> 硕腾规模远超对手（Elanco、勃林格殷格翰、默沙东动保），研发投入每年近 $6 亿美元，遥遥领先同行。</p>
+                    <p style="margin-top: 8px;"><strong>5. 替代品威胁 (极低)：</strong> 宠物拟人化趋势不可逆（“宠物即家人”），老龄犬猫慢性病治疗支出持续上升。</p>
+                    <p style="margin-top: 8px;"><strong>💡 护城河综合评级：宽护城河 (Wide Moat / 处方心智+自费免疫+专利矩阵)</strong>。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 04 -->
+    <section id="sec-4" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">04</div>
+                <div>
+                    <div class="section-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</div>
+                    <div class="section-sub">72% 极高毛利、41% 营业利润率与 $22.8亿+ 自由现金流</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 04</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (单位: 百万美元 / USD)</th>
+                        <th class="th-num">FY2022</th>
+                        <th class="th-num">FY2023</th>
+                        <th class="th-num">FY2024</th>
+                        <th class="th-num">FY2025</th>
+                        <th class="th-num">TTM (最新)</th>
+                        <th>复合增长与盈利特征</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="td-num">$8,080</td>
+                        <td class="td-num">$8,544</td>
+                        <td class="td-num">$9,256</td>
+                        <td class="td-num">$9,467</td>
+                        <td class="td-num highlight-val">$9,525</td>
+                        <td><span class="tag-pill tag-green">年稳健增长至近百亿美元</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="td-num">$5,626</td>
+                        <td class="td-num">$5,983</td>
+                        <td class="td-num">$6,537</td>
+                        <td class="td-num">$6,801</td>
+                        <td class="td-num highlight-val">$6,833</td>
+                        <td><span class="tag-pill tag-green">毛利率长期稳定在 70%-72%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="td-num">$2,928</td>
+                        <td class="td-num">$3,069</td>
+                        <td class="td-num">$3,392</td>
+                        <td class="td-num">$3,597</td>
+                        <td class="td-num highlight-val">$3,879</td>
+                        <td><span class="tag-pill tag-green">营业利润率高达 40.72%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="td-num">$2,114</td>
+                        <td class="td-num">$2,344</td>
+                        <td class="td-num">$2,486</td>
+                        <td class="td-num">$2,673</td>
+                        <td class="td-num highlight-val">$2,637</td>
+                        <td>净利润率高达 27.69%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating Cash Flow)</strong></td>
+                        <td class="td-num">$1,912</td>
+                        <td class="td-num">$2,353</td>
+                        <td class="td-num">$2,953</td>
+                        <td class="td-num">$2,904</td>
+                        <td class="td-num highlight-val">$2,840</td>
+                        <td>现金造血极其充沛</td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="td-num">-$586</td>
+                        <td class="td-num">-$732</td>
+                        <td class="td-num">-$655</td>
+                        <td class="td-num">-$621</td>
+                        <td class="td-num">-$600</td>
+                        <td>轻资产高精制造，资本开支极低</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="td-num">$1,326</td>
+                        <td class="td-num">$1,621</td>
+                        <td class="td-num">$2,298</td>
+                        <td class="td-num">$2,283</td>
+                        <td class="td-num highlight-val">$2,240</td>
+                        <td><span class="tag-pill tag-green">年产 22亿+ 纯自由现金</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="ztsRevenueIncomeChart"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 05 -->
+    <section id="sec-5" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">05</div>
+                <div>
+                    <div class="section-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+                    <div class="section-sub">ROE 64.91% 极高盈利模式的底层因子剖析</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 05</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-blue">
+                <div class="card-title">1. 盈利能力 (净利润率 Net Margin)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">27.69% (极高纯利)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">得益于 72% 的极高毛利率和高度集中的销售渠道，每 100 美元收入直接沉淀近 28 美元税后纯净利润。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">2. 营运效率 (资产周转率 Asset Turnover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">0.62x ~ 0.65x</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">资产结构精简，高价值药品的仓储物流周转极快，资产回报率 ROA 达到惊人的 15.35%。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">3. 财务杠杆 (权益乘数 Equity Multiplier)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">3.80x ~ 4.64x</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">公司积极执行股票回购注销股本，使得股东权益保持紧凑，进一步放大了股东资本复合回报率。</p>
+            </div>
+        </div>
+
+        <div class="callout callout-amber" style="margin-top: 16px;">
+            <strong>💡 杜邦综合诊断：</strong> 净资产收益率 <strong>ROE 达 64.91%</strong>，资产回报率 <strong>ROA 达 15.35%</strong>。硕腾具备巴菲特最推崇的“高毛利、高定价权、轻资本、高现金流”长牛特质。
+        </div>
+    </section>
+
+    <!-- MODULE 06 -->
+    <section id="sec-6" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">06</div>
+                <div>
+                    <div class="section-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+                    <div class="section-sub">硕腾 vs 爱德士 (IDEXX) vs 礼蓝 (Elanco) vs 默沙东多维度对标</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 06</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (代码)</th>
+                        <th class="th-num">最新股价</th>
+                        <th class="th-num">市值 (Cap)</th>
+                        <th class="th-num">前瞻 P/E</th>
+                        <th class="th-num">P/S (市销率)</th>
+                        <th class="th-num">毛利率</th>
+                        <th class="th-num">ROE</th>
+                        <th class="th-num">股息率</th>
+                        <th>核心赛道与定位</th>
+                        <th>投资评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>硕腾 (ZTS)</strong></td>
+                        <td class="td-num highlight-val">$73.79</td>
+                        <td class="td-num">$30.49B</td>
+                        <td class="td-num highlight-val">11.02x</td>
+                        <td class="td-num highlight-val">3.20x</td>
+                        <td class="td-num highlight-val">71.74%</td>
+                        <td class="td-num highlight-val">64.91%</td>
+                        <td class="td-num highlight-val"><strong>2.87%</strong></td>
+                        <td><span class="tag-pill tag-green">全球动物制药第一霸主</span></td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>爱德士 (IDXX)</strong></td>
+                        <td class="td-num">$550.96</td>
+                        <td class="td-num">$43.46B</td>
+                        <td class="td-num">32.91x</td>
+                        <td class="td-num">9.55x</td>
+                        <td class="td-num">62.45%</td>
+                        <td class="td-num">38.70%</td>
+                        <td class="td-num">无 / None</td>
+                        <td>宠物医疗诊断仪器与耗材龙头</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>礼蓝动保 (ELAN)</strong></td>
+                        <td class="td-num">$23.67</td>
+                        <td class="td-num">$11.83B</td>
+                        <td class="td-num">18.73x</td>
+                        <td class="td-num">2.36x</td>
+                        <td class="td-num">55.36%</td>
+                        <td class="td-num">-</td>
+                        <td class="td-num">无 / None</td>
+                        <td>动保第二梯队 / 债务包袱较重</td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>默沙东 (MRK)</strong></td>
+                        <td class="td-num">$135.84</td>
+                        <td class="td-num">$335.14B</td>
+                        <td class="td-num">14.21x</td>
+                        <td class="td-num">5.03x</td>
+                        <td class="td-num">75.90%</td>
+                        <td class="td-num">18.50%</td>
+                        <td class="td-num">2.50%</td>
+                        <td>人类制药巨头 (含动保事业部)</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>雅培 (ABT)</strong></td>
+                        <td class="td-num">$111.25</td>
+                        <td class="td-num">$193.78B</td>
+                        <td class="td-num">18.35x</td>
+                        <td class="td-num">4.16x</td>
+                        <td class="td-num">56.85%</td>
+                        <td class="td-num">14.20%</td>
+                        <td class="td-num">2.27%</td>
+                        <td>多元化医疗器械与诊断巨头</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🔍 对标核心结论</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                在宠物医疗双雄中，诊断龙头 IDEXX 依然交易在 <strong>32.9x 前瞻 P/E 和 9.55x P/S</strong> 的高位，而同等地位的制药龙头硕腾 (ZTS) 前瞻 P/E 竟然被杀至 <strong>11.02x</strong>，且提供了近 <strong>2.9% 的安全股息</strong>。两者估值剪刀差达到历史极值，为硕腾提供了罕见的估值修复套利机会。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 07 -->
+    <section id="sec-7" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">07</div>
+                <div>
+                    <div class="section-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+                    <div class="section-sub">基准内在价值 $105.00，呈现 42.3% 巨大安全边际</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 07</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-amber">
+                <div class="card-title">🐻 悲观情景 (Bear Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">$65.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在跌幅: -11.9%</strong><br>
+                    假设: 宠物看诊率进一步下滑；单抗药物竞争加剧；5年营收增速仅 1.5%，自由现金流年化降至 $18亿，WACC 9.5%。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🎯 基准情景 (Base Case) - 核心预测</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">$105.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +42.3%</strong><br>
+                    假设: Librela 在欧美犬类老龄化中稳步渗透；新一代皮肤病药放量；5年营收复合增速 6.5%；自由现金流于 2029 年达 $32亿；WACC 8.0%，永续增长率 3.0%。
+                </p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🐂 乐观情景 (Bull Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">$135.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +82.9%</strong><br>
+                    假设: 国际新兴市场（中国、拉美）宠物医疗爆发；猫用 Solensia 渗透翻倍；年自由现金流突破 $40亿；WACC 7.5%，永续增长率 3.5%。
+                </p>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 20px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="th-num">2.0%</th>
+                        <th class="th-num">2.5%</th>
+                        <th class="th-num">3.0% (基准)</th>
+                        <th class="th-num">3.5%</th>
+                        <th class="th-num">4.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 7.0%</strong></td>
+                        <td class="td-num">$116.40</td>
+                        <td class="td-num">$124.80</td>
+                        <td class="td-num">$135.20</td>
+                        <td class="td-num">$148.60</td>
+                        <td class="td-num">$166.40</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 7.5%</strong></td>
+                        <td class="td-num">$102.80</td>
+                        <td class="td-num">$109.50</td>
+                        <td class="td-num">$117.80</td>
+                        <td class="td-num">$128.10</td>
+                        <td class="td-num">$141.20</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>WACC 8.0% (基准)</strong></td>
+                        <td class="td-num">$92.10</td>
+                        <td class="td-num">$97.50</td>
+                        <td class="td-num highlight-val">$105.00</td>
+                        <td class="td-num">$112.90</td>
+                        <td class="td-num">$122.80</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 8.5%</strong></td>
+                        <td class="td-num">$83.40</td>
+                        <td class="td-num">$87.80</td>
+                        <td class="td-num">$93.10</td>
+                        <td class="td-num">$99.40</td>
+                        <td class="td-num">$107.10</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 9.0%</strong></td>
+                        <td class="td-num">$76.20</td>
+                        <td class="td-num">$79.80</td>
+                        <td class="td-num">$84.10</td>
+                        <td class="td-num">$89.20</td>
+                        <td class="td-num">$95.30</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 08 -->
+    <section id="sec-8" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">08</div>
+                <div>
+                    <div class="section-title">技术面量化、均线系统与关键筹码位 (Technical Analysis & Levels)</div>
+                    <div class="section-sub">52周大底 $71.45 坚实筑底、RSI 底背离蓄势反弹</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 08</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 16px;">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">20日均线 (SMA 20)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$75.61</div>
+                <div style="font-size: 11px; color: var(--text-muted);">处于底部均线缠绕收敛</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">50日均线 (SMA 50)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--amber);">$76.11</div>
+                <div style="font-size: 11px; color: #B45309;">短线突破第一关键压力位</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">14日 RSI 动量指标</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">43.31</div>
+                <div style="font-size: 11px; color: #15803D;">处于底部超卖背离回升区</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">布林带通道 (BB 20,2)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">$72.67 - $78.54</div>
+                <div style="font-size: 11px; color: #15803D;">在布林下轨 $72.67 获得强承接</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🟢 关键支撑位 (Support Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>S1 (第一支撑): $72.50 - $73.00</strong> — 布林下轨与近期密集成交区</li>
+                    <li><strong>S2 (历史铁底): $71.45</strong> — 52 周历史最低点（强劲多头护盘防线）</li>
+                    <li><strong>S3 (极限支撑): $65.00</strong> — 2017 年长周期大底支撑</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🔴 关键阻力位 (Resistance Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>R1 (初步阻力): $78.50</strong> — 布林上轨与 7月震荡平台上沿</li>
+                    <li><strong>R2 (中期目标): $90.00</strong> — 心理整数关口与前期跳空缺口</li>
+                    <li><strong>R3 (牛熊分水岭): $106.96</strong> — 200日长期均线 (SMA 200)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 09 -->
+    <section id="sec-9" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">09</div>
+                <div>
+                    <div class="section-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</div>
+                    <div class="section-sub">严格遵循合规披露准则：公司股息政策与股东回报全景</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 09</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">📢 股息指标详细披露 (Mandatory Dividend Disclosure)</div>
+                <div class="table-scroll" style="margin: 8px 0;">
+                    <table>
+                        <tr>
+                            <td><strong>年度股息率 (Dividend Yield)</strong></td>
+                            <td class="td-num highlight-val"><strong>2.87% (稳健优质股息)</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>年度每股派息 (Annual Payout)</strong></td>
+                            <td class="td-num highlight-val">$2.12 / 股 (每季派发 $0.53)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>股息支付率 (Payout Ratio)</strong></td>
+                            <td class="td-num highlight-val">33.61% (极低负担，成长空间极大)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>连续增配记录</strong></td>
+                            <td class="td-num">自 2013 年分拆上市以来连续 11 年上调股息</td>
+                        </tr>
+                    </table>
+                </div>
+                <p style="font-size: 12px; color: #166534; margin-top: 6px;">
+                    <strong>明确说明：</strong> 硕腾拥有极具吸引力的**持续增长股息政策**，当前年度派发 <strong>$2.12 美元/股</strong>（股息率 <strong>2.87%</strong>），由于自由现金流充沛且派息率仅占净利润的 <strong>33.6%</strong>，股息具有极高的安全性与年化 10%+ 增长潜力。
+                </p>
+            </div>
+
+            <div class="card card-blue">
+                <div class="card-title">💰 叠加股东回报：大额股票回购注销</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>$30 亿美元股票回购计划：</strong> 公司董事会批准了持续回购方案，每年动用超 $10 亿美元现金回购注销股本。</li>
+                    <li><strong>极端低估期加速回购：</strong> 管理层在当前 11x P/E 估值低谷期大幅提高回购力度，带来极高的每股收益 (EPS) 增厚效应。</li>
+                    <li><strong>综合股东回报率超 6%：</strong> 2.87% 现金分红 + ~3.5% 回购注销率，构建了穿越周期的复合收益率。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="sec-10" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">10</div>
+                <div>
+                    <div class="section-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+                    <div class="section-sub">34天 DTE (2026-09-18) 三档结构化建仓与权利金增强方案</div>
+                </div>
+            </div>
+
+            <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">
+                当前 ZTS 股价为 <strong>$73.79</strong>，隐含波动率 (IV) 约为 <strong>30.8% - 36.6%</strong>，采用 <strong>30-45天 DTE 的 Cash-Secured Put (卖出看跌期权)</strong> 策略，可实现极高胜率的折价建仓与权利金增强：
+            </p>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>策略档位</th>
+                            <th>行权价 (Strike)</th>
+                            <th>到期日 (DTE)</th>
+                            <th>Delta / 虚值程度</th>
+                            <th class="th-num">权利金 (Mid)</th>
+                            <th class="th-num">期间收益率</th>
+                            <th class="th-num">年化收益率 (Ann. Yield)</th>
+                            <th>实质建仓成本 / 适用投资人画像</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #F0FDF4;">
+                            <td><span class="tag-pill tag-green">🛡️ 保守档 (Conservative)</span></td>
+                            <td><strong>$65.00</strong></td>
+                            <td>2026-09-18 (34天)</td>
+                            <td>Delta ~0.10 (11.9% OTM)</td>
+                            <td class="td-num highlight-val">$0.30</td>
+                            <td class="td-num">0.46%</td>
+                            <td class="td-num highlight-val"><strong>~5.0%</strong></td>
+                            <td><strong>$64.70</strong> (远低于 52 周大底 $71.45 才接货，极致安全)</td>
+                        </tr>
+                        <tr style="background: #EFF6FF;">
+                            <td><span class="tag-pill tag-blue">⚖️ 稳健档 (Moderate)</span></td>
+                            <td><strong>$70.00</strong></td>
+                            <td>2026-09-18 (34天)</td>
+                            <td>Delta ~0.26 (5.1% OTM)</td>
+                            <td class="td-num highlight-val">$1.20</td>
+                            <td class="td-num">1.71%</td>
+                            <td class="td-num highlight-val"><strong>~18.4%</strong></td>
+                            <td><strong>$68.80</strong> (跌破历史前低接货，年化 18% 权利金攻守兼备)</td>
+                        </tr>
+                        <tr style="background: #FAF5FF;">
+                            <td><span class="tag-pill tag-purple">🚀 进取档 (Aggressive)</span></td>
+                            <td><strong>$75.00</strong></td>
+                            <td>2026-09-18 (34天)</td>
+                            <td>Delta ~0.55 (1.6% ITM)</td>
+                            <td class="td-num highlight-val">$3.60</td>
+                            <td class="td-num">4.80%</td>
+                            <td class="td-num highlight-val"><strong>~51.5%</strong></td>
+                            <td><strong>$71.40</strong> (平值高权利金，实质建仓成本精准落在 52 周最低点)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="sec-11" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">11</div>
+                <div>
+                    <div class="section-title">机构持仓与主力资金动向 (Institutional Ownership & 13F)</div>
+                    <div class="section-sub">先锋领航、贝莱德与全球顶级医疗健康基金重仓锁定</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 11</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者 (Institutional Holder)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持股市值 (Value)</th>
+                        <th>占总流通股比 (pctHeld)</th>
+                        <th>报告期变动 (pctChange)</th>
+                        <th>投资性质与风格</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vanguard Group, Inc. (先锋领航)</strong></td>
+                        <td class="td-num">40,500,000</td>
+                        <td class="td-num">$2.99B</td>
+                        <td class="td-num"><strong>9.80%</strong></td>
+                        <td>+1.80% (增持)</td>
+                        <td>全球最大被动与指数基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BlackRock, Inc. (贝莱德)</strong></td>
+                        <td class="td-num">33,200,000</td>
+                        <td class="td-num">$2.45B</td>
+                        <td class="td-num"><strong>8.03%</strong></td>
+                        <td>+2.15% (增持)</td>
+                        <td>全球最大资产管理机构</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation (道富)</strong></td>
+                        <td class="td-num">17,800,000</td>
+                        <td class="td-num">$1.31B</td>
+                        <td class="td-num"><strong>4.31%</strong></td>
+                        <td>-0.50% (微调)</td>
+                        <td>机构主权与被动资产托管</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wellington Management Group LLP</strong></td>
+                        <td class="td-num">15,400,000</td>
+                        <td class="td-num">$1.14B</td>
+                        <td class="td-num"><strong>3.73%</strong></td>
+                        <td>+4.60% (主动加仓)</td>
+                        <td>全球顶级主动管理价值成长基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Capital Research Global Investors</strong></td>
+                        <td class="td-num">14,100,000</td>
+                        <td class="td-num">$1.04B</td>
+                        <td class="td-num"><strong>3.41%</strong></td>
+                        <td>+3.20% (增持)</td>
+                        <td>长线基本面超额投资巨擘</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
+            <strong>主力动向解析：</strong> 机构持股比例高达 <strong>92%+</strong>。在股价跌破 $80 期间，惠灵顿管理 (Wellington) 与资本研究 (Capital Research) 等专注于医疗健康的长线主动基金**展开逆势大幅增持抄底**，筹码集中度极高。
+        </p>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="sec-12" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">12</div>
+                <div>
+                    <div class="section-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Tone)</div>
+                    <div class="section-sub">CEO Kristin Peck 强调 Librela 真实疗效与长期成长确定性</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 012</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🎙️ 财报电话会要点与管理层情绪 (Sentiment: Bullish)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>骨关节炎单抗安全获益比经受住考验：</strong> 管理层指出，Librela 和 Solensia 的不良反应发生率处于百万分之几的极低常规水平，兽医推荐率与老客复购率维持在 85%+ 高位。</li>
+                    <li><strong>国际新兴市场双位数高增：</strong> 欧洲、中国及拉美伴侣动物业务保持 12%-15% 的常态高增长，有效对冲美国本土看诊率的短期波动。</li>
+                    <li><strong>重申全年业绩指引：</strong> 全年自由现金流与 EPS 目标保持强劲，资本开支收缩进一步释放利润。</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📝 治理质量与高管激励</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>高管团队利益绑定：</strong> CEO Kristin Peck 薪酬结构中 80%+ 为受限股票单位 (PSU)，严格挂钩 ROIC (投后资本回报率) 与长期股东总回报 (TSR)。</li>
+                    <li><strong>核心董事零异常抛售：</strong> 股价回调期间高管持股极其稳定，展现对长期基本面的笃定信心。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="sec-13" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">13</div>
+                <div>
+                    <div class="section-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</div>
+                    <div class="section-sub">做空占比 5.85%，平仓天数 3.79 天</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 13</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">做空股数 (Shares Short)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">2135万 股</div>
+                <div style="font-size: 11px; color: var(--text-muted);">流通股占比: 5.85%</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">平仓天数 (Days to Cover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--amber);">3.79 天</div>
+                <div style="font-size: 11px; color: #B45309;">平仓周期中等，具温和轧空动力</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">轧空风险评级</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">中等 (Moderate)</div>
+                <div style="font-size: 11px; color: #15803D;">利好财报将迫使空头集中踩踏回补</div>
+            </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 14px;">
+            <strong>空头逻辑与反转催化：</strong> 空头前期主要押注单抗药物舆情风险与兽医看诊率下行。然而，随着财报连续确认自由现金流充沛且 FDA 监管定调清晰，<strong>近 4 天的平仓天数</strong> 将在财报超预期时转化为强劲的买盘推升动力。
+        </p>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="sec-14" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">14</div>
+                <div>
+                    <div class="section-title">核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+                    <div class="section-sub">系统性审视临床舆情、宏观消费与竞争对手替代风险</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 14</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子 (Risk Factor)</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>综合风险等级</th>
+                        <th>对冲机制与缓冲垫 (Mitigation & Buffer)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 个别单抗药物安全性争议舆情扰动</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>暂时 (Transitory)</td>
+                        <td><span class="tag-pill tag-amber">短期关注</span></td>
+                        <td>EMA 与 FDA 官方科学审查均确认获益显著大于风险；产品多元化矩阵对冲单品波动</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 欧美宏观通胀导致宠物医院看诊频次放缓</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低-中风险</span></td>
+                        <td>慢性病与皮肤病药物属于不可中断的刚需用药；自费消费韧性远强于普通耐用品</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 礼蓝 (Elanco) 等同行新产品竞争</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低风险</span></td>
+                        <td>硕腾年研发投入超 $6 亿美元，直销渠道覆盖全球绝大多数兽医诊所，客户转换成本极高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 外汇汇率折算波动 (美元走强)</strong></td>
+                        <td>高 (High)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低风险</span></td>
+                        <td>全球多币种定价与本地化供应链对冲，恒定汇率下内生增长保持稳健</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="sec-15" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">15</div>
+                <div>
+                    <div class="section-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+                    <div class="section-sub">未来 6-18 个月核心估值催化事件序列</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 15</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">📅 催化剂 1: Librela 国际市场老龄犬渗透率攀升</div>
+                <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">2026年 下半年</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">随着舆情平息与兽医教育深入，Librela 渗透率有望从目前的 15% 迈向 30%+，单品年销向 $10亿+ 迈进。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📅 催化剂 2: 新一代长效口服皮肤病药物研发管线推进</div>
+                <div style="font-size: 12px; font-weight: 700; color: #1E40AF; margin-bottom: 6px;">2026年 Q4 - 2027年</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">Apoquel 长效咀嚼片与新型靶向抗体管线进入关键临床，进一步拉长专利保护期。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">📅 催化剂 3: 估值均值回归与大规模股票回购催化</div>
+                <div style="font-size: 12px; font-weight: 700; color: #6B21A8; margin-bottom: 6px;">持续推进</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">公司低位加速执行 $30亿 回购注销，叠加 2.87% 股息吸引长线价值与红利基金回流配置。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 16 -->
+    <section id="sec-16" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">16</div>
+                <div>
+                    <div class="section-title">最终投资评级与执行建议 (Final Verdict & Execution Plan)</div>
+                    <div class="section-sub">标准化投资决策模块与分步建仓指引</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 16</span>
+        </div>
+
+        <div class="signal-banner">
+            <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700;">INVESTMENT SIGNAL MATRIX</div>
+            <div style="font-size: 26px; font-weight: 800; margin: 4px 0 14px;">强烈看多 (STRONG BUY) • 8.7 / 10</div>
+            
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-lbl">核心信号 (Signal)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">STRONG BUY (强烈看多)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">置信度 (Confidence)</div>
+                    <div class="signal-val">HIGH (极高)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">投资期限 (Horizon)</div>
+                    <div class="signal-val">12 - 36 个月</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">综合评分 (Score)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">8.7 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">建议操作 (Action)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">BUY (历史大底坚决超配)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">目标价 (Target Price)</div>
+                    <div class="signal-val">$105.00 (+42.3%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">🎯 具体交易执行指引 (Actionable Strategy)</div>
+            <ol style="padding-left: 20px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.8;">
+                <li><strong>正股分批建仓区间：</strong> 建议在 <strong>$71.50 - $75.00</strong> 52周底部区间建立 50%-60% 重仓底仓。当前处于历史级极限估值折价，下行空间已被 $22.8亿+ 自由现金流和 2.87% 股息牢固托底。</li>
+                <li><strong>期权收益增强执行：</strong> 推荐卖出 2026-09-18 到期、行权价 <strong>$70.00 Put</strong>（权利金 ~$1.20，年化收益率 ~18.4%）或 <strong>$75.00 Put</strong>（权利金 ~$3.60，年化收益率 ~51.5%），以跌破前低的实质成本抢筹。</li>
+                <li><strong>持股目标与止盈规划：</strong> 第一目标位 <strong>$90.00</strong>（分批止盈 30%），核心 DCF 公允目标位 <strong>$105.00 (+42.3%)</strong>，长期可持有至 20x+ P/E 历史常态估值回归。</li>
+            </ol>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+            <strong>免责声明 (Disclaimer)：</strong> 本研报基于公开市场数据、公司官方财务披露及行业量化模型生成，仅供投资研究与学术交流参考，不构成任何具体的投资建议或买卖要约。股票及金融衍生品交易存在本金损失风险，投资者应根据自身风险承受能力独立决策。
+        </div>
+    </section>
+
+</div>
+
+<!-- JAVASCRIPT FOR CHARTS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Radar Chart
+        const radarCtx = document.getElementById('ztsFactorRadarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['估值性价比 (9.5)', '盈利质量/ROE (9.5)', '护城河壁垒 (9.0)', '财务健康度 (8.5)', '股东回报/分红 (8.5)', '筹码技术面 (7.0)'],
+                datasets: [{
+                    label: '硕腾 (ZTS) 因子得分',
+                    data: [9.5, 9.5, 9.0, 8.5, 8.5, 7.0],
+                    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                    borderColor: '#10B981',
+                    pointBackgroundColor: '#059669',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#059669',
+                    borderWidth: 2
+                }, {
+                    label: '全球医疗保健板块均值 (Benchmark)',
+                    data: [6.0, 6.5, 6.0, 6.5, 5.5, 5.0],
+                    backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                    borderColor: '#94A3B8',
+                    pointBackgroundColor: '#94A3B8',
+                    pointBorderColor: '#fff',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#E2E8F0' },
+                        grid: { color: '#F1F5F9' },
+                        pointLabels: {
+                            font: { size: 11, weight: '600', family: 'Inter' },
+                            color: '#475569'
+                        },
+                        ticks: { min: 0, max: 10, stepSize: 2, display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+
+        // 2. Revenue & Free Cash Flow Bar/Line Chart
+        const revCtx = document.getElementById('ztsRevenueIncomeChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024', '2025', 'TTM (最新)'],
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: '营业总收入 Revenue ($M)',
+                        data: [8080, 8544, 9256, 9467, 9525],
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#059669',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: '自由现金流 FCF ($M)',
+                        data: [1326, 1621, 2298, 2283, 2240],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#D97706',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '总营收 ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { color: '#F1F5F9' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: '自由现金流 FCF ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

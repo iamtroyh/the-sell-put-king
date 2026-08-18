@@ -24,8 +24,13 @@ SCAN_CONFIG_PATH = os.path.join(CONFIG_DIR, "scan_config.json")
 TICKER_METADATA_PATH = os.path.join(CONFIG_DIR, "ticker_metadata.json")
 CREDENTIALS_PATH = os.path.join(CONFIG_DIR, "credentials.json")
 
-# External InvestSkill paths
-INVESTSKILL_DIR = os.environ.get("INVESTSKILL_DIR", os.path.expanduser("~/InvestSkill"))
+# InvestSkill paths (auto-detect local InvestSkill subfolder first, then fallback to ~/InvestSkill)
+_DEFAULT_INVESTSKILL_DIR = (
+    os.path.join(BASE_DIR, "InvestSkill")
+    if os.path.exists(os.path.join(BASE_DIR, "InvestSkill"))
+    else os.path.expanduser("~/InvestSkill")
+)
+INVESTSKILL_DIR = os.environ.get("INVESTSKILL_DIR", _DEFAULT_INVESTSKILL_DIR)
 INVESTSKILL_OUTPUT_DIR = os.environ.get("INVESTSKILL_OUTPUT_DIR", os.path.join(INVESTSKILL_DIR, "output"))
 
 # Risk-free rate constant and dynamic resolver

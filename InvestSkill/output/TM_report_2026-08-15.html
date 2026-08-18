@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Toyota Motor (TM) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid #34D399; }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 880px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #F1F5F9;
+        }
+        .sec-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 13px;
+            margin-right: 10px;
+        }
+        .sec-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #F1F5F9;
+            color: var(--slate);
+            text-transform: uppercase;
+        }
+
+        h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 18px 0 10px; }
+        h4 { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: .4px; }
+        p { margin-bottom: 12px; color: var(--text-secondary); font-size: 14px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+        .card-emerald { background: #ECFDF5; border-color: #A7F3D0; }
+        .card-amber { background: #FEF3C7; border-color: #FDE68A; }
+        .card-red { background: #FEE2E2; border-color: #FECACA; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+
+        .metric-item {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #E2E8F0;
+            padding-bottom: 4px;
+        }
+        .metric-item:last-child { border-bottom: none; }
+        .metric-lbl { font-size: 12px; color: var(--slate); font-weight: 500; }
+        .metric-val { font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 14px 0 20px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+            min-width: 600px;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-primary);
+            font-weight: 700;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-highlight { font-weight: 700; color: var(--primary); }
+        .td-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            margin: 16px 0;
+        }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 18px;
+            border-radius: 0 10px 10px 0;
+            margin: 16px 0;
+            font-size: 13.5px;
+            color: #064E3B;
+        }
+        .callout-title { font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            color: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            margin-top: 32px;
+            box-shadow: 0 12px 32px rgba(5,150,105,0.25);
+            border: 1px solid #10B981;
+        }
+        .signal-block-title { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700; text-align: center; margin-bottom: 18px; }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+        }
+        .sig-cell { text-align: center; }
+        .sig-label { font-size: 11px; text-transform: uppercase; color: #D1FAE5; margin-bottom: 4px; }
+        .sig-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #fff; }
+        .signal-verdict { font-size: 26px; font-weight: 900; color: #34D399; text-shadow: 0 0 12px rgba(52,211,153,0.5); }
+        .signal-score { font-size: 28px; font-weight: 900; color: #FCD34D; }
+
+        .tier-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .tier-cons { background: #DBEAFE; color: #1D4ED8; }
+        .tier-mod { background: #D1FAE5; color: #065F46; }
+        .tier-agg { background: #FEF3C7; color: #92400E; }
+
+        @media (max-width: 768px) {
+            .report-hero { padding: 32px 16px; }
+            .hero-title { font-size: 24px; }
+            .main-wrap { padding: 20px 14px; }
+            .section { padding: 20px 16px; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: TM</span>
+            <span class="badge badge-hero-signal">看多 (BULLISH)</span>
+            <span class="badge badge-hero-cat">全球汽车销冠霸主 / 混动 HEV 超级红利 / 8.7x 低估值与 3.3% 股息</span>
+            <span class="badge badge-hero-cat">报告日期: 2026-08-15</span>
+        </div>
+        <h1 class="hero-title">Toyota Motor Corporation (TM) 15模块全景深度投研与多因子量化评估报告</h1>
+        <div class="hero-sub">
+            连续多年蝉联全球汽车销量桂冠（年销 1,100+ 万辆）；在全球纯电车放缓背景下独享油电混动（HEV/PHEV）超级红利周期，混动渗透率突破 40%；年营业收入超 51 万亿日元（~$345B USD），净利润近 4.5 万亿日元（~$30B USD）；前瞻市盈率 Forward P/E 仅 12.1x，Trailing P/E 仅 8.7x，股息率达 3.28%，Beta 仅 0.34，兼具充沛现金流与极高防守反击价值。
+        </div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前 ADR 股价</div>
+                <div class="hero-kpi-val">$191.11</div>
+                <div class="hero-kpi-sub">52周区间: $166.10 - $248.90</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$258.40B</div>
+                <div class="hero-kpi-sub">全球传统车企最高市值</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市盈率 (Trailing / Forward)</div>
+                <div class="hero-kpi-val">8.7x / 12.1x</div>
+                <div class="hero-kpi-sub">EV/EBITDA: 6.28x | PEG: 1.56</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 净利润 (USD 约合)</div>
+                <div class="hero-kpi-val">~$29.8B</div>
+                <div class="hero-kpi-sub">年营收: ~51.96 万亿日元</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息收益率 (Dividend Yield)</div>
+                <div class="hero-kpi-val">3.28%</div>
+                <div class="hero-kpi-sub">年派息: $6.27 (半年派一次)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">量化综合评分</div>
+                <div class="hero-kpi-val" style="color: #FCD34D;">8.6 / 10</div>
+                <div class="hero-kpi-sub">评级: 看多 (BULLISH)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+
+    <nav class="toc-bar">
+        <div class="toc-title">报告模块快速导航 (15 Comprehensive Modules)</div>
+        <div class="toc-links">
+            <a class="toc-link" href="#sec-1">1. 执行摘要与投资核心逻辑</a>
+            <a class="toc-link" href="#sec-2">2. 多因子量化评分雷达</a>
+            <a class="toc-link" href="#sec-3">3. 商业模式与波特五力护城河</a>
+            <a class="toc-link" href="#sec-4">4. 财务报表与盈利质量</a>
+            <a class="toc-link" href="#sec-5">5. 杜邦三因子拆解</a>
+            <a class="toc-link" href="#sec-6">6. 行业竞争格局与同行对标</a>
+            <a class="toc-link" href="#sec-7">7. DCF 估值与敏感性模型</a>
+            <a class="toc-link" href="#sec-8">8. 技术面量化与均线筹码</a>
+            <a class="toc-link" href="#sec-9">9. 资本配置与股息政策</a>
+            <a class="toc-link" href="#sec-10">10. 现金担保卖 Put 收益增强</a>
+            <a class="toc-link" href="#sec-11">11. 机构持仓与 13F 资金动向</a>
+            <a class="toc-link" href="#sec-12">12. 内部人交易与财报情绪</a>
+            <a class="toc-link" href="#sec-13">13. 做空比例与轧空风险</a>
+            <a class="toc-link" href="#sec-14">14. 核心风险矩阵与压力测试</a>
+            <a class="toc-link" href="#sec-15">15. 催化剂日历与增长路线图</a>
+            <a class="toc-link" href="#sec-16">16. 最终评级与信号区块</a>
+        </div>
+    </nav>
+
+    <!-- MODULE 1: 执行摘要与投资核心逻辑 -->
+    <section class="section" id="sec-1">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">01</span> 执行摘要与投资核心逻辑 (Executive Summary & Thesis)</div>
+            <span class="sec-tag">Thesis</span>
+        </div>
+        <p><strong>Toyota Motor Corporation (NYSE: TM)</strong> 总部位于日本爱知县丰田市，是全球规模最大、盈利能力最强的汽车制造巨擘。旗下拥有 Toyota、Lexus、Daihatsu、Hino 等顶级品牌，全球年交付量超过 1,100 万辆，行销全球 170 多个国家与地区。</p>
+        
+        <div class="grid-3">
+            <div class="card card-emerald">
+                <h4>核心看多逻辑 1: 全球油电混动（HEV）大爆发的最大受益者</h4>
+                <p style="font-size: 13px; margin: 0;">欧美纯电动车（BEV）由于充电桩基建不足、补能焦虑与保值率下挫导致增长显著放缓。丰田深耕 27 年的双擎混动技术（THS）成为全球主流家庭的首选。HEV 车型平均单车利润显著高于传统燃油车与大幅亏损的纯电车，驱动丰田盈利创历史新高。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>核心看多逻辑 2: “多路径（Multi-Pathway）”战略的远见与胜出</h4>
+                <p style="font-size: 13px; margin: 0;">丰田拒绝激进单押纯电，坚持混动、插电、纯电、氢能与固态电池多线并进。其全固态电池（Solid-State Battery）研发专利数量全球第一，计划于 2027-2028 年实现商业化量产（充电 10 分钟续航 1200 公里），彻底破除长期被贴上的“电动化落后”标签。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>核心看多逻辑 3: 8.7x 极度低估值与 3.28% 丰厚股息防守</h4>
+                <p style="font-size: 13px; margin: 0;">经历前期因部分认证数据调查引发的短期情绪抛售（从 $248 跌至 $166 筑底），当前反弹至 $191.11。Trailing P/E 仅 8.7x，Forward P/E 仅 12.1x，股息率达 3.28%，Beta 仅 0.34，在宏观震荡期提供顶级的防御与稳健现金分红。</p>
+            </div>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">💡 投资核心研判 (Verdict)</div>
+            市场此前对汽车行业“纯电替代一切”的激进叙事正被现实证伪，全球汽车消费正大规模回归丰田所主导的“高可靠性、高保值率、高燃油经济性”混动基本盘。丰田在 8.7x 的估值洼地中坐享全球霸主销量与巨额现金分红，具备极强的非对称收益确定性。
+        </div>
+    </section>
+
+    <!-- MODULE 2: 多因子量化评分雷达模型 -->
+    <section class="section" id="sec-2">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">02</span> 多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</div>
+            <span class="sec-tag">Quant Model</span>
+        </div>
+        <p>基于 InvestSkill 多因子量化评估系统，对 TM 从全球规模护城河、混动盈利红利、估值性价比、资产负债健康度、技术面动量、股东回报 6 大维度进行 10 分制量化建模，综合得分 <strong>8.6 / 10</strong>。</p>
+
+        <div class="grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评估维度</th>
+                                <th>得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与量化指标</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>全球规模与品牌护城河 (Global Moat)</strong></td>
+                                <td class="td-highlight td-mono">9.8 / 10</td>
+                                <td>25%</td>
+                                <td>年销 1100 万辆全球第一，丰田精益生产 (TPS) 极高供应链效率</td>
+                            </tr>
+                            <tr>
+                                <td><strong>混动盈利与毛利 (Profitability)</strong></td>
+                                <td class="td-highlight td-mono">9.2 / 10</td>
+                                <td>20%</td>
+                                <td>年净利润近 4.5 万亿日元 (~$30B USD)，混动车型利润率大幅扩张</td>
+                            </tr>
+                            <tr>
+                                <td><strong>估值性价比 (Valuation)</strong></td>
+                                <td class="td-highlight td-mono">9.4 / 10</td>
+                                <td>20%</td>
+                                <td>Trailing PE 8.7x，Forward PE 12.1x，EV/EBITDA 6.28x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>股东回报与股息 (Shareholder Returns)</strong></td>
+                                <td class="td-highlight td-mono">8.6 / 10</td>
+                                <td>15%</td>
+                                <td>股息率 3.28% ($6.27/年)，每年大额回购注销股份</td>
+                            </tr>
+                            <tr>
+                                <td><strong>资产负债与安全性 (Financial Health)</strong></td>
+                                <td class="td-highlight td-mono">7.8 / 10</td>
+                                <td>10%</td>
+                                <td>现金超 12.6 万亿日元 (~$84B)，丰田金融板块资信顶级</td>
+                            </tr>
+                            <tr>
+                                <td><strong>技术面与反弹动量 (Technicals & Beta)</strong></td>
+                                <td class="td-highlight td-mono">7.5 / 10</td>
+                                <td>10%</td>
+                                <td>Beta 仅 0.34，自 $166 底部强力反转，站上 SMA20/50</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权总分 (Total Score)</strong></td>
+                                <td style="color: #059669; font-size: 16px;" class="td-mono">8.6 / 10</td>
+                                <td>100%</td>
+                                <td><strong>看多 (BULLISH)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 3: 商业模式、垂直整合与波特五力护城河评级 -->
+    <section class="section" id="sec-3">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">03</span> 商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="sec-tag">Moat Analysis</span>
+        </div>
+        <p>丰田汽车采用<strong>“精益生产 TPS + 垂直紧密供应商财阀体系 (Keiretsu) + 全球全品类全动力布局”</strong>商业模式：</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>四大核心飞轮护城河</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 6px;"><strong>丰田生产方式 (TPS / Just-in-Time)：</strong>全球制造业效率标杆，极低的库存浪费与极高的零部件通用化率构筑无与伦比的单车成本优势。</li>
+                    <li style="margin-bottom: 6px;"><strong>混动双擎 (THS) 垄断性专利与口碑：</strong>27 年技术迭代，历经数千万车主验证的极致可靠性与超低油耗，二手车保值率稳居全球前列。</li>
+                    <li style="margin-bottom: 6px;"><strong>电装 (Denso) 与丰田织机垂直协同：</strong>核心电控、逆变器与电池模组自研自产，避免被第三方 Tier-1 供应商卡脖子。</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>波特五力模型量化评级</h4>
+                <div class="metric-item">
+                    <span class="metric-lbl">1. 供应商议价能力 (Supplier Power)</span>
+                    <span class="metric-val" style="color: #059669;">极弱 (拥有电装、爱信等绝对控股/参股与采购霸权)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">2. 买方议价能力 (Buyer Power)</span>
+                    <span class="metric-val" style="color: #059669;">弱 (混动 RAV4/Camry 全球抢手，部分地区常年加价提车)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">3. 潜在进入者威胁 (New Entrants)</span>
+                    <span class="metric-val" style="color: #059669;">极弱 (整车制造、全球数千家经销商网络与售后壁垒)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">4. 替代品威胁 (Substitutes)</span>
+                    <span class="metric-val" style="color: #059669;">低 (纯电受制于补能基建，混动是现阶段最优解)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">5. 行业内部竞争 (Industry Rivalry)</span>
+                    <span class="metric-val" style="color: #059669;">全球销冠 (大幅领先大众、通用与福特)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 4: 核心财务报表与盈利质量深度剖析 -->
+    <section class="section" id="sec-4">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">04</span> 核心财务报表与盈利质量深度剖析 (Financial Statements & Quality)</div>
+            <span class="sec-tag">Financials</span>
+        </div>
+        <p>公司营业收入从 2023 财年的 37.15 万亿日元跃升至 2026 财年的 <strong>50.68 万亿日元（TTM 51.96 万亿日元）</strong>，净利润连续稳定在 <strong>3.8 - 4.9 万亿日元（~$25B - $33B USD）</strong>历史巅峰水平。</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (单位: 万亿日元 JPY)</th>
+                        <th>FY2023</th>
+                        <th>FY2024</th>
+                        <th>FY2025</th>
+                        <th>FY2026</th>
+                        <th>TTM (最新12个月)</th>
+                        <th>核心趋势解析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业收入 (Revenue)</strong></td>
+                        <td class="td-mono">37.15 万亿</td>
+                        <td class="td-mono">45.10 万亿</td>
+                        <td class="td-mono">48.04 万亿</td>
+                        <td class="td-mono td-highlight">50.68 万亿</td>
+                        <td class="td-mono td-highlight">51.96 万亿</td>
+                        <td class="td-mono" style="color: #059669;">突破 50 万亿日元大关</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="td-mono">6.31 万亿 (17.0%)</td>
+                        <td class="td-mono">9.37 万亿 (20.8%)</td>
+                        <td class="td-mono">9.58 万亿 (19.9%)</td>
+                        <td class="td-mono td-highlight">8.46 万亿 (16.7%)</td>
+                        <td class="td-mono td-highlight">8.71 万亿 (16.8%)</td>
+                        <td class="td-mono" style="color: #059669;">高端 Lexus 与混动单车利润高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="td-mono">2.73 万亿</td>
+                        <td class="td-mono">5.35 万亿</td>
+                        <td class="td-mono">4.80 万亿</td>
+                        <td class="td-mono td-highlight">3.77 万亿</td>
+                        <td class="td-mono td-highlight">4.09 万亿</td>
+                        <td class="td-mono" style="color: #059669;">全球汽车业最高营业利润</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="td-mono">2.45 万亿</td>
+                        <td class="td-mono">4.94 万亿</td>
+                        <td class="td-mono">4.77 万亿</td>
+                        <td class="td-mono td-highlight">3.85 万亿</td>
+                        <td class="td-mono td-highlight">4.48 万亿</td>
+                        <td class="td-mono" style="color: #059669;">约合 ~$29.8B 美元纯利</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating CF)</strong></td>
+                        <td class="td-mono">2.96 万亿</td>
+                        <td class="td-mono">4.21 万亿</td>
+                        <td class="td-mono">3.70 万亿</td>
+                        <td class="td-mono td-highlight">5.47 万亿</td>
+                        <td class="td-mono td-highlight">4.13 万亿</td>
+                        <td class="td-mono" style="color: #059669;">现金流极其充沛</td>
+                    </tr>
+                    <tr>
+                        <td><strong>股东权益 (Stockholders Equity)</strong></td>
+                        <td class="td-mono">28.34 万亿</td>
+                        <td class="td-mono">34.22 万亿</td>
+                        <td class="td-mono">35.92 万亿</td>
+                        <td class="td-mono td-highlight">39.92 万亿</td>
+                        <td class="td-mono td-highlight">41.20 万亿</td>
+                        <td class="td-mono" style="color: #059669;">净资产稳步积累突破 40 万亿</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <h4>超 $84B 巨额现金储备</h4>
+                <p style="font-size: 12.5px; margin: 0;">账面现金与短期投资超 12.6 万亿日元（折合超 840 亿美元），构筑起全球车企最坚不可摧的流动性堡垒。</p>
+            </div>
+            <div class="card">
+                <h4>稳步推进智能化与电池 Capex</h4>
+                <p style="font-size: 12.5px; margin: 0;">年资本开支约 5.2 万亿日元，全面用于美国北卡罗来纳电池基地、固态电池试产线及 Arene 智能汽车操作系统研发。</p>
+            </div>
+            <div class="card">
+                <h4>极其健康的派息与回购</h4>
+                <p style="font-size: 12.5px; margin: 0;">每年派发股息超 1.2 万亿日元，派息率约 26-30%，在保证高研发投入的同时提供持续稳健的股东回报。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 5: 杜邦三因子拆解与资本运营效率 -->
+    <section class="section" id="sec-5">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">05</span> 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+            <span class="sec-tag">DuPont Analysis</span>
+        </div>
+        <p>通过经典杜邦分析法拆解丰田汽车稳健的净资产收益率体系：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>年度</th>
+                        <th>净利润率 (Net Margin)</th>
+                        <th>资产周转率 (Asset Turnover)</th>
+                        <th>权益乘数 (Financial Leverage)</th>
+                        <th>净资产收益率 (ROE)</th>
+                        <th>核心驱动机制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td class="td-mono">6.60%</td>
+                        <td class="td-mono">0.50次</td>
+                        <td class="td-mono">2.62x</td>
+                        <td class="td-mono">8.65%</td>
+                        <td>供应链芯片短缺缓解期</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td class="td-mono">10.97%</td>
+                        <td class="td-mono">0.50次</td>
+                        <td class="td-mono">2.63x</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">14.45%</td>
+                        <td>混动爆发与日元贬值双击带来历史暴利</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025</strong></td>
+                        <td class="td-mono">9.92%</td>
+                        <td class="td-mono">0.51次</td>
+                        <td class="td-mono">2.61x</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">13.26%</td>
+                        <td>高端 Lexus 与北美混动销量持续强劲</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2026 (最新)</strong></td>
+                        <td class="td-mono td-highlight">7.59%</td>
+                        <td class="td-mono td-highlight">0.48次</td>
+                        <td class="td-mono td-highlight">2.64x</td>
+                        <td class="td-mono td-highlight" style="color: #059669; font-weight: 800;">9.64%</td>
+                        <td><strong>在认证调查整改与加大研发投入下，ROE 保持在近 10% 健康水平</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">📌 杜邦拆解核心洞察</div>
+            传统车企普遍依赖 4-8 倍的高负债杠杆（如通用 GM 权益乘数超 4x，福特超 5x）。而<strong>丰田汽车的权益乘数仅为 2.64x（其中绝大部分负债来自产生稳定利息收益的丰田汽车金融公司）</strong>，其资产质量与实际抗风险能力远超欧美传统同行。
+        </div>
+    </section>
+
+    <!-- MODULE 6: 行业竞争格局与同行全景对标矩阵 -->
+    <section class="section" id="sec-6">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">06</span> 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="sec-tag">Peer Matrix</span>
+        </div>
+        <p>将 Toyota 与全球主流汽车制造商（本田 Honda、通用 GM、福特 Ford、特斯拉 Tesla）进行横向全景对标：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>证券代码</th>
+                        <th>公司名称</th>
+                        <th>当前市值</th>
+                        <th>市盈率 (TTM)</th>
+                        <th>前瞻 P/E</th>
+                        <th>毛利率</th>
+                        <th>净利润率</th>
+                        <th>股息收益率</th>
+                        <th>核心竞争格局与优劣势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>TM</strong></td>
+                        <td>Toyota Motor</td>
+                        <td class="td-mono td-highlight">$258.4B</td>
+                        <td class="td-mono td-highlight">8.67x</td>
+                        <td class="td-mono td-highlight">12.11x</td>
+                        <td class="td-mono td-highlight">16.77%</td>
+                        <td class="td-mono td-highlight">8.63%</td>
+                        <td class="td-mono td-highlight">3.28%</td>
+                        <td><strong>全球销冠，混动超级红利，年赚 $30B 纯利，8.7x PE 低估值</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>HMC</strong></td>
+                        <td>Honda Motor</td>
+                        <td class="td-mono">$40.98B</td>
+                        <td class="td-mono">7.2x</td>
+                        <td class="td-mono">6.37x</td>
+                        <td class="td-mono">17.4%</td>
+                        <td class="td-mono">5.8%</td>
+                        <td class="td-mono">4.22%</td>
+                        <td>摩托车与混动业务稳健，但四轮乘用车全球规模远逊于丰田</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GM</strong></td>
+                        <td>General Motors</td>
+                        <td class="td-mono">$78.48B</td>
+                        <td class="td-mono">6.8x</td>
+                        <td class="td-mono">5.90x</td>
+                        <td class="td-mono">10.2%</td>
+                        <td class="td-mono">5.4%</td>
+                        <td class="td-mono">0.83%</td>
+                        <td>皮卡与大 SUV 利润丰厚，但北美工会成本高且电动化转型亏损</td>
+                    </tr>
+                    <tr>
+                        <td><strong>F</strong></td>
+                        <td>Ford Motor</td>
+                        <td class="td-mono">$57.30B</td>
+                        <td class="td-mono">12.1x</td>
+                        <td class="td-mono">7.51x</td>
+                        <td class="td-mono">7.1%</td>
+                        <td class="td-mono">2.8%</td>
+                        <td class="td-mono">4.18%</td>
+                        <td>Model e 纯电部门年亏损数十亿美元，拖累整体盈利</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TSLA</strong></td>
+                        <td>Tesla Inc</td>
+                        <td class="td-mono">$1,351.8B</td>
+                        <td class="td-mono">180.2x</td>
+                        <td class="td-mono">157.0x</td>
+                        <td class="td-mono">18.9%</td>
+                        <td class="td-mono">5.2%</td>
+                        <td class="td-mono">无</td>
+                        <td>纯电与 FSD 自动驾驶龙头，但估值倍数极高且纯电增速面临放缓</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-emerald">
+                <h4>对标总结 1: 混动盈利能力与现金流全面胜出</h4>
+                <p style="font-size: 13px; margin: 0;">相比福特和通用在电动化转型上每年承担数十亿美元亏损，丰田依托混动车型实现每车盈利最大化，年纯利润达到惊人的 ~$30B USD，稳居全球第一。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>对标总结 2: 8.7x 极具吸引力的估值洼地</h4>
+                <p style="font-size: 13px; margin: 0;">面对纯电巨头特斯拉超 150x 的市盈率，丰田作为年产销 1,100 万辆的全球绝对霸主，仅以 8.7x 的市盈率交易，并提供 <strong>3.28% 稳健股息</strong>，防守反击价值极为突出。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 7: DCF 现金流折现与内在价值三情景敏感性模型 -->
+    <section class="section" id="sec-7">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">07</span> DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+            <span class="sec-tag">DCF Model</span>
+        </div>
+        <p>基于 5 年期自由现金流折现模型（2026-2030），终值永续增长率 $g = 2.0\%$，无风险利率 $R_f = 4.25\%$，Beta $\beta = 0.34$，股权风险溢价 $ERP = 5.0\%$，测算加权平均资本成本 <strong>WACC = 7.0%</strong>。</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>情景分类</th>
+                        <th>年复合销量与营收增速</th>
+                        <th>稳态营业利润率</th>
+                        <th>核心假设</th>
+                        <th>每股 ADR 内在价值</th>
+                        <th>较现价 ($191.11) 空间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #FEE2E2;">
+                        <td><strong>悲观情景 (Bear Case)</strong></td>
+                        <td class="td-mono">1.0%</td>
+                        <td class="td-mono">6.5%</td>
+                        <td style="font-size: 12px;">日元大幅升值，中国市场合资份额进一步承压</td>
+                        <td class="td-mono" style="font-weight: 800; color: #DC2626;">$165.00</td>
+                        <td class="td-mono" style="color: #DC2626;">-13.7%</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>基准情景 (Base Case)</strong></td>
+                        <td class="td-mono">4.5%</td>
+                        <td class="td-mono">8.5%</td>
+                        <td style="font-size: 12px;">北美与欧洲混动渗透率超 50%，固态电池按期量产</td>
+                        <td class="td-mono" style="font-weight: 800; color: #059669; font-size: 15px;">$235.00</td>
+                        <td class="td-mono" style="color: #059669;">+23.0%</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><strong>乐观情景 (Bull Case)</strong></td>
+                        <td class="td-mono">7.5%</td>
+                        <td class="td-mono">10.5%</td>
+                        <td style="font-size: 12px;">固态电池引领下一代纯电革命，Lexus 奢华品牌全球大爆发</td>
+                        <td class="td-mono" style="font-weight: 800; color: #2563EB;">$285.00</td>
+                        <td class="td-mono" style="color: #2563EB;">+49.1%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h4>WACC 与永续增长率 (g) 敏感性矩阵 (基准情景每股 ADR 价值)</h4>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ g</th>
+                        <th>1.0%</th>
+                        <th>1.5%</th>
+                        <th>2.0% (基准)</th>
+                        <th>2.5%</th>
+                        <th>3.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>6.0% (-100bp)</strong></td>
+                        <td class="td-mono">$248.50</td>
+                        <td class="td-mono">$262.20</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">$278.80</td>
+                        <td class="td-mono">$299.10</td>
+                        <td class="td-mono">$324.50</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>7.0% (基准 WACC)</strong></td>
+                        <td class="td-mono">$213.60</td>
+                        <td class="td-mono">$223.50</td>
+                        <td class="td-mono td-highlight" style="font-size: 14px;">$235.00</td>
+                        <td class="td-mono">$248.60</td>
+                        <td class="td-mono">$265.10</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8.0% (+100bp)</strong></td>
+                        <td class="td-mono">$186.20</td>
+                        <td class="td-mono">$193.80</td>
+                        <td class="td-mono">$202.40</td>
+                        <td class="td-mono">$212.20</td>
+                        <td class="td-mono">$223.60</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 8: 技术面量化、均线系统与关键筹码位 -->
+    <section class="section" id="sec-8">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">08</span> 技术面量化、均线系统与关键筹码位 (Technical Analysis)</div>
+            <span class="sec-tag">Technicals</span>
+        </div>
+        <p>股价在经历此前自 $248.90 的深度调整后，在 <strong>$166.10 历史铁底强力反弹</strong>，目前已放量突破 20 日均线 ($186.01) 与 50 日均线 ($179.15)，正向上方 200 日均线 ($203.03) 展开反弹攻势。</p>
+
+        <div class="grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>技术指标</th>
+                                <th>当前数值</th>
+                                <th>状态判定</th>
+                                <th>交易策略含义</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>现价 (ADR Price)</strong></td>
+                                <td class="td-mono td-highlight">$191.11</td>
+                                <td>突破 50 日线</td>
+                                <td>底部反转确立，处于右侧上升通道</td>
+                            </tr>
+                            <tr>
+                                <td><strong>20日均线 (SMA20)</strong></td>
+                                <td class="td-mono">$186.01</td>
+                                <td>短期强支撑</td>
+                                <td>回踩第一加仓点</td>
+                            </tr>
+                            <tr>
+                                <td><strong>50日均线 (SMA50)</strong></td>
+                                <td class="td-mono">$179.15</td>
+                                <td>中期生命线</td>
+                                <td>强力支撑多头趋势</td>
+                            </tr>
+                            <tr>
+                                <td><strong>200日均线 (SMA200)</strong></td>
+                                <td class="td-mono">$203.03</td>
+                                <td>中长期牛熊分水岭</td>
+                                <td>第一主目标压力位</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RSI (14日相对强弱)</strong></td>
+                                <td class="td-mono">62.9</td>
+                                <td>强势多头区 (62.9)</td>
+                                <td>多头动能强劲且未进入极端超买</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MACD (12, 26, 9)</strong></td>
+                                <td class="td-mono">Dif: 2.95 / Hist: 0.12</td>
+                                <td>零轴上方多头金叉</td>
+                                <td>红柱持续发散，买盘意愿强烈</td>
+                            </tr>
+                            <tr>
+                                <td><strong>关键支撑与阻力</strong></td>
+                                <td colspan="3" style="font-size: 12px;">
+                                    <strong>第一支撑:</strong> $186.00 (SMA20) | <strong>强筹码铁底:</strong> $179.00 (SMA50)<br>
+                                    <strong>第一阻力:</strong> $203.00 (SMA200) | <strong>主阻力:</strong> $235.00
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 9: 资本配置、股息政策与股东回报披露 -->
+    <section class="section" id="sec-9">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">09</span> 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</div>
+            <span class="sec-tag">Capital Allocation</span>
+        </div>
+        <p>公司执行稳健的<strong>“高额稳定股息 + 持续股票回购 + 战略研发高投入”</strong>股东回报架构：</p>
+
+        <div class="grid-2">
+            <div class="card card-emerald">
+                <h4>股息政策透明披露 (Mandatory Dividend Disclosure)</h4>
+                <div class="metric-item">
+                    <span class="metric-lbl">股息派发状态 (Dividend Status)</span>
+                    <span class="metric-val" style="color: #059669; font-weight: 800;">按半年常规派发 (Semi-Annual)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">股息收益率 (Dividend Yield)</span>
+                    <span class="metric-val" style="color: #059669; font-weight: 800;">3.28%</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">年度每股派息金额 (Annual Payout)</span>
+                    <span class="metric-val">$6.27 / ADR 股</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">派息率 (Payout Ratio)</span>
+                    <span class="metric-val">26.38%</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">除息日 (Ex-Dividend Date)</span>
+                    <span class="metric-val">每年 3 月末与 9 月末</span>
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); margin-top: 10px;">
+                    <strong>分红与回购政策：</strong>公司派息率维持在 26-30% 极度安全的区间，股息收益率稳定在 <strong>3.28%</strong>。同时配合每年大额的股份回购注销计划，股东综合现金回报率常年稳定在 4.5%+。
+                </p>
+            </div>
+            <div class="card">
+                <h4>资本开支与技术储备</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 8px;"><strong>每年研发投入超 1.2 万亿日元：</strong>在固态电池、氢能、软件定义汽车（SDV）与自动驾驶算法领域保持全球前沿布局。</li>
+                    <li style="margin-bottom: 8px;"><strong>$84B 极高流动性后盾：</strong>即使面对全球汽车行业价格战与宏观衰退，丰田具备全球最强的穿越周期抗风险底盘。</li>
+                    <li style="margin-bottom: 8px;"><strong>低 Beta 防御底色：</strong>Beta 仅 0.34，与美股大盘科技股相关性低，是构建跨资产配置与防御增益的绝佳标的。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10: 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 -->
+    <section class="section" id="sec-10">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">10</span> 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="sec-tag">Options Strategy</span>
+        </div>
+        <p>鉴于 TM 股价已在 $166 构筑大底，且 Trailing PE 仅 8.7x，享有 3.28% 股息托底。采用<strong>现金担保卖出看跌期权（Cash-Secured Sell Put）</strong>能以折价锁定买入成本，或赚取稳健年化权利金。选取到期日为 <strong>2026年9月18日（DTE 34天）</strong>的期权链设计三档策略：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>行权价 (Strike)</th>
+                        <th>Delta (估算)</th>
+                        <th>权利金报价 (Bid / Ask / Mid)</th>
+                        <th>安全边际 (较现价折价)</th>
+                        <th>保本入场价 (Breakeven)</th>
+                        <th>单期收益率 (34天)</th>
+                        <th>年化收益率 (Annualized)</th>
+                        <th>策略执行逻辑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="tier-tag tier-cons">保守型 (Conservative)</span></td>
+                        <td class="td-mono" style="font-weight: 700;">$175.00</td>
+                        <td class="td-mono">~0.15</td>
+                        <td class="td-mono">$0.15 / $1.00 (Mid $0.58)</td>
+                        <td class="td-mono" style="color: #059669;">-8.4% (跌至 SMA50 下方)</td>
+                        <td class="td-mono td-highlight">$174.42</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">0.33%</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">~3.6%</td>
+                        <td>超高安全垫，在 $174.42 历史低估值处稳健收租</td>
+                    </tr>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tier-tag tier-mod">温和型 (Moderate)</span></td>
+                        <td class="td-mono" style="font-weight: 700; color: #059669;">$180.00</td>
+                        <td class="td-mono">~0.25</td>
+                        <td class="td-mono">$0.30 / $1.65 (Mid $0.98)</td>
+                        <td class="td-mono" style="color: #059669;">-5.8% (紧贴 SMA50 支撑)</td>
+                        <td class="td-mono td-highlight">$179.02</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">0.54%</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 800;">~5.8% (+3.3% 股息)</td>
+                        <td><strong>推荐首选档位：</strong>以 $179.02 强支撑位完美建仓或赚取权利金</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tier-tag tier-agg">激进型 (Aggressive)</span></td>
+                        <td class="td-mono" style="font-weight: 700;">$185.00</td>
+                        <td class="td-mono">~0.38</td>
+                        <td class="td-mono">$1.70 / $3.90 (Mid $2.80)</td>
+                        <td class="td-mono">-3.2% (紧贴 SMA20 支撑)</td>
+                        <td class="td-mono td-highlight">$182.20</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">1.51%</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">~16.2%</td>
+                        <td>看好多头直冲 200 日线，以 $182.20 成本拿筹并锁定 16.2% 高年化</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">🎯 Sell Put 策略执行指导</div>
+            <strong>操作建议：</strong>按 1 张期权合约需准备 $18,000 现金担保。卖出 1 张 $180 Strike 的 Put（权利金约 $98）。若到期股价保持在 $180 以上，全额赚取权利金；若被行权，实际建仓成本仅为 <strong>$179.02</strong>，对应 2026 前瞻 P/E 仅 11.3x，享有钢铁般的安全垫。
+        </div>
+    </section>
+
+    <!-- MODULE 11: 机构持仓与主力资金动向 -->
+    <section class="section" id="sec-11">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">11</span> 机构持仓与主力资金动向 (Institutional Ownership)</div>
+            <span class="sec-tag">Smart Money</span>
+        </div>
+        <p>TM 美股 ADR 受到全球顶级长线价值公募与财富管理机构长期配置：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (Top ADR Holders)</th>
+                        <th>报告持股日期</th>
+                        <th>持股比例 (ADR 占比)</th>
+                        <th>持股股数 (Shares)</th>
+                        <th>最新持仓市值 (USD)</th>
+                        <th>季度变动趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Fisher Asset Management, LLC</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">0.49%</td>
+                        <td class="td-mono">7,202,123</td>
+                        <td class="td-mono">$1.38B</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">+1.91% (持续增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Morgan Stanley</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">0.17%</td>
+                        <td class="td-mono">2,456,736</td>
+                        <td class="td-mono">$469.5M</td>
+                        <td class="td-mono" style="color: #059669;">+0.89%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FMR, LLC (富达基金)</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">0.09%</td>
+                        <td class="td-mono">1,382,580</td>
+                        <td class="td-mono">$264.2M</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">+33.82% (大幅加仓)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Goldman Sachs Group Inc</strong></td>
+                        <td class="td-mono">2026-03-31</td>
+                        <td class="td-mono td-highlight">0.08%</td>
+                        <td class="td-mono">1,226,890</td>
+                        <td class="td-mono">$234.5M</td>
+                        <td class="td-mono" style="color: #059669;">+6.67%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Northern Trust Corporation</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">0.07%</td>
+                        <td class="td-mono">1,021,164</td>
+                        <td class="td-mono">$195.2M</td>
+                        <td class="td-mono">-5.06%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bank of America Corporation</strong></td>
+                        <td class="td-mono">2026-03-31</td>
+                        <td class="td-mono td-highlight">0.06%</td>
+                        <td class="td-mono">926,582</td>
+                        <td class="td-mono">$177.1M</td>
+                        <td class="td-mono">-0.22%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">🔍 顶级长线机构加仓动向洞察</div>
+            <strong>Fisher Investments 与富达基金 (FMR LLC)</strong> 在最新季度显著增持（富达大幅加仓 <strong>+33.82%</strong>），高盛同向增持 6.67%，顶级价值投资派在丰田经历认证风波回调后正加速抢筹。
+        </div>
+    </section>
+
+    <!-- MODULE 12: 内部人交易、管理层语气与财报电话会洞察 -->
+    <section class="section" id="sec-12">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">12</span> 内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Call)</div>
+            <span class="sec-tag">Management Tone</span>
+        </div>
+        <p>追踪管理层业绩指引交流与战略部署：</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>管理层语气与战略指引研判</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 6px;"><strong>董事长丰田章男 (Akio Toyoda) 重申多路径正确性：</strong>强调“敌人是碳排放，而不是内燃机”，混动与插电混动是达成减碳与盈利的最佳现实路径。</li>
+                    <li style="margin-bottom: 6px;"><strong>CEO 佐藤恒治 (Koji Sato) 加速固态电池产业化：</strong>重申与出光兴产（Idemitsu）合作的固态电池产线建设顺利，2027 年示范上车目标不变。</li>
+                    <li style="margin-bottom: 6px;"><strong>质量认证调查彻底闭环：</strong>已全面完成日本国土交通省的调查合规整改，国内所有停产工厂全面复工复产。</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>公司治理与交叉持股解绑</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 6px;"><strong>有序减持交叉持股释放资本：</strong>逐步减持电装与爱信等关联企业股份，回收的数千亿日元资金直接用于加大回购注销。</li>
+                    <li style="margin-bottom: 6px;"><strong>东京证券交易所治理改革表率：</strong>积极响应东证 PBR > 1.0x 改革号召，持续提升资本回报效率。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13: 做空比例、平仓天数与轧空风险评估 -->
+    <section class="section" id="sec-13">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">13</span> 做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze)</div>
+            <span class="sec-tag">Short Interest</span>
+        </div>
+        <p>TM 美股 ADR 当前做空股数为 <strong>81 万股</strong>，占流通盘比例（Short % of Float）仅为 <strong>0.07%</strong>，平仓天数（Days to Cover）为 <strong>1.75 天</strong>。</p>
+
+        <div class="grid-3">
+            <div class="card card-emerald">
+                <h4>做空股数总量</h4>
+                <div class="metric-val" style="font-size: 20px; color: #059669; margin: 6px 0;">810,319 股</div>
+                <p style="font-size: 12px; margin: 0;">空头总市值约 $155M，在巨盘股中占比极微。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>流通盘做空比例</h4>
+                <div class="metric-val" style="font-size: 20px; color: #059669; margin: 6px 0;">0.07% of Float</div>
+                <p style="font-size: 12px; margin: 0;">做空比例极低，机构空头几乎无做空意愿。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>平仓天数 (Days to Cover)</h4>
+                <div class="metric-val" style="font-size: 20px; color: #059669; margin: 6px 0;">1.75 Days</div>
+                <p style="font-size: 12px; margin: 0;">流动性极佳，筹码结构极其扎实。</p>
+            </div>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">⚡ 做空情绪与市场定性</div>
+            做空比例不足 0.1%，反映出全球机构对丰田庞大现金流与绝对行业地位的高度信赖。当前股价反弹具备极其稳健的底部承接力。
+        </div>
+    </section>
+
+    <!-- MODULE 14: 核心风险矩阵与熊市压力测试 -->
+    <section class="section" id="sec-14">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">14</span> 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+            <span class="sec-tag">Risk & Stress Test</span>
+        </div>
+        <p>系统性评估 4 项核心风险敞口并进行极限情景压力测试：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险维度</th>
+                        <th>风险等级</th>
+                        <th>风险描述</th>
+                        <th>应对机制与防御缓冲</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>日元汇率快速大幅升值</strong></td>
+                        <td style="color: #D97706; font-weight: 700;">中度风险 (Medium)</td>
+                        <td>若日元兑美元升破 130，海外利润折算将出现汇兑收缩。</td>
+                        <td>全球本地化制造比例高（北美/欧洲/东南亚本土生产本土销售）。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>中国市场自主品牌电动车价格战</strong></td>
+                        <td style="color: #D97706; font-weight: 700;">中度风险 (局部)</td>
+                        <td>中国合资公司（广汽丰田/一汽丰田）份额承压。</td>
+                        <td>加大与比亚迪、华为合作开发本地化智驾与混动，且欧美利润贡献超 70%。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>欧美对日系车潜在关税调整</strong></td>
+                        <td style="color: #64748B; font-weight: 700;">中低风险 (Low-Medium)</td>
+                        <td>美国对进口整车关税政策出现变数。</td>
+                        <td>丰田在肯塔基、得州、印第安纳拥有庞大制造基地，北美本土化率超 75%。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>固态电池研发与商业化推迟</strong></td>
+                        <td style="color: #64748B; font-weight: 700;">低风险 (长期)</td>
+                        <td>量产工艺突破难度高导致进度延后。</td>
+                        <td>现有第五代 THS 混动与新一代三元/磷酸铁锂电池足以支撑未来 5-8 年盈利。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout" style="border-left-color: #DC2626; background: #FEF2F2; color: #991B1B;">
+            <div class="callout-title" style="color: #991B1B;">📉 熊市极端情景压力测试 (Worst-Case Scenario)</div>
+            <strong>假设极限冲击：</strong>(1) 全球汽车总需求萎缩 10% 且日元升值至 125；(2) 净利润降至 2.5 万亿日元（对应 ADR EPS ~$14.00）。<br>
+            <strong>测算结果：</strong>给予悲观 11x P/E 估值，<strong>对应极限底线 ADR 股价约为 $155 - $160</strong>。相较现价 $191.11，极端下行风险仅约 -16%，而基准公允价值目标为 $235.00 (+23.0%)，乐观目标为 $285.00 (+49.1%)，具备非凡的防守反击赔率。
+        </div>
+    </section>
+
+    <!-- MODULE 15: 未来关键催化剂日历与增长路线图 -->
+    <section class="section" id="sec-15">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">15</span> 未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+            <span class="sec-tag">Catalysts</span>
+        </div>
+        <p>未来 6-18 个月将驱动 TM 估值重估的关键催化事件与里程碑：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预期时间节点</th>
+                        <th>关键催化事件</th>
+                        <th>催化类型</th>
+                        <th>潜在影响与股价弹性</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026 Q3 (10-11月)</strong></td>
+                        <td>FY2027 H1 半年度财报公布与中期分红决议</td>
+                        <td>财报事件</td>
+                        <td>公布半年度大额现金分红与最新全球销量，验证混动盈利韧性</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q4 (12月)</strong></td>
+                        <td>全美全新代际混动 RAV4 与 Camry 全年交付数据</td>
+                        <td>销量催化</td>
+                        <td>北美混动占比突破新高，驱动下半年业绩超预期</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 H1</strong></td>
+                        <td>北卡罗来纳超级电池工厂（North Carolina Battery Plant）投产</td>
+                        <td>产能落地</td>
+                        <td>为北美混动与纯电车型提供本土化电池供给，享受 IRA 补贴红利</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 H2</strong></td>
+                        <td>全固态电池示范产线通线与原型车动态测试</td>
+                        <td>顶级科技突破</td>
+                        <td>彻底扭转市场对丰田电动化技术认知，引发估值倍数系统性重估</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 H2</strong></td>
+                        <td>新一期 1.5 万亿日元大额股票回购授权落地</td>
+                        <td>资本回报</td>
+                        <td>持续注销在外流通股本，显著增厚每股收益 EPS</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 16: 最终投资评级与执行建议 -->
+    <section class="section" id="sec-16">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">16</span> 最终投资评级与执行建议 (Final Verdict & Standardized Signal)</div>
+            <span class="sec-tag">Verdict</span>
+        </div>
+
+        <div class="signal-block">
+            <div class="signal-block-title">╔══════════════════════════════════════════════╗ &nbsp; INVESTSKILL STANDARDIZED INVESTMENT SIGNAL &nbsp; ╚══════════════════════════════════════════════╝</div>
+            <div class="signal-grid">
+                <div class="sig-cell">
+                    <div class="sig-label">投资信号 (Signal)</div>
+                    <div class="signal-verdict">看多 (BULLISH)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">置信度 (Confidence)</div>
+                    <div class="sig-val" style="color: #34D399;">HIGH (高)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">投资周期 (Horizon)</div>
+                    <div class="sig-val">中长期 (6-18 MONTHS)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">量化综合评分 (Score)</div>
+                    <div class="signal-score">8.6 / 10</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">操作建议 (Action)</div>
+                    <div class="sig-val" style="color: #34D399; font-size: 22px;">买入 / 稳健配置 (BUY)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">确信度 (Conviction)</div>
+                    <div class="sig-val" style="color: #FCD34D;">STRONG (强)</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 13.5px; line-height: 1.7; color: #ECFDF5;">
+                <strong>执行策略摘要：</strong><br>
+                1. <strong>现货买入：</strong>建议在 <strong>$184 - $192 区间</strong>（紧贴 20 日均线支撑）分批配置多头底仓，止损位设在 $165.00 下方，第一目标价 $203.00 (SMA200)，DCF 基准公允价值目标价 <strong>$235.00 (+23.0%)</strong>，乐观目标价 $285.00 (+49.1%)。<br>
+                2. <strong>期权收益增强：</strong>推荐卖出 2026年9月18日到期、行权价 $180.00 的现金担保 Put（权利金约 $0.98），结合 3.28% 股息收益率构建稳健的现金增强策略，或以此在 <strong>$179.02</strong> 实际折价成本完美建仓。<br>
+                3. <strong>核心监测指标：</strong>重点跟踪北美与欧洲混动销量占比、半年度股息派发与 2027 年固态电池示范产线进展。
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    // 1. Radar Chart
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['全球规模护城河', '混动盈利红利', '估值性价比', '股东回报股息', '资产负债安全', '技术反弹动量'],
+            datasets: [{
+                label: 'TM 量化得分',
+                data: [9.8, 9.2, 9.4, 8.6, 7.8, 7.5],
+                fill: true,
+                backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#10B981',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#059669',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#E2E8F0' },
+                    grid: { color: '#E2E8F0' },
+                    pointLabels: { font: { size: 12, weight: '600' }, color: '#334155' },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 2. Price and Moving Averages Chart
+    const ctxPrice = document.getElementById('priceChart').getContext('2d');
+    const chartDates = ["2026-04-08", "2026-04-09", "2026-04-10", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-24", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30", "2026-05-01", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13", "2026-08-14"];
+    const chartPrices = [215.0, 211.14, 210.64, 211.06, 211.55, 213.18, 212.86, 217.2, 215.25, 203.97, 200.43, 196.08, 192.32, 192.17, 192.98, 191.26, 192.62, 188.71, 188.3, 189.99, 195.05, 189.0, 187.53, 183.8, 181.67, 186.89, 190.5, 190.68, 187.37, 185.47, 189.94, 189.66, 189.08, 190.09, 190.11, 191.84, 189.95, 182.92, 180.49, 180.22, 179.5, 177.16, 178.45, 175.78, 172.03, 174.95, 174.95, 180.22, 178.19, 172.77, 173.94, 169.73, 167.23, 167.76, 166.5, 171.48, 171.36, 168.42, 169.66, 174.59, 179.8, 179.43, 177.15, 174.32, 176.45, 174.75, 176.22, 176.92, 179.76, 177.61, 178.53, 180.34, 179.94, 176.8, 177.42, 182.15, 186.3, 192.84, 191.45, 188.99, 186.17, 189.17, 185.89, 187.49, 190.09, 188.78, 189.82, 188.22, 188.71, 191.11];
+    const chartSMA20 = [209.72, 209.24, 208.94, 208.95, 208.87, 208.87, 209.06, 209.47, 209.98, 209.65, 209.18, 208.44, 207.56, 206.83, 206.33, 205.59, 204.74, 203.82, 203.02, 202.34, 201.34, 200.23, 199.08, 197.71, 196.22, 194.9, 193.79, 192.46, 191.07, 190.14, 189.62, 189.3, 189.13, 189.03, 188.89, 188.92, 188.78, 188.49, 188.1, 187.61, 186.84, 186.24, 185.79, 185.39, 184.91, 184.31, 183.53, 183.01, 182.55, 181.92, 181.12, 180.12, 179.03, 177.91, 176.73, 175.71, 174.78, 174.06, 173.51, 173.23, 173.25, 173.36, 173.3, 173.22, 173.44, 173.43, 173.5, 173.33, 173.41, 173.65, 173.88, 174.41, 175.05, 175.5, 176.05, 176.58, 177.33, 178.55, 179.64, 180.36, 180.68, 181.16, 181.6, 182.26, 182.94, 183.64, 184.32, 184.89, 185.34, 186.01];
+    const chartSMA50 = [225.07, 224.81, 224.65, 224.33, 224.02, 223.65, 223.28, 222.8, 222.36, 221.55, 220.72, 219.87, 218.86, 217.87, 216.77, 215.68, 214.67, 213.61, 212.59, 211.62, 210.75, 209.7, 208.6, 207.42, 206.19, 205.28, 204.43, 203.82, 203.18, 202.5, 201.88, 201.26, 200.71, 200.29, 199.83, 199.4, 199.02, 198.5, 198.01, 197.4, 196.8, 196.12, 195.49, 194.87, 194.25, 193.63, 192.94, 192.4, 191.88, 191.26, 190.44, 189.61, 188.74, 187.88, 186.97, 186.14, 185.31, 184.34, 183.42, 182.84, 182.42, 182.09, 181.79, 181.43, 181.1, 180.77, 180.44, 180.21, 180.03, 179.79, 179.46, 179.28, 179.13, 178.99, 178.91, 178.81, 178.73, 178.77, 178.85, 178.92, 178.85, 178.84, 178.77, 178.72, 178.72, 178.66, 178.66, 178.76, 178.93, 179.15];
+
+    new Chart(ctxPrice, {
+        type: 'line',
+        data: {
+            labels: chartDates,
+            datasets: [
+                {
+                    label: 'ADR 收盘价 (Close)',
+                    data: chartPrices,
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.08)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0
+                },
+                {
+                    label: 'SMA 20',
+                    data: chartSMA20,
+                    borderColor: '#F59E0B',
+                    borderWidth: 1.5,
+                    borderDash: [3, 3],
+                    fill: false,
+                    pointRadius: 0
+                },
+                {
+                    label: 'SMA 50',
+                    data: chartSMA50,
+                    borderColor: '#3B82F6',
+                    borderWidth: 1.5,
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { maxTicksLimit: 8, font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: '#F1F5F9' },
+                    ticks: {
+                        font: { size: 11 },
+                        callback: function(value) { return '$' + value; }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { boxWidth: 12, font: { size: 11 } }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

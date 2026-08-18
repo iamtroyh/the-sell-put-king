@@ -127,7 +127,7 @@ For equity holdings >= 100 shares:
       * **Account Binding**: Must target Joint Tenancy account ID from `config/credentials.json`.
       * **Buying Power**: Mandatorily extract `unleveraged_buying_power` from `get_portfolio`.
    b. **Target Scanning**: Run `python3 scripts/get_scan_targets.py` to generate `scan_targets.json`.
-   c. **InvestSkill Verification**: Verify institutional reports in `~/InvestSkill/output` within 7-day freshness threshold.
+   c. **InvestSkill Verification**: Verify institutional reports in `InvestSkill/output` within 7-day freshness threshold.
    d. **Fetch Instruments**: Call `get_option_instruments` for target tickers and expirations.
    e. **Filter Contracts**: Run `filter_instruments.py` to bound strikes and Deltas.
    f. **Batched Quote Fetching**: Slice instrument IDs into batches of <= 40 to prevent API packet dropping.
@@ -135,10 +135,11 @@ For equity holdings >= 100 shares:
    h. **Generate Report**: Run `python3 scripts/generate_report.py` to score contracts with the 40/30/30 Three-Pillar multi-factor engine, compute Wash Sale risks, and render `report.html`.
    i. **Sync Watchlist**: Run `sync_watchlist_mcp.py` to synchronize `Sell Put Candidate` Watchlist.
 
-2. **Single-Ticker Deep Research (`research <TICKER>`)**:
+2. **Single-Ticker Deep Research (`<TICKER>`, `research <TICKER>`, or direct stock queries e.g. `NVDA`, `AAPL`, `分析 TSLA`, `MSFT 研报`)**:
+   * **Direct Ticker Intent Matching**: Whenever the user sends a standalone ticker symbol (e.g. `NVDA`, `AAPL`, `TSLA`, `MSFT`) or a stock inquiry (e.g. `分析 AAPL`, `深度分析 NVDA`), **mandatorily treat it as an explicit single-ticker research trigger (`research <TICKER>`)**.
    a. Run InvestSkill 15-module framework (Moat, DCF, Bear Case, Options).
-   b. Generate HTML report in `~/InvestSkill/output/{TICKER}_report_{YYYY-MM-DD}.html`.
-   c. Update index via `node ~/InvestSkill/scripts/generate-output-index.js`.
+   b. Generate HTML report in `InvestSkill/output/{TICKER}_report_{YYYY-MM-DD}.html`.
+   c. Update index via `node InvestSkill/scripts/generate-output-index.js`.
    d. Re-render main dashboard `python3 scripts/generate_report.py` to embed report into Tab 2.
    e. Deliver core thesis, valuation, and assignment decision in conversational response.
 
@@ -148,7 +149,7 @@ For equity holdings >= 100 shares:
    * **Full 15-Module Standard**: All generated InvestSkill research reports must strictly adhere to the 15-module / 5-phase / 9-chapter architecture (Executive KPI Cards, 5-Phase Scorecard, Segment Revenue Breakdown, 5-Year DCF Multi-Scenario Valuation, 13F & Short Interest Analysis, Key Technical Levels, Bear Case Red-Team Stress Test, 3-Tier Sell Put Gradients, and Normalized Signal Cards, accompanied by Radar/DCF/Technical interactive charts).
    * **Universe Batch Research Trigger (`research`)**: When the user issues `research`, automatically scan all underlying tickers in `report.html` (via `TradingView One-Click Copy Tickers` or `Universe Master Scan & Options Staging` Table 2).
    * **Three Research Trigger Conditions (Execute 15-module deep dive if ANY condition is met)**:
-     1. **No Valid Report within 7 Days**: No report exists in `output/` directory or the latest report is older than 7 days.
+     1. **No Valid Report within 7 Days**: No report exists in `InvestSkill/output/` directory or the latest report is older than 7 days.
      2. **Fresh Earnings Released within 7 Days**: Company reported earnings in the past 7 days.
      3. **7-Day Price Movement Exceeds 5%**: Underlying price changed by more than 5% (`abs(Delta_Price_7d) / Price_7d > 5%`) within the past 7 days.
    * **Zero Stale Data Iron Rule**: Strictly prohibit recycling old cached data or stale estimates. Always pull fresh live data.
@@ -156,4 +157,59 @@ For equity holdings >= 100 shares:
    * **Sticky Freeze Header**: Clicking any row locks the ticker summary to the top (`position: sticky; top: 0; z-index: 45`) for seamless multi-thousand-pixel scrolling.
    * **Williams VixFix Synthetic Implied Volatility**: Integrates Larry Williams VixFix (`VixFix = (Highest(Close, 22) - Low) / Highest(Close, 22) * 100`) as synthetic proxy IV when historical option IV is unavailable. Triggers `[VixFix Panic Alert]` when 30d VixFix IVP >= 75% and 252d VixFix IVP >= 60%.
    * **Thesis Invalidation Triggers**: Explicit invalidation criteria for open positions and recommendation candidates.
+
+# InvestSkill Deep Research & Report Generation Rules (Institutional Standard)
+
+1. **Output Directory Index Rule (Mandatory)**:
+   - Whenever an AI agent generates or updates any `.html` report in `InvestSkill/output/`, the agent **MUST dynamically update `InvestSkill/output/index.html`** by running `node InvestSkill/scripts/generate-output-index.js`.
+   - `InvestSkill/output/index.html` serves as the single entry directory for all generated reports with direct clickable links (`<a href="./filename.html">`) and metadata (Ticker, Title, Signal & Score, Date, File Size).
+   - **Ground-Truth Signal Verdict Preservation Rule**: Index generator scripts and AI agents **MUST strictly respect and extract the exact investment verdict text from the HTML report** (`看多 (BULLISH)`, `强烈看多 (STRONG BUY)`, `中立 (NEUTRAL)`, `看空 (BEARISH)`, `强烈看空 (STRONG SELL)`). **NEVER override or alter the report's verdict based on numeric score thresholds**.
+   - **Index Signal Badge Gradient & Score Display**: Badges on `InvestSkill/output/index.html` must display both the exact verdict text and score (e.g. `强烈看多 (STRONG BUY) • 8.6/10`), styled with continuous glowing gradients (Emerald for Bullish, Amber for Neutral, Red for Bearish).
+
+2. **Mandatory Comprehensive 15-Module Depth by Default**:
+   - Whenever generating stock research, full reports, or HTML analysis documents for any ticker, the AI agent **MUST ALWAYS default to Comprehensive Depth (all 15 modules)**:
+     1. 执行摘要与核心投资逻辑 (Executive Summary & Thesis)
+     2. 多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard & Radar Chart)
+     3. 商业模式、垂直整合与波特五力护城河评级 (Business Model & Porter's 5 Forces)
+     4. 核心财务报表与盈利质量深度剖析 (Financial Statements, Margins & Cash Flow Quality)
+     5. 杜邦三因子拆解与资本运营效率 (DuPont Analysis: Margin × Turnover × Leverage)
+     6. 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix with Multiples, Margins, Market Share)
+     7. DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation: Bear/Base/Bull & WACC Sensitivity)
+     8. 技术面量化、均线系统与关键筹码位 (Technical Analysis: SMA20/50/200, RSI, MACD, S/R)
+     9. 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend: explicit "无/没有" if zero dividend)
+     10. 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 (Conservative, Moderate, Aggressive 3 Tiers)
+     11. 机构持仓与主力资金动向 (Institutional Ownership: Top 13F Holders Table)
+     12. 内部人交易、管理层语气与财报电话会洞察 (Insider Trading Form 4 & Earnings Call Tone)
+     13. 做空比例、平仓天数与轧空风险评估 (Short Interest, Days to Cover & Options P/C Ratio)
+     14. 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Case Downside Stress Test)
+     15. 未来关键催化剂日历与增长路线图 (Catalyst Calendar & Strategic Milestones)
+     16. 最终投资评级与执行建议 (Final Verdict & Standardized Signal Block)
+
+3. **Report Language Requirement (中文报告规范)**:
+   - All generated stock research reports, HTML analysis documents, and summaries **MUST be rendered in Chinese (中文)** unless explicitly requested otherwise.
+
+4. **Report Signal Color Theme Rules (报告信号主题配色规范)**:
+   - All generated HTML reports MUST align their internal CSS theme (`:root` `--primary`, `--grad-hero`, accent borders, badges, table highlights) to match their Signal:
+     - **Bullish (看多 / BUY / STRONG BUY)**: Primary theme, hero gradient, accent borders, badges, table highlights, and key links **MUST use a Green / Emerald color palette** (`#059669`, `#10B981`, `#047857`, emerald gradients).
+     - **Neutral (中立 / HOLD)**: Primary theme, hero gradient, accent borders, badges, table highlights, and key links **MUST use an Amber / Orange color palette** (`#D97706`, `#F59E0B`, `#B45309`, amber/orange gradients).
+     - **Bearish (看空 / SELL / STRONG SELL)**: Primary theme, hero gradient, accent borders, badges, table highlights, and key links **MUST use a Red / Crimson color palette** (`#DC2626`, `#EF4444`, `#991B1B`, red gradients).
+
+5. **Mandatory Dividend Disclosure Rule (股息披露规范)**:
+   - Whenever generating stock research, executive summaries, financial tables, key metrics cards, or HTML reports, the AI agent **MUST explicitly state the company's dividend status** (Dividend Yield, Annual Payout, Payout Ratio, Ex-Dividend Date).
+   - **If the company does not pay dividends (Zero Dividend)**, the AI agent **MUST explicitly write "无 / 没有 (无股息派发 / Dividend: None / N/A)"** and explain shareholder return alternatives if applicable (e.g. 股票回购 / Share Buybacks). Never omit or leave blank.
+
+6. **Price Integrity & Zero-Truncation Execution Rule (价格完整性与零截断防错规范)**:
+   - AI agents **MUST NEVER** execute double-quoted inline shell commands containing currency symbols (e.g. `python3 -c "..."` with `$125.00`).
+   - Always use dedicated script files, safe single-quoted heredocs (`cat << 'EOF' > ...`), or native safe file writing tools (`write_to_file`).
+   - Immediately after generating or modifying any HTML report, verify that price numbers are intact and uncorrupted.
+
+7. **Mobile Compatibility & Responsive Layout Rule (移动端兼容与响应式排版规范)**:
+   - Every generated HTML report MUST include `<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">` and `<meta name="format-detection" content="telephone=no">`.
+   - Fluid responsive layout (`max-width: 1100px; width: 100%`) with adaptive padding.
+   - All data tables MUST be enclosed in `<div class="table-scroll" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">`.
+   - Charts (`Chart.js`) MUST be configured with `responsive: true, maintainAspectRatio: false` inside a constrained-height canvas wrapper.
+
+8. **Workspace Cleanliness & Intermediate Artifacts Isolation**:
+   - The ONLY files placed in the project directory are final HTML reports in `InvestSkill/output/` (and their `InvestSkill/output/index.html` entry) and `report.html`.
+   - ALL ad-hoc fetch scripts, scratch cache files, and intermediate temporary data **MUST strictly be written to the scratch directory** (`<appDataDir>/brain/<conversation-id>/scratch/` or `/tmp/`).
 

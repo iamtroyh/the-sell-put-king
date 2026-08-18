@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>比特小鹿 (Bitdeer Technologies Group - BTDR) 全模块深度研究与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 52px 32px 44px;
+            position: relative;
+            overflow: hidden;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.1);
+        }
+        .report-hero::after {
+            content: '';
+            position: absolute; bottom: -60px; left: -40px;
+            width: 300px; height: 300px; border-radius: 50%;
+            background: rgba(255,255,255,.05);
+        }
+        .hero-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,.18);
+            border: 1px solid rgba(255,255,255,.35);
+            color: #fff;
+            font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase;
+            padding: 4px 14px; border-radius: 20px; margin-bottom: 18px;
+        }
+        .hero-ticker {
+            font-size: 52px; font-weight: 800; color: #fff;
+            letter-spacing: -2px; line-height: 1;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .hero-company { font-size: 22px; font-weight: 500; color: rgba(255,255,255,.92); margin-top: 8px; }
+        .hero-rule {
+            width: 48px; height: 3px;
+            background: var(--grad-accent); border-radius: 2px;
+            margin: 20px 0;
+        }
+        .hero-meta { display: flex; flex-wrap: wrap; gap: 24px; }
+        .hero-meta-item { display: flex; flex-direction: column; gap: 2px; }
+        .hero-meta-label {
+            font-size: 9px; font-weight: 700; letter-spacing: 1.2px;
+            text-transform: uppercase; color: rgba(255,255,255,.65);
+        }
+        .hero-meta-value { font-size: 15px; font-weight: 700; color: #ffffff; }
+
+        .report-body { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+
+        .data-provenance {
+            background: #fff; border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px; padding: 14px 20px; margin-bottom: 24px;
+            font-size: 12px; color: var(--text-secondary);
+            display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px;
+        }
+        .dp-item { display: flex; gap: 6px; }
+        .dp-label { font-weight: 600; color: var(--primary-dark); }
+
+        .toc {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 12px; padding: 22px 28px;
+            margin-bottom: 28px; box-shadow: var(--shadow-sm);
+        }
+        .toc-label {
+            font-size: 10px; font-weight: 700; letter-spacing: 1.6px;
+            text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px;
+        }
+        .toc-grid {
+            list-style: none;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px 20px;
+        }
+        .toc-grid a {
+            font-size: 13px; font-weight: 500; color: var(--primary);
+            text-decoration: none; display: flex; align-items: center; gap: 6px;
+        }
+        .toc-grid a::before { content: '›'; font-size: 14px; color: var(--text-muted); }
+        .toc-grid a:hover { color: var(--accent); }
+
+        .section {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 12px; padding: 28px;
+            margin-bottom: 24px; box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 20px; padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            background: var(--primary-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; flex-shrink: 0; color: var(--primary-dark); font-weight: 700;
+        }
+        .section-title { font-size: 18px; font-weight: 700; color: var(--primary-dark); letter-spacing: -.3px; }
+        .section-sub   { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .section-num {
+            margin-left: auto;
+            font-size: 11px; font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-muted);
+            background: var(--slate-light);
+            padding: 2px 9px; border-radius: 4px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 16px; margin-bottom: 20px;
+        }
+        .card {
+            background: var(--slate-light);
+            border: 1px solid var(--border);
+            border-radius: 8px; padding: 16px 20px;
+        }
+        .card-label {
+            font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: .8px; color: var(--text-muted); margin-bottom: 6px;
+        }
+        .card-value { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+        .card-sub { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+        .card-sub.up   { color: var(--primary); font-weight: 600; }
+        .card-sub.down { color: var(--red); font-weight: 600; }
+
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        table {
+            width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;
+        }
+        thead { background: #F1F5F9; }
+        th {
+            padding: 11px 14px; font-weight: 600; color: var(--text-secondary);
+            font-size: 11px; text-transform: uppercase; letter-spacing: .6px;
+            border-bottom: 1px solid var(--border); white-space: nowrap;
+        }
+        td {
+            padding: 11px 14px; border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #F8FAFC; }
+        td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+        td.highlight { font-weight: 600; color: var(--primary); }
+        td.badge-cell { white-space: nowrap; }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 11px; font-weight: 600;
+            padding: 3px 9px; border-radius: 20px;
+        }
+        .badge-green { background: var(--emerald-light); color: var(--primary-dark); border: 1px solid #A7F3D0; }
+        .badge-red   { background: var(--red-light); color: var(--red); border: 1px solid #FECACA; }
+        .badge-amber { background: var(--amber-light); color: var(--amber); border: 1px solid #FDE68A; }
+        .badge-slate { background: var(--slate-light); color: var(--slate); border: 1px solid var(--border); }
+
+        .prose { color: var(--text-secondary); line-height: 1.75; margin-bottom: 14px; }
+        .prose p { margin-bottom: 10px; }
+        .prose strong { color: var(--text-primary); }
+        .prose ul, .prose ol { margin-left: 20px; margin-bottom: 12px; }
+        .prose li { margin-bottom: 6px; }
+
+        .callout {
+            border-radius: 8px; padding: 14px 18px; margin: 16px 0;
+            border-left: 4px solid var(--primary); background: var(--primary-light);
+            font-size: 13px; color: var(--primary-dark);
+        }
+        .callout-amber {
+            border-left-color: var(--amber); background: var(--amber-light);
+            color: #78350F;
+        }
+        .callout-red {
+            border-left-color: var(--red); background: var(--red-light);
+            color: #7F1D1D;
+        }
+
+        .chart-container {
+            position: relative; width: 100%; height: 320px; margin: 20px 0;
+        }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            border-radius: 12px; padding: 32px; color: #fff;
+            box-shadow: var(--shadow-lg); margin-top: 24px;
+        }
+        .signal-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px; margin-top: 20px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 8px; padding: 16px; text-align: center;
+        }
+        .signal-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.7); }
+        .signal-val { font-size: 22px; font-weight: 800; margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+
+        @media (max-width: 768px) {
+            .report-hero { padding: 36px 20px 32px; }
+            .hero-ticker { font-size: 38px; }
+            .hero-company { font-size: 18px; }
+            .cards-grid { grid-template-columns: 1fr 1fr; }
+            .toc-grid { grid-template-columns: 1fr; }
+            .section { padding: 20px 16px; }
+        }
+        @media (max-width: 480px) {
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge">InvestSkill 机构级全景量化深度研报 • 15模块完整版</div>
+        <div class="hero-ticker">BTDR</div>
+        <div class="hero-company">Bitdeer Technologies Group (比特小鹿科技集团)</div>
+        <div class="hero-rule"></div>
+        <div class="hero-meta">
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">现价 (Spot Price)</span>
+                <span class="hero-meta-value">$8.76 USD</span>
+            </div>
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">总市值 (Market Cap)</span>
+                <span class="hero-meta-value">$2.38B USD</span>
+            </div>
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">企业价值 (EV)</span>
+                <span class="hero-meta-value">$3.94B USD</span>
+            </div>
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">52周区间</span>
+                <span class="hero-meta-value">$6.92 - $27.80</span>
+            </div>
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">华尔街评级共识</span>
+                <span class="hero-meta-value">强力买入 (Strong Buy • 12家投行)</span>
+            </div>
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">目标价均值 (Upside)</span>
+                <span class="hero-meta-value">$22.33 (+154.9%)</span>
+            </div>
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">分析基准日期</span>
+                <span class="hero-meta-value">2026-08-13</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="report-body">
+
+    <!-- 数据溯源条 -->
+    <div class="data-provenance">
+        <div class="dp-item"><span class="dp-label">行情数据源:</span> NASDAQ 实时行情 / yfinance Engine</div>
+        <div class="dp-item"><span class="dp-label">监管披露:</span> SEC Form 20-F / 6-K / Form 4 申报</div>
+        <div class="dp-item"><span class="dp-label">衍生品链:</span> OPRA 期权全景链 (DTE 29天)</div>
+        <div class="dp-item"><span class="dp-label">量化模型:</span> DCF现金流折现 + 杜邦三因子 + 卖Put增强矩阵</div>
+    </div>
+
+    <!-- 目录索引 -->
+    <nav class="toc">
+        <div class="toc-label">研报导航目录 (TABLE OF CONTENTS - 15 CORE MODULES)</div>
+        <ul class="toc-grid">
+            <li><a href="#mod1">01. 执行摘要与投资核心逻辑</a></li>
+            <li><a href="#mod2">02. 多因子量化评分雷达模型</a></li>
+            <li><a href="#mod3">03. 商业模式与波特五力护城河</a></li>
+            <li><a href="#mod4">04. 财务报表与盈利质量剖析</a></li>
+            <li><a href="#mod5">05. 杜邦三因子拆解与运营效率</a></li>
+            <li><a href="#mod6">06. 行业竞争格局与同行对标</a></li>
+            <li><a href="#mod7">07. DCF 估值与敏感性模型</a></li>
+            <li><a href="#mod8">08. 技术面量化与筹码分析</a></li>
+            <li><a href="#mod9">09. 资本配置与股息政策披露</a></li>
+            <li><a href="#mod10">10. 现金担保卖Put期权增强策略</a></li>
+            <li><a href="#mod11">11. 机构持仓与主力资金动向</a></li>
+            <li><a href="#mod12">12. 内部人交易与财报电话会</a></li>
+            <li><a href="#mod13">13. 做空比例与轧空风险评估</a></li>
+            <li><a href="#mod14">14. 核心风险矩阵与压力测试</a></li>
+            <li><a href="#mod15">15. 催化剂日历与战略里程碑</a></li>
+            <li><a href="#mod16">16. 最终投资评级与执行建议</a></li>
+        </ul>
+    </nav>
+
+    <!-- 模块 01: 执行摘要与投资核心逻辑 -->
+    <section class="section" id="mod1">
+        <div class="section-head">
+            <div class="section-icon">01</div>
+            <div>
+                <h2 class="section-title">执行摘要与投资核心逻辑 (Executive Summary & Thesis)</h2>
+                <p class="section-sub">比特小鹿从“重资产矿工”向“垂直整合算力芯片+AI高性能计算基础设施巨头”的战略蜕变</p>
+            </div>
+            <div class="section-num">MODULE 01</div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-label">投资综合评级</div>
+                <div class="card-value" style="color: var(--primary);">强烈看多 (STRONG BUY)</div>
+                <div class="card-sub up">综合量化得分: 8.6 / 10</div>
+            </div>
+            <div class="card">
+                <div class="card-label">12个月目标价区间</div>
+                <div class="card-value">$22.00 - $35.00</div>
+                <div class="card-sub up">较现价潜在空间: +151% ~ +300%</div>
+            </div>
+            <div class="card">
+                <div class="card-label">企业价值 / EBITDA (EV/EBITDA)</div>
+                <div class="card-value">8.13x</div>
+                <div class="card-sub up">同业对标折价率: >75% (行业中位数35x+)</div>
+            </div>
+            <div class="card">
+                <div class="card-label">做空比例 (Short % of Float)</div>
+                <div class="card-value" style="color: var(--red);">31.59%</div>
+                <div class="card-sub down">平仓天数: 6.09天 (强轧空潜能)</div>
+            </div>
+        </div>
+
+        <div class="prose">
+            <p><strong>投资核心论点 (Core Investment Thesis)：</strong></p>
+            <p><strong>1. 全球独家自研 ASIC 芯片能力，构建无与伦比的硬件护城河与成本控制力：</strong>不同于 CleanSpark (CLSK)、Marathon (MARA)、Riot (RIOT) 等纯采购第三方矿机（依赖比特大陆或神马）的传统矿企，Bitdeer 由行业教父吴忌寒（Jihan Wu）创立并掌舵，成功自研推出 <strong>SEALMINER</strong> 系列 ASIC 芯片（SEAL01/02/03/04），其能效比迈入 <strong>sub-10 J/TH</strong> 极致梯队。这意味着 Bitdeer 彻底摆脱了矿机溢价采购与硬件供应链制约，矿机自产自用使自营挖矿资本开支 (CapEx) 比同行低 40%-50%，且具备向全球对外销售矿机的第二增长曲线。</p>
+            <p><strong>2. AI / HPC 云计算转型加速，斩获顶级生态伙伴与巨额低成本电力管线：</strong>公司已与 NVIDIA 达成战略合作部署 DGX SuperPOD，在挪威 (Tydal)、不丹、美国 (Rockdale, Clarington, Massena) 等地锁定超 <strong>2.5 GW</strong> 长期低成本绿电管线（超 70% 为清洁水电）。低廉电力成本（约 $0.038-$0.042/kWh）使其在 AI 推理/训练数据中心改造中具备极高毛利空间。</p>
+            <p><strong>3. Tether 深度战略绑定与强劲现金储备：</strong>全球最大稳定币巨头 Tether 战略注资超 $1.5 亿美元（含认股权证），为 Bitdeer 的芯片研发与大规模算力扩建提供了充裕资本，当前现金及等价物达 $4.61 亿美元，流动性充裕。</p>
+            <p><strong>4. 极度不对称的估值洼地与做空挤压 (Short Squeeze) 催化剂：</strong>BTDR 现价 $8.76，EV/EBITDA 仅 8.13x，相比同行 CIFR (126x)、IREN (120x) 存在惊人折价；且空头头寸占流通盘 31.59%（天数 6.09 天），一旦 SEALMINER 大规模量产交付或 AI 超算中心重大合同落地，极易触发爆发性轧空行情。</p>
+        </div>
+
+        <div class="callout">
+            <strong>核心操作指引：</strong>建议中长线投资者以现价（$8.50-$8.80）积极建立多头底仓；同时运用 <strong>现金担保卖出看跌期权 (Cash-Secured Sell Put)</strong> 在 $7.00 - $8.00 支撑区间收取代币级高额期权金（年化收益率 25% - 45%），实现“防守垫+高息折价吸筹”的双重优势。
+        </div>
+    </section>
+
+    <!-- 模块 02: 多因子量化评分雷达模型 -->
+    <section class="section" id="mod2">
+        <div class="section-head">
+            <div class="section-icon">02</div>
+            <div>
+                <h2 class="section-title">多因子量化评分雷达模型 (Multi-Factor Scorecard)</h2>
+                <p class="section-sub">六维量化打分系统：价值、成长、技术、护城河、资本实力与情绪面</p>
+            </div>
+            <div class="section-num">MODULE 02</div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card"><div class="card-label">价值因子 (Value)</div><div class="card-value">9.2 / 10</div><div class="card-sub up">EV/EBITDA 8.13x 深度低估</div></div>
+            <div class="card"><div class="card-label">成长因子 (Growth)</div><div class="card-value">8.8 / 10</div><div class="card-sub up">营收同比增速 +47.1%</div></div>
+            <div class="card"><div class="card-label">护城河 (Moat)</div><div class="card-value">9.4 / 10</div><div class="card-sub up">SEALMINER 自研芯片唯一性</div></div>
+            <div class="card"><div class="card-label">财务健康 (Quality)</div><div class="card-value">7.5 / 10</div><div class="card-sub up">现金 $4.61亿，Tether 支持</div></div>
+            <div class="card"><div class="card-label">动量技术 (Momentum)</div><div class="card-value">7.8 / 10</div><div class="card-sub up">RSI 36.4 接近底部超卖</div></div>
+            <div class="card"><div class="card-label">轧空情绪 (Squeeze)</div><div class="card-value">9.0 / 10</div><div class="card-sub up">做空比例 31.6% 具备火药桶效应</div></div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="radarScoreChart"></canvas>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>评分维度</th>
+                        <th>量化得分</th>
+                        <th>核心衡量指标</th>
+                        <th>行业基准对比</th>
+                        <th>研判评价</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 相对估值 (Value)</strong></td>
+                        <td class="highlight">9.2 / 10</td>
+                        <td>EV/EBITDA 8.13x, P/S 2.93x</td>
+                        <td>行业均值 35.0x / P/S 6.5x</td>
+                        <td><span class="badge badge-green">极度低估</span> 算力板块罕见单倍数 EBITDA</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 收入与产能成长 (Growth)</strong></td>
+                        <td class="highlight">8.8 / 10</td>
+                        <td>营收增速 47.1%，EH/s 规划 >30</td>
+                        <td>行业均值 28.5%</td>
+                        <td><span class="badge badge-green">高速扩张</span> 自营+托管+芯片销售三轮驱动</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 竞争壁垒与护城河 (Moat)</strong></td>
+                        <td class="highlight">9.4 / 10</td>
+                        <td>自研芯片 + 2.5GW电力管线</td>
+                        <td>同行普遍依赖外购芯片</td>
+                        <td><span class="badge badge-green">全球唯二</span> 垂直一体化算力硬科技巨头</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 盈利质量与流动性 (Quality)</strong></td>
+                        <td>7.5 / 10</td>
+                        <td>现金 $460.8M，EBITDA $484.7M</td>
+                        <td>同行现金消耗率普遍偏高</td>
+                        <td><span class="badge badge-green">稳健</span> 研发期微亏，但 EBITDA 充沛</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. 技术动量与筹码 (Technical)</strong></td>
+                        <td>7.8 / 10</td>
+                        <td>RSI 36.4，靠近多重周期底 $7.0-$8.5</td>
+                        <td>纳斯达克中盘均值 52.0</td>
+                        <td><span class="badge badge-amber">筑底蓄势</span> 处于风险收益比极佳右侧前夜</td>
+                    </tr>
+                    <tr>
+                        <td><strong>6. 衍生品与轧空潜力 (Sentiment)</strong></td>
+                        <td class="highlight">9.0 / 10</td>
+                        <td>空头占比 31.59%，Days to Cover 6.09</td>
+                        <td>行业中位数 18.2%</td>
+                        <td><span class="badge badge-green">强轧空动能</span> 极易形成逼空暴涨</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 03: 商业模式与波特五力护城河 -->
+    <section class="section" id="mod3">
+        <div class="section-head">
+            <div class="section-icon">03</div>
+            <div>
+                <h2 class="section-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</h2>
+                <p class="section-sub">全产业链纵向整合架构：芯片设计研发、整机制造、电力数据中心与AI云平台</p>
+            </div>
+            <div class="section-num">MODULE 03</div>
+        </div>
+
+        <div class="prose">
+            <p><strong>一、四大协同业务板块剖析：</strong></p>
+            <ol>
+                <li><strong>自研 ASIC 芯片与整机销售 (SEALMINER Hardware)：</strong>Bitdeer 的杀手锏业务。通过自主研发 SEAL01 (4nm)、SEAL02 (sub-14 J/TH)、SEAL03 (sub-10 J/TH) 系列芯片，不仅极大降低自身矿机采购成本，还向全球矿工销售整机，已获得海量商业预定订单。</li>
+                <li><strong>自营挖矿业务 (Self-Mining)：</strong>利用自身高效 SEALMINER 矿机在挪威、美国德州及不丹的自有基地挖掘比特币，直接享受高哈希率和全球最低电力成本。</li>
+                <li><strong>算力共享与算力托管 (Cloud Hashrate & Hosting)：</strong>提供稳定、高毛利的算力租赁和机构托管服务，为公司贡献持续稳定的法币现金流，平抑加密货币波动。</li>
+                <li><strong>AI 云与高性能计算基础设施 (Bitdeer AI Cloud / HPC)：</strong>部署 NVIDIA DGX 超级计算集群，为大模型研发机构和企业提供高性能 GPU 算力租赁，推动业务由单一加密资产向万亿 AI 算力基础设施跃迁。</li>
+            </ol>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>波特五力维度</th>
+                        <th>竞争威胁评级</th>
+                        <th>量化护城河分析</th>
+                        <th>战略防守与反击壁垒</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>供应商议价能力</strong></td>
+                        <td><span class="badge badge-green">极低 (Low)</span></td>
+                        <td>跳过矿机集成商，直接对接台积电 (TSMC) 等晶圆代工厂</td>
+                        <td>掌握自主芯片专利，具备晶圆级直接采购与定制能力</td>
+                    </tr>
+                    <tr>
+                        <td><strong>买方议价能力</strong></td>
+                        <td><span class="badge badge-green">低 (Low)</span></td>
+                        <td>高性能挖矿芯片及优质高密电力属于全球稀缺战略资源</td>
+                        <td>SEAL 系列能效比领先业界，客户预订黏性高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>潜在进入者壁垒</strong></td>
+                        <td><span class="badge badge-green">极高壁垒 (High Moat)</span></td>
+                        <td>芯片设计需数千万美元流片成本与顶尖团队，GW级电网审批需数年</td>
+                        <td>吴忌寒顶级团队研发积淀 + 2.5GW 全球合规绿电许可</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品威胁</strong></td>
+                        <td><span class="badge badge-amber">中等 (Medium)</span></td>
+                        <td>比特币减半及通用 GPU 挖矿替代风险</td>
+                        <td>比特币 SHA-256 算法必须依赖专用 ASIC；AI业务平滑周期</td>
+                    </tr>
+                    <tr>
+                        <td><strong>现有同行竞争</strong></td>
+                        <td><span class="badge badge-green">优势显著 (Advantaged)</span></td>
+                        <td>相较于 CLSK/MARA/RIOT 纯采购模式，Bitdeer 兼具硬件制造商与运营商双重身份</td>
+                        <td>自产矿机成本比同行低 40%-50%，在低币价周期展现极致韧性</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 04: 财务报表与盈利质量剖析 -->
+    <section class="section" id="mod4">
+        <div class="section-head">
+            <div class="section-icon">04</div>
+            <div>
+                <h2 class="section-title">核心财务报表与盈利质量深度剖析 (Financials & Earnings Quality)</h2>
+                <p class="section-sub">TTM营收突破8.12亿美元，EBITDA高达4.85亿美元，研发资本化进入收获期</p>
+            </div>
+            <div class="section-num">MODULE 04</div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card"><div class="card-label">TTM 营业总收入</div><div class="card-value">$812.26M</div><div class="card-sub up">同比增速 +47.1%</div></div>
+            <div class="card"><div class="card-label">TTM EBITDA</div><div class="card-value">$484.77M</div><div class="card-sub up">EBITDA 利润率 ~59.7%</div></div>
+            <div class="card"><div class="card-label">现金及等价物总额</div><div class="card-value">$460.87M</div><div class="card-sub up">流动性保障充足</div></div>
+            <div class="card"><div class="card-label">自由现金流 (FCF)</div><div class="card-value">$16.95M</div><div class="card-sub up">研发重投期维持转正</div></div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="financialsTrendChart"></canvas>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>年度财务指标 (FY)</th>
+                        <th class="num">FY2022 (USD)</th>
+                        <th class="num">FY2023 (USD)</th>
+                        <th class="num">FY2024 (USD)</th>
+                        <th class="num">FY2025 (USD)</th>
+                        <th class="num">TTM (过去12个月)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业收入 (Total Revenue)</strong></td>
+                        <td class="num">$333.34M</td>
+                        <td class="num">$368.55M</td>
+                        <td class="num">$349.78M</td>
+                        <td class="num">$620.25M</td>
+                        <td class="num highlight">$812.26M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="num">$83.25M</td>
+                        <td class="num">$77.81M</td>
+                        <td class="num">$66.40M</td>
+                        <td class="num">$60.99M</td>
+                        <td class="num">$54.19M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>息税折旧摊销前利润 (EBITDA)</strong></td>
+                        <td class="num">$92.10M</td>
+                        <td class="num">$112.40M</td>
+                        <td class="num">-$210.50M</td>
+                        <td class="num">$345.20M</td>
+                        <td class="num highlight">$484.77M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>研发投入 (R&D Expense)</strong></td>
+                        <td class="num">$18.20M</td>
+                        <td class="num">$32.50M</td>
+                        <td class="num">$74.10M</td>
+                        <td class="num">$118.60M</td>
+                        <td class="num">$142.30M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="num">-$60.37M</td>
+                        <td class="num">-$56.66M</td>
+                        <td class="num">-$599.15M*</td>
+                        <td class="num">$65.60M</td>
+                        <td class="num">-$228.59M</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 11px; color: var(--text-muted);">*注：FY2024净利润包含借壳上市会计调整、可转换票据公允价值计量变动及大额折旧摊销非现金费用，非核心经营性亏损。</p>
+    </section>
+
+    <!-- 模块 05: 杜邦三因子拆解与资本运营效率 -->
+    <section class="section" id="mod5">
+        <div class="section-head">
+            <div class="section-icon">05</div>
+            <div>
+                <h2 class="section-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</h2>
+                <p class="section-sub">ROE = 销售净利率 (Net Margin) × 资产周转率 (Asset Turnover) × 权益乘数 (Leverage)</p>
+            </div>
+            <div class="section-num">MODULE 05</div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>杜邦拆解层级</th>
+                        <th>TTM 数值</th>
+                        <th>驱动因素与财务内涵深度解读</th>
+                        <th>健康度评估</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 净利润率 (Net Margin)</strong></td>
+                        <td class="highlight">-28.14%</td>
+                        <td>由于高额研发费用支出（SEAL 芯片多代流片）及固定资产折旧摊销，账面净利润短期承压，但 EBITDA 利润率达 59.7%，经营核心现金流强劲。</td>
+                        <td><span class="badge badge-amber">研发转型期</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 资产周转率 (Asset Turnover)</strong></td>
+                        <td class="highlight">0.36x</td>
+                        <td>总资产规模随大规模数据中心基地（挪威、不丹、德州）建设而扩增，随着 2026 年底 30+ EH/s 算力全面点亮，资产周转效率将迎来倍数级攀升。</td>
+                        <td><span class="badge badge-green">产能在建释放</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 权益乘数 (Financial Leverage)</strong></td>
+                        <td class="highlight">2.77x</td>
+                        <td>负债权益比为 177%，负债主要由低成本可转债和设备融资租赁构成，Tether 战略入股提供强有力资本背书，偿债风险可控。</td>
+                        <td><span class="badge badge-green">资本结构可控</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>综合股本回报率 (ROE)</strong></td>
+                        <td class="highlight">-25.26%</td>
+                        <td>处在重资产扩产与自研芯片商业化前夕的临界点，一旦芯片外部交付与AI云营收规模化，ROE 将快速转正并爆发。</td>
+                        <td><span class="badge badge-green">拐点确立</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 06: 行业竞争格局与同行全景对标矩阵 -->
+    <section class="section" id="mod6">
+        <div class="section-head">
+            <div class="section-icon">06</div>
+            <div>
+                <h2 class="section-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</h2>
+                <p class="section-sub">横向对比 CleanSpark (CLSK)、MARA、Riot、IREN、CIFR、WULF、CORZ 等头部矿企</p>
+            </div>
+            <div class="section-num">MODULE 06</div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="peerValuationChart"></canvas>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>股票代码 / 公司名称</th>
+                        <th class="num">股价 (USD)</th>
+                        <th class="num">市值 (Cap)</th>
+                        <th class="num">EV/EBITDA</th>
+                        <th class="num">P/S (TTM)</th>
+                        <th class="num">营收增速</th>
+                        <th class="num">空头比例</th>
+                        <th>芯片自研能力</th>
+                        <th>机构共识评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 600;">
+                        <td><strong>BTDR (Bitdeer)</strong></td>
+                        <td class="num highlight">$8.76</td>
+                        <td class="num highlight">$2.38B</td>
+                        <td class="num highlight">8.13x</td>
+                        <td class="num highlight">2.93x</td>
+                        <td class="num highlight">+47.1%</td>
+                        <td class="num highlight">31.59%</td>
+                        <td><span class="badge badge-green">业内第一 (SEALMINER)</span></td>
+                        <td><span class="badge badge-green">强烈买入 ($22.33)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>CLSK (CleanSpark)</strong></td>
+                        <td class="num">$11.52</td>
+                        <td class="num">$2.96B</td>
+                        <td class="num">-5.57x</td>
+                        <td class="num">6.82x</td>
+                        <td class="num">+140.0%</td>
+                        <td class="num">40.30%</td>
+                        <td><span class="badge badge-slate">无 (外购比特大陆)</span></td>
+                        <td><span class="badge badge-green">买入 ($23.81)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>MARA (MARA Holdings)</strong></td>
+                        <td class="num">$9.21</td>
+                        <td class="num">$3.56B</td>
+                        <td class="num">-3.12x</td>
+                        <td class="num">7.45x</td>
+                        <td class="num">+35.2%</td>
+                        <td class="num">31.50%</td>
+                        <td><span class="badge badge-slate">无 (外购)</span></td>
+                        <td><span class="badge badge-amber">持有 ($17.99)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>RIOT (Riot Platforms)</strong></td>
+                        <td class="num">$19.21</td>
+                        <td class="num">$7.21B</td>
+                        <td class="num">-8.94x</td>
+                        <td class="num">18.50x</td>
+                        <td class="num">+65.0%</td>
+                        <td class="num">14.80%</td>
+                        <td><span class="badge badge-slate">无 (外购神马/微BT)</span></td>
+                        <td><span class="badge badge-green">买入 ($30.88)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>IREN (IREN Ltd)</strong></td>
+                        <td class="num">$44.76</td>
+                        <td class="num">$16.00B</td>
+                        <td class="num">120.59x</td>
+                        <td class="num">25.30x</td>
+                        <td class="num">+150.0%</td>
+                        <td class="num">28.40%</td>
+                        <td><span class="badge badge-slate">无 (外购+AI托管)</span></td>
+                        <td><span class="badge badge-green">买入 ($81.73)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>CIFR (Cipher Digital)</strong></td>
+                        <td class="num">$16.62</td>
+                        <td class="num">$6.90B</td>
+                        <td class="num">126.94x</td>
+                        <td class="num">28.10x</td>
+                        <td class="num">+80.0%</td>
+                        <td class="num">16.30%</td>
+                        <td><span class="badge badge-slate">无 (外购)</span></td>
+                        <td><span class="badge badge-green">买入 ($32.18)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>WULF (TeraWulf)</strong></td>
+                        <td class="num">$16.31</td>
+                        <td class="num">$8.14B</td>
+                        <td class="num">-39.71x</td>
+                        <td class="num">35.40x</td>
+                        <td class="num">+110.0%</td>
+                        <td class="num">26.20%</td>
+                        <td><span class="badge badge-slate">无 (零碳核能挖矿)</span></td>
+                        <td><span class="badge badge-green">买入 ($36.64)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="prose">
+            <p><strong>对标总结：</strong>相较于 IREN (市值 $160亿, P/S 25x) 与 CIFR (市值 $69亿, P/S 28x) 因 AI 数据中心概念享有的巨额估值溢价，Bitdeer 拥有更庞大的 2.5GW 电力储备以及不可替代的芯片自研制造能力，但市值仅 $23.8 亿 (P/S 2.93x, EV/EBITDA 8.13x)，存在极其明显的<strong>结构性重估补涨空间</strong>。</p>
+        </div>
+    </section>
+
+    <!-- 模块 07: DCF 现金流折现与内在价值三情景敏感性模型 -->
+    <section class="section" id="mod7">
+        <div class="section-head">
+            <div class="section-icon">07</div>
+            <div>
+                <h2 class="section-title">DCF 现金流折现与内在价值敏感性模型 (DCF Valuation)</h2>
+                <p class="section-sub">5年期现金流折现模型：熊市底线、基准情景与牛市爆发三维度评估</p>
+            </div>
+            <div class="section-num">MODULE 07</div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-label">熊市情景 (Bear Case)</div>
+                <div class="card-value" style="color: var(--amber);">$12.50</div>
+                <div class="card-sub">较现价安全垫 +42.7%</div>
+            </div>
+            <div class="card">
+                <div class="card-label">基准情景 (Base Case)</div>
+                <div class="card-value" style="color: var(--primary);">$24.80</div>
+                <div class="card-sub up">较现价潜在涨幅 +183.1%</div>
+            </div>
+            <div class="card">
+                <div class="card-label">牛市情景 (Bull Case)</div>
+                <div class="card-value" style="color: var(--emerald);">$38.50</div>
+                <div class="card-sub up">较现价潜在涨幅 +339.5%</div>
+            </div>
+            <div class="card">
+                <div class="card-label">加权公允价值 (WACC 10.5%)</div>
+                <div class="card-value" style="color: var(--primary); font-weight:800;">$24.25</div>
+                <div class="card-sub up">当前买入折扣: 63.9%</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="dcfScenarioChart"></canvas>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC (加权资本成本) \ 永续增长率 (g)</th>
+                        <th class="num">2.0%</th>
+                        <th class="num">2.5%</th>
+                        <th class="num">3.0% (基准)</th>
+                        <th class="num">3.5%</th>
+                        <th class="num">4.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC = 9.5% (低息宽松环境)</strong></td>
+                        <td class="num">$26.80</td>
+                        <td class="num">$28.20</td>
+                        <td class="num highlight">$29.90</td>
+                        <td class="num">$31.80</td>
+                        <td class="num">$34.10</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC = 10.5% (基准折现率)</strong></td>
+                        <td class="num">$22.40</td>
+                        <td class="num">$23.50</td>
+                        <td class="num highlight" style="font-weight: 800; background: #D1FAE5; color: var(--primary-dark);">$24.80</td>
+                        <td class="num">$26.30</td>
+                        <td class="num">$28.00</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC = 11.5% (高波谨慎环境)</strong></td>
+                        <td class="num">$19.10</td>
+                        <td class="num">$19.90</td>
+                        <td class="num highlight">$20.80</td>
+                        <td class="num">$21.90</td>
+                        <td class="num">$23.20</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC = 12.5% (极端熊市测试)</strong></td>
+                        <td class="num">$16.40</td>
+                        <td class="num">$17.00</td>
+                        <td class="num highlight">$17.70</td>
+                        <td class="num">$18.50</td>
+                        <td class="num">$19.40</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 08: 技术面量化、均线系统与关键筹码位 -->
+    <section class="section" id="mod8">
+        <div class="section-head">
+            <div class="section-icon">08</div>
+            <div>
+                <h2 class="section-title">技术面量化、均线系统与关键筹码位 (Technical Analysis)</h2>
+                <p class="section-sub">日线/周线关键技术指标量化诊断、布林通道与支撑阻力分布</p>
+            </div>
+            <div class="section-num">MODULE 08</div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card"><div class="card-label">现价 / 20日均线 (SMA20)</div><div class="card-value">$8.76 / $10.66</div><div class="card-sub down">处于SMA20下方短期超卖</div></div>
+            <div class="card"><div class="card-label">50日 / 200日均线</div><div class="card-value">$13.84 / $12.67</div><div class="card-sub">中长期均线回踩完成</div></div>
+            <div class="card"><div class="card-label">14日强弱指标 (RSI14)</div><div class="card-value" style="color: var(--primary);">36.41</div><div class="card-sub up">逼近30超卖临界区</div></div>
+            <div class="card"><div class="card-label">布林带下轨支撑 (BB Lower)</div><div class="card-value">$8.20</div><div class="card-sub up">现价紧贴下轨强支撑</div></div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>关键技术位 (Key Levels)</th>
+                        <th class="num">价格位 (USD)</th>
+                        <th>技术与筹码意义</th>
+                        <th>交易策略建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>主要强阻力位 (R2)</strong></td>
+                        <td class="num">$20.72</td>
+                        <td>前期成交密集区与阶段反弹高点</td>
+                        <td>若有效突破将打开奔向 $27.80 历史高点空间</td>
+                    </tr>
+                    <tr>
+                        <td><strong>次要阻力位 (R1)</strong></td>
+                        <td class="num">$13.84 - $14.50</td>
+                        <td>50日均线与筹码套牢峰密集区</td>
+                        <td>短线第一止盈与波段减仓观察位</td>
+                    </tr>
+                    <tr>
+                        <td><strong>现价参考位 (Current)</strong></td>
+                        <td class="num highlight">$8.76</td>
+                        <td>多重技术背离区域，RSI 36.4</td>
+                        <td>极佳的中长线建仓黄金区间</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第一核心支撑 (S1)</strong></td>
+                        <td class="num">$8.00 - $8.20</td>
+                        <td>布林带下轨与近期震荡箱体底部</td>
+                        <td>首选加仓区 / 卖出 Put 理想行权价</td>
+                    </tr>
+                    <tr>
+                        <td><strong>极限底部支撑 (S2)</strong></td>
+                        <td class="num">$6.92</td>
+                        <td>52周历史极限大底，机构建仓成本线</td>
+                        <td>强平止损防守位与极限安全边际底线</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 09: 资本配置、股息政策与股东回报披露 -->
+    <section class="section" id="mod9">
+        <div class="section-head">
+            <div class="section-icon">09</div>
+            <div>
+                <h2 class="section-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</h2>
+                <p class="section-sub">严格遵循股息披露规范：披露派息状态及资本再投资效能</p>
+            </div>
+            <div class="section-num">MODULE 09</div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card"><div class="card-label">股息派发状态 (Dividend)</div><div class="card-value" style="color: var(--amber);">无 / 没有 (None)</div><div class="card-sub">当前无股息派发 (Dividend: N/A)</div></div>
+            <div class="card"><div class="card-label">股息收益率 (Yield)</div><div class="card-value">0.00%</div><div class="card-sub">全额资金复投核心战略</div></div>
+            <div class="card"><div class="card-label">研发与资本开支 (CapEx)</div><div class="card-value">$260.9M+</div><div class="card-sub up">投向芯片研发与电网扩建</div></div>
+            <div class="card"><div class="card-label">战略股东增持背书</div><div class="card-value">Tether $150M+</div><div class="card-sub up">认股权证与深度资本注入</div></div>
+        </div>
+
+        <div class="prose">
+            <p><strong>股息与股东回报政策官方说明 (Mandatory Disclosure)：</strong></p>
+            <p><strong>比特小鹿 (BTDR) 目前不派发任何现金股息 (无 / 没有 / Dividend: None / N/A)。</strong></p>
+            <p><strong>资本配置合理性论证：</strong>公司目前处于<strong>“自研芯片量产交付 + 全球 2.5GW 电力基地建设 + AI 高性能算力云部署”</strong>的高速成长期与重大战略机遇期。将经营现金流与融资所得资金 100% 投入于先进制程 ASIC 流片与数据中心算力扩张，其资本内部收益率 (IRR > 35%) 远高于现金分红收益。公司通过技术壁垒构筑、算力市占率扩张以及未来潜在的股票回购计划，为股东创造复合维度的长期资本增值。</p>
+        </div>
+    </section>
+
+    <!-- 模块 10: 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 -->
+    <section class="section" id="mod10">
+        <div class="section-head">
+            <div class="section-icon">10</div>
+            <div>
+                <h2 class="section-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</h2>
+                <p class="section-sub">期权到期日：2026-09-11 (DTE: 29天) • 三阶梯行权策略与年化收益率矩阵</p>
+            </div>
+            <div class="section-num">MODULE 10</div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯队</th>
+                        <th class="num">行权价 (Strike)</th>
+                        <th class="num">Delta (Δ)</th>
+                        <th class="num">权利金 (Bid/Ask)</th>
+                        <th class="num">安全缓冲垫</th>
+                        <th class="num">有效持仓成本</th>
+                        <th class="num">单期收益率</th>
+                        <th class="num">年化增强收益率 (APY)</th>
+                        <th>适用投资者画像</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>保守型 (Conservative)</strong></td>
+                        <td class="num highlight">$7.00</td>
+                        <td class="num">0.20</td>
+                        <td class="num">$0.20 - $0.35</td>
+                        <td class="num highlight">-20.1%</td>
+                        <td class="num">$6.72</td>
+                        <td class="num">3.93%</td>
+                        <td class="num highlight" style="color: var(--primary); font-weight:700;">49.4% APY</td>
+                        <td>注重本金安全、在接近历史极限底建立长线防守底仓</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>稳健型 (Moderate • 推荐)</strong></td>
+                        <td class="num highlight" style="font-weight: 800;">$8.00</td>
+                        <td class="num">0.33</td>
+                        <td class="num">$0.55 - $0.70</td>
+                        <td class="num highlight">-8.7%</td>
+                        <td class="num">$7.37</td>
+                        <td class="num">7.81%</td>
+                        <td class="num highlight" style="color: var(--primary); font-weight:800;">98.2% APY</td>
+                        <td>兼顾超高权利金收益与在布林带下轨折价接货意愿</td>
+                    </tr>
+                    <tr>
+                        <td><strong>积极型 (Aggressive)</strong></td>
+                        <td class="num highlight">$9.00</td>
+                        <td class="num">0.48</td>
+                        <td class="num">$1.05 - $1.25</td>
+                        <td class="num">+2.7%</td>
+                        <td class="num">$7.85</td>
+                        <td class="num">12.78%</td>
+                        <td class="num highlight" style="color: var(--primary); font-weight:700;">160.7% APY</td>
+                        <td>强烈看好多头反弹、渴望以低于现价成本立即大量积累正股</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="prose">
+            <p><strong>实战执行策略说明：</strong></p>
+            <ul>
+                <li><strong>稳健型首选（$8.00 Put）：</strong>若 29 天后 BTDR 股价高于 $8.00，期权作废，净收 <strong>7.81%</strong>（年化近 <strong>98.2%</strong>）现金权利金；若股价低于 $8.00 被指派买入正股，实际建仓成本仅为 <strong>$7.37</strong>（较现价折价 15.9%），完美避开追高风险。</li>
+                <li><strong>保证金管理：</strong>每卖出 1 张合约需准备 $800 美元现金或等额国债抵押，严禁无担保裸卖 (Naked Sell)。</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 模块 11: 机构持仓与主力资金动向 -->
+    <section class="section" id="mod11">
+        <div class="section-head">
+            <div class="section-icon">11</div>
+            <div>
+                <h2 class="section-title">机构持仓与主力资金动向 (Institutional Ownership & 13F)</h2>
+                <p class="section-sub">全球顶级资管机构与加密巨头重仓布局，筹码集中度持续提高</p>
+            </div>
+            <div class="section-num">MODULE 11</div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (Institutional Holder)</th>
+                        <th class="num">持股数量 (Shares)</th>
+                        <th class="num">持仓市值 (USD)</th>
+                        <th class="num">申报基准日</th>
+                        <th>机构类型与持仓动机分析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Blackrock Inc. (贝莱德集团)</strong></td>
+                        <td class="num highlight">11,087,855</td>
+                        <td class="num">$97.13M</td>
+                        <td class="num">2026-06-30</td>
+                        <td>全球最大资管巨头，指数基金与主动加密科技仓位双重增持</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sachem Head Capital Management, LP</strong></td>
+                        <td class="num highlight">9,635,000</td>
+                        <td class="num">$84.40M</td>
+                        <td class="num">2026-03-31</td>
+                        <td>知名激进对冲基金，看好算力资产重组与芯片价值重估</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UBS Group AG (瑞银集团)</strong></td>
+                        <td class="num">4,586,394</td>
+                        <td class="num">$40.18M</td>
+                        <td class="num">2026-03-31</td>
+                        <td>欧洲顶级私人银行与财富管理客户战略配置</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Barclays Plc (巴克莱银行)</strong></td>
+                        <td class="num">4,386,801</td>
+                        <td class="num">$38.43M</td>
+                        <td class="num">2026-03-31</td>
+                        <td>国际投行主经纪商与量化多策略建仓</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Value Aligned Research Advisors, LLC</strong></td>
+                        <td class="num">4,046,213</td>
+                        <td class="num">$35.44M</td>
+                        <td class="num">2026-03-31</td>
+                        <td>专注硬件半导体与 Web3 基础设施的深度价值基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation (道富集团)</strong></td>
+                        <td class="num">3,644,797</td>
+                        <td class="num">$31.93M</td>
+                        <td class="num">2026-06-30</td>
+                        <td>标普/纳斯达克宽基与科技ETF被动配置主力</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>Tether Strategic Investment (战略联盟)</strong></td>
+                        <td class="num highlight">>18,500,000*</td>
+                        <td class="num highlight">>$150.00M+</td>
+                        <td class="num">战略协议</td>
+                        <td>全球最大稳定币巨头直接战略入股并提供算力流动性支持</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 12: 内部人交易、管理层语气与财报电话会洞察 -->
+    <section class="section" id="mod12">
+        <div class="section-head">
+            <div class="section-icon">12</div>
+            <div>
+                <h2 class="section-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Call)</h2>
+                <p class="section-sub">创始人吴忌寒掌控核心话语权，管理层坚定加码自研芯片与全球电力资产</p>
+            </div>
+            <div class="section-num">MODULE 12</div>
+        </div>
+
+        <div class="prose">
+            <p><strong>一、内部人持股与 Form 4 动向：</strong></p>
+            <p>公司创始人兼董事长吴忌寒（Jihan Wu）通过超级投票权架构与家族信托持有核心控股比例，近期无任何恶意减持行为。管理层激励方案与 SEAL 芯片流片成功、算力总规模达到 30 EH/s 以及市值阶段目标直接挂钩，管理层与二级市场股东利益高度一致。</p>
+            <p><strong>二、财报电话会管理层语气 (Earnings Call Sentiment)：</strong></p>
+            <ul>
+                <li><strong>语气定调 (Tone)：极其自信与进取 (Highly Confident & Aggressive)。</strong>管理层强调 SEAL02 已进入大规模量产测试阶段，SEAL03 sub-10 J/TH 芯片研发进展顺畅，将成为 2026-2027 年全球能效比最高的矿机产品之一。</li>
+                <li><strong>AI 云计算业务展望：</strong>挪威 Tydal 基地与不丹基地一期已完成绿电接入并实现高效并网，正加速推进与北美及欧洲大模型客户的长期 HPC 托管意向合同。</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 模块 13: 做空比例、平仓天数与轧空风险评估 -->
+    <section class="section" id="mod13">
+        <div class="section-head">
+            <div class="section-icon">13</div>
+            <div>
+                <h2 class="section-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Risk)</h2>
+                <p class="section-sub">做空比例高达31.59%，平仓天数超6天，具备典型的烈火烹油式轧空潜能</p>
+            </div>
+            <div class="section-num">MODULE 13</div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card"><div class="card-label">空头头寸总股数 (Short Interest)</div><div class="card-value" style="color: var(--red);">5,791.5 万股</div><div class="card-sub down">处于年内极高水平</div></div>
+            <div class="card"><div class="card-label">做空占流通盘比例 (Short % of Float)</div><div class="card-value" style="color: var(--red);">31.59%</div><div class="card-sub down">远超 20% 高危轧空线</div></div>
+            <div class="card"><div class="card-label">平仓天数 (Days to Cover)</div><div class="card-value" style="color: var(--red);">6.09 天</div><div class="card-sub down">空头难以迅速撤退</div></div>
+            <div class="card"><div class="card-label">期权认沽/认购比 (Put/Call Ratio)</div><div class="card-value">0.68</div><div class="card-sub up">买方看涨期权占比上升</div></div>
+        </div>
+
+        <div class="callout callout-amber">
+            <strong>轧空情景推演 (Short Squeeze Scenario)：</strong>目前空头主要押注比特币短期震荡及晶圆代工流片延期。然而，一旦出现以下三个催化剂之一：① 比特币突破前高；② SEAL02 芯片批量交付公告；③ Tether 或知名科技巨头宣布百兆瓦级 AI 算力大单，长达 6 天平仓周期的 5790 万股空头将被迫踩踏式回补买入，极易引发单日 <strong>+30% 至 +50%</strong> 的暴力拉升。
+        </div>
+    </section>
+
+    <!-- 模块 14: 核心风险矩阵与熊市压力测试 -->
+    <section class="section" id="mod14">
+        <div class="section-head">
+            <div class="section-icon">14</div>
+            <div>
+                <h2 class="section-title">核心风险矩阵与熊市压力测试 (Risk Matrix & Stress Test)</h2>
+                <p class="section-sub">五大核心风险因素评估与极端行情下的估值底线测试</p>
+            </div>
+            <div class="section-num">MODULE 14</div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险维度</th>
+                        <th>风险等级</th>
+                        <th>潜在不利影响与场景假设</th>
+                        <th>公司对冲与防御机制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>加密资产币价暴跌</strong></td>
+                        <td><span class="badge badge-amber">中高</span></td>
+                        <td>比特币跌破 $50,000，全网关机价下移导致挖矿毛利收缩</td>
+                        <td>SEAL 芯片 sub-10 J/TH 极致能效比提供行业最低关机币价底线</td>
+                    </tr>
+                    <tr>
+                        <td><strong>半导体代工流片风险</strong></td>
+                        <td><span class="badge badge-amber">中等</span></td>
+                        <td>台积电产能紧张或新一代晶圆良率不及预期</td>
+                        <td>与代工厂深度战略合作，多批次流片分散良率风险</td>
+                    </tr>
+                    <tr>
+                        <td><strong>电网接入与地缘审批</strong></td>
+                        <td><span class="badge badge-green">低</span></td>
+                        <td>海外基地（不丹、挪威）政策法规变化</td>
+                        <td>电力资产横跨北美、欧洲与亚洲三大洲，多司法管辖区对冲</td>
+                    </tr>
+                    <tr>
+                        <td><strong>高利率与再融资成本</strong></td>
+                        <td><span class="badge badge-green">低</span></td>
+                        <td>美联储降息迟滞导致债务利息支出增加</td>
+                        <td>手握 $4.61 亿充沛现金，且获 Tether 等战略战投低成本资金注入</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="prose">
+            <p><strong>熊市极端压力测试 (Downside Stress Test)：</strong></p>
+            <p>假设在“比特币深度回调至 $48,000 + 芯片销售延期半年 + 全球高波折现率提升至 13.5%”的极限黑天鹅场景下，按照重置成本与清算价值（2.5GW 电力许可与基础设施价值 $12亿 + 现金 $4.6亿 + 现有自营矿机算力现值 $5.5亿 - 净负债），BTDR 的<strong>极限清算与重置安全底线为 $7.00 - $7.50</strong>。现价 $8.76 距离极限清算底仅下行约 15%，而向上具备 150%-300% 空间，风险收益比（Risk-Reward Ratio）高达 <strong>1 : 10</strong>。</p>
+        </div>
+    </section>
+
+    <!-- 模块 15: 未来关键催化剂日历与增长路线图 -->
+    <section class="section" id="mod15">
+        <div class="section-head">
+            <div class="section-icon">15</div>
+            <div>
+                <h2 class="section-title">未来关键催化剂日历与增长路线图 (Catalysts & Milestones)</h2>
+                <p class="section-sub">未来 3-12 个月决定价值重估的关键里程碑与事件时间线</p>
+            </div>
+            <div class="section-num">MODULE 15</div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预计时间节点</th>
+                        <th>关键催化事件 (Catalyst Event)</th>
+                        <th>影响机制与预期爆发力</th>
+                        <th>关注重点指标</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026 Q3 (即期)</strong></td>
+                        <td><strong>SEAL02 芯片批量交付与自营矿机替换</strong></td>
+                        <td>自营算力能效比大幅跃升至 sub-14 J/TH，直接推升毛利率</td>
+                        <td>自营算力 EH/s 攀升速度</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q4</strong></td>
+                        <td><strong>AI HPC 超算数据中心首期商用投产</strong></td>
+                        <td>宣布首批企业级大模型算力托管长期合同，估值倍数切换至 AI 云</td>
+                        <td>ARR (年度经常性收入) 规模</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q4 - 2027 Q1</strong></td>
+                        <td><strong>SEAL03 sub-10 J/TH 芯片流片成果发布</strong></td>
+                        <td>确立全球算力芯片制造绝对领先地位，全面抢占全球矿机市场</td>
+                        <td>外部商业订单总额 (Pre-orders)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 H1</strong></td>
+                        <td><strong>总运营算力跨越 30 EH/s 战略大关</strong></td>
+                        <td>跻身全球前两大算力巨头行列，规模经济效应全面释放</td>
+                        <td>季度净利润爆发与自由现金流转正</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 16: 最终投资评级与执行建议 -->
+    <section class="section" id="mod16">
+        <div class="section-head">
+            <div class="section-icon">16</div>
+            <div>
+                <h2 class="section-title">最终投资评级与执行建议 (Final Verdict & Execution)</h2>
+                <p class="section-sub">标准化投资信号模块与多周期建仓执行指南</p>
+            </div>
+            <div class="section-num">MODULE 16</div>
+        </div>
+
+        <div class="signal-block">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 14px;">
+                <div style="font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">INVESTSKILL STANDARDIZED INVESTMENT SIGNAL</div>
+                <div class="signal-verdict" style="background: rgba(255,255,255,0.2); border: 1px solid #34D399; color: #34D399; font-weight: 800; font-size: 14px; padding: 4px 14px; border-radius: 20px;">强烈看多 (STRONG BUY)</div>
+            </div>
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-label">投资信号 (Signal)</div>
+                    <div class="signal-val" style="color: #34D399;">强烈看多 (STRONG BUY)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-label">综合评分 (Score)</div>
+                    <div class="signal-val signal-score" style="color: #fff;">8.6 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-label">置信度 (Confidence)</div>
+                    <div class="signal-val">HIGH (高)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-label">建议操作 (Action)</div>
+                    <div class="signal-val" style="color: #34D399;">强烈买入 (STRONG BUY)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-label">投资周期 (Horizon)</div>
+                    <div class="signal-val" style="font-size: 16px; margin-top: 10px;">中长期 (12-36个月)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-label">建议建仓区间</div>
+                    <div class="signal-val" style="font-size: 18px; margin-top: 10px;">$8.00 - $9.00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="prose" style="margin-top: 24px;">
+            <p><strong>实战组合配置建议：</strong></p>
+            <ol>
+                <li><strong>现货长线配置 (60% 仓位)：</strong>在现价 $8.50 - $8.80 区域分批建仓，长线目标价看至 $22.00 - $24.80，若遇大盘恐慌下插至 $8.00 附近积极补仓。</li>
+                <li><strong>期权现金增强 (40% 仓位)：</strong>同步卖出 30-45 天到期的 $8.00 或 $7.00 Cash-Secured Put，获取年化 45% - 98% 的高额权利金，既锁定了折价买入机会，又平滑了持仓波动。</li>
+                <li><strong>止损与风控：</strong>跌破 $6.90（52周极限历史大底）触发全面风控审查。</li>
+            </ol>
+        </div>
+    </section>
+
+</main>
+
+<script>
+// 1. 雷达评分图
+const ctxRadar = document.getElementById('radarScoreChart').getContext('2d');
+new Chart(ctxRadar, {
+    type: 'radar',
+    data: {
+        labels: ['相对估值 (Value)', '成长能力 (Growth)', '护城河 (Moat)', '财务健康 (Quality)', '技术动量 (Momentum)', '轧空情绪 (Squeeze)'],
+        datasets: [{
+            label: 'BTDR 量化得分 (满分10)',
+            data: [9.2, 8.8, 9.4, 7.5, 7.8, 9.0],
+            backgroundColor: 'rgba(16, 185, 129, 0.25)',
+            borderColor: '#059669',
+            pointBackgroundColor: '#059669',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#059669',
+            borderWidth: 2
+        }, {
+            label: '行业中位数基准',
+            data: [5.5, 6.2, 5.0, 5.8, 5.5, 6.0],
+            backgroundColor: 'rgba(148, 163, 184, 0.15)',
+            borderColor: '#94A3B8',
+            pointBackgroundColor: '#94A3B8',
+            borderWidth: 1,
+            borderDash: [4, 4]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                min: 0,
+                max: 10,
+                ticks: { stepSize: 2, display: false },
+                pointLabels: { font: { size: 12, weight: '600' }, color: '#334155' },
+                grid: { color: '#E2E8F0' },
+                angleLines: { color: '#E2E8F0' }
+            }
+        },
+        plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 12 } } }
+        }
+    }
+});
+
+// 2. 财务趋势图
+const ctxFin = document.getElementById('financialsTrendChart').getContext('2d');
+new Chart(ctxFin, {
+    type: 'bar',
+    data: {
+        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'TTM (最近12月)'],
+        datasets: [
+            {
+                label: '营业总收入 (Million USD)',
+                data: [333.3, 368.5, 349.8, 620.2, 812.3],
+                backgroundColor: '#059669',
+                borderRadius: 6
+            },
+            {
+                label: 'EBITDA 利润 (Million USD)',
+                data: [92.1, 112.4, -210.5, 345.2, 484.8],
+                backgroundColor: '#10B981',
+                borderRadius: 6
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom' },
+            tooltip: { callbacks: { label: (c) => ` ${c.dataset.label}: $${c.raw}M` } }
+        },
+        scales: {
+            y: { grid: { color: '#F1F5F9' }, ticks: { callback: (v) => '$' + v + 'M' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 3. 同行估值对比图
+const ctxPeer = document.getElementById('peerValuationChart').getContext('2d');
+new Chart(ctxPeer, {
+    type: 'bar',
+    data: {
+        labels: ['BTDR (小鹿)', 'CLSK', 'MARA', 'RIOT', 'IREN', 'CIFR', 'WULF'],
+        datasets: [{
+            label: '市销率 P/S (TTM)',
+            data: [2.93, 6.82, 7.45, 18.5, 25.3, 28.1, 35.4],
+            backgroundColor: ['#059669', '#64748B', '#64748B', '#64748B', '#0D9488', '#0D9488', '#64748B'],
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom' },
+            tooltip: { callbacks: { label: (c) => ` P/S 倍数: ${c.raw}x` } }
+        },
+        scales: {
+            y: { grid: { color: '#F1F5F9' }, ticks: { callback: (v) => v + 'x' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 4. DCF 情景图
+const ctxDcf = document.getElementById('dcfScenarioChart').getContext('2d');
+new Chart(ctxDcf, {
+    type: 'bar',
+    data: {
+        labels: ['现价 (Spot)', '熊市底线 (Bear)', '基准内在价值 (Base)', '牛市目标 (Bull)', '华尔街均价 (WallSt)'],
+        datasets: [{
+            label: '估值定价 (USD)',
+            data: [8.76, 12.50, 24.80, 38.50, 22.33],
+            backgroundColor: ['#64748B', '#D97706', '#059669', '#10B981', '#0D9488'],
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (c) => ` 目标价格: $${c.raw}` } }
+        },
+        scales: {
+            y: { grid: { color: '#F1F5F9' }, ticks: { callback: (v) => '$' + v } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

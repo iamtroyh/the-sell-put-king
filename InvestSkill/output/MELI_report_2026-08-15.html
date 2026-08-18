@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>美客多 (MercadoLibre - MELI) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 850px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #F1F5F9;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .section-title-wrap { display: flex; align-items: center; gap: 12px; }
+        .section-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 15px;
+        }
+        .section-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+        .section-sub { font-size: 12px; color: var(--text-muted); }
+        .section-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .report-hero { padding: 32px 16px; }
+            .main-wrap { padding: 20px 16px 48px; }
+            .hero-title { font-size: 24px; }
+            .section { padding: 20px 16px; }
+        }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card-green { background: #F0FDF4; border-color: #BBF7D0; }
+        .card-amber { background: #FFFBEB; border-color: #FDE68A; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+        .card-purple { background: #FAF5FF; border-color: #E9D5FF; }
+
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .card-green .card-title { color: #166534; }
+        .card-amber .card-title { color: #92400E; }
+        .card-blue .card-title { color: #1E40AF; }
+        .card-purple .card-title { color: #6B21A8; }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin: 14px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #F1F5F9;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-num { font-family: 'JetBrains Mono', monospace; text-align: right; }
+        .th-num { text-align: right; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 290px;
+            margin: 12px 0;
+        }
+
+        .highlight-val { font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #15803D; }
+        .tag-blue { background: #DBEAFE; color: #1D4ED8; }
+        .tag-amber { background: #FEF3C7; color: #B45309; }
+        .tag-red { background: #FEE2E2; color: #B91C1C; }
+
+        .signal-banner {
+            background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+            border: 2px solid #10B981;
+            border-radius: 16px;
+            padding: 24px;
+            color: #fff;
+            box-shadow: 0 10px 25px -5px rgba(16,185,129,.3);
+            margin: 20px 0;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.1);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.15);
+        }
+        .signal-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .signal-val { font-size: 20px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+        
+        .divider { height: 1px; background: #F1F5F9; margin: 20px 0; }
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+        .callout-amber {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: MELI</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY) • 8.6/10</span>
+            <span class="badge badge-hero-cat">拉美电商+数字金融+自建物流绝对霸主</span>
+            <span class="badge badge-hero-cat">15模块全景量化研报</span>
+        </div>
+        <h1 class="hero-title">美客多 (MercadoLibre, Inc.)</h1>
+        <div class="hero-sub">“拉美亚马逊 + 蚂蚁集团 + 联邦快递”三位一体生态帝国：营收同比暴增近50%、自建物流护城河与数字金融飞轮深度剖析</div>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新股价 (Spot)</div>
+                <div class="hero-kpi-val">$1,844.58</div>
+                <div class="hero-kpi-sub">52周区间: $1,495.00 - $2,548.50</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$93.51B</div>
+                <div class="hero-kpi-sub">企业价值 EV: $100.98B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 总营收 / 增速</div>
+                <div class="hero-kpi-val">$35.18B</div>
+                <div class="hero-kpi-sub">最新单季同比 +49.8%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Fwd P/E)</div>
+                <div class="hero-kpi-val">32.52x</div>
+                <div class="hero-kpi-sub">PEG &lt; 0.8 | 极高成长性价比</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师平均目标价</div>
+                <div class="hero-kpi-val">$2,252.38</div>
+                <div class="hero-kpi-sub">潜在上涨空间: +22.11%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息派发 (Dividend)</div>
+                <div class="hero-kpi-val">无 / None</div>
+                <div class="hero-kpi-sub">资本100%投入物流与金融扩张</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- Table of Contents -->
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报导航目录 (15大核心模块全景覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">04. 财报与盈利质量</a>
+            <a href="#sec-5" class="toc-link">05. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">06. 行业竞争与同行对标</a>
+            <a href="#sec-7" class="toc-link">07. DCF估值三情景模型</a>
+            <a href="#sec-8" class="toc-link">08. 技术面与筹码量化</a>
+            <a href="#sec-9" class="toc-link">09. 资本配置与股息披露</a>
+            <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与主力动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </div>
+
+    <!-- MODULE 01 -->
+    <section id="sec-1" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">01</div>
+                <div>
+                    <div class="section-title">执行摘要与核心投资逻辑 (Executive Summary & Investment Thesis)</div>
+                    <div class="section-sub">拉美数字化浪潮最大红利收割者、双飞轮极速旋转与极具吸引力的 GARP 投资机遇</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 01</span>
+        </div>
+
+        <p style="margin-bottom: 16px; font-size: 14.5px; color: var(--text-secondary);">
+            <strong>美客多 (MercadoLibre, Inc., NASDAQ: MELI)</strong> 成立于 1999 年，是整个拉丁美洲（覆盖巴西、墨西哥、阿根廷、智利、哥伦比亚等 18 个国家，总人口超 6.5 亿）无可争议的**电商、数字支付与物流基础设施第一巨头**。公司成功构建了“电商零售 (Marketplace) + 移动支付与数字银行 (Mercado Pago) + 自建重资产履约物流 (Mercado Envíos) + 零售媒体广告 (Mercado Ads)”的坚固协同飞轮，构成了全球罕见的超级区域垄断科技生态。
+        </p>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">🚀 核心看多逻辑 1：电商+金融双引擎持续 40%-50% 爆发式高增</div>
+                <p style="font-size: 13px; color: #166534;">
+                    最新季度总营收突破 <strong>$101.7亿美元 (+49.8% YoY)</strong>，全年年化营收逼近 $400亿 门槛。巴西和墨西哥电商 GMV 持续抢占实体零售份额；而金融科技业务 (Mercado Pago) 活跃用户突破 5,500 万，总支付量 (TPV) 维持 70%+ 超高速扩张，成为拉美最大的一站式数字新银行。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">📦 核心看多逻辑 2：自建履约网络构筑无法逾越的“物理护城河”</div>
+                <p style="font-size: 13px; color: #166534;">
+                    拉美地理地形复杂且传统公共物流极其落后。MELI 坚持十余年重金自建 <strong>Mercado Envíos</strong> 物流网络（自建干线机队、海量分拣中心与本地车队），实现 <strong>超 50% 履约仓配渗透率与超 75% 当日/次日达</strong>。这使得亚马逊 (AMZN) 和 Shopee (SE) 在拉美数十亿美元的烧钱进攻均无法动摇 MELI 的基本盘。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">💎 核心看多逻辑 3：高 ROE 优质成长与 PEG &lt; 0.8 的极高性价比</div>
+                <p style="font-size: 13px; color: #166534;">
+                    公司当前净资产收益率 <strong>ROE 高达 27.50%</strong>，经营现金流过去一年产生近 <strong>$139 亿美元</strong>。当前前瞻市盈率 <strong>32.52x</strong>，对应年复合 35%-45% 的利润增速，<strong>PEG 显著低于 0.8</strong>，属于美股大盘科技股中罕见的高确定性合理估值成长股 (GARP)。
+                </p>
+            </div>
+        </div>
+
+        <div class="callout" style="margin-top: 18px;">
+            <strong>📌 投资评级概览：</strong> 综合多因子量化评分 <strong>8.6 / 10</strong>，给予 <strong>强烈看多 (STRONG BUY)</strong> 评级。基准 DCF 目标价为 <strong>$2,320.00 (+25.8%)</strong>，华尔街最高目标价 $2,800.00。建议长线投资者在 $1,760 - $1,845 区间积极定投或买入，亦可通过 34天 DTE 卖出看跌期权以年化 20%-35% 收益率折价建仓。
+        </div>
+    </section>
+
+    <!-- MODULE 02 -->
+    <section id="sec-2" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">02</div>
+                <div>
+                    <div class="section-title">多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Model)</div>
+                    <div class="section-sub">6大核心维度综合量化评级：总分 8.6 / 10</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 02</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>量化评估因子</th>
+                                <th>因子得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与诊断结论</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 业绩增长力 (Growth)</strong></td>
+                                <td><span class="tag-pill tag-green">9.5 / 10</span></td>
+                                <td>25%</td>
+                                <td>TTM 营收增速近 50%，拉美电商与移动支付渗透率仍在 15%-20% 低位，跑道极长</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 护城河壁垒 (Moat)</strong></td>
+                                <td><span class="tag-pill tag-green">9.5 / 10</span></td>
+                                <td>20%</td>
+                                <td>自建物流 Envíos、双边网络效应、数字钱包闭环与 1.2 亿高频活跃买家</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 盈利质量与 ROE (Profitability)</strong></td>
+                                <td><span class="tag-pill tag-green">9.0 / 10</span></td>
+                                <td>20%</td>
+                                <td>毛利率 47.75%，ROE 达 27.50%，高毛利广告 (Mercado Ads) 边际利润持续扩张</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 财务健康度 (Health)</strong></td>
+                                <td><span class="tag-pill tag-green">8.0 / 10</span></td>
+                                <td>15%</td>
+                                <td>现金及等价物 $57.4亿，经营现金流充沛，自营信贷逾期率 (NPL) 处于健康管控区间</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 估值性价比 (Valuation)</strong></td>
+                                <td><span class="tag-pill tag-green">7.5 / 10</span></td>
+                                <td>10%</td>
+                                <td>前瞻 P/E 32.5x 匹配 40%+ 利润增速，PEG &lt; 0.8，市销率 P/S 仅 2.66x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. 筹码与动量 (Technicals)</strong></td>
+                                <td><span class="tag-pill tag-green">8.0 / 10</span></td>
+                                <td>10%</td>
+                                <td>稳稳踩住 50日均线支撑位，RSI 52.5 动量健康，长周期均线处于多头发散中</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权评分 (Composite Score)</strong></td>
+                                <td><span class="tag-pill tag-green" style="font-size: 13px;">8.6 / 10</span></td>
+                                <td>100%</td>
+                                <td><strong>强烈建议超配 (High Conviction Strong Buy)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <div class="chart-box">
+                    <canvas id="factorRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 03 -->
+    <section id="sec-3" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">03</div>
+                <div>
+                    <div class="section-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+                    <div class="section-sub">电商 + 金融 + 物流 + 广告全链路闭环生态</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 03</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 20px;">
+            <div class="card card-green">
+                <div class="card-title">🛒 核心电商 (Commerce)</div>
+                <p style="font-size: 12.5px;"><strong>营收占比: ~55%</strong><br>拉美第一电商平台。巴西、墨西哥、阿根廷市占率均超 40%，年活跃买家超 1.2 亿人，商品交易总额 (GMV) 保持双位数高增。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">💳 移动金融 (Mercado Pago)</div>
+                <p style="font-size: 12.5px;"><strong>营收占比: ~45%</strong><br>拉美最大数字新银行。月活用户超 5,500 万，涵盖线上收单、线下 QR 扫码、信用卡、高收益理财与商户贷款，TPV 增速 70%+。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">🚚 自建物流 (Mercado Envíos)</div>
+                <p style="font-size: 12.5px;"><strong>核心战略底座</strong><br>自建干线飞机车队与履约分拣仓。超 50% 平台商品进入官方履约中心 (Fulfillment)，实现当日/次日达，构成最强物理防线。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">📢 零售广告 (Mercado Ads)</div>
+                <p style="font-size: 12.5px;"><strong>利润催化引擎</strong><br>依托第一方庞大交易数据，为数百万商家提供搜索置顶与精准营销服务，毛利率接近 90%，贡献巨大的纯增量利润。</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🛡️ 波特五力模型与护城河结构深度剖析</div>
+            <div class="grid-2" style="margin-top: 10px; font-size: 13px;">
+                <div>
+                    <p><strong>1. 供应商/商户议价权 (极低)：</strong> 数百万拉美中小商户高度依赖 MELI 获得流量、收款渠道与物流配送，平台抽佣率 (Take Rate) 稳步上提至 14%-15%。</p>
+                    <p style="margin-top: 8px;"><strong>2. 消费者网络效应 (极高)：</strong> 消费者习惯了 Mercado Pago 钱包一键支付与次日达物流，用户转换成本极高。</p>
+                    <p style="margin-top: 8px;"><strong>3. 潜在进入者威胁 (极低)：</strong> 电商平台+物流网络的重资产前期投入需数百亿美元与十余年积累，新对手无法短时间复制。</p>
+                </div>
+                <div>
+                    <p><strong>4. 同业竞争与防御力 (极强)：</strong> 亚马逊 (AMZN) 在拉美份额不足 MELI 的 1/3；Shopee 逐步退守核心品类并收缩补贴；Temu/Shein 聚焦跨境低客单，无法提供本地次日达和家电重货服务。</p>
+                    <p style="margin-top: 8px;"><strong>5. 替代品威胁 (极低)：</strong> 拉美传统零售效率低下且治安/现金假币痛点突出，线上化与数字化迁移是不可逆的历史趋势。</p>
+                    <p style="margin-top: 8px;"><strong>💡 护城河综合评级：极宽护城河 (Wide Moat / 区域绝对霸主)</strong>。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 04 -->
+    <section id="sec-4" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">04</div>
+                <div>
+                    <div class="section-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</div>
+                    <div class="section-sub">营收跨越式增长、经营现金流近 $139亿 与强劲资产负债表</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 04</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (单位: 百万美元)</th>
+                        <th class="th-num">FY2022</th>
+                        <th class="th-num">FY2023</th>
+                        <th class="th-num">FY2024</th>
+                        <th class="th-num">FY2025</th>
+                        <th class="th-num">TTM (最新)</th>
+                        <th>复合年均增长率 (CAGR) / 趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="td-num">$10,780</td>
+                        <td class="td-num">$15,107</td>
+                        <td class="td-num">$20,777</td>
+                        <td class="td-num">$28,893</td>
+                        <td class="td-num highlight-val">$35,182</td>
+                        <td><span class="tag-pill tag-green">+39.1% CAGR (规模持续领跑)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利总额 (Gross Profit)</strong></td>
+                        <td class="td-num">$5,198</td>
+                        <td class="td-num">$7,590</td>
+                        <td class="td-num">$9,577</td>
+                        <td class="td-num">$12,858</td>
+                        <td class="td-num highlight-val">$14,900</td>
+                        <td><span class="tag-pill tag-green">稳定保持在 47.7%~50.2%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="td-num">$1,069</td>
+                        <td class="td-num">$2,207</td>
+                        <td class="td-num">$2,631</td>
+                        <td class="td-num">$3,201</td>
+                        <td class="td-num highlight-val">$3,250</td>
+                        <td><span class="tag-pill tag-green">自建物流与广告规模效应释放</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="td-num">$482</td>
+                        <td class="td-num">$987</td>
+                        <td class="td-num">$1,911</td>
+                        <td class="td-num">$1,997</td>
+                        <td class="td-num highlight-val">$1,863</td>
+                        <td><span class="tag-pill tag-green">4年复合暴增超 300%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营现金流 (Operating Cash Flow)</strong></td>
+                        <td class="td-num">$2,940</td>
+                        <td class="td-num">$5,140</td>
+                        <td class="td-num">$7,918</td>
+                        <td class="td-num">$12,116</td>
+                        <td class="td-num highlight-val">$13,905</td>
+                        <td><span class="tag-pill tag-green">年造血超百亿美元</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="td-num">-$455</td>
+                        <td class="td-num">-$509</td>
+                        <td class="td-num">-$860</td>
+                        <td class="td-num">-$1,343</td>
+                        <td class="td-num">-$1,400</td>
+                        <td>持续投入巴西/墨西哥新物流枢纽</td>
+                    </tr>
+                    <tr>
+                        <td><strong>期末现金及等价物 (Cash & Equivalents)</strong></td>
+                        <td class="td-num">$1,910</td>
+                        <td class="td-num">$2,556</td>
+                        <td class="td-num">$2,635</td>
+                        <td class="td-num">$3,670</td>
+                        <td class="td-num highlight-val">$5,745</td>
+                        <td>资金流动性极其充沛，抗风险极强</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="revenueIncomeChart"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 05 -->
+    <section id="sec-5" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">05</div>
+                <div>
+                    <div class="section-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+                    <div class="section-sub">ROE 27.50% 的顶级资本配置飞轮深度拆解</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 05</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-blue">
+                <div class="card-title">1. 盈利能力 (净利润率 Net Margin)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">5.3% ~ 6.9%</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">由于加大信用卡（Credit Card）发卡力度与信贷坏账预期拨备，名义净利率受短期压制，但随着信贷资产成熟及高毛利广告占比提升，长期净利率有望迈向 8%-10%。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">2. 营运效率 (资产周转率 Asset Turnover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">0.82x ~ 0.95x</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">平台年流水 (GMV + TPV) 达到惊人的千亿美元级别，资产周转效率极高，数字化平台的边际扩张成本极低。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">3. 财务杠杆 (权益乘数 Equity Multiplier)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">6.32x (含金融科技负债)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">杠杆中很大一部分为 Mercado Pago 吸收的客户数字钱包无息活期存款与商户待结算资金，属于低成本经营负债而非高息银行硬负债。</p>
+            </div>
+        </div>
+
+        <div class="callout callout-amber" style="margin-top: 16px;">
+            <strong>💡 杜邦综合诊断：</strong> 净资产收益率 <strong>ROE 达 27.50%</strong>，资产回报率 <strong>ROA 达 4.31%</strong>。高 ROE 建立在极高的资产运营周转率和强韧的自建网络之上，具备全球顶级科技蓝筹的核心复利特征。
+        </div>
+    </section>
+
+    <!-- MODULE 06 -->
+    <section id="sec-6" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">06</div>
+                <div>
+                    <div class="section-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+                    <div class="section-sub">MELI vs 亚马逊 vs Sea Limited vs Nu Holdings 多维度对标</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 06</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (代码)</th>
+                        <th class="th-num">最新股价</th>
+                        <th class="th-num">市值 (Cap)</th>
+                        <th class="th-num">前瞻 P/E</th>
+                        <th class="th-num">P/S (市销率)</th>
+                        <th class="th-num">营收同比增速</th>
+                        <th class="th-num">毛利率</th>
+                        <th class="th-num">ROE</th>
+                        <th>核心优势与定位</th>
+                        <th>投资评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>MercadoLibre (MELI)</strong></td>
+                        <td class="td-num highlight-val">$1,844.58</td>
+                        <td class="td-num">$93.51B</td>
+                        <td class="td-num highlight-val">32.52x</td>
+                        <td class="td-num highlight-val">2.66x</td>
+                        <td class="td-num highlight-val">+49.8%</td>
+                        <td class="td-num">47.75%</td>
+                        <td class="td-num highlight-val">27.50%</td>
+                        <td><span class="tag-pill tag-green">拉美电商+金融+物流超级霸主</span></td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Amazon (AMZN)</strong></td>
+                        <td class="td-num">$262.65</td>
+                        <td class="td-num">$2.83T</td>
+                        <td class="td-num">25.27x</td>
+                        <td class="td-num">3.65x</td>
+                        <td class="td-num">+19.6%</td>
+                        <td class="td-num">50.77%</td>
+                        <td class="td-num">22.40%</td>
+                        <td>全球电商与 AWS 云计算霸主</td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sea Limited (SE)</strong></td>
+                        <td class="td-num">$121.94</td>
+                        <td class="td-num">$74.69B</td>
+                        <td class="td-num">23.73x</td>
+                        <td class="td-num">2.69x</td>
+                        <td class="td-num">+48.1%</td>
+                        <td class="td-num">44.34%</td>
+                        <td class="td-num">12.80%</td>
+                        <td>东南亚 Shopee 电商+游戏 Garena</td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nu Holdings (NU)</strong></td>
+                        <td class="td-num">$15.23</td>
+                        <td class="td-num">$73.57B</td>
+                        <td class="td-num">13.17x</td>
+                        <td class="td-num">8.71x</td>
+                        <td class="td-num">+52.1%</td>
+                        <td class="td-num">-</td>
+                        <td class="td-num">28.50%</td>
+                        <td>拉美最大纯数字银行 (Nubank)</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Shopify (SHOP)</strong></td>
+                        <td class="td-num">$154.32</td>
+                        <td class="td-num">$198.55B</td>
+                        <td class="td-num">63.32x</td>
+                        <td class="td-num">14.96x</td>
+                        <td class="td-num">+33.7%</td>
+                        <td class="td-num">47.76%</td>
+                        <td class="td-num">14.50%</td>
+                        <td>独立站 SaaS 建站与商户生态</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🔍 对标核心结论</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                MELI 在营收维持近 <strong>50% 高速增长</strong> 的同时，市销率仅为 <strong>2.66x</strong>（显著低于 Shopify 的 14.96x 和 Nu 的 8.71x）。与 Amazon 相比，MELI 拥有拉美地区更高的本土化壁垒与更高的成长斜率；与 Sea 相比，MELI 拥有无可争议的自建重资产履约网络与强大的金融科技盈利闭环。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 07 -->
+    <section id="sec-7" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">07</div>
+                <div>
+                    <div class="section-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+                    <div class="section-sub">基准内在价值 $2,320.00，呈现 25%+ 确定性安全边际</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 07</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-amber">
+                <div class="card-title">🐻 悲观情景 (Bear Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">$1,550.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在跌幅: -16.0%</strong><br>
+                    假设: 巴西/阿根廷宏观恶化导致汇率贬值加剧；信贷违约率上升压缩金融利润；5年营收复合增速降至 16%，终值自由现金流 $45亿，WACC 12.0%。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🎯 基准情景 (Base Case) - 核心预测</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">$2,320.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +25.8%</strong><br>
+                    假设: 拉美电商渗透率持续向 25% 迈进；5年营收复合增速 26%；Mercado Ads 与金融科技变现加速；2029年非银行调整后自由现金流达 $68亿；WACC 10.5%，永续增长率 4.0%。
+                </p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🐂 乐观情景 (Bull Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">$2,850.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +54.5%</strong><br>
+                    假设: 墨西哥与智利等新兴市场爆发；Mercado Pago 成为全拉美第一大超级银行；净利润率扩张至 10%+；自由现金流达 $85亿；WACC 9.5%，永续增长率 4.5%。
+                </p>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 20px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="th-num">3.0%</th>
+                        <th class="th-num">3.5%</th>
+                        <th class="th-num">4.0% (基准)</th>
+                        <th class="th-num">4.5%</th>
+                        <th class="th-num">5.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 9.5%</strong></td>
+                        <td class="td-num">$2,380.00</td>
+                        <td class="td-num">$2,540.00</td>
+                        <td class="td-num">$2,720.00</td>
+                        <td class="td-num">$2,950.00</td>
+                        <td class="td-num">$3,240.00</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 10.0%</strong></td>
+                        <td class="td-num">$2,110.00</td>
+                        <td class="td-num">$2,230.00</td>
+                        <td class="td-num">$2,370.00</td>
+                        <td class="td-num">$2,540.00</td>
+                        <td class="td-num">$2,750.00</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>WACC 10.5% (基准)</strong></td>
+                        <td class="td-num">$2,080.00</td>
+                        <td class="td-num">$2,190.00</td>
+                        <td class="td-num highlight-val">$2,320.00</td>
+                        <td class="td-num">$2,480.00</td>
+                        <td class="td-num">$2,670.00</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 11.0%</strong></td>
+                        <td class="td-num">$1,890.00</td>
+                        <td class="td-num">$1,980.00</td>
+                        <td class="td-num">$2,090.00</td>
+                        <td class="td-num">$2,210.00</td>
+                        <td class="td-num">$2,360.00</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 11.5%</strong></td>
+                        <td class="td-num">$1,730.00</td>
+                        <td class="td-num">$1,810.00</td>
+                        <td class="td-num">$1,900.00</td>
+                        <td class="td-num">$2,000.00</td>
+                        <td class="td-num">$2,120.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 08 -->
+    <section id="sec-8" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">08</div>
+                <div>
+                    <div class="section-title">技术面量化、均线系统与关键筹码位 (Technical Analysis & Levels)</div>
+                    <div class="section-sub">稳居 50日均线上方、RSI 健康震荡与长周期多头蓄势</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 08</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 16px;">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">20日均线 (SMA 20)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$1,849.48</div>
+                <div style="font-size: 11px; color: #15803D;">现价处于均线密集缠绕区</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">50日均线 (SMA 50)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D;">$1,764.36</div>
+                <div style="font-size: 11px; color: #15803D;">坚实的中期多头支撑生命线</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">14日 RSI 动量指标</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">52.54</div>
+                <div style="font-size: 11px; color: #15803D;">健康多头中轴，无超买风险</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">布林带通道 (BB 20,2)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">$1,767 - $1,932</div>
+                <div style="font-size: 11px; color: var(--text-muted);">中轨蓄势，通道口逐步收敛</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🟢 关键支撑位 (Support Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>S1 (第一支撑): $1,800.00</strong> — 心理整数关口与近期密集回踩平台</li>
+                    <li><strong>S2 (核心支撑): $1,760.00</strong> — 50日均线与布林下轨共振强支撑（绝佳加仓点）</li>
+                    <li><strong>S3 (大底防线): $1,650.00</strong> — 前期波段箱体下沿强力买盘防线</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🔴 关键阻力位 (Resistance Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>R1 (初步阻力): $1,940.00</strong> — 8月上旬跳空放量反弹高点</li>
+                    <li><strong>R2 (中期目标): $2,100.00</strong> — 突破 2000 大关后的阶段性阻力位</li>
+                    <li><strong>R3 (历史峰值): $2,548.50</strong> — 52 周历史历史前高</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 09 -->
+    <section id="sec-9" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">09</div>
+                <div>
+                    <div class="section-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</div>
+                    <div class="section-sub">严格遵循合规披露准则：公司股息政策与股东回报全景</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 09</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-amber">
+                <div class="card-title">📢 股息指标详细披露 (Mandatory Dividend Disclosure)</div>
+                <div class="table-scroll" style="margin: 8px 0;">
+                    <table>
+                        <tr>
+                            <td><strong>股息率 (Dividend Yield)</strong></td>
+                            <td class="td-num highlight-val"><strong>无 / 没有 (Dividend: None / N/A)</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>年度每股派息 (Annual Payout)</strong></td>
+                            <td class="td-num">$0.00</td>
+                        </tr>
+                        <tr>
+                            <td><strong>派息率 (Payout Ratio)</strong></td>
+                            <td class="td-num">0.0%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>股息停发原因 (Policy Rationale)</strong></td>
+                            <td class="td-num">自 2018 年起停发，100% 投入物流与金融扩张</td>
+                        </tr>
+                    </table>
+                </div>
+                <p style="font-size: 12px; color: #78350F; margin-top: 6px;">
+                    <strong>明确说明：</strong> MercadoLibre 目前<strong>不派发现金股息 (无股息派发)</strong>。公司自 2018 年初正式停止派息，将全部经营产生的现金流全力投入到物流网络与金融生态的再投资，实现极高 ROIC 复利增长。
+                </p>
+            </div>
+
+            <div class="card card-green">
+                <div class="card-title">💰 替代股东回报方式：高 ROI 业务再投资与资产负债表强化</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>27.5% ROE 高复利再投资：</strong> 资本优先投向巴西和墨西哥的自动化仓储、干线运输网络和信用卡信贷资金池，内部资本回报率远超任何固定股息率。</li>
+                    <li><strong>流动性与现金储备积累：</strong> 现金及等价物达 $57.4 亿美元，确保在拉美任何宏观经济动荡中拥有绝对的战略主动权。</li>
+                    <li><strong>管理层与股东利益高度一致：</strong> 创始人兼 CEO Marcos Galperin 及核心管理层长期持有大量股权，激励机制完全以长期市值与自由现金流最大化为考核基准。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="sec-10" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">10</div>
+                <div>
+                    <div class="section-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+                    <div class="section-sub">34天 DTE (2026-09-18) 三档结构化建仓与权利金增强方案</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 10</span>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">
+            当前 MELI 股价为 <strong>$1,844.58</strong>，隐含波动率 (IV) 约为 <strong>35.5% - 37.7%</strong>，非常适合利用 <strong>30-45天 DTE 的 Cash-Secured Put (卖出看跌期权)</strong> 策略，在锁定低成本折价建仓的同时获取丰厚年化权利金收益：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>行权价 (Strike)</th>
+                        <th>到期日 (DTE)</th>
+                        <th>Delta / 虚值程度</th>
+                        <th class="th-num">权利金 (Mid)</th>
+                        <th class="th-num">期间收益率</th>
+                        <th class="th-num">年化收益率 (Ann. Yield)</th>
+                        <th>实质建仓成本 / 适用投资人画像</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tag-pill tag-green">🛡️ 保守档 (Conservative)</span></td>
+                        <td><strong>$1,700.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.20 (7.8% OTM)</td>
+                        <td class="td-num highlight-val">$18.10</td>
+                        <td class="td-num">1.06%</td>
+                        <td class="td-num highlight-val"><strong>~11.4%</strong></td>
+                        <td><strong>$1,681.90</strong> (跌破 50 日均线且大幅折价才接货，极高安全边际)</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><span class="tag-pill tag-blue">⚖️ 稳健档 (Moderate)</span></td>
+                        <td><strong>$1,760.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.33 (4.6% OTM)</td>
+                        <td class="td-num highlight-val">$36.05</td>
+                        <td class="td-num">2.05%</td>
+                        <td class="td-num highlight-val"><strong>~22.0%</strong></td>
+                        <td><strong>$1,723.95</strong> (精准锚定 50日均线强支撑位 $1,764，攻守兼备)</td>
+                    </tr>
+                    <tr style="background: #FAF5FF;">
+                        <td><span class="tag-pill tag-purple">🚀 进取档 (Aggressive)</span></td>
+                        <td><strong>$1,820.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.46 (1.3% OTM)</td>
+                        <td class="td-num highlight-val">$60.00</td>
+                        <td class="td-num">3.30%</td>
+                        <td class="td-num highlight-val"><strong>~35.4%</strong></td>
+                        <td><strong>$1,760.00</strong> (平值高权利金，积极折价吸筹，实质成本直达 50 日均线)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="sec-11" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">11</div>
+                <div>
+                    <div class="section-title">机构持仓与主力资金动向 (Institutional Ownership & 13F)</div>
+                    <div class="section-sub">全球顶级长线主权与超级成长基金重仓加持</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 11</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者 (Institutional Holder)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持股市值 (Value)</th>
+                        <th>占总流通股比 (pctHeld)</th>
+                        <th>报告期变动 (pctChange)</th>
+                        <th>投资性质与风格</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Baillie Gifford & Co. (柏基投资)</strong></td>
+                        <td class="td-num">6,120,400</td>
+                        <td class="td-num">$11.29B</td>
+                        <td class="td-num"><strong>12.07%</strong></td>
+                        <td>+2.15% (持续长线重仓)</td>
+                        <td>全球最著名的长线颠覆性成长基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Capital World Investors (Capital Group)</strong></td>
+                        <td class="td-num">3,890,200</td>
+                        <td class="td-num">$7.17B</td>
+                        <td class="td-num"><strong>7.67%</strong></td>
+                        <td>+4.32% (加仓)</td>
+                        <td>美系顶级长线价值与成长巨擘</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FMR LLC (Fidelity 富达)</strong></td>
+                        <td class="td-num">3,450,100</td>
+                        <td class="td-num">$6.36B</td>
+                        <td class="td-num"><strong>6.81%</strong></td>
+                        <td>-1.20% (微调)</td>
+                        <td>全球顶级主动管理公募基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Group, Inc. (先锋领航)</strong></td>
+                        <td class="td-num">3,120,000</td>
+                        <td class="td-num">$5.75B</td>
+                        <td class="td-num"><strong>6.15%</strong></td>
+                        <td>+1.85% (被动流入)</td>
+                        <td>全球最大被动与指数基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BlackRock, Inc. (贝莱德)</strong></td>
+                        <td class="td-num">2,890,500</td>
+                        <td class="td-num">$5.33B</td>
+                        <td class="td-num"><strong>5.70%</strong></td>
+                        <td>+3.40% (增持)</td>
+                        <td>全球最大资产管理机构</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
+            <strong>主力动向解析：</strong> 机构持股比例超过 <strong>82%</strong>，其中以超长线著称的 **Baillie Gifford、Capital Group 和富达** 牢牢锁定了流通盘的近 30%，持股筹码极其沉淀，极少出现非理性的集中踩踏抛售。
+        </p>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="sec-12" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">12</div>
+                <div>
+                    <div class="section-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Tone)</div>
+                    <div class="section-sub">管理层信心极度充沛：强调信用卡资产质量可控与物流效率领先</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 12</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🎙️ 财报电话会要点与管理层情绪 (Sentiment: Bullish)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>信用卡业务加速放量：</strong> 巴西和墨西哥信用卡发卡量同比翻倍，管理层指出基于 AI 风险模型的即时授信显著提升了用户黏性与平台交易频次。</li>
+                    <li><strong>履约当日达比例创历史新高：</strong> 巴西核心大都市圈当日达比例突破 60%，物流时效成为用户放弃其他平台的最核心决策因素。</li>
+                    <li><strong>Mercado Ads 保持 50%+ 高增：</strong> 广告渗透率仍低于亚马逊的成熟水平，未来具有极大的利润释放空间。</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📝 治理架构与创始人执掌</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>创始人精神传承：</strong> Marcos Galperin 执掌公司逾 25 年，战略眼光极其前瞻，执行力在拉美科技史上首屈一指。</li>
+                    <li><strong>高管零减持信号：</strong> 过去一年中，核心高管持股保持高度稳定，未出现任何非正常的大规模减持行为。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="sec-13" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">13</div>
+                <div>
+                    <div class="section-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</div>
+                    <div class="section-sub">空头占比仅 1.6%，空头情绪极度收敛</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 13</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">做空股数 (Shares Short)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">80.93万 股</div>
+                <div style="font-size: 11px; color: var(--text-muted);">流通股占比: 1.60% (极低)</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">平仓天数 (Days to Cover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">2.25 天</div>
+                <div style="font-size: 11px; color: #15803D;">空头规模较小，流动性健康</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">空头压力评级</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">极低 (Negligible)</div>
+                <div style="font-size: 11px; color: #15803D;">机构与空头对基本面共识高度一致</div>
+            </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 14px;">
+            <strong>空头分析：</strong> MELI 的空头比例仅为 <strong>1.60%</strong>，表明华尔街专业机构极少选择直接做空 MELI。空头担忧主要集中在拉美宏观汇率波动（如阿根廷比索或巴西雷亚尔贬值），但历史数据证明 MELI 的美元化收入增长完全能够抵消汇率贬值影响。
+        </p>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="sec-14" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">14</div>
+                <div>
+                    <div class="section-title">核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+                    <div class="section-sub">全方位审视汇率、信贷违约与宏观政治风险</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 14</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子 (Risk Factor)</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>综合风险等级</th>
+                        <th>对冲机制与缓冲垫 (Mitigation & Buffer)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 拉美宏观汇率大幅波动 (雷亚尔/比索)</strong></td>
+                        <td>高 (High)</td>
+                        <td>中等 (Moderate)</td>
+                        <td><span class="tag-pill tag-amber">中等关注</span></td>
+                        <td>以本币计价的商品交易量与支付量增速高达 60%-80%，内生有机增长大幅超越汇率贬值幅度</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 信用卡与商户信贷坏账率上升</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>中等 (Moderate)</td>
+                        <td><span class="tag-pill tag-amber">中等关注</span></td>
+                        <td>采用严格的短期小额信贷策略，AI 动态授信，且电商收款账户资金可直接用于风险对冲抵押</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 跨国巨头 (Amazon/Shopee/Temu) 补贴竞争</strong></td>
+                        <td>低 (Low)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低风险</span></td>
+                        <td>自建履约当日达壁垒坚不可摧，跨国电商缺乏拉美本地仓储与合规清关通道</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 监管与跨境电商关税政策收紧</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">利好本土龙头</span></td>
+                        <td>巴西等国对小额跨境包裹征税，反而直接重创跨境电商，推动订单回流至 MELI 本地商家</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="sec-15" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">15</div>
+                <div>
+                    <div class="section-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+                    <div class="section-sub">未来 6-18 个月核心催化事件序列</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 15</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">📅 催化剂 1: 墨西哥与智利新履约中心全面投运</div>
+                <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">2026年 下半年</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">墨西哥当日达覆盖城市翻倍，进一步压制亚马逊在墨西哥北部的拓展势头。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📅 催化剂 2: Q3/Q4 黑五与年终购物狂欢节</div>
+                <div style="font-size: 12px; font-weight: 700; color: #1E40AF; margin-bottom: 6px;">2026年 11月 - 12月</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">拉美电商传统单季最强销售旺季，GMV 与广告收益有望创历史新高。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">📅 催化剂 3: 纳斯达克 100 指数权重持续上调</div>
+                <div style="font-size: 12px; font-weight: 700; color: #6B21A8; margin-bottom: 6px;">持续推进</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">市值迈向千亿美元俱乐部，吸引全球被动 ETF 与主权财富基金持续净流入。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 16 -->
+    <section id="sec-16" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">16</div>
+                <div>
+                    <div class="section-title">最终投资评级与执行建议 (Final Verdict & Execution Plan)</div>
+                    <div class="section-sub">标准化投资决策模块与分步建仓指引</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 16</span>
+        </div>
+
+        <div class="signal-banner">
+            <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700;">INVESTMENT SIGNAL MATRIX</div>
+            <div style="font-size: 26px; font-weight: 800; margin: 4px 0 14px;">强烈看多 (STRONG BUY) • 8.6 / 10</div>
+            
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-lbl">核心信号 (Signal)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">STRONG BUY (强烈看多)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">置信度 (Confidence)</div>
+                    <div class="signal-val">HIGH (高)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">投资期限 (Horizon)</div>
+                    <div class="signal-val">12 - 36 个月</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">综合评分 (Score)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">8.6 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">建议操作 (Action)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">BUY (强烈建议超配)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">目标价 (Target Price)</div>
+                    <div class="signal-val">$2,320.00 (+25.8%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">🎯 具体交易执行指引 (Actionable Strategy)</div>
+            <ol style="padding-left: 20px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.8;">
+                <li><strong>正股分批建仓区间：</strong> 建议在 <strong>$1,760.00 - $1,845.00</strong> 区间建立 50%-60% 基础底仓，若遇短期宏观波动回踩 50日均线支撑位 $1,764 附近果断加仓。</li>
+                <li><strong>期权收益增强执行：</strong> 推荐卖出 2026-09-18 到期、行权价 <strong>$1,760.00 Put</strong>（权利金 ~$36.05，年化收益率 ~22.0%）或 <strong>$1,700.00 Put</strong>（权利金 ~$18.10，年化收益率 ~11.4%），以深度折价锁定优质筹码。</li>
+                <li><strong>持股目标与止盈策略：</strong> 第一目标位 <strong>$2,100.00</strong>，核心 DCF 目标位 <strong>$2,320.00</strong>，长期建议作为拉美数字化第一龙头核心资产长线持有 3 年以上。</li>
+            </ol>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+            <strong>免责声明 (Disclaimer)：</strong> 本研报基于公开市场数据、公司官方财务披露及行业量化模型生成，仅供投资研究与学术交流参考，不构成任何具体的投资建议或买卖要约。金融衍生品及股票交易存在本金损失风险，投资者应根据自身风险承受能力独立决策。
+        </div>
+    </section>
+
+</div>
+
+<!-- JAVASCRIPT FOR CHARTS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Radar Chart
+        const radarCtx = document.getElementById('factorRadarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['业绩增长力 (9.5)', '护城河壁垒 (9.5)', '盈利质量 (9.0)', '财务健康度 (8.0)', '估值性价比 (7.5)', '筹码技术面 (8.0)'],
+                datasets: [{
+                    label: 'MercadoLibre (MELI) 因子得分',
+                    data: [9.5, 9.5, 9.0, 8.0, 7.5, 8.0],
+                    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                    borderColor: '#10B981',
+                    pointBackgroundColor: '#059669',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#059669',
+                    borderWidth: 2
+                }, {
+                    label: '美股大盘科技均值 (Benchmark)',
+                    data: [6.0, 6.5, 6.0, 6.0, 5.0, 5.5],
+                    backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                    borderColor: '#94A3B8',
+                    pointBackgroundColor: '#94A3B8',
+                    pointBorderColor: '#fff',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#E2E8F0' },
+                        grid: { color: '#F1F5F9' },
+                        pointLabels: {
+                            font: { size: 11, weight: '600', family: 'Inter' },
+                            color: '#475569'
+                        },
+                        ticks: { min: 0, max: 10, stepSize: 2, display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+
+        // 2. Revenue & Net Income Bar/Line Chart
+        const revCtx = document.getElementById('revenueIncomeChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024', '2025', 'TTM (最新)'],
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: '营业总收入 Revenue ($M)',
+                        data: [10780, 15107, 20777, 28893, 35182],
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#059669',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: '净利润 Net Income ($M)',
+                        data: [482, 987, 1911, 1997, 1863],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#D97706',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '总营收 ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { color: '#F1F5F9' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: '净利润 ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

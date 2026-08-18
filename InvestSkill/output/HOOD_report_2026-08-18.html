@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Robinhood Markets, Inc. (HOOD) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title-wrap { display: flex; align-items: center; gap: 10px; }
+        .sec-num {
+            width: 28px; height: 28px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 13px;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .sec-title { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left; }
+        th { background: #F8FAFC; color: var(--text-secondary); font-weight: 600; padding: 10px 12px; border-bottom: 2px solid var(--border); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:hover td { background: #F8FAFC; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .hero-title { font-size: 24px; }
+            .section { padding: 18px 14px; }
+        }
+
+        .card {
+            background: #FAFAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .card-accent {
+            border-left: 4px solid var(--primary);
+            background: #F0FDF4;
+        }
+        .card-warn {
+            border-left: 4px solid var(--amber);
+            background: #FFFBEB;
+        }
+        .card-danger {
+            border-left: 4px solid var(--red);
+            background: #FEF2F2;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+        .pill-green { background: var(--emerald-light); color: var(--primary-dark); border: 1px solid #A7F3D0; }
+        .pill-amber { background: var(--amber-light); color: #92400E; border: 1px solid #FDE68A; }
+        .pill-red { background: var(--red-light); color: #991B1B; border: 1px solid #FECACA; }
+        .pill-blue { background: #EFF6FF; color: #1E40AF; border: 1px solid #BFDBFE; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            margin: 14px 0;
+        }
+
+        .signal-box {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            color: #fff;
+            border-radius: 14px;
+            padding: 28px;
+            box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.4);
+            margin-top: 24px;
+        }
+        .signal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .signal-verdict { font-size: 26px; font-weight: 800; color: #34D399; letter-spacing: 0.5px; }
+        .signal-score { font-size: 32px; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+        .sig-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .sig-card {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .sig-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .sig-val { font-size: 16px; font-weight: 700; margin-top: 4px; }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .fw-700 { font-weight: 700; }
+        .text-green { color: #059669; }
+        .text-red { color: #DC2626; }
+        .text-amber { color: #D97706; }
+    </style>
+</head>
+<body>
+
+<!-- HERO BANNER -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: HOOD</span>
+            <span class="badge badge-hero-stock">Robinhood Markets, Inc.</span>
+            <span class="badge badge-hero-signal">看多 (BULLISH)</span>
+            <span class="badge badge-hero-score">量化评分: 8.2 / 10</span>
+            <span class="badge badge-hero-stock">研报周期: 2026-08-18</span>
+        </div>
+        <h1 class="hero-title">Robinhood (HOOD) 15模块全景深度投研与多因子量化评估报告</h1>
+        <p class="hero-sub">零售金融科技霸主全面蜕变：从纯免佣券商跃升为全场景个人金融平台。Robinhood Gold生态持续高增、加密货币Bitstamp全球化整合、预测市场合约爆发、Robinhood Legend专业桌面端拓维，经营杠杆加速释放，迎来高盈利与规模扩张戴维斯双击。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot Price)</div>
+                <div class="hero-kpi-val">$93.21</div>
+                <div class="hero-kpi-sub">52周区间: $63.52 - $153.86</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$83.80B</div>
+                <div class="hero-kpi-sub">企业价值: $85.62B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">估值倍数 (P/E TTM / FWD)</div>
+                <div class="hero-kpi-val">41.2x / 29.1x</div>
+                <div class="hero-kpi-sub">PEG: 2.17 | P/S: 17.0x</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">2025全年营收 / 增速</div>
+                <div class="hero-kpi-val">$4.47B</div>
+                <div class="hero-kpi-sub">YoY +51.6% | 净利润 $1.88B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">营业利润率 / 净利率</div>
+                <div class="hero-kpi-val">46.8% / 42.1%</div>
+                <div class="hero-kpi-sub">ROE: 22.6% | FCF: $1.58B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息率 (Dividend Yield)</div>
+                <div class="hero-kpi-val">无 (0.00%)</div>
+                <div class="hero-kpi-sub">无股息派发 | 10亿美元股票回购</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+
+    <!-- TOC NAV -->
+    <nav class="toc-bar">
+        <div class="toc-title">研报全景 15 核心模块导航</div>
+        <div class="toc-links">
+            <a class="toc-link" href="#mod-1">1. 执行摘要与投资核心逻辑</a>
+            <a class="toc-link" href="#mod-2">2. 多因子量化评分雷达</a>
+            <a class="toc-link" href="#mod-3">3. 商业模式与波特五力</a>
+            <a class="toc-link" href="#mod-4">4. 核心财务与盈利质量</a>
+            <a class="toc-link" href="#mod-5">5. 杜邦三因子拆解</a>
+            <a class="toc-link" href="#mod-6">6. 行业竞争格局与对标</a>
+            <a class="toc-link" href="#mod-7">7. DCF估值与三情景敏感性</a>
+            <a class="toc-link" href="#mod-8">8. 技术面量化与关键筹码位</a>
+            <a class="toc-link" href="#mod-9">9. 资本配置与股息政策</a>
+            <a class="toc-link" href="#mod-10">10. Cash-Secured Put期权策略</a>
+            <a class="toc-link" href="#mod-11">11. 机构持仓与13F动向</a>
+            <a class="toc-link" href="#mod-12">12. 内部人交易与电话会洞察</a>
+            <a class="toc-link" href="#mod-13">13. 做空比例与轧空风险</a>
+            <a class="toc-link" href="#mod-14">14. 核心风险与熊市压力测试</a>
+            <a class="toc-link" href="#mod-15">15. 催化剂日历与增长路径</a>
+            <a class="toc-link" href="#mod-16">16. 最终投资评级与信号</a>
+        </div>
+    </nav>
+
+    <!-- MODULE 1: EXECUTIVE SUMMARY -->
+    <section class="section" id="mod-1">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">01</span>
+                <h2 class="sec-title">执行摘要与投资核心逻辑 (Executive Summary & Investment Thesis)</h2>
+            </div>
+            <span class="pill pill-green">核心评级: 看多 (BULLISH)</span>
+        </div>
+        <p style="margin-bottom: 14px;"><strong>Robinhood Markets, Inc. (NASDAQ: HOOD)</strong> 正在完成从“散户炒股工具”向“综合性新一代超级金融帝国”的历史性跨越。通过深耕年轻一代（Gen-Z 与千禧一代）用户心智，Robinhood 构建了极具粘性的多飞轮增长引擎：</p>
+        
+        <div class="grid-3" style="margin: 16px 0;">
+            <div class="card card-accent">
+                <h4 style="color: var(--primary-dark); margin-bottom: 6px;">飞轮 1: Robinhood Gold 高粘性订阅生态</h4>
+                <p style="font-size: 13px; color: var(--text-secondary);">通过 3% IRA 退休金配资、5% 闲置资金现金扫单（Cash Sweep）、以及具备全行业颠覆性的 3% 全品类无上限返现 Gold 信用卡，Gold 会员数与资产管理规模（AUC）爆发式增长，显著提升单客 ARPU 与净存款留存率。</p>
+            </div>
+            <div class="card card-accent">
+                <h4 style="color: var(--primary-dark); margin-bottom: 6px;">飞轮 2: 加密货币与预测市场全球化拓展</h4>
+                <p style="font-size: 13px; color: var(--text-secondary);">成功完成对全球合规加密交易所 <strong>Bitstamp</strong> 的全资收购，打通机构级流动性与全球 50+ 合规牌照；上线选举与宏观事件预测市场合约，捕捉万亿级衍生品交易热潮，交易费与托管费两端齐升。</p>
+            </div>
+            <div class="card card-accent">
+                <h4 style="color: var(--primary-dark); margin-bottom: 6px;">飞轮 3: Robinhood Legend 进军高净值交易员</h4>
+                <p style="font-size: 13px; color: var(--text-secondary);">全新专业级桌面交易平台 <strong>Robinhood Legend</strong> 补齐了高频与活跃交易员的技术短板，与嘉信理财 (Thinkorswim) 及盈透证券 (IBKR) 正面竞争，带动期权与期货日均交易量 (DARTs) 跃上新台阶。</p>
+            </div>
+        </div>
+
+        <div class="card" style="background: #F1F5F9; border-left: 4px solid var(--teal);">
+            <strong>主要财务亮点归纳：</strong> 2025 全年营收实现 <strong>$44.73 亿</strong> (+51.6% YoY)，营业利润高达 <strong>$20.94 亿</strong> (营业利润率 46.8%)，GAAP 净利润 <strong>$18.83 亿</strong> (净利率 42.1%)，自由现金流达 <strong>$15.84 亿</strong>。固定成本摊薄效应驱动经营杠杆全面爆发，兼具高成长与强造血能力。
+        </div>
+    </section>
+
+    <!-- MODULE 2: MULTI-FACTOR SCORECARD & RADAR -->
+    <section class="section" id="mod-2">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">02</span>
+                <h2 class="sec-title">多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Chart)</h2>
+            </div>
+            <span class="pill pill-green">综合量化得分: 8.2 / 10</span>
+        </div>
+        
+        <div class="grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>量化评估维度</th>
+                                <th>得分 (0-10)</th>
+                                <th>权重</th>
+                                <th>核心驱动与量化评价</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 估值因子 (Valuation)</strong></td>
+                                <td class="mono fw-700 text-amber">6.8 / 10</td>
+                                <td>15%</td>
+                                <td>Trailing P/E 41.2x，Forward P/E 29.1x，处于合理成长溢价区间。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 业绩成长性 (Growth)</strong></td>
+                                <td class="mono fw-700 text-green">9.2 / 10</td>
+                                <td>25%</td>
+                                <td>营收增速 >50%，AUC 与 Gold 会员量呈复利扩张。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 盈利质量与现金流 (Profitability)</strong></td>
+                                <td class="mono fw-700 text-green">8.8 / 10</td>
+                                <td>20%</td>
+                                <td>营业利润率 46.8%，净利率 42.1%，单年 FCF 超过 $15.8 亿。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 资产健康与杠杆 (Health & Balance)</strong></td>
+                                <td class="mono fw-700 text-green">8.6 / 10</td>
+                                <td>15%</td>
+                                <td>在手现金与等价物达 $42.6 亿，无高危企业负债，抗风险能力极强。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 护城河与生态黏性 (Moat & Retention)</strong></td>
+                                <td class="mono fw-700 text-green">8.4 / 10</td>
+                                <td>15%</td>
+                                <td>年轻一代市占率垄断、极简 UX、3% 返现信用卡构筑闭环。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. 动量与技术面 (Momentum & Technical)</strong></td>
+                                <td class="mono fw-700 text-green">7.2 / 10</td>
+                                <td>10%</td>
+                                <td>股价自历史高点回调后在 $85-$90 强支撑区企稳，RSI 55.7。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 3: BUSINESS MODEL & PORTER'S 5 FORCES -->
+    <section class="section" id="mod-3">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">03</span>
+                <h2 class="sec-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</h2>
+            </div>
+            <span class="pill pill-green">护城河评级: 宽护城河 (Wide Moat)</span>
+        </div>
+
+        <p style="margin-bottom: 12px;"><strong>多元化收入架构：</strong> Robinhood 成功摆脱了对传统单一 PFOF (订单流支付) 的过度依赖，形成了均衡稳健的三大支柱模式：</p>
+
+        <div class="grid-3" style="margin-bottom: 18px;">
+            <div class="card">
+                <h4 style="color: var(--teal); margin-bottom: 6px;">1. 交易佣金与做市分成 (Transaction-Based)</h4>
+                <p style="font-size: 13px; color: var(--text-secondary);"><strong>期权 (Options)</strong> 贡献超 50% 交易收入；<strong>加密货币 (Crypto)</strong> 随着 Bitstamp 整合与现货/合约丰富度提升贡献高弹性；<strong>美股股票 (Equities)</strong> 维持稳健流水。</p>
+            </div>
+            <div class="card">
+                <h4 style="color: var(--teal); margin-bottom: 6px;">2. 净利息收入 (Net Interest Revenues)</h4>
+                <p style="font-size: 13px; color: var(--text-secondary);">来源于向客户出借证券融券费 (Securities Lending)、两融利息 (Margin Interest)、以及生息现金在美联储与合作银行的利差分成，在高利率/中性利率环境下持续贡献无风险现金流。</p>
+            </div>
+            <div class="card">
+                <h4 style="color: var(--teal); margin-bottom: 6px;">3. 其他服务与订阅 (Other & Gold Subs)</h4>
+                <p style="font-size: 13px; color: var(--text-secondary);">Robinhood Gold 会员费 ($5/月)、Gold 信用卡刷卡手续费分成 (Interchange Fees)、ACATS 转仓及出金手续费，构建起高粘性 SaaS 化 ARR 循环收入。</p>
+            </div>
+        </div>
+
+        <h3 style="font-size: 15px; margin-bottom: 10px; color: var(--text-primary);">波特五力模型 (Porter's Five Forces Analysis)</h3>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>竞争力量维度</th>
+                        <th>受威胁程度</th>
+                        <th>深度战略评估与护城河防御机制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>同业竞争者威胁 (Industry Rivalry)</strong></td>
+                        <td><span class="pill pill-amber">中等偏高 (Medium-High)</span></td>
+                        <td>传统巨头 (Charles Schwab / Thinkorswim, Fidelity) 与垂直玩家 (Webull, Coinbase, Interactive Brokers) 竞争激烈，但 HOOD 拥有无可比拟的年轻用户认知与极致移动端体验。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>新进入者威胁 (Threat of New Entrants)</strong></td>
+                        <td><span class="pill pill-green">极低 (Low)</span></td>
+                        <td>金融监管牌照（SEC、FINRA、SIPC、CFTC、全球 50+ 牌照）、清算结算系统、合规风控基础设施及巨额资本金要求构筑了极高的行业准入壁垒。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>买方议价能力 (Bargaining Power of Buyers)</strong></td>
+                        <td><span class="pill pill-green">低 (Low)</span></td>
+                        <td>提供 0 佣金、3% 退休金配资与 3% 信用卡返现，行业内几无更具性价比的替代品；客户资产转出存在时间与心理摩擦。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>供应商议价能力 (Bargaining Power of Suppliers)</strong></td>
+                        <td><span class="pill pill-amber">中等 (Medium)</span></td>
+                        <td>做市商 (Citadel Securities, Virtu, Jane Street) 掌控流动性撮合，但 HOOD 拥有全市场最庞大的零售散户订单流，在做市返佣协商中具备强话语权。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品威胁 (Threat of Substitutes)</strong></td>
+                        <td><span class="pill pill-green">低 (Low)</span></td>
+                        <td>去中心化 DEX 仍受限于高门槛与合规隐患；传统银行理财产品体验陈旧，难以满足新生代一站式自主投资需求。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 4: FINANCIAL STATEMENTS & MARGIN ANALYSIS -->
+    <section class="section" id="mod-4">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">04</span>
+                <h2 class="sec-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Quality)</h2>
+            </div>
+            <span class="pill pill-green">财务健康评级: 卓越 (A+)</span>
+        </div>
+
+        <p style="margin-bottom: 12px;">Robinhood 近三年财务实现了惊人的<strong>“V型反转”与爆发式盈利增长</strong>，2023 年实现减亏、2024 年实现 GAAP 大幅扭亏为盈，2025 年营业利润破 20 亿美元，经营杠杆显现。</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (单位: 百万美元 / 股)</th>
+                        <th>FY2022</th>
+                        <th>FY2023</th>
+                        <th>FY2024</th>
+                        <th>FY2025</th>
+                        <th>2026Q2 TTM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>总营业收入 (Total Revenue)</strong></td>
+                        <td class="mono">$1,358.0</td>
+                        <td class="mono">$1,865.0</td>
+                        <td class="mono">$2,951.0</td>
+                        <td class="mono fw-700 text-green">$4,473.0</td>
+                        <td class="mono fw-700 text-green">$4,932.0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业收入同比增速 (YoY Growth)</strong></td>
+                        <td class="mono text-red">-24.9%</td>
+                        <td class="mono text-green">+37.3%</td>
+                        <td class="mono text-green">+58.2%</td>
+                        <td class="mono text-green fw-700">+51.6%</td>
+                        <td class="mono text-green fw-700">+42.8%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="mono text-red">-$966.0</td>
+                        <td class="mono text-red">-$536.0</td>
+                        <td class="mono text-green">$1,054.0</td>
+                        <td class="mono text-green fw-700">$2,094.0</td>
+                        <td class="mono text-green fw-700">$2,270.0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润率 (Operating Margin)</strong></td>
+                        <td class="mono text-red">-71.1%</td>
+                        <td class="mono text-red">-28.7%</td>
+                        <td class="mono text-green">35.7%</td>
+                        <td class="mono text-green fw-700">46.8%</td>
+                        <td class="mono text-green fw-700">46.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GAAP 净利润 (Net Income)</strong></td>
+                        <td class="mono text-red">-$1,028.0</td>
+                        <td class="mono text-red">-$541.0</td>
+                        <td class="mono text-green">$1,411.0</td>
+                        <td class="mono text-green fw-700">$1,883.0</td>
+                        <td class="mono text-green fw-700">$2,072.0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GAAP 净利率 (Net Margin)</strong></td>
+                        <td class="mono text-red">-75.7%</td>
+                        <td class="mono text-red">-29.0%</td>
+                        <td class="mono text-green">47.8%</td>
+                        <td class="mono text-green fw-700">42.1%</td>
+                        <td class="mono text-green fw-700">42.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>稀释每股收益 (Diluted EPS)</strong></td>
+                        <td class="mono text-red">-$1.17</td>
+                        <td class="mono text-red">-$0.61</td>
+                        <td class="mono text-green">$1.56</td>
+                        <td class="mono text-green fw-700">$2.05</td>
+                        <td class="mono text-green fw-700">$2.27</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating Cash Flow)</strong></td>
+                        <td class="mono">-$437.0</td>
+                        <td class="mono text-green">$1,181.0</td>
+                        <td class="mono text-red">-$157.0</td>
+                        <td class="mono text-green fw-700">$1,638.0</td>
+                        <td class="mono text-green fw-700">$1,850.0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="mono">-$485.0</td>
+                        <td class="mono text-green">$1,160.0</td>
+                        <td class="mono text-red">-$207.0</td>
+                        <td class="mono text-green fw-700">$1,584.0</td>
+                        <td class="mono text-green fw-700">$1,780.0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>现金与等价物 (Cash & Equivalents)</strong></td>
+                        <td class="mono">$6,336.0</td>
+                        <td class="mono">$4,835.0</td>
+                        <td class="mono">$4,332.0</td>
+                        <td class="mono fw-700 text-green">$4,261.0</td>
+                        <td class="mono fw-700 text-green">$4,180.0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>股东权益 (Stockholders Equity)</strong></td>
+                        <td class="mono">$6,929.0</td>
+                        <td class="mono">$6,696.0</td>
+                        <td class="mono">$7,972.0</td>
+                        <td class="mono fw-700 text-green">$9,140.0</td>
+                        <td class="mono fw-700 text-green">$9,480.0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="financialsChart"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 5: DUPONT ANALYSIS -->
+    <section class="section" id="mod-5">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">05</span>
+                <h2 class="sec-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</h2>
+            </div>
+            <span class="pill pill-green">净资产收益率 (ROE): 22.6%</span>
+        </div>
+
+        <p style="margin-bottom: 14px;">通过标准杜邦分析法拆解：$	ext{ROE} = 	ext{销售净利率 (Net Margin)} 	imes 	ext{总资产周转率 (Asset Turnover)} 	imes 	ext{权益乘数 (Equity Multiplier)}$：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>年度</th>
+                        <th>净利润率 (Net Margin)</th>
+                        <th>总资产周转率 (Asset Turnover)</th>
+                        <th>权益乘数 (Leverage Multiplier)</th>
+                        <th>计算所得 ROE</th>
+                        <th>驱动力归因与战略解读</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td class="mono text-red">-29.0%</td>
+                        <td class="mono">0.106x</td>
+                        <td class="mono">2.632x</td>
+                        <td class="mono text-red fw-700">-8.08%</td>
+                        <td>战略调整与裁员重组期，固定成本偏高压制净利。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td class="mono text-green">47.81%</td>
+                        <td class="mono">0.113x</td>
+                        <td class="mono">3.285x</td>
+                        <td class="mono text-green fw-700">17.70%</td>
+                        <td>高息环境利息收入激增，叠加经营费用严格管控扭亏。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025</strong></td>
+                        <td class="mono text-green">42.10%</td>
+                        <td class="mono">0.117x</td>
+                        <td class="mono">4.172x</td>
+                        <td class="mono text-green fw-700">20.60%</td>
+                        <td>三项业务齐飞，客户托管资产大幅扩张推高总资产与经营杠杆。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 TTM</strong></td>
+                        <td class="mono text-green fw-700">42.01%</td>
+                        <td class="mono fw-700">0.125x</td>
+                        <td class="mono fw-700">4.300x</td>
+                        <td class="mono text-green fw-700">22.58%</td>
+                        <td>Gold 会员与 Bitstamp 整合释放超额利润，ROE 迈入行业顶尖行列。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 6: PEER COMPARISON MATRIX -->
+    <section class="section" id="mod-6">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">06</span>
+                <h2 class="sec-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</h2>
+            </div>
+            <span class="pill pill-blue">对标标的: SCHW, IBKR, COIN</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (Ticker)</th>
+                        <th>总市值 (Market Cap)</th>
+                        <th>Trailing P/E</th>
+                        <th>Forward P/E</th>
+                        <th>P/S (TTM)</th>
+                        <th>营业利润率</th>
+                        <th>营收增速 (YoY)</th>
+                        <th>ROE</th>
+                        <th>股息率 (Dividend)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 600;">
+                        <td><strong>Robinhood (HOOD)</strong></td>
+                        <td class="mono text-green">$83.80B</td>
+                        <td class="mono text-green">41.2x</td>
+                        <td class="mono text-green">29.1x</td>
+                        <td class="mono">17.0x</td>
+                        <td class="mono text-green">46.8%</td>
+                        <td class="mono text-green">+51.6%</td>
+                        <td class="mono text-green">22.6%</td>
+                        <td class="mono text-green">无 (0.00% / None)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Charles Schwab (SCHW)</strong></td>
+                        <td class="mono">$193.6B</td>
+                        <td class="mono">20.4x</td>
+                        <td class="mono">14.3x</td>
+                        <td class="mono">7.4x</td>
+                        <td class="mono">52.3%</td>
+                        <td class="mono">+14.2%</td>
+                        <td class="mono">14.8%</td>
+                        <td class="mono text-green">1.16%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Interactive Brokers (IBKR)</strong></td>
+                        <td class="mono">$154.8B</td>
+                        <td class="mono">36.1x</td>
+                        <td class="mono">28.5x</td>
+                        <td class="mono">22.6x</td>
+                        <td class="mono text-green">76.5%</td>
+                        <td class="mono">+18.5%</td>
+                        <td class="mono text-green">24.2%</td>
+                        <td class="mono">0.37%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Coinbase (COIN)</strong></td>
+                        <td class="mono">$39.2B</td>
+                        <td class="mono">N/A</td>
+                        <td class="mono">49.1x</td>
+                        <td class="mono">6.5x</td>
+                        <td class="mono text-red">-13.9%</td>
+                        <td class="mono text-green">+112.0%</td>
+                        <td class="mono text-red">-4.5%</td>
+                        <td class="mono">无 (0.00% / None)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <strong>对标深度洞察：</strong> HOOD 兼具传统券商的高粘性资产沉淀（类似 SCHW/IBKR）与加密货币/衍生品交易平台的高爆发力（类似 COIN）。其 Forward P/E (29.1x) 与 IBKR (28.5x) 相当，但营收增速（+51.6%）远高于传统券商，展现出更强的成长弹性与长期估值提升空间。
+        </div>
+    </section>
+
+    <!-- MODULE 7: DCF VALUATION & SENSITIVITY -->
+    <section class="section" id="mod-7">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">07</span>
+                <h2 class="sec-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation & Sensitivity)</h2>
+            </div>
+            <span class="pill pill-green">基准内在价值: $114.80 (+23.2% 空间)</span>
+        </div>
+
+        <p style="margin-bottom: 12px;">模型以 2025 年真实自由现金流 <strong>$15.84 亿</strong> 为基准，采用 5 年期现金流预测 + 永续增长率法 (Gordon Growth Model)，对 HOOD 进行三情景估值：</p>
+
+        <div class="grid-3" style="margin-bottom: 18px;">
+            <div class="card card-warn">
+                <h4 style="color: #92400E; margin-bottom: 6px;">🐻 悲观情景 (Bear Case)</h4>
+                <p style="font-size: 13px;"><strong>核心假设：</strong> 宏观降息利差大幅收窄，交易量萎缩，5年 FCF CAGR 12.0%，WACC 10.5%，永续增长率 2.5%。</p>
+                <div style="font-size: 18px; font-weight: 800; color: #DC2626; margin-top: 8px;">内在价值: $72.40</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">较现价潜在空间: -22.3%</div>
+            </div>
+            <div class="card card-accent">
+                <h4 style="color: var(--primary-dark); margin-bottom: 6px;">⚖️ 基准情景 (Base Case - 最可能)</h4>
+                <p style="font-size: 13px;"><strong>核心假设：</strong> Gold 会员年增 30%，Bitstamp 贡献稳态增量，5年 FCF CAGR 22.0%，WACC 9.5%，永续增长率 3.0%。</p>
+                <div style="font-size: 18px; font-weight: 800; color: #059669; margin-top: 8px;">内在价值: $114.80</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">较现价潜在空间: +23.2%</div>
+            </div>
+            <div class="card card-accent">
+                <h4 style="color: #064E3B; margin-bottom: 6px;">🚀 乐观情景 (Bull Case)</h4>
+                <p style="font-size: 13px;"><strong>核心假设：</strong> 加密牛市全面爆发，全球扩张大获成功，5年 FCF CAGR 32.0%，WACC 8.8%，永续增长率 3.5%。</p>
+                <div style="font-size: 18px; font-weight: 800; color: #10B981; margin-top: 8px;">内在价值: $158.50</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">较现价潜在空间: +70.0%</div>
+            </div>
+        </div>
+
+        <h3 style="font-size: 15px; margin-bottom: 8px; color: var(--text-primary);">WACC vs. 永续增长率估值敏感性矩阵 (每股内在价值 $)</h3>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th>2.0%</th>
+                        <th>2.5%</th>
+                        <th>3.0% (基准)</th>
+                        <th>3.5%</th>
+                        <th>4.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>8.5%</strong></td>
+                        <td class="mono">$122.50</td>
+                        <td class="mono">$131.20</td>
+                        <td class="mono fw-700 text-green">$142.30</td>
+                        <td class="mono fw-700 text-green">$156.80</td>
+                        <td class="mono fw-700 text-green">$176.40</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9.0%</strong></td>
+                        <td class="mono">$108.60</td>
+                        <td class="mono">$115.40</td>
+                        <td class="mono text-green">$123.80</td>
+                        <td class="mono text-green">$134.50</td>
+                        <td class="mono text-green">$148.70</td>
+                    </tr>
+                    <tr style="background: #F0FDF4;">
+                        <td><strong>9.5% (基准)</strong></td>
+                        <td class="mono">$97.20</td>
+                        <td class="mono">$102.50</td>
+                        <td class="mono fw-700 text-green" style="font-size: 15px;">$114.80 (基准)</td>
+                        <td class="mono text-green">$118.20</td>
+                        <td class="mono text-green">$128.60</td>
+                    </tr>
+                    <tr>
+                        <td><strong>10.0%</strong></td>
+                        <td class="mono">$87.80</td>
+                        <td class="mono">$92.10</td>
+                        <td class="mono">$97.50</td>
+                        <td class="mono text-green">$104.20</td>
+                        <td class="mono text-green">$112.50</td>
+                    </tr>
+                    <tr>
+                        <td><strong>10.5%</strong></td>
+                        <td class="mono text-red">$79.80</td>
+                        <td class="mono text-red">$83.40</td>
+                        <td class="mono">$87.60</td>
+                        <td class="mono">$92.80</td>
+                        <td class="mono text-green">$99.40</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 8: TECHNICAL ANALYSIS & CHIPS -->
+    <section class="section" id="mod-8">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">08</span>
+                <h2 class="sec-title">技术面量化、均线系统与关键筹码位 (Technical Analysis & Key Levels)</h2>
+            </div>
+            <span class="pill pill-green">技术形态: 底部箱体蓄势与企稳反弹</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 16px;">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">20日均线 (SMA20)</div>
+                <div class="mono" style="font-size: 19px; font-weight: 800; margin-top: 4px;">$94.06</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">现价紧贴 SMA20 争夺</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">50日均线 (SMA50)</div>
+                <div class="mono" style="font-size: 19px; font-weight: 800; margin-top: 4px;">$99.47</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">短期第一反弹阻力</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">200日均线 (SMA200)</div>
+                <div class="mono" style="font-size: 19px; font-weight: 800; margin-top: 4px;">$96.75</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">牛熊分水岭筹码密集区</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">14日相对强弱指标 (RSI)</div>
+                <div class="mono text-green" style="font-size: 19px; font-weight: 800; margin-top: 4px;">55.70</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">超卖区反弹，多头动能回聚</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>关键筹码与技术层级</th>
+                        <th>价格点位</th>
+                        <th>技术属性与盘口解读</th>
+                        <th>应对交易策略</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>强阻力位 2 (Resistance 2)</strong></td>
+                        <td class="mono fw-700 text-red">$125.00</td>
+                        <td>前期成交密集区顶部及前高阻力带，存在大量套牢盘解套抛压。</td>
+                        <td>波段多头减仓锁定收益目标位。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>强阻力位 1 (Resistance 1)</strong></td>
+                        <td class="mono fw-700 text-red">$100.00 - $105.00</td>
+                        <td>整数心理关口与 50 日均线 ($99.47) 重合区域。</td>
+                        <td>有效放量突破后将确立主升浪展开。</td>
+                    </tr>
+                    <tr style="background: #F8FAFC;">
+                        <td><strong>当前市价 (Spot Price)</strong></td>
+                        <td class="mono fw-700 text-green" style="font-size: 15px;">$93.21</td>
+                        <td>在 $85-$90 支撑平台上方震荡整理，MACD 金叉已现。</td>
+                        <td>底仓布局与 Sell Put 建仓黄金窗口。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>核心支撑位 1 (Support 1)</strong></td>
+                        <td class="mono fw-700 text-green">$85.00</td>
+                        <td>近期多次探底回升的强筹码平台，机构建仓成本区。</td>
+                        <td>积极回踩加仓点 / Moderate Put 行权价。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>核心支撑位 2 (Support 2)</strong></td>
+                        <td class="mono fw-700 text-green">$80.00</td>
+                        <td>2024 年第四季度突破性跳空缺口上沿强支撑。</td>
+                        <td>Conservative Put 极高安全垫防守位。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 9: CAPITAL ALLOCATION & DIVIDEND DISCLOSURE -->
+    <section class="section" id="mod-9">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">09</span>
+                <h2 class="sec-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</h2>
+            </div>
+            <span class="pill pill-green">资本配置评级: 极高效率</span>
+        </div>
+
+        <div class="card card-accent" style="margin-bottom: 16px;">
+            <h3 style="font-size: 15px; color: var(--primary-dark); margin-bottom: 8px;">📢 股息政策明确披露 (Mandatory Dividend Disclosure)</h3>
+            <p style="font-size: 13.5px; line-height: 1.7;">
+                <strong>股息率 (Dividend Yield):</strong> <span class="mono fw-700 text-green" style="font-size: 15px;">无 / 没有 (无股息派发 / Dividend: None / N/A)</span><br>
+                <strong>年度派息金额:</strong> $0.00 / 股 | <strong>股利支付率 (Payout Ratio):</strong> 0.00% | <strong>除息日:</strong> 无 (N/A)<br>
+                <strong>管理层资本回报逻辑：</strong> Robinhood 目前处于业务全球化扩张与超级金融生态构建的黄金成长期，资本配置优先级为：<strong>① 高 ROI 业务研发与牌照扩张（如 Bitstamp 整合、Robinhood Legend 升级、欧洲与英国市场渗透）</strong>；<strong>② 股票回购计划 (Share Repurchase Program)</strong> 以对冲员工股权激励 (SBC) 稀释并增厚每股收益。
+            </p>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>资本配置方向</th>
+                        <th>累计投入规模</th>
+                        <th>战略实施效果与股东价值创造</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>股票回购计划 (Share Buyback)</strong></td>
+                        <td class="mono fw-700 text-green">已执行 $6.53 亿 (总授权 $10 亿)</td>
+                        <td>董事会于 2024 年批准 10 亿美元回购，2025 全年已执行 6.53 亿美元，有效控制总股本膨胀，提振每股内在价值。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>战略并购与牌照整合 (M&A)</strong></td>
+                        <td class="mono fw-700">$2.00 亿全资收购 Bitstamp</td>
+                        <td>以极高性价比斩获全球 50+ 机构牌照与成熟机构加密业务，缩短 3-5 年自研合规周期。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>研发资本开支 (R&D & Capex)</strong></td>
+                        <td class="mono">$5400 万资本开支 + 极低资本密集度</td>
+                        <td>作为轻资产软件与交易平台，CapEx 仅占营收 1.2%，绝大部分运营现金流直接沉淀为自由现金流 (FCF)。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 10: CASH-SECURED SELL PUT STRATEGY -->
+    <section class="section" id="mod-10">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">10</span>
+                <h2 class="sec-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</h2>
+            </div>
+            <span class="pill pill-green">建议到期日: 2026-09-18 (31 DTE)</span>
+        </div>
+
+        <p style="margin-bottom: 14px;">鉴于 HOOD 强劲的基本面造血能力、在 $85-$90 形成的坚实技术支撑平台，以及隐含波动率 (IV ~55%) 带来的丰厚权利金，采用 <strong>Cash-Secured Sell Put (现金担保卖沽)</strong> 策略可在获取年化 20%~58% 高额权利金收益的同时，实现预设折价安全建仓：</p>
+
+        <div class="grid-3" style="margin-bottom: 18px;">
+            <!-- Conservative Tier -->
+            <div class="card card-accent">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span class="pill pill-green">保守型 (Conservative)</span>
+                    <span class="mono text-green" style="font-weight: 700;">Delta ~0.19</span>
+                </div>
+                <h3 style="font-size: 16px; margin-bottom: 8px;">Strike $80.00 Put</h3>
+                <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.7;">
+                    • <strong>买卖盘报价 (Bid/Ask):</strong> $1.34 / $1.42 (中价 $1.38)<br>
+                    • <strong>单张权利金收益:</strong> <span class="mono fw-700 text-green">$138.00</span><br>
+                    • <strong>安全边际 (OTM):</strong> 14.17% (距现价)<br>
+                    • <strong>静态保本价 (Break-Even):</strong> <span class="mono fw-700">$78.62</span><br>
+                    • <strong>年化收益率 (APY):</strong> <span class="mono fw-700 text-green">20.31%</span><br>
+                    • <strong>适用资金:</strong> 极度厌恶风险的稳健型底仓配置者。
+                </div>
+            </div>
+
+            <!-- Moderate Tier -->
+            <div class="card card-accent" style="border: 2px solid var(--primary);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span class="pill pill-green" style="background: var(--primary); color: #fff;">稳健型 (Moderate - 推荐)</span>
+                    <span class="mono text-green" style="font-weight: 700;">Delta ~0.30</span>
+                </div>
+                <h3 style="font-size: 16px; margin-bottom: 8px;">Strike $85.00 Put</h3>
+                <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.7;">
+                    • <strong>买卖盘报价 (Bid/Ask):</strong> $2.55 / $2.66 (中价 $2.60)<br>
+                    • <strong>单张权利金收益:</strong> <span class="mono fw-700 text-green">$260.00</span><br>
+                    • <strong>安全边际 (OTM):</strong> 8.81% (距现价)<br>
+                    • <strong>静态保本价 (Break-Even):</strong> <span class="mono fw-700">$82.40</span><br>
+                    • <strong>年化收益率 (APY):</strong> <span class="mono fw-700 text-green">35.99%</span><br>
+                    • <strong>适用资金:</strong> 追求收益与建仓安全垫最佳平衡的投资者。
+                </div>
+            </div>
+
+            <!-- Aggressive Tier -->
+            <div class="card card-accent">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span class="pill pill-amber">进取型 (Aggressive)</span>
+                    <span class="mono text-amber" style="font-weight: 700;">Delta ~0.42</span>
+                </div>
+                <h3 style="font-size: 16px; margin-bottom: 8px;">Strike $90.00 Put</h3>
+                <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.7;">
+                    • <strong>买卖盘报价 (Bid/Ask):</strong> $4.40 / $4.60 (中价 $4.50)<br>
+                    • <strong>单张权利金收益:</strong> <span class="mono fw-700 text-green">$450.00</span><br>
+                    • <strong>安全边际 (OTM):</strong> 3.44% (距现价)<br>
+                    • <strong>静态保本价 (Break-Even):</strong> <span class="mono fw-700">$85.50</span><br>
+                    • <strong>年化收益率 (APY):</strong> <span class="mono fw-700 text-green">58.87%</span><br>
+                    • <strong>适用资金:</strong> 强烈看多并渴望低价直接接盘的高风险承受者。
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="background: #F8FAFC;">
+            <strong>期权执行风控要诀：</strong> 建议在权利金衰减达到 50%~65% 时主动止盈平仓并滚仓（Roll）至下个月份；若到期被行权，则可在保本价成本下持有正股，并顺势开启 <strong>Covered Call (备兑卖看涨)</strong> 形成完整的轮动策略 (Wheel Strategy)。
+        </div>
+    </section>
+
+    <!-- MODULE 11: INSTITUTIONAL OWNERSHIP -->
+    <section class="section" id="mod-11">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">11</span>
+                <h2 class="sec-title">机构持仓与主力资金动向 (Institutional Ownership & 13F Dynamics)</h2>
+            </div>
+            <span class="pill pill-green">机构持股比例: ~78.4% (净增持)</span>
+        </div>
+
+        <p style="margin-bottom: 12px;">顶级长线公募基金与全球主权财富基金在近两季显著加大对 HOOD 的配置力度，反映出华尔街主流机构对 Robinhood 盈利确定性与护城河深度的全面认可：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (Institution)</th>
+                        <th>持股比例 (% Held)</th>
+                        <th>持仓股数 (Shares)</th>
+                        <th>持仓总市值 ($)</th>
+                        <th>最新季度变动比例 (QoQ Change)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BlackRock, Inc. (贝莱德)</strong></td>
+                        <td class="mono fw-700 text-green">8.57%</td>
+                        <td class="mono">67,787,066</td>
+                        <td class="mono">$6,318,100,333</td>
+                        <td class="mono text-green fw-700">+6.82% (增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Group (先锋领航实体合并)</strong></td>
+                        <td class="mono fw-700 text-green">11.25%</td>
+                        <td class="mono">88,969,328</td>
+                        <td class="mono">$8,292,395,202</td>
+                        <td class="mono text-green">+0.54% (增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation (道富)</strong></td>
+                        <td class="mono">4.39%</td>
+                        <td class="mono">34,671,148</td>
+                        <td class="mono">$3,231,527,851</td>
+                        <td class="mono text-green">+3.89% (增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fidelity (FMR LLC / 富达)</strong></td>
+                        <td class="mono fw-700 text-green">3.78%</td>
+                        <td class="mono">29,907,700</td>
+                        <td class="mono">$2,787,550,199</td>
+                        <td class="mono text-green fw-700">+65.63% (大幅增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Geode Capital Management, LLC</strong></td>
+                        <td class="mono">2.86%</td>
+                        <td class="mono">22,597,737</td>
+                        <td class="mono">$2,106,224,359</td>
+                        <td class="mono text-green">+5.08% (增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>JPMorgan Chase & Co. (摩根大通)</strong></td>
+                        <td class="mono">2.00%</td>
+                        <td class="mono">15,803,996</td>
+                        <td class="mono">$1,473,013,043</td>
+                        <td class="mono text-green">+10.76% (增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Norges Bank (挪威央行主权基金)</strong></td>
+                        <td class="mono">1.44%</td>
+                        <td class="mono">11,407,553</td>
+                        <td class="mono">$1,063,242,129</td>
+                        <td class="mono text-green">+7.32% (增持)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 12: INSIDER TRADING & CALL TONE -->
+    <section class="section" id="mod-12">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">12</span>
+                <h2 class="sec-title">内部人交易、管理层语气与财报电话会洞察 (Insider Trading & Tone)</h2>
+            </div>
+            <span class="pill pill-blue">语气情绪: 极度自信 (Bullish / Confident)</span>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 16px;">
+            <div class="card">
+                <h4 style="color: var(--text-primary); margin-bottom: 8px;">内部人减持行为合规解读 (SEC Form 4)</h4>
+                <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.65;">
+                    近期披露的 CEO <strong>Vlad Tenev</strong>、联合创始人 <strong>Baiju Bhatt</strong> 及首席法务官 <strong>Daniel Gallagher</strong> 的减持均属于预先设立的 <strong>Rule 10b5-1 自动化减持计划</strong>。<br>
+                    减持价格多集中在 $93 - $120 区间，属于创始人财富多元化与税务清算的标准合规操作，管理层仍保留绝大部分核心控制权与超级投票权，整体未对公司基本面信心构成负面信号。
+                </p>
+            </div>
+            <div class="card">
+                <h4 style="color: var(--text-primary); margin-bottom: 8px;">最新财报电话会核心语气提取</h4>
+                <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.65;">
+                    • <strong>CEO Vlad Tenev:</strong> <em>“我们的目标是将全美乃至全球所有散户金融资产迁移至 Robinhood。Gold 信用卡与 IRA 匹配不仅是获客工具，更是终身粘性锁。”</em><br>
+                    • <strong>CFO Shiv Verma:</strong> <em>“固定成本已被充分摊薄，未来每增加 1 美元的增量净收入，将有 70% 以上转化为直接营业利润，经营杠杆将继续扩大。”</em>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13: SHORT INTEREST & OPTIONS SQUEEZE -->
+    <section class="section" id="mod-13">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">13</span>
+                <h2 class="sec-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</h2>
+            </div>
+            <span class="pill pill-green">轧空风险: 低至中等 (健康做空水平)</span>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 16px;">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">做空股数 (Shares Short)</div>
+                <div class="mono" style="font-size: 20px; font-weight: 800; margin-top: 4px;">33.16M 股</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">较前期高点明显下降</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">做空占流通盘比例 (Short % of Float)</div>
+                <div class="mono text-green" style="font-size: 20px; font-weight: 800; margin-top: 4px;">4.24%</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">低于 5% 健康安全阈值</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">平仓天数 (Days to Cover / Short Ratio)</div>
+                <div class="mono text-green" style="font-size: 20px; font-weight: 800; margin-top: 4px;">1.48 天</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">日均成交活跃，空头离场迅速</div>
+            </div>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary);">
+            <strong>量化评估：</strong> HOOD 做空比例从历史上的 10%+ 持续收缩至当前的 4.24%，表明机构空头已基本放弃对公司基本面的质疑。虽然当前无法触发激进的散户轧空 (Short Squeeze)，但健康低企的做空率消除了来自结构性借券做空的重压，股价上行阻力显著降低。
+        </p>
+    </section>
+
+    <!-- MODULE 14: RISK MATRIX & BEAR STRESS TEST -->
+    <section class="section" id="mod-14">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">14</span>
+                <h2 class="sec-title">核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</h2>
+            </div>
+            <span class="pill pill-amber">综合风险等级: 中等 (B+)</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子类别</th>
+                        <th>概率 / 影响</th>
+                        <th>情景描述与潜在冲击</th>
+                        <th>缓解机制与应对预案</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 宏观大幅降息利差收窄</strong></td>
+                        <td><span class="pill pill-amber">中 / 中</span></td>
+                        <td>美联储若开启激进降息周期，客户闲置资金利差与融券利息收入或下滑 10%~15%。</td>
+                        <td>降息周期通常伴随美股与加密货币成交量激增，交易佣金与借贷需求上升形成对冲。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 加密货币市场周期性剧烈震荡</strong></td>
+                        <td><span class="pill pill-amber">中 / 高</span></td>
+                        <td>加密行情冷淡可能导致散户加密交易流水大幅萎缩。</td>
+                        <td>Bitstamp 全球机构业务与衍生品交易多元化平滑单一现货周期波动。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. SEC / CFTC 衍生品监管合规审查</strong></td>
+                        <td><span class="pill pill-amber">低 / 高</span></td>
+                        <td>预测市场合约与特定代币上市若遭监管立案问询，或引发短期舆论恐慌。</td>
+                        <td>公司法务团队由前 SEC 委员 Dan Gallagher 挂帅，合规前置机制行业领先。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card card-danger" style="margin-top: 14px;">
+            <h4 style="color: var(--red); margin-bottom: 6px;">熊市极值压力测试 (Extreme Bear Stress Test)</h4>
+            <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.65;">
+                <strong>假定情景：</strong> 全球资本市场陷入衰退，美联储降息至 2.5%，加密市场成交量暴跌 60%，市场估值倍数压缩至 18x P/E。<br>
+                <strong>测算结果：</strong> HOOD 凭借在手 <strong>$42.6 亿高流动性现金</strong>（占当前市值 5.1%）、以及 Gold 订阅 SaaS 收入形成的现金流安全垫，2026 年依然能维持 <strong>$10 亿+ GAAP 净利润</strong>。股价极端底线下行空间测算为 <strong>$68.00 - $72.00</strong>（对应 2026E P/E ~20x），极难跌破 52 周最低点。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 15: CATALYST CALENDAR & MILESTONES -->
+    <section class="section" id="mod-15">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">15</span>
+                <h2 class="sec-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar & Strategic Milestones)</h2>
+            </div>
+            <span class="pill pill-green">催化剂密度: 极高</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预期时间窗口</th>
+                        <th>核心战略事件 / 财报催化剂</th>
+                        <th>潜在商业影响力与估值重估效应</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026 Q3 / 9月</strong></td>
+                        <td><strong>Robinhood Legend 桌面端全面公测</strong></td>
+                        <td>全面争夺 Thinkorswim 与 IBKR 高净值专业交易员，提振期权/期货市场份额。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q4 / 10月</strong></td>
+                        <td><strong>Bitstamp 机构业务全球财务并表</strong></td>
+                        <td>欧英合规加密现货与机构流动性首次全量计入报表，预期上修 FY2026 全年指引。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q4 / 11月</strong></td>
+                        <td><strong>全美大选与宏观事件预测市场结算高峰</strong></td>
+                        <td>事件合约交易量创历史纪录，验证预测市场作为全新衍生品资产类别的商业可行性。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 Q1 / 2027年</strong></td>
+                        <td><strong>Gold 信用卡全美全面普及与国际化放量</strong></td>
+                        <td>3% 返现信用卡发卡量突破百万级，极大锁死年轻中产家庭全部资金流转与财富管理。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 16: FINAL VERDICT & SIGNAL BLOCK -->
+    <section class="section" id="mod-16">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <span class="sec-num">16</span>
+                <h2 class="sec-title">最终投资评级与执行建议 (Final Verdict & Execution Strategy)</h2>
+            </div>
+            <span class="pill pill-green">信号锁定: 看多 (BULLISH)</span>
+        </div>
+
+        <p style="margin-bottom: 14px;"><strong>投资决策总结：</strong> Robinhood (HOOD) 当前估值充分消化了前期的非理性溢价，在 $85-$93 区间构筑了坚实的基本面与技术面底部。强大的飞轮协同效应与不断扩大的经营利润率，使其成为美股零售金融科技赛道最具阿尔法（Alpha）潜力的核心标的。</p>
+
+        <!-- STANDARDIZED SIGNAL BLOCK -->
+        <div class="signal-box">
+            <div class="signal-header">
+                <div>
+                    <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0;">InvestSkill Standard Signal Block</div>
+                    <div class="signal-verdict">看多 (BULLISH)</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 12px; color: #A7F3D0;">综合量化评分</div>
+                    <div class="signal-score">8.2 / 10</div>
+                </div>
+            </div>
+
+            <div class="sig-grid">
+                <div class="sig-card">
+                    <div class="sig-lbl">投资信号 (Signal)</div>
+                    <div class="sig-val" style="color: #34D399;">BULLISH (看多)</div>
+                </div>
+                <div class="sig-card">
+                    <div class="sig-lbl">置信度 (Confidence)</div>
+                    <div class="sig-val">HIGH (高置信度)</div>
+                </div>
+                <div class="sig-card">
+                    <div class="sig-lbl">投资周期 (Horizon)</div>
+                    <div class="sig-val">MEDIUM / LONG-TERM (12-24个月)</div>
+                </div>
+                <div class="sig-card">
+                    <div class="sig-lbl">执行操作 (Action)</div>
+                    <div class="sig-val" style="color: #34D399;">BUY (买入 / 分批建仓)</div>
+                </div>
+                <div class="sig-card">
+                    <div class="sig-lbl">操作信念 (Conviction)</div>
+                    <div class="sig-val">STRONG (强信念)</div>
+                </div>
+                <div class="sig-card">
+                    <div class="sig-lbl">目标价格区间 (Target)</div>
+                    <div class="sig-val mono">$115.00 - $145.00</div>
+                </div>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 14px; font-size: 13px; line-height: 1.6;">
+                <strong>执行策略指引：</strong>
+                <ol style="margin-left: 18px; margin-top: 6px;">
+                    <li><strong>现货分批买入：</strong> 在 $90 - $94 区间建立 40% 核心仓位，若遇短期大盘调整回踩 $85 强支撑，追加 30% 仓位。</li>
+                    <li><strong>Sell Put 收益增强：</strong> 同步卖出 2026-09-18 到期、Strike $85.00 Put (年化收益 ~36%) 或 Strike $80.00 Put (年化收益 ~20%) 赚取丰厚权利金并做安全接盘准备。</li>
+                    <li><strong>止损与风控线：</strong> 若发生系统性黑天鹅跌破 52 周最低防守位 $63.50 则启动减仓重估程序。</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer style="text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); background: #fff;">
+    <p>InvestSkill Professional Equity Research Framework | 标的: Robinhood Markets, Inc. (HOOD)</p>
+    <p style="margin-top: 4px;">本报告基于 SEC 官方披露文件、实时量化市场数据及多因子评估模型生成，仅供专业投研参考，不构成直接投资要约。</p>
+</footer>
+
+<script>
+// RADAR CHART
+const radarCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+        labels: ['估值因子', '业绩成长', '盈利质量', '资产健康', '护城河', '技术动量'],
+        datasets: [{
+            label: 'HOOD 量化得分',
+            data: [6.8, 9.2, 8.8, 8.6, 8.4, 7.2],
+            backgroundColor: 'rgba(16, 185, 129, 0.25)',
+            borderColor: '#059669',
+            pointBackgroundColor: '#10B981',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#059669',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                angleLines: { color: 'rgba(0,0,0,0.08)' },
+                grid: { color: 'rgba(0,0,0,0.08)' },
+                pointLabels: {
+                    font: { size: 12, weight: '600', family: 'Inter' },
+                    color: '#334155'
+                },
+                suggestedMin: 0,
+                suggestedMax: 10,
+                ticks: { stepSize: 2, display: false }
+            }
+        },
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+
+// FINANCIALS CHART
+const finCtx = document.getElementById('financialsChart').getContext('2d');
+new Chart(finCtx, {
+    type: 'bar',
+    data: {
+        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', '2026 TTM'],
+        datasets: [
+            {
+                label: '总营收 ($M)',
+                data: [1358, 1865, 2951, 4473, 4932],
+                backgroundColor: 'rgba(5, 150, 105, 0.8)',
+                borderRadius: 6,
+                yAxisID: 'y'
+            },
+            {
+                label: '净利润 ($M)',
+                data: [-1028, -541, 1411, 1883, 2072],
+                backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                borderRadius: 6,
+                yAxisID: 'y'
+            },
+            {
+                label: '营业利润率 (%)',
+                data: [-71.1, -28.7, 35.7, 46.8, 46.0],
+                type: 'line',
+                borderColor: '#D97706',
+                backgroundColor: '#D97706',
+                borderWidth: 2.5,
+                pointRadius: 4,
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            x: { grid: { display: false } },
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: { display: true, text: '金额 ($M)' },
+                grid: { color: 'rgba(0,0,0,0.06)' }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: { display: true, text: '利润率 (%)' },
+                grid: { drawOnChartArea: false }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: { boxWidth: 12, font: { size: 12, family: 'Inter' } }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

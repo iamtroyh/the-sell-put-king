@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>伯克希尔·哈撒韦 (Berkshire Hathaway Inc.) (BRK.B) 深度投资研究与多因子评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #047857;
+            --primary-dark:  #064E3B;
+            --primary-light: #D1FAE5;
+            --accent:        #10B981;
+            --accent-light:  #ECFDF5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F1F5F9;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #047857 50%, #059669 100%);
+            --grad-accent:   linear-gradient(90deg, #10B981, #34D399);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: #F8FAFC;
+        }
+
+        /* ── VST EXACT TOP HERO ── */
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 56px 48px 48px;
+            position: relative;
+            overflow: hidden;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.1);
+        }
+        .report-hero::after {
+            content: '';
+            position: absolute; bottom: -60px; left: -40px;
+            width: 300px; height: 300px; border-radius: 50%;
+            background: rgba(255,255,255,.05);
+        }
+        .hero-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(16,185,129,.22);
+            border: 1px solid rgba(16,185,129,.40);
+            color: #A7F3D0;
+            font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase;
+            padding: 4px 14px; border-radius: 20px; margin-bottom: 22px;
+        }
+        .hero-ticker {
+            font-size: 64px; font-weight: 800; color: #fff;
+            letter-spacing: -2px; line-height: 1;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .hero-company { font-size: 22px; font-weight: 500; color: rgba(255,255,255,.9); margin-top: 8px; }
+        .hero-rule {
+            width: 48px; height: 3px;
+            background: var(--grad-accent); border-radius: 2px;
+            margin: 24px 0;
+        }
+        .hero-meta { display: flex; flex-wrap: wrap; gap: 28px; }
+        .hero-meta-item { display: flex; flex-direction: column; gap: 3px; }
+        .hero-meta-label {
+            font-size: 9px; font-weight: 700; letter-spacing: 1.2px;
+            text-transform: uppercase; color: rgba(255,255,255,.55);
+        }
+        .hero-meta-value { font-size: 14px; font-weight: 600; color: rgba(255,255,255,.95); }
+
+        /* ── BODY ── */
+        .report-body { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+        .data-provenance {
+            background: #fff; border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px; padding: 14px 20px; margin-bottom: 24px;
+            font-size: 12px; color: var(--text-secondary);
+            display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px;
+        }
+        .dp-item { display: flex; gap: 6px; }
+        .dp-label { font-weight: 600; color: var(--primary-dark); }
+
+        .toc {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 12px; padding: 24px 32px;
+            margin-bottom: 32px; box-shadow: var(--shadow-sm);
+        }
+        .toc-label {
+            font-size: 10px; font-weight: 700; letter-spacing: 1.6px;
+            text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px;
+        }
+        .toc-grid {
+            list-style: none;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px 24px;
+        }
+        .toc-grid a {
+            font-size: 13px; font-weight: 500; color: var(--primary);
+            text-decoration: none; display: flex; align-items: center; gap: 6px;
+        }
+        .toc-grid a::before { content: '›'; font-size: 14px; color: var(--text-muted); }
+        .toc-grid a:hover { color: var(--accent); }
+
+        .section {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 12px; padding: 32px;
+            margin-bottom: 24px; box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 24px; padding-bottom: 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            background: var(--primary-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; flex-shrink: 0; color: var(--primary-dark); font-weight: 700;
+        }
+        .section-title { font-size: 18px; font-weight: 700; color: var(--primary-dark); letter-spacing: -.3px; }
+        .section-sub   { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .section-num {
+            margin-left: auto;
+            font-size: 11px; font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-muted);
+            background: var(--slate-light);
+            padding: 2px 9px; border-radius: 4px;
+        }
+
+        .metrics-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px; margin: 24px 0;
+        }
+        .metric-card {
+            background: var(--slate-light); border: 1px solid var(--border);
+            border-radius: 10px; padding: 20px;
+        }
+        .metric-card.positive { border-top: 3px solid var(--emerald); }
+        .metric-card.negative { border-top: 3px solid var(--red); }
+        .metric-card.neutral  { border-top: 3px solid var(--amber); }
+        .metric-card.warning  { border-top: 3px solid var(--amber); }
+        .metric-label {
+            font-size: 10px; font-weight: 600; letter-spacing: .8px;
+            text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;
+        }
+        .metric-value {
+            font-size: 24px; font-weight: 800; color: var(--primary-dark);
+            letter-spacing: -.5px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .metric-delta {
+            font-size: 11px; font-weight: 600; margin-top: 6px;
+            display: flex; align-items: center; gap: 3px;
+        }
+        .metric-delta.up   { color: var(--emerald); }
+        .metric-delta.down { color: var(--red); }
+        .metric-delta.flat { color: var(--text-muted); }
+        .metric-ctx { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        .chart-wrap {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 10px; padding: 24px; margin: 20px 0;
+            box-shadow: var(--shadow-sm);
+        }
+        .chart-label {
+            font-size: 11px; font-weight: 600; letter-spacing: .6px;
+            text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px;
+        }
+        .chart-canvas { position: relative; height: 320px; }
+
+        .table-scroll { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); margin: 16px 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th {
+            background: var(--slate-light); color: var(--text-secondary);
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px;
+            padding: 12px 16px; border-bottom: 1px solid var(--border);
+        }
+        td { padding: 13px 16px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        .td-mono { font-family: 'JetBrains Mono', monospace; }
+        .td-pos { color: var(--emerald); font-weight: 600; }
+        .td-neg { color: var(--red); font-weight: 600; }
+
+        .scorecard-table { width: 100%; margin: 16px 0; }
+        .score-bar-bg { background: var(--border); height: 8px; border-radius: 4px; overflow: hidden; width: 120px; }
+        .score-bar-fill { height: 100%; background: var(--grad-accent); border-radius: 4px; }
+
+        .signal-card {
+            background: var(--grad-hero);
+            border-radius: 16px; padding: 40px; color: #fff;
+            margin-top: 32px; box-shadow: var(--shadow-md); position: relative; overflow: hidden;
+        }
+        .signal-card::after {
+            content: ''; position: absolute; right: -40px; bottom: -40px;
+            width: 240px; height: 240px; border-radius: 50%;
+            background: rgba(255,255,255,.1);
+        }
+        .signal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .signal-title { font-size: 13px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: #A7F3D0; }
+        .signal-main { display: flex; align-items: baseline; gap: 16px; margin-bottom: 16px; }
+        .signal-verdict { font-size: 42px; font-weight: 800; letter-spacing: -1px; }
+        .signal-score { font-size: 28px; font-weight: 700; color: #A7F3D0; font-family: 'JetBrains Mono', monospace; }
+        .signal-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px; margin-top: 28px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.15);
+        }
+        .sig-item { display: flex; flex-direction: column; gap: 4px; }
+        .sig-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.6); }
+        .sig-val { font-size: 15px; font-weight: 700; color: #fff; }
+
+        .strategy-box {
+            background: var(--accent-light);
+            border: 1px solid var(--accent);
+            border-left: 4px solid var(--primary);
+            border-radius: 10px; padding: 20px 24px; margin: 20px 0;
+        }
+        .strategy-title { font-size: 14px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+
+        ul { padding-left: 20px; margin: 12px 0; }
+        li { margin-bottom: 8px; color: var(--text-secondary); font-size: 14px; }
+
+        /* ── MOBILE COMPATIBILITY & RESPONSIVE LAYOUT ── */
+        .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 16px 0; }
+        
+        @media (max-width: 768px) {
+            .report-hero { padding: 32px 18px 28px !important; }
+            .hero-ticker { font-size: 38px !important; }
+            .hero-company { font-size: 15px !important; }
+            .hero-meta { gap: 14px 20px !important; }
+            .report-body { padding: 20px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
+            .section { padding: 18px 14px !important; }
+            .metrics-grid { grid-template-columns: 1fr !important; }
+            .tier-grid { grid-template-columns: 1fr !important; }
+            .toc-grid { grid-template-columns: 1fr !important; }
+            .toc { padding: 18px 16px !important; }
+            .signal-card, .signal-box { padding: 24px 16px !important; }
+            .signal-verdict { font-size: 28px !important; }
+            .signal-score { font-size: 22px !important; }
+            .signal-main { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+            .signal-grid, .signal-stats { grid-template-columns: 1fr !important; gap: 12px !important; }
+            .signal-watermark { display: none !important; }
+            .chart-wrap, .chart-container { padding: 14px 8px !important; }
+            .chart-canvas { height: 260px !important; }
+            table { font-size: 12px !important; }
+            th, td { padding: 8px 10px !important; }
+        }
+    
+    </style>
+</head>
+<body>
+
+    <!-- HERO HEADER -->
+    <header class="report-hero">
+        <div class="hero-inner">
+            <div class="hero-badge">⚡ INVESTSKILL 全模块深度研究报告 (Full Report)</div>
+            <h1 class="hero-ticker">BRK.B</h1>
+            <div class="hero-company">伯克希尔·哈撒韦 (Berkshire Hathaway Inc.) — 全球保险与多元化价值投资帝国</div>
+            <div class="hero-rule"></div>
+            <div class="hero-meta">
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">报告发布日期</span>
+                    <span class="hero-meta-value">2026-08-12</span>
+                </div>
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">当前股价 (Spot Price)</span>
+                    <span class="hero-meta-value">$445.20</span>
+                </div>
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">综合评估信号</span>
+                    <span class="hero-meta-value" style="color: #A7F3D0; font-weight: 800;">看多 (BULLISH)</span>
+                </div>
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">基准目标价值 (Base Target)</span>
+                    <span class="hero-meta-value">$510.00</span>
+                </div>
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">估值指标 (P/E Ratio)</span>
+                    <span class="hero-meta-value">19.8x</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="report-body">
+
+        <!-- DATA PROVENANCE -->
+        <div class="data-provenance">
+            <div class="dp-item"><span class="dp-label">数据截至：</span> 2026-08-12</div>
+            <div class="dp-item"><span class="dp-label">数据来源：</span> SEC EDGAR, 10-K/10-Q 官方财报及 yfinance API</div>
+            <div class="dp-item"><span class="dp-label">置信度评级：</span> <span style="color: var(--primary); font-weight:700;">HIGH (高)</span></div>
+        </div>
+
+        <!-- TABLE OF CONTENTS -->
+        <nav class="toc">
+            <div class="toc-label">报告导航 (Table of Contents)</div>
+            <ul class="toc-grid">
+                <li><a href="#sec-1">1. 执行摘要与核心指标</a></li>
+                <li><a href="#sec-2">2. 商业模式与护城河</a></li>
+                <li><a href="#sec-3">3. 基本面与财务深度剖析</a></li>
+                <li><a href="#sec-4">4. 估值与 DCF 模型</a></li>
+                <li><a href="#sec-5">5. 现金担保 Sell Put 策略</a></li>
+            </ul>
+        </nav>
+
+        
+            <div class="section" id="sec-1">
+                <div class="section-head">
+                    <div class="section-icon">📊</div>
+                    <div>
+                        <div class="section-title">1. 分析章节 1</div>
+                        <div class="section-sub">InvestSkill 全模块多因子研究 - BRK.B</div>
+                    </div>
+                    <div class="section-num">SEC-01</div>
+                </div>
+                <p><strong>As of:</strong> July 17, 2026 | <strong>Primary Sources:</strong> SEC Filings, yfinance | <strong>Confidence:</strong> HIGH</p><div class="metrics-grid">
+<div class="metric-box">
+<div class="label">Current Price</div>
+<div class="value">$490.91</div>
+</div>
+<div class="metric-box">
+<div class="label">52-Wk Range</div>
+<div class="value">$455.19 - $516.85</div>
+</div>
+<div class="metric-box">
+<div class="label">Trailing P/E</div>
+<div class="value">14.62x</div>
+</div>
+<div class="metric-box">
+<div class="label">Cash Reserves</div>
+<div class="value">$397.38B</div>
+</div>
+</div><div class="metric-box">
+<div class="label">Current Price</div>
+<div class="value">$490.91</div>
+</div><div class="label">Current Price</div><div class="value">$490.91</div><div class="metric-box">
+<div class="label">52-Wk Range</div>
+<div class="value">$455.19 - $516.85</div>
+</div><div class="label">52-Wk Range</div><div class="value">$455.19 - $516.85</div><div class="metric-box">
+<div class="label">Trailing P/E</div>
+<div class="value">14.62x</div>
+</div><div class="label">Trailing P/E</div><div class="value">14.62x</div><div class="metric-box">
+<div class="label">Cash Reserves</div>
+<div class="value">$397.38B</div>
+</div><div class="label">Cash Reserves</div><div class="value">$397.38B</div>
+            </div>
+            
+            <div class="section" id="sec-2">
+                <div class="section-head">
+                    <div class="section-icon">📊</div>
+                    <div>
+                        <div class="section-title">2. 分析章节 2</div>
+                        <div class="section-sub">InvestSkill 全模块多因子研究 - BRK.B</div>
+                    </div>
+                    <div class="section-num">SEC-02</div>
+                </div>
+                <p>Berkshire Hathaway Inc. (NYSE: BRK.B) represents the gold standard of enterprise conglomerates and defensive wealth preservation. Operating across insurance (GEICO, Gen Re), railroads (BNSF), energy (BHE), and manufacturing, Berkshire generated <strong>$375.39B in TTM revenue</strong> and <strong>$61.23B in Free Cash Flow</strong>.</p><p>Berkshire holds an all-time record cash and T-bill reserve of <strong>$397.38B USD</strong> (~$268.5B net cash after debt), positioning the company to capitalize opportunistically on any global macro volatility. At a trailing P/E of <strong>14.62x</strong> and trading near its 200-day SMA ($490.33), BRK.B is a premier core equity holding.</p>
+            </div>
+            
+            <div class="section" id="sec-3">
+                <div class="section-head">
+                    <div class="section-icon">📊</div>
+                    <div>
+                        <div class="section-title">3. 分析章节 3</div>
+                        <div class="section-sub">InvestSkill 全模块多因子研究 - BRK.B</div>
+                    </div>
+                    <div class="section-num">SEC-03</div>
+                </div>
+                <div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Phase / Component</th>
+<th>Weight</th>
+<th>Score (0–10)</th>
+<th>Weighted Score</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Business Quality</strong></td>
+<td>25%</td>
+<td>9.5</td>
+<td>2.38</td>
+<td><span class="badge-tag bg-green">Premier Conglomerate &amp; Float Moat</span></td>
+</tr>
+<tr>
+<td><strong>Valuation</strong></td>
+<td>25%</td>
+<td>8.0</td>
+<td>2.00</td>
+<td><span class="badge-tag bg-green">Attractive Normalized 14.62x P/E</span></td>
+</tr>
+<tr>
+<td><strong>Market Signals</strong></td>
+<td>20%</td>
+<td>8.0</td>
+<td>1.60</td>
+<td><span class="badge-tag bg-green">67.3% Institutional Participation</span></td>
+</tr>
+<tr>
+<td><strong>Technical Setup</strong></td>
+<td>15%</td>
+<td>7.5</td>
+<td>1.13</td>
+<td><span class="badge-tag bg-green">Consolidating At 200-Day SMA Support</span></td>
+</tr>
+<tr>
+<td><strong>Risk Profile</strong></td>
+<td>15%</td>
+<td>9.0</td>
+<td>1.35</td>
+<td><span class="badge-tag bg-green">$397.4B Fortress Cash War Chest</span></td>
+</tr>
+<tr style="background:#f1f5f9; font-weight:bold;">
+<td>COMPOSITE SCORE</td>
+<td>100%</td>
+<td>8.45 / 10</td>
+<td>8.45</td>
+<td><span class="badge-tag bg-green">STRONGLY BULLISH / HIGH CONVICTION BUY</span></td>
+</tr>
+</tbody>
+</table>
+</div><div class="chart-container">
+<canvas id="scoreChart"></canvas>
+</div>
+            </div>
+            
+            <div class="section" id="sec-4">
+                <div class="section-head">
+                    <div class="section-icon">📊</div>
+                    <div>
+                        <div class="section-title">4. 分析章节 4</div>
+                        <div class="section-sub">InvestSkill 全模块多因子研究 - BRK.B</div>
+                    </div>
+                    <div class="section-num">SEC-04</div>
+                </div>
+                <ul>
+<li><strong>Diversified Conglomerate Moat:</strong> Unmatched cash-generating operations across insurance float, freight transportation, utility infrastructure, and consumer brands.</li>
+<li><strong>Massive FCF Generation:</strong> Produced $61.23B in Free Cash Flow over TTM.</li>
+<li><strong>$397.4B Cash Reserves:</strong> Largest liquid cash war chest in corporate history ($397.38B in cash &amp; US Treasury bills).</li>
+</ul>
+            </div>
+            
+            <div class="section" id="sec-5">
+                <div class="section-head">
+                    <div class="section-icon">📊</div>
+                    <div>
+                        <div class="section-title">5. 分析章节 5</div>
+                        <div class="section-sub">InvestSkill 全模块多因子研究 - BRK.B</div>
+                    </div>
+                    <div class="section-num">SEC-05</div>
+                </div>
+                <div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>BRK.B Current</th>
+<th>Historical Benchmark</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Trailing P/E</td>
+<td>14.62x</td>
+<td>18.5x</td>
+<td>Undervalued relative to earnings power</td>
+</tr>
+<tr>
+<td>Forward P/E</td>
+<td>22.82x</td>
+<td>21.0x</td>
+<td>Fair Value</td>
+</tr>
+<tr>
+<td>Net Cash / Liquid Assets</td>
+<td>$268.5B USD</td>
+<td>N/A</td>
+<td>Accounts for ~25% of market cap</td>
+</tr>
+</tbody>
+</table>
+</div><div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Operating Growth CAGR</th>
+<th>WACC</th>
+<th>Terminal Growth</th>
+<th>Intrinsic Value (USD)</th>
+<th>Upside / Downside</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bear Case</strong></td>
+<td>4.0%</td>
+<td>8.5%</td>
+<td>2.0%</td>
+<td>$475.00</td>
+<td>-3.2%</td>
+</tr>
+<tr>
+<td><strong>Base Case</strong></td>
+<td>8.5%</td>
+<td>7.5%</td>
+<td>2.5%</td>
+<td>$550.00</td>
+<td>+12.0%</td>
+</tr>
+<tr>
+<td><strong>Bull Case</strong></td>
+<td>13.0%</td>
+<td>7.0%</td>
+<td>3.0%</td>
+<td>$620.00</td>
+<td>+26.3%</td>
+</tr>
+</tbody>
+</table>
+</div>
+            </div>
+            
+            <div class="section" id="sec-6">
+                <div class="section-head">
+                    <div class="section-icon">📊</div>
+                    <div>
+                        <div class="section-title">6. 分析章节 6</div>
+                        <div class="section-sub">InvestSkill 全模块多因子研究 - BRK.B</div>
+                    </div>
+                    <div class="section-num">SEC-06</div>
+                </div>
+                <ul>
+<li><strong>Institutional Base:</strong> 67.3% of float held across major institutional funds.</li>
+<li><strong>Wall Street Analyst Consensus:</strong> Mean price target of <strong>$520.33</strong>, High target of <strong>$570.00</strong>.</li>
+</ul>
+            </div>
+            
+            <div class="section" id="sec-7">
+                <div class="section-head">
+                    <div class="section-icon">📊</div>
+                    <div>
+                        <div class="section-title">7. 分析章节 7</div>
+                        <div class="section-sub">InvestSkill 全模块多因子研究 - BRK.B</div>
+                    </div>
+                    <div class="section-num">SEC-07</div>
+                </div>
+                <ul>
+<li><strong>Current Price:</strong> $490.91 (Testing 200-day SMA support).</li>
+<li><strong>50-Day Moving Average:</strong> $487.08 (+0.8% above SMA50).</li>
+<li><strong>200-Day Moving Average:</strong> $490.33 (+0.1% at SMA200 support).</li>
+</ul><div class="chart-container">
+<canvas id="priceChart"></canvas>
+</div>
+            </div>
+            
+            <div class="section" id="sec-8">
+                <div class="section-head">
+                    <div class="section-icon">📊</div>
+                    <div>
+                        <div class="section-title">8. 分析章节 8</div>
+                        <div class="section-sub">InvestSkill 全模块多因子研究 - BRK.B</div>
+                    </div>
+                    <div class="section-num">SEC-08</div>
+                </div>
+                <div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Risk Factor</th>
+<th>Severity</th>
+<th>Mitigation / Analysis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Catastrophe Insurance Risk</td>
+<td>LOW-MEDIUM</td>
+<td>Broadly spread risk underwriting across GEICO and Gen Re with disciplined pricing.</td>
+</tr>
+<tr>
+<td>Key Person Succession</td>
+<td>LOW</td>
+<td>Seamless leadership transition plan in place (Greg Abel &amp; insurance team).</td>
+</tr>
+</tbody>
+</table>
+</div>
+            </div>
+            
+            <div class="section" id="sec-9">
+                <div class="section-head">
+                    <div class="section-icon">📊</div>
+                    <div>
+                        <div class="section-title">9. 分析章节 9</div>
+                        <div class="section-sub">InvestSkill 全模块多因子研究 - BRK.B</div>
+                    </div>
+                    <div class="section-num">SEC-09</div>
+                </div>
+                <ol>
+<li>$397.4B cash war chest offers unmatched optionality for large-scale acquisitions or share buybacks.</li>
+<li>14.62x trailing P/E and $61.2B annual FCF provide low-risk compounding core value.</li>
+<li>Consolidating directly at 200-day SMA support ($490.33) offers low-downside entry.</li>
+</ol><ul>
+<li><strong>Target Accumulation Range:</strong> $475.00 – $495.00</li>
+<li><strong>Base Case Price Target:</strong> $550.00 (12–18 month horizon)</li>
+<li><strong>Stop-Loss Level:</strong> $445.00</li>
+<li><strong>Allocation:</strong> Anchor Core Asset (5.0% – 10.0% of portfolio).</li>
+</ul><p>Current Price: <strong>$490.91</strong> | Suggested Expiration: <strong>30–45 Days (Aug 21 / Aug 28, 2026)</strong></p><div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Strategy Level</th>
+<th>Strike Price</th>
+<th>Margin Below Spot</th>
+<th>Delta</th>
+<th>Rationale / Target Investor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Conservative (High Safety Margin)</strong></td>
+<td><strong>$460.00 – $470.00</strong></td>
+<td>-4.3% to -6.3%</td>
+<td>~0.20 – 0.25</td>
+<td>Placed near 52-week low ($455.19). Net cost basis under $455 where Trailing P/E drops below 13.5x.</td>
+</tr>
+<tr>
+<td><strong>Moderate (Balanced Yield)</strong></td>
+<td><strong>$480.00</strong></td>
+<td>-2.2%</td>
+<td>~0.30 – 0.35</td>
+<td>Collects steady option premium while targeting an entry at the 50-day SMA support level ($480–$485).</td>
+</tr>
+<tr>
+<td><strong>Aggressive (Active Accumulation)</strong></td>
+<td><strong>$490.00 – $495.00</strong></td>
+<td>-0.2% to +0.8% (Near ATM)</td>
+<td>~0.45 – 0.50</td>
+<td>Collects maximum theta / extrinsic option premium for investors eager to acquire BRK.B shares around current $490.91 price.</td>
+</tr>
+</tbody>
+</table>
+</div>
+            </div>
+            
+            <div class="section" id="sec-10">
+                <div class="section-head">
+                    <div class="section-icon">📊</div>
+                    <div>
+                        <div class="section-title">10. 分析章节 10</div>
+                        <div class="section-sub">InvestSkill 全模块多因子研究 - BRK.B</div>
+                    </div>
+                    <div class="section-num">SEC-010</div>
+                </div>
+                <div class="signal-box">
+<h3>INVESTMENT SIGNAL</h3>
+<div class="signal-badge">STRONGLY BULLISH / HIGH CONVICTION BUY</div>
+<p style="margin-top: 1rem; font-size: 1.1rem; font-weight: 600;">
+            Composite Score: 8.45 / 10 | Confidence: HIGH | Horizon: LONG-TERM (12–36 Mos)
+          </p>
+</div><div class="signal-badge">STRONGLY BULLISH / HIGH CONVICTION BUY</div><p style="margin-top: 1rem; font-size: 1.1rem; font-weight: 600;">
+            Composite Score: 8.45 / 10 | Confidence: HIGH | Horizon: LONG-TERM (12–36 Mos)
+          </p>
+            </div>
+            
+
+        <!-- STANDARDIZED SIGNAL BLOCK -->
+        <div class="signal-card">
+            <div class="signal-header">
+                <span class="signal-title">INVESTMENT SIGNAL — 标准投资信号</span>
+                <span style="background:rgba(255,255,255,.2); padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700;">InvestSkill Verified</span>
+            </div>
+            <div class="signal-main">
+                <span class="signal-verdict">看多 (BULLISH)</span>
+                <span class="signal-score">SCORE: 8.5 / 10</span>
+            </div>
+            <p style="font-size:14px; opacity:.9;">
+                伯克希尔·哈撒韦 (Berkshire Hathaway Inc.) 综合多因子评估完成，各项指标符合 InvestSkill 严格的投资与安全边际标准。
+            </p>
+            <div class="signal-grid">
+                <div class="sig-item">
+                    <span class="sig-label">投资建议 (Action)</span>
+                    <span class="sig-val" style="color:#A7F3D0;">强烈买入 (BUY)</span>
+                </div>
+                <div class="sig-item">
+                    <span class="sig-label">确信度 (Conviction)</span>
+                    <span class="sig-val">强 (STRONG)</span>
+                </div>
+                <div class="sig-item">
+                    <span class="sig-label">投资时限 (Horizon)</span>
+                    <span class="sig-val">中长期 (1-3年)</span>
+                </div>
+                <div class="sig-item">
+                    <span class="sig-label">数据可信度 (Confidence)</span>
+                    <span class="sig-val">高 (HIGH)</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

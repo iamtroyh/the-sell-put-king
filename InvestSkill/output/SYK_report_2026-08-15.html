@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>史赛克 (Stryker - SYK) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 850px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #F1F5F9;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .section-title-wrap { display: flex; align-items: center; gap: 12px; }
+        .section-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 15px;
+        }
+        .section-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+        .section-sub { font-size: 12px; color: var(--text-muted); }
+        .section-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .report-hero { padding: 32px 16px; }
+            .main-wrap { padding: 20px 16px 48px; }
+            .hero-title { font-size: 24px; }
+            .section { padding: 20px 16px; }
+        }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card-green { background: #F0FDF4; border-color: #BBF7D0; }
+        .card-amber { background: #FFFBEB; border-color: #FDE68A; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+        .card-purple { background: #FAF5FF; border-color: #E9D5FF; }
+
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .card-green .card-title { color: #166534; }
+        .card-amber .card-title { color: #92400E; }
+        .card-blue .card-title { color: #1E40AF; }
+        .card-purple .card-title { color: #6B21A8; }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin: 14px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #F1F5F9;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-num { font-family: 'JetBrains Mono', monospace; text-align: right; }
+        .th-num { text-align: right; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 290px;
+            margin: 12px 0;
+        }
+
+        .highlight-val { font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #15803D; }
+        .tag-blue { background: #DBEAFE; color: #1D4ED8; }
+        .tag-amber { background: #FEF3C7; color: #B45309; }
+        .tag-red { background: #FEE2E2; color: #B91C1C; }
+
+        .signal-banner {
+            background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+            border: 2px solid #10B981;
+            border-radius: 16px;
+            padding: 24px;
+            color: #fff;
+            box-shadow: 0 10px 25px -5px rgba(16,185,129,.3);
+            margin: 20px 0;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.1);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.15);
+        }
+        .signal-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .signal-val { font-size: 20px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+        
+        .divider { height: 1px; background: #F1F5F9; margin: 20px 0; }
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+        .callout-amber {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: SYK</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY) • 8.8/10</span>
+            <span class="badge badge-hero-cat">全球骨科医疗科技与手术机器人绝对霸主</span>
+            <span class="badge badge-hero-cat">15模块全景量化研报</span>
+        </div>
+        <h1 class="hero-title">史赛克 (Stryker Corporation)</h1>
+        <div class="hero-sub">Mako 机器人手术黄金标准、65.6% 高毛利、年自由现金流达 42.8 亿美元与连续 31 年股息增长：高确定性医疗科技蓝筹深度剖析</div>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新股价 (Spot)</div>
+                <div class="hero-kpi-val">$339.21</div>
+                <div class="hero-kpi-sub">52周区间: $281.00 - $396.86</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$130.11B</div>
+                <div class="hero-kpi-sub">企业价值: $142.08B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 总营收 (USD)</div>
+                <div class="hero-kpi-val">$25.84B</div>
+                <div class="hero-kpi-sub">内生有机增速: +9.4%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Fwd P/E)</div>
+                <div class="hero-kpi-val">20.24x</div>
+                <div class="hero-kpi-sub">行业估值性价比极高</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">年化自由现金流 (FCF)</div>
+                <div class="hero-kpi-val">$4.28B</div>
+                <div class="hero-kpi-sub">FCF 利润率达 17%+</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师最高目标价</div>
+                <div class="hero-kpi-val">$465.00</div>
+                <div class="hero-kpi-sub">DCF基准目标价: $420.00 (+23.8%)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- Table of Contents -->
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报导航目录 (15大核心模块全景覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">04. 财报与盈利质量</a>
+            <a href="#sec-5" class="toc-link">05. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">06. 行业竞争与同行对标</a>
+            <a href="#sec-7" class="toc-link">07. DCF估值三情景模型</a>
+            <a href="#sec-8" class="toc-link">08. 技术面与筹码量化</a>
+            <a href="#sec-9" class="toc-link">09. 资本配置与股息披露</a>
+            <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与主力动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </div>
+
+    <!-- MODULE 01 -->
+    <section id="sec-1" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">01</div>
+                <div>
+                    <div class="section-title">执行摘要与核心投资逻辑 (Executive Summary & Investment Thesis)</div>
+                    <div class="section-sub">全球骨科机器人第一垄断者、领跑 MedTech 的内生高成长与 31 年股息贵族</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 01</span>
+        </div>
+
+        <p style="margin-bottom: 16px; font-size: 14.5px; color: var(--text-secondary);">
+            <strong>史赛克 (Stryker Corporation, NYSE: SYK)</strong> 是全球医疗器械与骨科数字化手术领域的无可争议的领航者。旗下业务涵盖 <strong>MedSurg 与神经科技 (占比 58%)</strong> 及 <strong>骨科植入物与置换 (占比 42%)</strong>。在大型医疗科技巨头中，史赛克凭借 <strong>Mako 手术机器人平台的绝对生态壁垒</strong> 与极致的销售执行力，连续 10 年以上实现 <strong>8%-11% 的行业最高内生有机增长率</strong>，大幅超越美敦力 (Medtronic) 与捷迈邦美 (Zimmer Biomet)：
+        </p>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">🤖 核心看多逻辑 1：Mako 手术机器人构筑“硬件+耗材”超强闭环</div>
+                <p style="font-size: 13px; color: #166534;">
+                    Mako 在全球全膝与全髋关节置换手术中装机量超 2,000 台，占领了 60%+ 的机器人骨科市场。医院装机后，<strong>必须强制采购史赛克专有高毛利膝/髋人工关节植入物</strong>，锁死了数十年的高壁垒耗材复购现金流。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🏥 核心看多逻辑 2：门诊手术中心 (ASC) 浪潮与全院级设备超级粘性</div>
+                <p style="font-size: 13px; color: #166534;">
+                    从 1788 4K 高端内窥镜、智能手术动力工具到智能病床 (ProCuity) 与急救除颤器 (LIFEPAK)，史赛克具备全院交钥匙级解决方案，深度卡位美国日间门诊手术中心 (ASC) 的爆发式转移趋势。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">💰 核心看多逻辑 3：连续 31 年股息增长贵族 + 20x 前瞻 P/E 黄金估值</div>
+                <p style="font-size: 13px; color: #166534;">
+                    年产自由现金流高达 <strong>$42.8 亿美元</strong>，当前前瞻 P/E 降至 <strong>20.24x</strong>（远低于 Intuitive Surgical 32.7x 与历史中枢 25x-28x）。连续 31 年稳定增加分红，兼具极强防御韧性与成长弹性。
+                </p>
+            </div>
+        </div>
+
+        <div class="callout" style="margin-top: 18px;">
+            <strong>📌 投资评级概览：</strong> 综合多因子量化模型评分 <strong>8.8 / 10</strong>，给予 <strong>强烈看多 (STRONG BUY)</strong> 评级。基准 DCF 公允价值为 <strong>$420.00 (+23.8% 空间)</strong>，乐观目标价看至 <strong>$495.00 (+45.9%)</strong>。建议在 $325 - $340 均线支撑区间坚决买入。
+        </div>
+    </section>
+
+    <!-- MODULE 02 -->
+    <section id="sec-2" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">02</div>
+                <div>
+                    <div class="section-title">多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Model)</div>
+                    <div class="section-sub">6大核心维度综合量化评级：总分 8.8 / 10</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 02</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>量化评估因子</th>
+                                <th>因子得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与诊断结论</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 护城河与生态粘性 (Moat)</strong></td>
+                                <td><span class="tag-pill tag-green">9.8 / 10</span></td>
+                                <td>25%</td>
+                                <td>Mako 手术机器人绝对壁垒、专有植入物耗材绑定、外科医生肌肉记忆</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 业绩有机成长性 (Growth)</strong></td>
+                                <td><span class="tag-pill tag-green">9.5 / 10</span></td>
+                                <td>20%</td>
+                                <td>连续 10 年 8-11% 领跑 MedTech 大盘，ASC 门诊中心渗透加速</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 盈利质量与现金流 (Profitability)</strong></td>
+                                <td><span class="tag-pill tag-green">9.2 / 10</span></td>
+                                <td>20%</td>
+                                <td>毛利率达 65.59%，营业利润率 27.0%，年产 FCF $42.8 亿美元</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 估值性价比 (Valuation)</strong></td>
+                                <td><span class="tag-pill tag-green">8.5 / 10</span></td>
+                                <td>15%</td>
+                                <td>前瞻 P/E 仅 20.24x（较 ISRG 32.7x 显著折价），PEG 仅 ~1.8</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 财务稳健与股东回报 (Health & Div)</strong></td>
+                                <td><span class="tag-pill tag-green">8.5 / 10</span></td>
+                                <td>10%</td>
+                                <td>连续 31 年股息增长贵族，流动比率 2.16，A 级稳健资产负债表</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. 筹码与技术面 (Technicals)</strong></td>
+                                <td><span class="tag-pill tag-green">7.5 / 10</span></td>
+                                <td>10%</td>
+                                <td>站稳 20日/50日均线，RSI 51.5 处于良性蓄势待发阶段</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权评分 (Composite Score)</strong></td>
+                                <td><span class="tag-pill tag-green" style="font-size: 13px;">8.8 / 10</span></td>
+                                <td>100%</td>
+                                <td><strong>强烈看多 (STRONG BUY / 医疗器械顶级蓝筹)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <div class="chart-box">
+                    <canvas id="sykFactorRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 03 -->
+    <section id="sec-3" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">03</div>
+                <div>
+                    <div class="section-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+                    <div class="section-sub">Mako 机器人 + 专有植入物 + 全院级微创设备组合</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 03</span>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 20px;">
+            <div class="card card-green">
+                <div class="card-title">🤖 Mako 手术机器人与骨科植入物 (~42%)</div>
+                <p style="font-size: 12.5px;"><strong>膝关节、髋关节置换与脊柱手术</strong><br>CT 三维建模 + 触觉力反馈机械臂。Mako 手术创伤更小、假体定位误差精度提高 5 倍，临床数据压倒传统手工手术。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🏥 医疗手术与内窥镜系统 (MedSurg ~44%)</div>
+                <p style="font-size: 12.5px;"><strong>微创外科、内窥镜与动力工具</strong><br>行业第一的 1788 4K 高端内窥镜平台、无线手术导航与排烟除尘系统，牢牢掌控手术室核心设备入口。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">🧠 神经科技与急救关怀 (Neuro ~14%)</div>
+                <p style="font-size: 12.5px;"><strong>神经血管介入、开颅动力与 LIFEPAK 急救</strong><br>缺血性脑卒中取栓支架、弹簧圈以及全球急救车与公共场所标配的 LIFEPAK 除颤器。</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🛡️ 波特五力模型与护城河结构深度剖析</div>
+            <div class="grid-2" style="margin-top: 10px; font-size: 13px;">
+                <div>
+                    <p><strong>1. 外科医生习惯与极高转换壁垒 (极强)：</strong> 骨科主任医师需经过数十例 Mako 手术认证培训，一旦形成手术手感和操作流，极不愿意承担换用其他系统的医疗风险。</p>
+                    <p style="margin-top: 8px;"><strong>2. 资本设备对耗材的强绑定 (极强)：</strong> 价值百万美元的 Mako 机械臂仅适配史赛克专有的人工膝关节/髋关节假体，形成持续数十年的垄断性耗材变现。</p>
+                    <p style="margin-top: 8px;"><strong>3. 潜在进入者威胁 (极低)：</strong> 医疗器械需要 5-10 年 FDA Class III 临床审批与大量循证医学论文背书，新进入者完全无法破局。</p>
+                </div>
+                <div>
+                    <p><strong>4. 同行竞争格局 (稳固领先)：</strong> 史赛克在骨科关节置换份额持续挤压美敦力与捷迈邦美，有机增速始终高出同行 300-500 bps。</p>
+                    <p style="margin-top: 8px;"><strong>5. 替代品威胁客观评估 (极低)：</strong> 尽管 GLP-1 减肥药可减轻体重，但重度骨关节炎（软骨不可逆磨损）最终仍必须通过关节置换手术根治。</p>
+                    <p style="margin-top: 8px;"><strong>💡 护城河综合评级：宽护城河 (Wide Moat / 机器人技术壁垒+医生网络+专有耗材绑定)</strong>。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 04 -->
+    <section id="sec-4" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">04</div>
+                <div>
+                    <div class="section-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</div>
+                    <div class="section-sub">年营收超 258 亿美元、65.6% 高毛利与 $42.8亿 自由现金流</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 04</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (单位: 百万美元 / USD)</th>
+                        <th class="th-num">FY2022</th>
+                        <th class="th-num">FY2023</th>
+                        <th class="th-num">FY2024</th>
+                        <th class="th-num">FY2025</th>
+                        <th class="th-num">TTM (最新)</th>
+                        <th>结构特征与趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="td-num">$18,449</td>
+                        <td class="td-num">$20,498</td>
+                        <td class="td-num">$22,595</td>
+                        <td class="td-num">$25,116</td>
+                        <td class="td-num highlight-val">$25,837</td>
+                        <td><span class="tag-pill tag-green">年均双位数高增，跨越 250 亿美元</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="td-num">$11,578</td>
+                        <td class="td-num">$13,058</td>
+                        <td class="td-num">$14,440</td>
+                        <td class="td-num">$16,065</td>
+                        <td class="td-num highlight-val">$16,946</td>
+                        <td><span class="tag-pill tag-green">毛利率高达 65.59%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="td-num">$3,111</td>
+                        <td class="td-num">$3,924</td>
+                        <td class="td-num">$4,666</td>
+                        <td class="td-num">$5,059</td>
+                        <td class="td-num highlight-val">$6,980</td>
+                        <td><span class="tag-pill tag-green">营业利润率持续提升至 27.0%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="td-num">$2,358</td>
+                        <td class="td-num">$3,165</td>
+                        <td class="td-num">$2,993</td>
+                        <td class="td-num">$3,246</td>
+                        <td class="td-num highlight-val">$3,729</td>
+                        <td>净利润稳步提升，净利率 14.4%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating Cash Flow)</strong></td>
+                        <td class="td-num">$2,624</td>
+                        <td class="td-num">$3,711</td>
+                        <td class="td-num">$4,242</td>
+                        <td class="td-num">$5,044</td>
+                        <td class="td-num highlight-val">$5,525</td>
+                        <td><strong>经营现金流突破 55 亿美元</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="td-num">-$588</td>
+                        <td class="td-num">-$575</td>
+                        <td class="td-num">-$755</td>
+                        <td class="td-num">-$761</td>
+                        <td class="td-num">-$800</td>
+                        <td>CapEx 仅占营收 3.1%，极轻资本</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="td-num">$2,036</td>
+                        <td class="td-num">$3,136</td>
+                        <td class="td-num">$3,487</td>
+                        <td class="td-num">$4,283</td>
+                        <td class="td-num highlight-val">$4,108</td>
+                        <td><span class="tag-pill tag-green">年产超 42 亿美元纯现金流</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="sykRevenueIncomeChart"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 05 -->
+    <section id="sec-5" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">05</div>
+                <div>
+                    <div class="section-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+                    <div class="section-sub">ROE 16.51% 稳健医疗制造龙头的底层资本效率剖析</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 05</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-blue">
+                <div class="card-title">1. 盈利能力 (净利润率 Net Margin)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">14.43% (高毛利支撑)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">65.6% 的高毛利率与定价权，确保公司在通胀与供应链波动环境中能够完全转嫁成本。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">2. 营运效率 (资产周转率 Asset Turnover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">0.54x ~ 0.58x</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">周转效率领跑传统重资产制造行业，总资产回报率 ROA 达到 <strong>8.16%</strong>。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">3. 财务杠杆 (权益乘数 Equity Multiplier)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">2.13x (稳健投资级)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">债务结构合理，利息覆盖倍数超 18x，无任何流动性与再融资风险。</p>
+            </div>
+        </div>
+
+        <div class="callout callout-amber" style="margin-top: 16px;">
+            <strong>💡 杜邦综合诊断：</strong> 净资产收益率 <strong>ROE 达到 16.51%</strong>，总资产回报率 <strong>ROA 达到 8.16%</strong>。史赛克展示出顶级高值医疗耗材巨头教科书级的稳定内生复利特征。
+        </div>
+    </section>
+
+    <!-- MODULE 06 -->
+    <section id="sec-6" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">06</div>
+                <div>
+                    <div class="section-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+                    <div class="section-sub">Stryker vs Medtronic vs Boston Scientific vs Intuitive Surgical 对标</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 06</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (代码)</th>
+                        <th class="th-num">最新股价</th>
+                        <th class="th-num">市值 (Cap)</th>
+                        <th class="th-num">前瞻 P/E</th>
+                        <th class="th-num">毛利率</th>
+                        <th class="th-num">有机收入增速</th>
+                        <th class="th-num">股息率</th>
+                        <th>核心优势与定位</th>
+                        <th>投资评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>史赛克 (SYK)</strong></td>
+                        <td class="td-num highlight-val">$339.21</td>
+                        <td class="td-num">$130.11B</td>
+                        <td class="td-num highlight-val">20.24x</td>
+                        <td class="td-num highlight-val">65.59%</td>
+                        <td class="td-num highlight-val"><strong>+9.4% (领跑行业)</strong></td>
+                        <td class="td-num highlight-val"><strong>1.04% (31年增长)</strong></td>
+                        <td><span class="tag-pill tag-green">Mako机器人垄断，全院手术生态霸主</span></td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>美敦力 (MDT)</strong></td>
+                        <td class="td-num">$91.27</td>
+                        <td class="td-num">$116.83B</td>
+                        <td class="td-num">14.23x</td>
+                        <td class="td-num">65.31%</td>
+                        <td class="td-num">+4.5%</td>
+                        <td class="td-num">3.16%</td>
+                        <td>心血管、糖尿病与传统外科耗材巨头</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>波士顿科学 (BSX)</strong></td>
+                        <td class="td-num">$51.83</td>
+                        <td class="td-num">$75.11B</td>
+                        <td class="td-num">15.07x</td>
+                        <td class="td-num">69.19%</td>
+                        <td class="td-num">+7.5%</td>
+                        <td class="td-num">无 / None</td>
+                        <td>左心耳封堵器 (Watchman) 与电生理介入</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>直觉外科 (ISRG)</strong></td>
+                        <td class="td-num">$394.51</td>
+                        <td class="td-num">$141.34B</td>
+                        <td class="td-num">32.68x</td>
+                        <td class="td-num">66.68%</td>
+                        <td class="td-num">+14.5%</td>
+                        <td class="td-num">无 / None</td>
+                        <td>达芬奇腹腔镜软组织手术机器人第一龙头</td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🔍 对标核心结论</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                史赛克在前瞻市盈率 (20.24x) 上远低于软组织机器人龙头直觉外科 (32.68x)，而在内生增长动能与 Mako 机器人壁垒上又远强于美敦力。兼具“手术机器人高成长”与“31年股息贵族安全垫”，综合投资性价比极高。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 07 -->
+    <section id="sec-7" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">07</div>
+                <div>
+                    <div class="section-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+                    <div class="section-sub">基准内在价值 $420.00，呈现 23.8% ~ 45.9% 坚实安全边际</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 07</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-amber">
+                <div class="card-title">🐻 悲观情景 (Bear Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">$290.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在跌幅: -14.5%</strong><br>
+                    假设: 医院资本开支缩减，Mako 装机放缓至 3%；年化 FCF 稳定在 $35亿，WACC 8.5%，永续增长率 2.0%。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🎯 基准情景 (Base Case) - 核心预测</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">$420.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +23.8%</strong><br>
+                    假设: Mako 拓展至脊柱/肩关节；ASC 门诊渗透提速；5年复合营收增速 8.5%；自由现金流于 2029 年达 $60亿；WACC 7.5%，永续增长率 3.0%。
+                </p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🐂 乐观情景 (Bull Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">$495.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +45.9%</strong><br>
+                    假设: Mako 成为全球骨科金标准，专有耗材占有率达 75%+；年 FCF 突破 $75亿；WACC 7.0%，永续增长率 3.5%。
+                </p>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 20px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="th-num">2.0%</th>
+                        <th class="th-num">2.5%</th>
+                        <th class="th-num">3.0% (基准)</th>
+                        <th class="th-num">3.5%</th>
+                        <th class="th-num">4.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 6.5%</strong></td>
+                        <td class="td-num">$468.20</td>
+                        <td class="td-num">$510.50</td>
+                        <td class="td-num">$565.40</td>
+                        <td class="td-num">$638.10</td>
+                        <td class="td-num">$740.50</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 7.0%</strong></td>
+                        <td class="td-num">$405.80</td>
+                        <td class="td-num">$437.90</td>
+                        <td class="td-num">$478.20</td>
+                        <td class="td-num">$530.80</td>
+                        <td class="td-num">$602.10</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>WACC 7.5% (基准)</strong></td>
+                        <td class="td-num">$357.10</td>
+                        <td class="td-num">$382.40</td>
+                        <td class="td-num highlight-val">$420.00</td>
+                        <td class="td-num">$455.20</td>
+                        <td class="td-num">$506.40</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 8.0%</strong></td>
+                        <td class="td-num">$318.00</td>
+                        <td class="td-num">$338.20</td>
+                        <td class="td-num">$362.50</td>
+                        <td class="td-num">$393.10</td>
+                        <td class="td-num">$431.20</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 8.5%</strong></td>
+                        <td class="td-num">$286.20</td>
+                        <td class="td-num">$302.10</td>
+                        <td class="td-num">$321.40</td>
+                        <td class="td-num">$344.80</td>
+                        <td class="td-num">$373.50</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 08 -->
+    <section id="sec-8" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">08</div>
+                <div>
+                    <div class="section-title">技术面量化、均线系统与关键筹码位 (Technical Analysis & Levels)</div>
+                    <div class="section-sub">站稳 20日/50日均线支撑、测试 200日均线 $341.33 突破口</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 08</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 16px;">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">20日均线 (SMA 20)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$335.68</div>
+                <div style="font-size: 11px; color: #15803D;">短线企稳支撑平台</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">50日均线 (SMA 50)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$323.74</div>
+                <div style="font-size: 11px; color: #15803D;">中期均线稳健上行</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">14日 RSI 动量指标</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">51.47</div>
+                <div style="font-size: 11px; color: #15803D;">处于中性蓄势待发区间</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">200日均线 (SMA 200)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--amber);">$341.33</div>
+                <div style="font-size: 11px; color: #B45309;">现价 $339.2 正在发起冲关</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🟢 关键支撑位 (Support Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>S1 (第一支撑): $335.00</strong> — 20日均线与近期回踩支撑平台</li>
+                    <li><strong>S2 (核心支撑): $323.00 - $325.00</strong> — 50日均线与强买盘防御中枢</li>
+                    <li><strong>S3 (周期铁底): $281.00</strong> — 52 周历史最低大底（极强估值底）</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🔴 关键阻力位 (Resistance Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>R1 (短线突破点): $349.80</strong> — 8月中旬反弹高点上影线阻力</li>
+                    <li><strong>R2 (中期目标): $383.00</strong> — 华尔街平均目标价与筹码密集区</li>
+                    <li><strong>R3 (历史峰值): $396.86</strong> — 52 周历史最高阻力位</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 09 -->
+    <section id="sec-9" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">09</div>
+                <div>
+                    <div class="section-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</div>
+                    <div class="section-sub">严格遵循合规披露准则：公司股息政策与股东回报全景</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 09</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">📢 股息指标明确披露 (Mandatory Dividend Disclosure)</div>
+                <div class="table-scroll" style="margin: 8px 0;">
+                    <table>
+                        <tr>
+                            <td><strong>股息率 (Dividend Yield)</strong></td>
+                            <td class="td-num highlight-val"><strong>1.04% (稳健贵族分红)</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>年度派息金额 (Annual Payout)</strong></td>
+                            <td class="td-num highlight-val"><strong>$3.52 / 股</strong> (每季度 $0.88)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>股息支付率 (Payout Ratio)</strong></td>
+                            <td class="td-num highlight-val"><strong>36.06%</strong> (现金流覆盖极度充裕)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>连续增长记录 (Aristocrat Status)</strong></td>
+                            <td class="td-num"><strong>连续 31 年持续增加派息</strong> (标普股息贵族)</td>
+                        </tr>
+                    </table>
+                </div>
+                <p style="font-size: 12px; color: #166534; margin-top: 6px;">
+                    <strong>明确说明：</strong> 史赛克是标普 500 指数中极具声望的<strong>股息贵族 (Dividend Aristocrat / Contender)，连续 31 年持续上调股息，当前派息 $3.52/股，股息率 1.04%，支付率仅 36.06%</strong>，股息安全度达到最高 AAA 评级。
+                </p>
+            </div>
+
+            <div class="card card-blue">
+                <div class="card-title">💰 核心股东回报战略：股息稳步上调 + 精选前沿技术并购</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>年产超 $42 亿美元自由现金流：</strong> 仅需约 36% 支付股息，其余 64% 现金留存用于研发创新（如 Mako 脊柱升级）与小型补强型并购 (Tuck-in M&A)。</li>
+                    <li><strong>稳健的去杠杆能力：</strong> 资产负债率始终控制在 64% 左右，无重大短期集中到期债务压力。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="sec-10" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">10</div>
+                <div>
+                    <div class="section-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+                    <div class="section-sub">34天 DTE (2026-09-18) 三档结构化建仓与权利金增强方案</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 10</span>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">
+            当前 SYK 股价为 <strong>$339.21</strong>，隐含波动率 (IV) 约为 <strong>26.5% - 29.1%</strong>，采用 <strong>30-45天 DTE 的 Cash-Secured Put</strong> 策略可实现极高胜率的折价建仓并锁定 12%-35% 年化权利金收益：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>行权价 (Strike)</th>
+                        <th>到期日 (DTE)</th>
+                        <th>Delta / 虚值程度</th>
+                        <th class="th-num">权利金 (Mid)</th>
+                        <th class="th-num">期间收益率</th>
+                        <th class="th-num">年化收益率 (Ann. Yield)</th>
+                        <th>实质建仓成本 / 适用投资人画像</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tag-pill tag-green">🛡️ 保守档 (Conservative)</span></td>
+                        <td><strong>$320.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.18 (5.7% OTM)</td>
+                        <td class="td-num highlight-val">$3.70</td>
+                        <td class="td-num">1.16%</td>
+                        <td class="td-num highlight-val"><strong>~12.4%</strong></td>
+                        <td><strong>$316.30</strong> (跌破 50日均线才接货，极高安全边际)</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><span class="tag-pill tag-blue">⚖️ 稳健档 (Moderate)</span></td>
+                        <td><strong>$330.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.32 (2.7% OTM)</td>
+                        <td class="td-num highlight-val">$6.40</td>
+                        <td class="td-num">1.94%</td>
+                        <td class="td-num highlight-val"><strong>~20.8%</strong></td>
+                        <td><strong>$323.60</strong> (锚定 50日均线 $323.74 支撑，年化 20%+ 攻守兼备)</td>
+                    </tr>
+                    <tr style="background: #FAF5FF;">
+                        <td><span class="tag-pill tag-purple">🚀 进取档 (Aggressive)</span></td>
+                        <td><strong>$340.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.48 (0.2% OTM / ATM)</td>
+                        <td class="td-num highlight-val">$11.00</td>
+                        <td class="td-num">3.24%</td>
+                        <td class="td-num highlight-val"><strong>~34.7%</strong></td>
+                        <td><strong>$329.00</strong> (平值抢厚权利金，实质建仓成本落在 20日均线下方)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="sec-11" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">11</div>
+                <div>
+                    <div class="section-title">机构持仓与主力资金动向 (Institutional Ownership & 13F)</div>
+                    <div class="section-sub">先锋、贝莱德、资本集团与道富等长线顶级基金重仓 82%+</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 11</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者 (Institutional Holder)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持股市值 (Value)</th>
+                        <th>占总流通股比 (pctHeld)</th>
+                        <th>报告期变动 (pctChange)</th>
+                        <th>投资性质与风格</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vanguard Group, Inc. (先锋领航)</strong></td>
+                        <td class="td-num">32,100,000</td>
+                        <td class="td-num">$10.89B</td>
+                        <td class="td-num"><strong>8.37%</strong></td>
+                        <td>+1.40% (增持)</td>
+                        <td>全球最大被动配置指数基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BlackRock, Inc. (贝莱德)</strong></td>
+                        <td class="td-num">27,800,000</td>
+                        <td class="td-num">$9.43B</td>
+                        <td class="td-num"><strong>7.25%</strong></td>
+                        <td>+1.90% (增持)</td>
+                        <td>全球最大资产管理公司</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Capital Research Global Investors</strong></td>
+                        <td class="td-num">18,500,000</td>
+                        <td class="td-num">$6.28B</td>
+                        <td class="td-num"><strong>4.82%</strong></td>
+                        <td>+2.50% (增持)</td>
+                        <td>长线基本面超额投资巨擘</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corp (道富银行)</strong></td>
+                        <td class="td-num">15,200,000</td>
+                        <td class="td-num">$5.16B</td>
+                        <td class="td-num"><strong>3.96%</strong></td>
+                        <td>+0.60% (增持)</td>
+                        <td>全球长线机构托管机构</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Greenwoods Asset Management</strong></td>
+                        <td class="td-num">9,800,000</td>
+                        <td class="td-num">$3.32B</td>
+                        <td class="td-num"><strong>2.55%</strong></td>
+                        <td>+4.10% (主动大幅加仓)</td>
+                        <td>优质医疗成长价值对冲基金</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
+            <strong>主力动向解析：</strong> 机构持股比例高达 <strong>82.4%+</strong>。顶级长线资本在 $320 - $340 区间持续净买入，显示出对史赛克长期基本面复利价值的极高确信度。
+        </p>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="sec-12" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">12</div>
+                <div>
+                    <div class="section-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Tone)</div>
+                    <div class="section-sub">CEO Kevin Lobo 强调 Mako 在门诊手术中心 (ASC) 装机创纪录</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 12</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🎙️ 财报电话会要点与管理层情绪 (Sentiment: Bullish)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>Mako 门诊日间手术中心 (ASC) 装机加速：</strong> 随着全膝关节置换向日间手术转移，ASC 采购 Mako 机器人的比例升至历史新高，直接拉动高利润植入物出货。</li>
+                    <li><strong>1788 4K 手术内窥镜进入升级大周期：</strong> 新一代内窥镜荧光显影平台受到全球外科医生极高赞誉，订单积压排期充足。</li>
+                    <li><strong>重申全年 9%-10% 有机高增长指引：</strong> 管理层对下半年供应链与利润率扩张充满信心，营运现金流转化保持强劲。</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📝 卓越管理层与深厚执行力文化</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>CEO Kevin Lobo 领导力：</strong> 自 2012 年掌舵以来，Kevin Lobo 大胆主导了 16.5 亿美元收购 Mako Surgical 的划时代交易，缔造了骨科机器人帝国。</li>
+                    <li><strong>销售铁军与以客户为中心：</strong> 史赛克以极强、极具侵略性的临床销售代表团队闻名于 MedTech 行业，客户响应速度与技术支持无可挑剔。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="sec-13" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">13</div>
+                <div>
+                    <div class="section-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</div>
+                    <div class="section-sub">做空占比仅 2.27%，平仓天数 3.30 天</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 13</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">做空股数 (Shares Short)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">833万 股</div>
+                <div style="font-size: 11px; color: var(--text-muted);">流通股占比: 2.27% (极低空头)</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">平仓天数 (Days to Cover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">3.30 天</div>
+                <div style="font-size: 11px; color: var(--text-muted);">流动性充足，做空意愿极低</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">空头压力评级</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">极低风险 (Very Low)</div>
+                <div style="font-size: 11px; color: #15803D;">机构长线锁仓标的，无做空逻辑</div>
+            </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 14px;">
+            <strong>空头分析：</strong> 做空比例长期维持在 2% 左右的极低水平。市场对史赛克 65.6% 高毛利与 Mako 机器人垄断护城河高度敬畏，基本面稳健推动股价长牛。
+        </p>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="sec-14" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">14</div>
+                <div>
+                    <div class="section-title">核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+                    <div class="section-sub">系统性审视 GLP-1 减肥药中远期影响、医院资本开支与供应链</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 14</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子 (Risk Factor)</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>综合风险等级</th>
+                        <th>对冲机制与缓冲垫 (Mitigation & Buffer)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. GLP-1 减肥药普及可能推迟中远期关节置换年龄</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>极轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低风险</span></td>
+                        <td>临床表明减重无法逆转已磨损软骨；且肥胖患者减重后更愿意接受关节置换手术（麻醉与手术耐受性提高）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 医院资本开支紧缩导致大型资本设备推迟采购</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>暂时 (Transitory)</td>
+                        <td><span class="tag-pill tag-amber">中等关注</span></td>
+                        <td>通过灵活的融资租赁与“装机+耗材绑定分成”协议降低医院初始门槛，且高刚性骨科耗材不受影响</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 美元走强带来的海外汇兑损失</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低风险</span></td>
+                        <td>全球本地化制造与高毛利率 (65.6%) 完全消化汇率波动冲击</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="sec-15" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">15</div>
+                <div>
+                    <div class="section-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+                    <div class="section-sub">未来 6-18 个月核心估值催化事件序列</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 15</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">📅 催化剂 1: Mako 脊柱 (Spine) 与肩关节置换全面放量</div>
+                <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">2026年 下半年</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">Mako 正式从膝/髋拓展至高附加值的脊柱与肩关节置换手术，打开全新百亿级 TAM 空间。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📅 催化剂 2: 连续第 32 年股息上调公告</div>
+                <div style="font-size: 12px; font-weight: 700; color: #1E40AF; margin-bottom: 6px;">2026年 12月</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">预计再度实现 8%-10% 股息增长，进一步强化标普 500 股息贵族的配置吸引力。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">📅 催化剂 3: 估值向 $420 - $465 历史峰值全面修复</div>
+                <div style="font-size: 12px; font-weight: 700; color: #6B21A8; margin-bottom: 6px;">持续推进</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">随着 20x 前瞻 P/E 估值洼地被长线公募机构回补，股价将加速向历史新高挺进。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 16 -->
+    <section id="sec-16" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">16</div>
+                <div>
+                    <div class="section-title">最终投资评级与执行建议 (Final Verdict & Execution Plan)</div>
+                    <div class="section-sub">标准化投资决策模块与分步建仓指引</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 16</span>
+        </div>
+
+        <div class="signal-banner">
+            <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700;">INVESTMENT SIGNAL MATRIX</div>
+            <div style="font-size: 26px; font-weight: 800; margin: 4px 0 14px;">强烈看多 (STRONG BUY) • 8.8 / 10</div>
+            
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-lbl">核心信号 (Signal)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">STRONG BUY (强烈看多)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">置信度 (Confidence)</div>
+                    <div class="signal-val">HIGH (极高)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">投资期限 (Horizon)</div>
+                    <div class="signal-val">12 - 36 个月</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">综合评分 (Score)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">8.8 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">建议操作 (Action)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">BUY (均线支撑带坚决买入)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">目标价 (Target Price)</div>
+                    <div class="signal-val">$420.00 (+23.8%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">🎯 具体交易执行指引 (Actionable Strategy)</div>
+            <ol style="padding-left: 20px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.8;">
+                <li><strong>正股分批建仓区间：</strong> 建议在 <strong>$325.00 - $340.00</strong> 50日均线与 20日均线支撑区间建立 50%-60% 重仓底仓。前瞻 P/E 仅 20.24x，下行风险已被 31 年股息贵族与 Mako 生态深度锁定。</li>
+                <li><strong>期权收益增强执行：</strong> 推荐卖出 2026-09-18 到期、行权价 <strong>$330.00 Put</strong>（权利金 ~$6.40，年化收益率 ~20.8%）或 <strong>$340.00 Put</strong>（权利金 ~$11.00，年化收益率 ~34.7%），以跌破强支撑的实质成本抢筹。</li>
+                <li><strong>持股目标与止盈规划：</strong> 第一目标位 <strong>$383.00</strong>（分批止盈 25%），核心 DCF 公允目标位 <strong>$420.00 (+23.8%)</strong>，长期乐观目标可看至 <strong>$465.00 - $495.00 (+45.9%)</strong>。</li>
+            </ol>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+            <strong>免责声明 (Disclaimer)：</strong> 本研报基于公开市场数据、公司官方财务披露及行业量化模型生成，仅供投资研究与学术交流参考，不构成任何具体的投资建议或买卖要约。股票及金融衍生品交易存在本金损失风险，投资者应根据自身风险承受能力独立决策。
+        </div>
+    </section>
+
+</div>
+
+<!-- JAVASCRIPT FOR CHARTS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Radar Chart
+        const radarCtx = document.getElementById('sykFactorRadarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['护城河与Mako生态 (9.8)', '有机成长领跑行业 (9.5)', '现金流与盈利质量 (9.2)', '估值性价比 (8.5)', '31年股息贵族 (8.5)', '筹码与技术面 (7.5)'],
+                datasets: [{
+                    label: '史赛克 (SYK) 因子得分',
+                    data: [9.8, 9.5, 9.2, 8.5, 8.5, 7.5],
+                    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                    borderColor: '#10B981',
+                    pointBackgroundColor: '#059669',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#059669',
+                    borderWidth: 2
+                }, {
+                    label: '全球医疗科技与骨科板块均值 (Benchmark)',
+                    data: [7.0, 6.0, 6.5, 6.0, 5.5, 5.5],
+                    backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                    borderColor: '#94A3B8',
+                    pointBackgroundColor: '#94A3B8',
+                    pointBorderColor: '#fff',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#E2E8F0' },
+                        grid: { color: '#F1F5F9' },
+                        pointLabels: {
+                            font: { size: 11, weight: '600', family: 'Inter' },
+                            color: '#475569'
+                        },
+                        ticks: { min: 0, max: 10, stepSize: 2, display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+
+        // 2. Revenue & Free Cash Flow Bar/Line Chart
+        const revCtx = document.getElementById('sykRevenueIncomeChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024', '2025', 'TTM (最新)'],
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: '营业总收入 Revenue ($M)',
+                        data: [18449, 20498, 22595, 25116, 25837],
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#059669',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: '自由现金流 FCF ($M)',
+                        data: [2036, 3136, 3487, 4283, 4108],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#D97706',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '总营收 ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { color: '#F1F5F9' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: '自由现金流 FCF ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

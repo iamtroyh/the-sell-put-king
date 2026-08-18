@@ -1,0 +1,2847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>InvestSkill — 报告目录与信号索引 (Reports Directory)</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary-blue: #38bdf8;
+      --accent-navy: #1e3a8a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding-bottom: 3rem;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #064e3b 40%, #1e3a8a 100%);
+      padding: 3rem 2rem;
+      border-bottom: 1px solid var(--card-border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .header p {
+      color: #a7f3d0;
+      margin-top: 0.5rem;
+      font-size: 1.05rem;
+    }
+    .stats-bar {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 0.85rem 1.25rem;
+      border-radius: 10px;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+    .stat-card-strong-buy {
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.6) 0%, rgba(4, 120, 87, 0.35) 100%);
+      border: 1px solid #10b981;
+      cursor: pointer;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+    }
+    .stat-card-strong-buy:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(52, 211, 153, 0.45);
+      border-color: #34d399;
+    }
+    .stat-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #34d399;
+    }
+    .stat-lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+    .search-box {
+      margin-bottom: 1rem;
+    }
+    .search-input {
+      width: 100%;
+      padding: 0.85rem 1.25rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus {
+      border-color: var(--primary-blue);
+    }
+
+    /* ── QUICK FILTER TABS ── */
+    .filter-tabs {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-pill {
+      padding: 0.45rem 0.95rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-pill:hover {
+      background: rgba(51, 65, 85, 0.9);
+      color: #fff;
+    }
+    .filter-pill.active {
+      background: var(--accent-navy);
+      border-color: var(--primary-blue);
+      color: #fff;
+    }
+    .filter-pill-strong-buy {
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.6) 0%, rgba(4, 120, 87, 0.4) 100%);
+      border-color: #059669;
+      color: #34d399;
+    }
+    .filter-pill-strong-buy:hover, .filter-pill-strong-buy.active {
+      background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+      border-color: #34d399;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+    }
+
+    .table-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 1rem 1.25rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--card-border);
+    }
+    td {
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: middle;
+      transition: background 0.15s ease;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* ── STRONG BUY ROW HIGHLIGHT ── */
+    .row-strong-buy {
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.09) 0%, rgba(30, 41, 59, 0.4) 60%);
+      border-left: 4px solid #10b981;
+    }
+    .row-strong-buy:hover td {
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.16) 0%, rgba(30, 41, 59, 0.85) 100%) !important;
+    }
+
+    .ticker-pill {
+      background: #0284c7;
+      color: white;
+      font-weight: 700;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: inline-block;
+      letter-spacing: 0.5px;
+    }
+    .ticker-strong-buy {
+      background: linear-gradient(135deg, #047857 0%, #10b981 100%) !important;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.45);
+      border: 1px solid #34d399;
+      font-weight: 800;
+    }
+
+    .report-title-link {
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+    .report-title-link:hover {
+      color: var(--primary-blue);
+      text-decoration: underline;
+    }
+    .file-name {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-family: monospace;
+    }
+
+    /* ── DYNAMIC GRADIENT SIGNAL BADGES ── */
+    .badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      letter-spacing: 0.3px;
+    }
+
+    /* 强烈看多 (Strong Bullish / Strong Buy) -> 动态呼吸发光 + 翡翠绿渐变 */
+    @keyframes strongBuyPulse {
+      0%, 100% {
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.4), 0 0 20px rgba(5, 150, 105, 0.2);
+        border-color: #34d399;
+      }
+      50% {
+        box-shadow: 0 0 18px rgba(52, 211, 153, 0.85), 0 0 32px rgba(16, 185, 129, 0.5);
+        border-color: #a7f3d0;
+      }
+    }
+    .badge-strong-buy {
+      background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%);
+      color: #ffffff !important;
+      border: 1.5px solid #34d399;
+      animation: strongBuyPulse 2.5s infinite ease-in-out;
+      text-shadow: 0 0 8px rgba(52, 211, 153, 0.7);
+      font-weight: 800;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.86rem;
+    }
+
+    /* 看多 (Bullish / Buy) -> 中等青绿色 */
+    .badge-bullish {
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+      border: 1px solid #059669;
+    }
+    /* 中立 (Neutral / Hold) -> 琥珀金黄色 */
+    .badge-neutral {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid #d97706;
+    }
+    /* 看空 (Bearish / Sell) -> 橙红色 */
+    .badge-bearish {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid #dc2626;
+    }
+    /* 强烈看空 (Strong Bearish / Strong Sell) -> 深红发光渐变 */
+    .badge-strong-sell {
+      background: linear-gradient(135deg, rgba(185, 28, 28, 0.45) 0%, rgba(239, 68, 68, 0.3) 100%);
+      color: #f87171;
+      border: 1px solid #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
+    }
+
+    .open-btn {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: var(--accent-navy);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: 1px solid var(--primary-blue);
+      transition: all 0.2s;
+    }
+    .open-btn:hover {
+      background: var(--primary-blue);
+      color: #0f172a;
+    }
+    .btn-strong-buy {
+      background: linear-gradient(135deg, #047857, #059669) !important;
+      border: 1px solid #34d399 !important;
+      color: #ecfdf5 !important;
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+    }
+    .btn-strong-buy:hover {
+      background: #10b981 !important;
+      color: #022c22 !important;
+      box-shadow: 0 0 18px rgba(52, 211, 153, 0.8);
+      transform: translateY(-1px);
+    }
+
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    @media (max-width: 768px) {
+      .header { padding: 2rem 1rem; }
+      .header h1 { font-size: 1.5rem; }
+      .header p { font-size: 0.9rem; }
+      .header-content { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .stats-bar { width: 100%; justify-content: flex-start; gap: 0.5rem; }
+      .stat-card { flex: 1; min-width: 105px; padding: 0.6rem 0.8rem; }
+      .container { padding: 0 1rem; margin: 1.25rem auto; }
+      .search-input { padding: 0.75rem 1rem; font-size: 0.95rem; }
+      .filter-tabs { gap: 0.4rem; margin-bottom: 1rem; }
+      .filter-pill { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
+      th, td { padding: 0.75rem 0.6rem; }
+      .ticker-pill { font-size: 0.8rem; padding: 0.25rem 0.5rem; }
+      .report-title-link { font-size: 0.95rem; }
+      .file-name { font-size: 0.75rem; }
+      .badge { font-size: 0.75rem; padding: 0.3rem 0.5rem; }
+      .open-btn { font-size: 0.8rem; padding: 0.35rem 0.65rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-content">
+      <div>
+        <h1>📊 InvestSkill 报告与信号动态索引目录</h1>
+        <p>动态索引美股研究报告、多因子综合得分与信号颜色渐变 (Dynamic Index of Stock Research Reports)</p>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-val">184</div>
+          <div class="stat-lbl">Total Reports</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">106</div>
+          <div class="stat-lbl">Tickers</div>
+        </div>
+        <div class="stat-card stat-card-strong-buy" onclick="filterBySignal('STRONG_BUY')" title="点击速查强烈看多研报">
+          <div class="stat-val">🚀 102</div>
+          <div class="stat-lbl" style="color: #6ee7b7; font-weight:700;">Strong Buy</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="search-box">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜索股票代码、标题、信号或日期 (Search by ticker, title, signal...)" onkeyup="applyFilter()">
+    </div>
+
+    <div class="filter-tabs">
+      <button class="filter-pill active" data-filter="ALL" onclick="setSignalFilter('ALL', this)">🌟 全部 (184)</button>
+      <button class="filter-pill filter-pill-strong-buy" data-filter="STRONG_BUY" onclick="setSignalFilter('STRONG_BUY', this)">🚀 强烈看多 (102)</button>
+      <button class="filter-pill" data-filter="BULLISH" onclick="setSignalFilter('BULLISH', this)">🟢 看多 (75)</button>
+      <button class="filter-pill" data-filter="NEUTRAL" onclick="setSignalFilter('NEUTRAL', this)">🟡 中立 (4)</button>
+      <button class="filter-pill" data-filter="BEARISH" onclick="setSignalFilter('BEARISH', this)">🔴 看空 (3)</button>
+    </div>
+
+    <div class="table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Report Title / File</th>
+              <th>Signal & Score (投资信号与得分)</th>
+              <th>Generated Date</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="reportsTable">
+            
+        <tr class="report-row " data-signal-type="BULLISH" data-search="nke nike, inc. (耐克) (nke) 全模块深度研究与多因子量化评估报告 - investskill nke_report_2026-08-18.html 2026-08-18 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">NKE</span></td>
+          <td>
+            <a href="./NKE_report_2026-08-18.html" class="report-title-link">NIKE, Inc. (耐克) (NKE) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">NKE_report_2026-08-18.html (69.0 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-18</td>
+          <td style="text-align: right;">
+            <a href="./NKE_report_2026-08-18.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="vst vistra corp. (vst) 15模块全景深度投研与多因子量化评估报告 - investskill vst_report_2026-08-18.html 2026-08-18 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">VST</span></td>
+          <td>
+            <a href="./VST_report_2026-08-18.html" class="report-title-link">Vistra Corp. (VST) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">VST_report_2026-08-18.html (76.9 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-18</td>
+          <td style="text-align: right;">
+            <a href="./VST_report_2026-08-18.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="hood robinhood markets, inc. (hood) 15模块全景深度投研与多因子量化评估报告 - investskill hood_report_2026-08-18.html 2026-08-18 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">HOOD</span></td>
+          <td>
+            <a href="./HOOD_report_2026-08-18.html" class="report-title-link">Robinhood Markets, Inc. (HOOD) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">HOOD_report_2026-08-18.html (76.7 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.2/10</span></td>
+          <td>2026-08-18</td>
+          <td style="text-align: right;">
+            <a href="./HOOD_report_2026-08-18.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="bmnr bitmine immersion technologies (bmnr) 15模块全景深度投研与多因子量化评估报告 - investskill bmnr_report_2026-08-18.html 2026-08-18 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">BMNR</span></td>
+          <td>
+            <a href="./BMNR_report_2026-08-18.html" class="report-title-link">BitMine Immersion Technologies (BMNR) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">BMNR_report_2026-08-18.html (68.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.5/10</span></td>
+          <td>2026-08-18</td>
+          <td style="text-align: right;">
+            <a href="./BMNR_report_2026-08-18.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="dks 迪克体育用品 (dick's sporting goods - dks) 15模块全景深度投研与多因子量化评估报告 - investskill dks_report_2026-08-18.html 2026-08-18 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">DKS</span></td>
+          <td>
+            <a href="./DKS_report_2026-08-18.html" class="report-title-link">迪克体育用品 (Dick's Sporting Goods - DKS) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">DKS_report_2026-08-18.html (70.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.4/10</span></td>
+          <td>2026-08-18</td>
+          <td style="text-align: right;">
+            <a href="./DKS_report_2026-08-18.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="meta meta platforms (meta) 15模块全景深度投研与多因子量化评估报告 - investskill meta_report_2026-08-18.html 2026-08-18 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">META</span></td>
+          <td>
+            <a href="./META_report_2026-08-18.html" class="report-title-link">Meta Platforms (META) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">META_report_2026-08-18.html (73.1 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-18</td>
+          <td style="text-align: right;">
+            <a href="./META_report_2026-08-18.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="googl 谷歌母公司 (alphabet - googl) 15模块全景深度投研与多因子量化评估报告 - investskill googl_report_2026-08-17.html 2026-08-17 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">GOOGL</span></td>
+          <td>
+            <a href="./GOOGL_report_2026-08-17.html" class="report-title-link">谷歌母公司 (Alphabet - GOOGL) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">GOOGL_report_2026-08-17.html (43.2 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.1/10</span></td>
+          <td>2026-08-17</td>
+          <td style="text-align: right;">
+            <a href="./GOOGL_report_2026-08-17.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="axp 美国运通 (american express - axp) 15模块全景深度投研与多因子量化评估报告 - investskill axp_report_2026-08-17.html 2026-08-17 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">AXP</span></td>
+          <td>
+            <a href="./AXP_report_2026-08-17.html" class="report-title-link">美国运通 (American Express - AXP) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">AXP_report_2026-08-17.html (42.7 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.7/10</span></td>
+          <td>2026-08-17</td>
+          <td style="text-align: right;">
+            <a href="./AXP_report_2026-08-17.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="idxx 爱德士生物 (idexx laboratories - idxx) 15模块全景深度投研与多因子量化评估报告 - investskill idxx_report_2026-08-17.html 2026-08-17 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">IDXX</span></td>
+          <td>
+            <a href="./IDXX_report_2026-08-17.html" class="report-title-link">爱德士生物 (IDEXX Laboratories - IDXX) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">IDXX_report_2026-08-17.html (43.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-17</td>
+          <td style="text-align: right;">
+            <a href="./IDXX_report_2026-08-17.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="mco 穆迪公司 (moody's corporation - mco) 15模块全景深度投研与多因子量化评估报告 - investskill mco_report_2026-08-17.html 2026-08-17 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">MCO</span></td>
+          <td>
+            <a href="./MCO_report_2026-08-17.html" class="report-title-link">穆迪公司 (Moody's Corporation - MCO) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">MCO_report_2026-08-17.html (43.1 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.9/10</span></td>
+          <td>2026-08-17</td>
+          <td style="text-align: right;">
+            <a href="./MCO_report_2026-08-17.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="fslr 第一太阳能 (first solar - fslr) 15模块全景深度投研与多因子量化评估报告 - investskill fslr_report_2026-08-17.html 2026-08-17 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">FSLR</span></td>
+          <td>
+            <a href="./FSLR_report_2026-08-17.html" class="report-title-link">第一太阳能 (First Solar - FSLR) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">FSLR_report_2026-08-17.html (44.1 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-17</td>
+          <td style="text-align: right;">
+            <a href="./FSLR_report_2026-08-17.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="lin 林德集团 (linde plc - lin) 15模块全景深度投研与多因子量化评估报告 - investskill lin_report_2026-08-17.html 2026-08-17 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">LIN</span></td>
+          <td>
+            <a href="./LIN_report_2026-08-17.html" class="report-title-link">林德集团 (Linde plc - LIN) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">LIN_report_2026-08-17.html (79.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-17</td>
+          <td style="text-align: right;">
+            <a href="./LIN_report_2026-08-17.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="hon honeywell international (hon) 15模块全景深度投研与多因子量化评估报告 - investskill hon_report_2026-08-16.html 2026-08-16 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">HON</span></td>
+          <td>
+            <a href="./HON_report_2026-08-16.html" class="report-title-link">Honeywell International (HON) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">HON_report_2026-08-16.html (80.3 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-16</td>
+          <td style="text-align: right;">
+            <a href="./HON_report_2026-08-16.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="wm waste management (wm) 15模块全景深度投研与多因子量化评估报告 - investskill wm_report_2026-08-16.html 2026-08-16 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">WM</span></td>
+          <td>
+            <a href="./WM_report_2026-08-16.html" class="report-title-link">Waste Management (WM) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">WM_report_2026-08-16.html (83.3 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-16</td>
+          <td style="text-align: right;">
+            <a href="./WM_report_2026-08-16.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="tm toyota motor (tm) 15模块全景深度投研与多因子量化评估报告 - investskill tm_report_2026-08-15.html 2026-08-15 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">TM</span></td>
+          <td>
+            <a href="./TM_report_2026-08-15.html" class="report-title-link">Toyota Motor (TM) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">TM_report_2026-08-15.html (80.0 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.6/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./TM_report_2026-08-15.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="dkng draftkings (dkng) 15模块全景深度投研与多因子量化评估报告 - investskill dkng_report_2026-08-15.html 2026-08-15 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">DKNG</span></td>
+          <td>
+            <a href="./DKNG_report_2026-08-15.html" class="report-title-link">DraftKings (DKNG) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">DKNG_report_2026-08-15.html (79.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./DKNG_report_2026-08-15.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="nvo novo nordisk (nvo) 15模块全景深度投研与多因子量化评估报告 - investskill nvo_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">NVO</span></td>
+          <td>
+            <a href="./NVO_report_2026-08-15.html" class="report-title-link">Novo Nordisk (NVO) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">NVO_report_2026-08-15.html (80.8 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./NVO_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="pgr progressive (pgr) 15模块全景深度投研与多因子量化评估报告 - investskill pgr_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">PGR</span></td>
+          <td>
+            <a href="./PGR_report_2026-08-15.html" class="report-title-link">Progressive (PGR) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">PGR_report_2026-08-15.html (81.2 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./PGR_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="deck deckers outdoor (deck) 15模块全景深度投研与多因子量化评估报告 - investskill deck_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">DECK</span></td>
+          <td>
+            <a href="./DECK_report_2026-08-15.html" class="report-title-link">Deckers Outdoor (DECK) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">DECK_report_2026-08-15.html (81.2 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.7/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./DECK_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="ulta ulta beauty (ulta) 15模块全景深度投研与多因子量化评估报告 - investskill ulta_report_2026-08-15.html 2026-08-15 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">ULTA</span></td>
+          <td>
+            <a href="./ULTA_report_2026-08-15.html" class="report-title-link">Ulta Beauty (ULTA) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">ULTA_report_2026-08-15.html (81.6 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.5/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./ULTA_report_2026-08-15.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="vmc vulcan materials (vmc) 15模块全景深度投研与多因子量化评估报告 - investskill vmc_report_2026-08-15.html 2026-08-15 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">VMC</span></td>
+          <td>
+            <a href="./VMC_report_2026-08-15.html" class="report-title-link">Vulcan Materials (VMC) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">VMC_report_2026-08-15.html (81.0 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./VMC_report_2026-08-15.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="mlm martin marietta materials (mlm) 15模块全景深度投研与多因子量化评估报告 - investskill mlm_report_2026-08-15.html 2026-08-15 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">MLM</span></td>
+          <td>
+            <a href="./MLM_report_2026-08-15.html" class="report-title-link">Martin Marietta Materials (MLM) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">MLM_report_2026-08-15.html (82.1 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./MLM_report_2026-08-15.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="fslr first solar (fslr) 15模块全景深度投研与多因子量化评估报告 - investskill fslr_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">FSLR</span></td>
+          <td>
+            <a href="./FSLR_report_2026-08-15.html" class="report-title-link">First Solar (FSLR) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">FSLR_report_2026-08-15.html (82.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./FSLR_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="onon 昂跑 (on holding - onon) 15模块全景深度投研与多因子量化评估报告 - investskill onon_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">ONON</span></td>
+          <td>
+            <a href="./ONON_report_2026-08-15.html" class="report-title-link">昂跑 (On Holding - ONON) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">ONON_report_2026-08-15.html (83.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./ONON_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="bsx 波士顿科学 (boston scientific - bsx) 15模块全景深度投研与多因子量化评估报告 - investskill bsx_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">BSX</span></td>
+          <td>
+            <a href="./BSX_report_2026-08-15.html" class="report-title-link">波士顿科学 (Boston Scientific - BSX) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">BSX_report_2026-08-15.html (85.9 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.7/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./BSX_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-sell" data-signal-type="STRONG_SELL" data-search="plug 普拉格能源 (plug power - plug) 15模块全景深度做空与风险压力测试报告 - investskill plug_report_2026-08-15.html 2026-08-15 强烈看空 (strong sell) strong_sell">
+          <td><span class="ticker-pill ">PLUG</span></td>
+          <td>
+            <a href="./PLUG_report_2026-08-15.html" class="report-title-link">普拉格能源 (Plug Power - PLUG) 15模块全景深度做空与风险压力测试报告 - InvestSkill</a>
+            <div class="file-name">PLUG_report_2026-08-15.html (57.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-sell">⛔ 强烈看空 (STRONG SELL) • 1.8/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./PLUG_report_2026-08-15.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="lvs 拉斯维加斯金沙 (las vegas sands - lvs) 15模块全景深度投研与多因子量化评估报告 - investskill lvs_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">LVS</span></td>
+          <td>
+            <a href="./LVS_report_2026-08-15.html" class="report-title-link">拉斯维加斯金沙 (Las Vegas Sands - LVS) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">LVS_report_2026-08-15.html (73.2 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./LVS_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="baba 阿里巴巴 (alibaba group - baba) 15模块全景深度投研与多因子量化评估报告 - investskill baba_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">BABA</span></td>
+          <td>
+            <a href="./BABA_report_2026-08-15.html" class="report-title-link">阿里巴巴 (Alibaba Group - BABA) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">BABA_report_2026-08-15.html (73.8 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./BABA_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="podd 因苏莱特 (insulet - podd) 15模块全景深度投研与多因子量化评估报告 - investskill podd_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">PODD</span></td>
+          <td>
+            <a href="./PODD_report_2026-08-15.html" class="report-title-link">因苏莱特 (Insulet - PODD) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">PODD_report_2026-08-15.html (74.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.7/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./PODD_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="isrg 直觉外科 (intuitive surgical - isrg) 15模块全景深度投研与多因子量化评估报告 - investskill isrg_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">ISRG</span></td>
+          <td>
+            <a href="./ISRG_report_2026-08-15.html" class="report-title-link">直觉外科 (Intuitive Surgical - ISRG) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">ISRG_report_2026-08-15.html (74.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.9/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./ISRG_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="syk 史赛克 (stryker - syk) 15模块全景深度投研与多因子量化评估报告 - investskill syk_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SYK</span></td>
+          <td>
+            <a href="./SYK_report_2026-08-15.html" class="report-title-link">史赛克 (Stryker - SYK) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">SYK_report_2026-08-15.html (73.9 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./SYK_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="dhr 丹纳赫 (danaher - dhr) 15模块全景深度投研与多因子量化评估报告 - investskill dhr_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">DHR</span></td>
+          <td>
+            <a href="./DHR_report_2026-08-15.html" class="report-title-link">丹纳赫 (Danaher - DHR) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">DHR_report_2026-08-15.html (75.0 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.7/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./DHR_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="spot 声田 (spotify - spot) 15模块全景深度投研与多因子量化评估报告 - investskill spot_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SPOT</span></td>
+          <td>
+            <a href="./SPOT_report_2026-08-15.html" class="report-title-link">声田 (Spotify - SPOT) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">SPOT_report_2026-08-15.html (75.2 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./SPOT_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="duol 多邻国 (duolingo - duol) 15模块全景深度投研与多因子量化评估报告 - investskill duol_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">DUOL</span></td>
+          <td>
+            <a href="./DUOL_report_2026-08-15.html" class="report-title-link">多邻国 (Duolingo - DUOL) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">DUOL_report_2026-08-15.html (76.0 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.5/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./DUOL_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="app applovin (app) 15模块全景深度投研与多因子量化评估报告 - investskill app_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">APP</span></td>
+          <td>
+            <a href="./APP_report_2026-08-15.html" class="report-title-link">AppLovin (APP) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">APP_report_2026-08-15.html (76.1 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./APP_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="adbe adobe (adbe) 15模块全景深度投研与多因子量化评估报告 - investskill adbe_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">ADBE</span></td>
+          <td>
+            <a href="./ADBE_report_2026-08-15.html" class="report-title-link">Adobe (ADBE) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">ADBE_report_2026-08-15.html (76.0 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./ADBE_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="zts 硕腾 (zoetis - zts) 15模块全景深度投研与多因子量化评估报告 - investskill zts_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">ZTS</span></td>
+          <td>
+            <a href="./ZTS_report_2026-08-15.html" class="report-title-link">硕腾 (Zoetis - ZTS) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">ZTS_report_2026-08-15.html (76.1 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.7/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./ZTS_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="jd 京东集团 (jd.com - jd) 15模块全景深度投研与多因子量化评估报告 - investskill jd_report_2026-08-15.html 2026-08-15 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">JD</span></td>
+          <td>
+            <a href="./JD_report_2026-08-15.html" class="report-title-link">京东集团 (JD.com - JD) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">JD_report_2026-08-15.html (74.7 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./JD_report_2026-08-15.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="nu nu holdings (nubank - nu) 15模块全景深度投研与多因子量化评估报告 - investskill nu_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">NU</span></td>
+          <td>
+            <a href="./NU_report_2026-08-15.html" class="report-title-link">Nu Holdings (Nubank - NU) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">NU_report_2026-08-15.html (74.7 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./NU_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="meli 美客多 (mercadolibre - meli) 15模块全景深度投研与多因子量化评估报告 - investskill meli_report_2026-08-15.html 2026-08-15 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">MELI</span></td>
+          <td>
+            <a href="./MELI_report_2026-08-15.html" class="report-title-link">美客多 (MercadoLibre - MELI) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">MELI_report_2026-08-15.html (76.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./MELI_report_2026-08-15.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="flut 弗拉特娱乐 (flutter entertainment - flut) 15模块全景深度投研与多因子量化评估报告 - investskill flut_report_2026-08-15.html 2026-08-15 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">FLUT</span></td>
+          <td>
+            <a href="./FLUT_report_2026-08-15.html" class="report-title-link">弗拉特娱乐 (Flutter Entertainment - FLUT) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">FLUT_report_2026-08-15.html (76.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.2/10</span></td>
+          <td>2026-08-15</td>
+          <td style="text-align: right;">
+            <a href="./FLUT_report_2026-08-15.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="nxpi 恩智浦半导体 (nxp semiconductors - nxpi) 15模块全景深度投研与多因子量化评估报告 - investskill nxpi_report_2026-08-14.html 2026-08-14 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">NXPI</span></td>
+          <td>
+            <a href="./NXPI_report_2026-08-14.html" class="report-title-link">恩智浦半导体 (NXP Semiconductors - NXPI) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">NXPI_report_2026-08-14.html (91.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-14</td>
+          <td style="text-align: right;">
+            <a href="./NXPI_report_2026-08-14.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="snps 新思科技 (synopsys - snps) 15模块全景深度投研与多因子量化评估报告 - investskill snps_report_2026-08-14.html 2026-08-14 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SNPS</span></td>
+          <td>
+            <a href="./SNPS_report_2026-08-14.html" class="report-title-link">新思科技 (Synopsys - SNPS) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">SNPS_report_2026-08-14.html (73.9 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.4/10</span></td>
+          <td>2026-08-14</td>
+          <td style="text-align: right;">
+            <a href="./SNPS_report_2026-08-14.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="cdns 楷登电子 (cadence design systems - cdns) 15模块全景深度投研与多因子量化评估报告 - investskill cdns_report_2026-08-14.html 2026-08-14 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">CDNS</span></td>
+          <td>
+            <a href="./CDNS_report_2026-08-14.html" class="report-title-link">楷登电子 (Cadence Design Systems - CDNS) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">CDNS_report_2026-08-14.html (77.1 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-14</td>
+          <td style="text-align: right;">
+            <a href="./CDNS_report_2026-08-14.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="ibm 国际商业机器 (international business machines - ibm) 15模块全景深度投研与多因子量化评估报告 - investskill ibm_report_2026-08-14.html 2026-08-14 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">IBM</span></td>
+          <td>
+            <a href="./IBM_report_2026-08-14.html" class="report-title-link">国际商业机器 (International Business Machines - IBM) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">IBM_report_2026-08-14.html (83.6 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.1/10</span></td>
+          <td>2026-08-14</td>
+          <td style="text-align: right;">
+            <a href="./IBM_report_2026-08-14.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="hood robinhood 全球散户交易与金融科技先锋 (hood) 深度投资研究与多因子评估报告 - investskill hood_report_2026-08-14.html 2026-08-14 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">HOOD</span></td>
+          <td>
+            <a href="./HOOD_report_2026-08-14.html" class="report-title-link">Robinhood 全球散户交易与金融科技先锋 (HOOD) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">HOOD_report_2026-08-14.html (47.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-14</td>
+          <td style="text-align: right;">
+            <a href="./HOOD_report_2026-08-14.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="fico 费埃哲全球个人与企业信用评分垄断者 (fico) 深度投资研究与多因子评估报告 - investskill fico_report_2026-08-14.html 2026-08-14 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">FICO</span></td>
+          <td>
+            <a href="./FICO_report_2026-08-14.html" class="report-title-link">费埃哲全球个人与企业信用评分垄断者 (FICO) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">FICO_report_2026-08-14.html (47.9 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.9/10</span></td>
+          <td>2026-08-14</td>
+          <td style="text-align: right;">
+            <a href="./FICO_report_2026-08-14.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="smci 超微电脑 (super micro computer - smci) 全模块深度研究与多因子量化评估报告 - investskill smci_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">SMCI</span></td>
+          <td>
+            <a href="./SMCI_report_2026-08-13.html" class="report-title-link">超微电脑 (Super Micro Computer - SMCI) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">SMCI_report_2026-08-13.html (72.7 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 7.6/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./SMCI_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="brk.b brk.b 伯克希尔·哈撒韦 15模块全景深度投研报告 brk.b_report_2026-08-13.html 2026-08-13 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">BRK.B</span></td>
+          <td>
+            <a href="./BRK.B_report_2026-08-13.html" class="report-title-link">BRK.B 伯克希尔·哈撒韦 15模块全景深度投研报告</a>
+            <div class="file-name">BRK.B_report_2026-08-13.html (53.1 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./BRK.B_report_2026-08-13.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="btdr 比特小鹿 (bitdeer technologies group - btdr) 全模块深度研究与多因子量化评估报告 - investskill btdr_report_2026-08-13.html 2026-08-13 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">BTDR</span></td>
+          <td>
+            <a href="./BTDR_report_2026-08-13.html" class="report-title-link">比特小鹿 (Bitdeer Technologies Group - BTDR) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">BTDR_report_2026-08-13.html (76.3 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./BTDR_report_2026-08-13.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="mara mara holdings, inc. (mara控股) (mara) 全模块深度研究与多因子量化评估报告 - investskill mara_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">MARA</span></td>
+          <td>
+            <a href="./MARA_report_2026-08-13.html" class="report-title-link">MARA Holdings, Inc. (MARA控股) (MARA) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">MARA_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.1/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./MARA_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="wmt walmart inc. (沃尔玛) (wmt) 全模块深度研究与多因子量化评估报告 - investskill wmt_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">WMT</span></td>
+          <td>
+            <a href="./WMT_report_2026-08-13.html" class="report-title-link">Walmart Inc. (沃尔玛) (WMT) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">WMT_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.8/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./WMT_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="NEUTRAL" data-search="upst upstart holdings, inc. (upstart) (upst) 全模块深度研究与多因子量化评估报告 - investskill upst_report_2026-08-13.html 2026-08-13 中立 (neutral) neutral">
+          <td><span class="ticker-pill ">UPST</span></td>
+          <td>
+            <a href="./UPST_report_2026-08-13.html" class="report-title-link">Upstart Holdings, Inc. (Upstart) (UPST) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">UPST_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-neutral">🟡 中立 (NEUTRAL) • 7.5/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./UPST_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="NEUTRAL" data-search="ashr xtrackers harvest csi 300 china a-shares etf (沪深300中国a股etf) (ashr) 全模块深度研究与多因子量化评估报告 - investskill ashr_report_2026-08-13.html 2026-08-13 中立 (neutral) neutral">
+          <td><span class="ticker-pill ">ASHR</span></td>
+          <td>
+            <a href="./ASHR_report_2026-08-13.html" class="report-title-link">Xtrackers Harvest CSI 300 China A-Shares ETF (沪深300中国A股ETF) (ASHR) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">ASHR_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-neutral">🟡 中立 (NEUTRAL) • 7.6/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./ASHR_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="nxpi nxp semiconductors n.v. (恩智浦半导体) (nxpi) 全模块深度研究与多因子量化评估报告 - investskill nxpi_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">NXPI</span></td>
+          <td>
+            <a href="./NXPI_report_2026-08-13.html" class="report-title-link">NXP Semiconductors N.V. (恩智浦半导体) (NXPI) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">NXPI_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.6/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./NXPI_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="clsk cleanspark, inc. (清洁火花) (clsk) 全模块深度研究与多因子量化评估报告 - investskill clsk_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">CLSK</span></td>
+          <td>
+            <a href="./CLSK_report_2026-08-13.html" class="report-title-link">CleanSpark, Inc. (清洁火花) (CLSK) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">CLSK_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.2/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./CLSK_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="snps synopsys, inc. (新思科技) (snps) 全模块深度研究与多因子量化评估报告 - investskill snps_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">SNPS</span></td>
+          <td>
+            <a href="./SNPS_report_2026-08-13.html" class="report-title-link">Synopsys, Inc. (新思科技) (SNPS) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">SNPS_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.9/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./SNPS_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="ceg constellation energy corporation (星座能源) (ceg) 全模块深度研究与多因子量化评估报告 - investskill ceg_report_2026-08-13.html 2026-08-13 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">CEG</span></td>
+          <td>
+            <a href="./CEG_report_2026-08-13.html" class="report-title-link">Constellation Energy Corporation (星座能源) (CEG) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">CEG_report_2026-08-13.html (46.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.2/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./CEG_report_2026-08-13.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="vst vistra corp. (维斯特拉能源) (vst) 全模块深度研究与多因子量化评估报告 - investskill vst_report_2026-08-13.html 2026-08-13 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">VST</span></td>
+          <td>
+            <a href="./VST_report_2026-08-13.html" class="report-title-link">Vistra Corp. (维斯特拉能源) (VST) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">VST_report_2026-08-13.html (46.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.1/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./VST_report_2026-08-13.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="kweb kraneshares csi china internet etf (中概互联网指数etf) (kweb) 全模块深度研究与多因子量化评估报告 - investskill kweb_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">KWEB</span></td>
+          <td>
+            <a href="./KWEB_report_2026-08-13.html" class="report-title-link">KraneShares CSI China Internet ETF (中概互联网指数ETF) (KWEB) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">KWEB_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.2/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./KWEB_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="low lowe's companies, inc. (劳氏公司) (low) 全模块深度研究与多因子量化评估报告 - investskill low_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">LOW</span></td>
+          <td>
+            <a href="./LOW_report_2026-08-13.html" class="report-title-link">Lowe's Companies, Inc. (劳氏公司) (LOW) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">LOW_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.5/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./LOW_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="xlu utilities select sector spdr fund (公用事业精选行业spdr基金) (xlu) 全模块深度研究与多因子量化评估报告 - investskill xlu_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">XLU</span></td>
+          <td>
+            <a href="./XLU_report_2026-08-13.html" class="report-title-link">Utilities Select Sector SPDR Fund (公用事业精选行业SPDR基金) (XLU) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">XLU_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.5/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./XLU_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="mstr microstrategy incorporated (微策略) (mstr) 全模块深度研究与多因子量化评估报告 - investskill mstr_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">MSTR</span></td>
+          <td>
+            <a href="./MSTR_report_2026-08-13.html" class="report-title-link">MicroStrategy Incorporated (微策略) (MSTR) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">MSTR_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./MSTR_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="bwxt bwx technologies, inc. (bwx技术) (bwxt) 全模块深度研究与多因子量化评估报告 - investskill bwxt_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">BWXT</span></td>
+          <td>
+            <a href="./BWXT_report_2026-08-13.html" class="report-title-link">BWX Technologies, Inc. (BWX技术) (BWXT) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">BWXT_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.8/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./BWXT_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="ccj cameco corporation (卡梅科) (ccj) 全模块深度研究与多因子量化评估报告 - investskill ccj_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">CCJ</span></td>
+          <td>
+            <a href="./CCJ_report_2026-08-13.html" class="report-title-link">Cameco Corporation (卡梅科) (CCJ) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">CCJ_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.6/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./CCJ_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="skhy sk hynix inc. (sk海力士) (skhy) 全模块深度研究与多因子量化评估报告 - investskill skhy_report_2026-08-13.html 2026-08-13 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SKHY</span></td>
+          <td>
+            <a href="./SKHY_report_2026-08-13.html" class="report-title-link">SK hynix Inc. (SK海力士) (SKHY) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">SKHY_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.0/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./SKHY_report_2026-08-13.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="cdns cadence design systems, inc. (楷登电子) (cdns) 全模块深度研究与多因子量化评估报告 - investskill cdns_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">CDNS</span></td>
+          <td>
+            <a href="./CDNS_report_2026-08-13.html" class="report-title-link">Cadence Design Systems, Inc. (楷登电子) (CDNS) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">CDNS_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.8/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./CDNS_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="hd the home depot, inc. (家得宝) (hd) 全模块深度研究与多因子量化评估报告 - investskill hd_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">HD</span></td>
+          <td>
+            <a href="./HD_report_2026-08-13.html" class="report-title-link">The Home Depot, Inc. (家得宝) (HD) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">HD_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.6/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./HD_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="coin coinbase global, inc. (coinbase) (coin) 全模块深度研究与多因子量化评估报告 - investskill coin_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">COIN</span></td>
+          <td>
+            <a href="./COIN_report_2026-08-13.html" class="report-title-link">Coinbase Global, Inc. (Coinbase) (COIN) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">COIN_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.5/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./COIN_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="orcl oracle corporation (甲骨文) (orcl) 全模块深度研究与多因子量化评估报告 - investskill orcl_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">ORCL</span></td>
+          <td>
+            <a href="./ORCL_report_2026-08-13.html" class="report-title-link">Oracle Corporation (甲骨文) (ORCL) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">ORCL_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.7/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./ORCL_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="pg the procter & gamble company (宝洁公司) (pg) 全模块深度研究与多因子量化评估报告 - investskill pg_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">PG</span></td>
+          <td>
+            <a href="./PG_report_2026-08-13.html" class="report-title-link">The Procter &amp; Gamble Company (宝洁公司) (PG) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">PG_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.5/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./PG_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="ibit ishares bitcoin trust (贝莱德比特币现货etf) (ibit) 全模块深度研究与多因子量化评估报告 - investskill ibit_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">IBIT</span></td>
+          <td>
+            <a href="./IBIT_report_2026-08-13.html" class="report-title-link">iShares Bitcoin Trust (贝莱德比特币现货ETF) (IBIT) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">IBIT_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.6/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./IBIT_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="tlt ishares 20+ year treasury bond etf (20年以上美国国债etf) (tlt) 全模块深度研究与多因子量化评估报告 - investskill tlt_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">TLT</span></td>
+          <td>
+            <a href="./TLT_report_2026-08-13.html" class="report-title-link">iShares 20+ Year Treasury Bond ETF (20年以上美国国债ETF) (TLT) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">TLT_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./TLT_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="nflx netflix, inc. (奈飞) (nflx) 全模块深度研究与多因子量化评估报告 - investskill nflx_report_2026-08-13.html 2026-08-13 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">NFLX</span></td>
+          <td>
+            <a href="./NFLX_report_2026-08-13.html" class="report-title-link">Netflix, Inc. (奈飞) (NFLX) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">NFLX_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.9/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./NFLX_report_2026-08-13.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="cme cme group inc. (芝商所) (cme) 全模块深度研究与多因子量化评估报告 - investskill cme_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">CME</span></td>
+          <td>
+            <a href="./CME_report_2026-08-13.html" class="report-title-link">CME Group Inc. (芝商所) (CME) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">CME_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.9/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./CME_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="tcom trip.com group limited (携程集团) (tcom) 全模块深度研究与多因子量化评估报告 - investskill tcom_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">TCOM</span></td>
+          <td>
+            <a href="./TCOM_report_2026-08-13.html" class="report-title-link">Trip.com Group Limited (携程集团) (TCOM) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">TCOM_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.7/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./TCOM_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="kr the kroger co. (克罗格) (kr) 全模块深度研究与多因子量化评估报告 - investskill kr_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">KR</span></td>
+          <td>
+            <a href="./KR_report_2026-08-13.html" class="report-title-link">The Kroger Co. (克罗格) (KR) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">KR_report_2026-08-13.html (46.3 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./KR_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="pdd pdd holdings inc. (拼多多 / pdd) (pdd) 全模块深度研究与多因子量化评估报告 - investskill pdd_report_2026-08-13.html 2026-08-13 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">PDD</span></td>
+          <td>
+            <a href="./PDD_report_2026-08-13.html" class="report-title-link">PDD Holdings Inc. (拼多多 / PDD) (PDD) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">PDD_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.0/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./PDD_report_2026-08-13.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="pep pepsico, inc. (百事公司) (pep) 全模块深度研究与多因子量化评估报告 - investskill pep_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">PEP</span></td>
+          <td>
+            <a href="./PEP_report_2026-08-13.html" class="report-title-link">PepsiCo, Inc. (百事公司) (PEP) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">PEP_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.5/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./PEP_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="nrg nrg energy, inc. (nrg能源) (nrg) 全模块深度研究与多因子量化评估报告 - investskill nrg_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">NRG</span></td>
+          <td>
+            <a href="./NRG_report_2026-08-13.html" class="report-title-link">NRG Energy, Inc. (NRG能源) (NRG) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">NRG_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.5/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./NRG_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="mcd mcdonald's corporation (麦当劳) (mcd) 全模块深度研究与多因子量化评估报告 - investskill mcd_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">MCD</span></td>
+          <td>
+            <a href="./MCD_report_2026-08-13.html" class="report-title-link">McDonald's Corporation (麦当劳) (MCD) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">MCD_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.6/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./MCD_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="noc northrop grumman corporation (诺斯罗普·格鲁曼) (noc) 全模块深度研究与多因子量化评估报告 - investskill noc_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">NOC</span></td>
+          <td>
+            <a href="./NOC_report_2026-08-13.html" class="report-title-link">Northrop Grumman Corporation (诺斯罗普·格鲁曼) (NOC) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">NOC_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.7/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./NOC_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="spgi s&p global inc. (标普全球) (spgi) 全模块深度研究与多因子量化评估报告 - investskill spgi_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">SPGI</span></td>
+          <td>
+            <a href="./SPGI_report_2026-08-13.html" class="report-title-link">S&amp;P Global Inc. (标普全球) (SPGI) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">SPGI_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 9.0/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./SPGI_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="ibm international business machines corporation (国际商业机器) (ibm) 全模块深度研究与多因子量化评估报告 - investskill ibm_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">IBM</span></td>
+          <td>
+            <a href="./IBM_report_2026-08-13.html" class="report-title-link">International Business Machines Corporation (国际商业机器) (IBM) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">IBM_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.6/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./IBM_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="meta meta platforms, inc. (meta 平台) (meta) 全模块深度研究与多因子量化评估报告 - investskill meta_report_2026-08-13.html 2026-08-13 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">META</span></td>
+          <td>
+            <a href="./META_report_2026-08-13.html" class="report-title-link">Meta Platforms, Inc. (Meta 平台) (META) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">META_report_2026-08-13.html (46.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.1/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./META_report_2026-08-13.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="nke nike, inc. (耐克) (nke) 全模块深度研究与多因子量化评估报告 - investskill nke_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">NKE</span></td>
+          <td>
+            <a href="./NKE_report_2026-08-13.html" class="report-title-link">NIKE, Inc. (耐克) (NKE) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">NKE_report_2026-08-13.html (46.3 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./NKE_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="intu intuit inc. (财捷集团) (intu) 全模块深度研究与多因子量化评估报告 - investskill intu_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">INTU</span></td>
+          <td>
+            <a href="./INTU_report_2026-08-13.html" class="report-title-link">Intuit Inc. (财捷集团) (INTU) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">INTU_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.7/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./INTU_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="acn accenture plc (埃森哲) (acn) 全模块深度研究与多因子量化评估报告 - investskill acn_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">ACN</span></td>
+          <td>
+            <a href="./ACN_report_2026-08-13.html" class="report-title-link">Accenture plc (埃森哲) (ACN) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">ACN_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.6/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./ACN_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="bsx boston scientific corporation (波士顿科学) (bsx) 全模块深度研究与多因子量化评估报告 - investskill bsx_report_2026-08-13.html 2026-08-13 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">BSX</span></td>
+          <td>
+            <a href="./BSX_report_2026-08-13.html" class="report-title-link">Boston Scientific Corporation (波士顿科学) (BSX) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">BSX_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./BSX_report_2026-08-13.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="lulu lululemon athletica inc. (露露乐蒙) (lulu) 全模块深度研究与多因子量化评估报告 - investskill lulu_report_2026-08-13.html 2026-08-13 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">LULU</span></td>
+          <td>
+            <a href="./LULU_report_2026-08-13.html" class="report-title-link">Lululemon Athletica Inc. (露露乐蒙) (LULU) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">LULU_report_2026-08-13.html (46.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-13</td>
+          <td style="text-align: right;">
+            <a href="./LULU_report_2026-08-13.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="low lowe's companies, inc. (劳氏公司) (low) 全模块深度研究与多因子量化评估报告 - investskill low_report_2026-08-12.html 2026-08-12 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">LOW</span></td>
+          <td>
+            <a href="./LOW_report_2026-08-12.html" class="report-title-link">Lowe's Companies, Inc. (劳氏公司) (LOW) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">LOW_report_2026-08-12.html (56.2 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.5/10</span></td>
+          <td>2026-08-12</td>
+          <td style="text-align: right;">
+            <a href="./LOW_report_2026-08-12.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="tcom trip.com group limited (携程集团) (tcom) 全模块深度研究与多因子量化评估报告 - investskill tcom_report_2026-08-12.html 2026-08-12 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">TCOM</span></td>
+          <td>
+            <a href="./TCOM_report_2026-08-12.html" class="report-title-link">Trip.com Group Limited (携程集团) (TCOM) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">TCOM_report_2026-08-12.html (56.9 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-12</td>
+          <td style="text-align: right;">
+            <a href="./TCOM_report_2026-08-12.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="brk.b 伯克希尔·哈撒韦 (berkshire hathaway inc.) (brk.b) 深度投资研究与多因子评估报告 - investskill brk.b_report_2026-08-12.html 2026-08-12 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">BRK.B</span></td>
+          <td>
+            <a href="./BRK.B_report_2026-08-12.html" class="report-title-link">伯克希尔·哈撒韦 (Berkshire Hathaway Inc.) (BRK.B) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">BRK.B_report_2026-08-12.html (30.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.4/10</span></td>
+          <td>2026-08-12</td>
+          <td style="text-align: right;">
+            <a href="./BRK.B_report_2026-08-12.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="cdns cadence design systems (cdns) 全模块深度研究与多因子量化评估报告 - investskill cdns_report_2026-08-11.html 2026-08-11 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">CDNS</span></td>
+          <td>
+            <a href="./CDNS_report_2026-08-11.html" class="report-title-link">Cadence Design Systems (CDNS) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">CDNS_report_2026-08-11.html (54.8 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-11</td>
+          <td style="text-align: right;">
+            <a href="./CDNS_report_2026-08-11.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="lulu lululemon athletica (lulu) 全模块深度研究与多因子量化评估报告 - investskill lulu_report_2026-08-11.html 2026-08-11 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">LULU</span></td>
+          <td>
+            <a href="./LULU_report_2026-08-11.html" class="report-title-link">Lululemon Athletica (LULU) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">LULU_report_2026-08-11.html (57.8 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.2/10</span></td>
+          <td>2026-08-11</td>
+          <td style="text-align: right;">
+            <a href="./LULU_report_2026-08-11.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="coin coinbase global (coin) 全模块深度研究与多因子量化评估报告 - investskill coin_report_2026-08-10.html 2026-08-10 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">COIN</span></td>
+          <td>
+            <a href="./COIN_report_2026-08-10.html" class="report-title-link">Coinbase Global (COIN) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">COIN_report_2026-08-10.html (51.0 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.3/10</span></td>
+          <td>2026-08-10</td>
+          <td style="text-align: right;">
+            <a href="./COIN_report_2026-08-10.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="skhy sk海力士 (sk hynix inc.) (skhy) 全模块深度研究与多因子量化评估报告 - investskill skhy_report_2026-08-10.html 2026-08-10 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SKHY</span></td>
+          <td>
+            <a href="./SKHY_report_2026-08-10.html" class="report-title-link">SK海力士 (SK hynix Inc.) (SKHY) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">SKHY_report_2026-08-10.html (50.9 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-10</td>
+          <td style="text-align: right;">
+            <a href="./SKHY_report_2026-08-10.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="o realty income corporation (o) 全模块深度研究与多因子量化评估报告 - investskill o_report_2026-08-10.html 2026-08-10 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">O</span></td>
+          <td>
+            <a href="./O_report_2026-08-10.html" class="report-title-link">Realty Income Corporation (O) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">O_report_2026-08-10.html (45.1 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-10</td>
+          <td style="text-align: right;">
+            <a href="./O_report_2026-08-10.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="mara mara holdings (mara) 全模块深度研究与多因子量化评估报告 - investskill mara_report_2026-08-09.html 2026-08-09 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">MARA</span></td>
+          <td>
+            <a href="./MARA_report_2026-08-09.html" class="report-title-link">MARA Holdings (MARA) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">MARA_report_2026-08-09.html (50.3 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 7.8/10</span></td>
+          <td>2026-08-09</td>
+          <td style="text-align: right;">
+            <a href="./MARA_report_2026-08-09.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="amzn 亚马逊 (amzn) 全模块深度研究与多因子量化评估报告 - investskill amzn_report_2026-08-08.html 2026-08-08 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">AMZN</span></td>
+          <td>
+            <a href="./AMZN_report_2026-08-08.html" class="report-title-link">亚马逊 (AMZN) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">AMZN_report_2026-08-08.html (57.7 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-08</td>
+          <td style="text-align: right;">
+            <a href="./AMZN_report_2026-08-08.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="goog 谷歌母公司 alphabet (goog) 全模块深度研究与多因子量化评估报告 - investskill goog_report_2026-08-08.html 2026-08-08 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">GOOG</span></td>
+          <td>
+            <a href="./GOOG_report_2026-08-08.html" class="report-title-link">谷歌母公司 Alphabet (GOOG) 全模块深度研究与多因子量化评估报告 - InvestSkill</a>
+            <div class="file-name">GOOG_report_2026-08-08.html (58.3 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-08</td>
+          <td style="text-align: right;">
+            <a href="./GOOG_report_2026-08-08.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="mod 莫丁制造 (mod) 全球ai数据中心液冷与热管理核心领军者 深度投资研究与多因子评估报告 - investskill mod_report_2026-08-06.html 2026-08-06 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">MOD</span></td>
+          <td>
+            <a href="./MOD_report_2026-08-06.html" class="report-title-link">莫丁制造 (MOD) 全球AI数据中心液冷与热管理核心领军者 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">MOD_report_2026-08-06.html (59.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-06</td>
+          <td style="text-align: right;">
+            <a href="./MOD_report_2026-08-06.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="onto onto innovation (onto) 财报深度总结与多因子量化投资分析报告 - investskill onto_report_2026-08-06.html 2026-08-06 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">ONTO</span></td>
+          <td>
+            <a href="./ONTO_report_2026-08-06.html" class="report-title-link">Onto Innovation (ONTO) 财报深度总结与多因子量化投资分析报告 - InvestSkill</a>
+            <div class="file-name">ONTO_report_2026-08-06.html (41.7 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-06</td>
+          <td style="text-align: right;">
+            <a href="./ONTO_report_2026-08-06.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="xlu 美股公用事业板块精选 spdr 行业 etf (xlu) 深度投资研究与多因子评估报告 - investskill xlu_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">XLU</span></td>
+          <td>
+            <a href="./XLU_report_2026-08-05.html" class="report-title-link">美股公用事业板块精选 SPDR 行业 ETF (XLU) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">XLU_report_2026-08-05.html (47.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.1/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./XLU_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="wmt 沃尔玛全球全渠道零售帝国与高毛利平台转型 (wmt) 深度投资研究与多因子评估报告 - investskill wmt_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">WMT</span></td>
+          <td>
+            <a href="./WMT_report_2026-08-05.html" class="report-title-link">沃尔玛全球全渠道零售帝国与高毛利平台转型 (WMT) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">WMT_report_2026-08-05.html (47.8 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.7/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./WMT_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="vst 维斯特拉能源全美独立发电商与清洁核电巨头 (vst) 深度投资研究与多因子评估报告 - investskill vst_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">VST</span></td>
+          <td>
+            <a href="./VST_report_2026-08-05.html" class="report-title-link">维斯特拉能源全美独立发电商与清洁核电巨头 (VST) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">VST_report_2026-08-05.html (47.7 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.0/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./VST_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="upst upstart 人工智能信用风控信贷平台 (upst) 深度投资研究与多因子评估报告 - investskill upst_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">UPST</span></td>
+          <td>
+            <a href="./UPST_report_2026-08-05.html" class="report-title-link">Upstart 人工智能信用风控信贷平台 (UPST) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">UPST_report_2026-08-05.html (47.6 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.0/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./UPST_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="uber 优步全球网约车出行与即时配送霸主 (uber) 深度投资研究与多因子评估报告 - investskill uber_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">UBER</span></td>
+          <td>
+            <a href="./UBER_report_2026-08-05.html" class="report-title-link">优步全球网约车出行与即时配送霸主 (UBER) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">UBER_report_2026-08-05.html (47.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./UBER_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="tsla 特斯拉智能电动车、fsd 自动驾驶与人形机器人先锋 (tsla) 深度投资研究与多因子评估报告 - investskill tsla_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">TSLA</span></td>
+          <td>
+            <a href="./TSLA_report_2026-08-05.html" class="report-title-link">特斯拉智能电动车、FSD 自动驾驶与人形机器人先锋 (TSLA) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">TSLA_report_2026-08-05.html (47.7 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./TSLA_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="tlt ishares 20年期以上美国国债 etf (tlt) 深度投资研究与多因子评估报告 - investskill tlt_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">TLT</span></td>
+          <td>
+            <a href="./TLT_report_2026-08-05.html" class="report-title-link">iShares 20年期以上美国国债 ETF (TLT) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">TLT_report_2026-08-05.html (47.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.0/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./TLT_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="tcom 携程集团全球在线旅游与 ota 领军巨头 (tcom) 深度投资研究与多因子评估报告 - investskill tcom_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">TCOM</span></td>
+          <td>
+            <a href="./TCOM_report_2026-08-05.html" class="report-title-link">携程集团全球在线旅游与 OTA 领军巨头 (TCOM) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">TCOM_report_2026-08-05.html (47.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./TCOM_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="syk 史赛克骨科植入物与手术机器人先锋 (syk) 深度投资研究与多因子评估报告 - investskill syk_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SYK</span></td>
+          <td>
+            <a href="./SYK_report_2026-08-05.html" class="report-title-link">史赛克骨科植入物与手术机器人先锋 (SYK) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">SYK_report_2026-08-05.html (47.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./SYK_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="stz 星座品牌高端啤酒与酒业领军者 (stz) 深度投资研究与多因子评估报告 - investskill stz_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">STZ</span></td>
+          <td>
+            <a href="./STZ_report_2026-08-05.html" class="report-title-link">星座品牌高端啤酒与酒业领军者 (STZ) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">STZ_report_2026-08-05.html (47.3 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.1/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./STZ_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="spgi 标普全球金融数据与信用评级垄断巨头 (spgi) 深度投资研究与多因子评估报告 - investskill spgi_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SPGI</span></td>
+          <td>
+            <a href="./SPGI_report_2026-08-05.html" class="report-title-link">标普全球金融数据与信用评级垄断巨头 (SPGI) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">SPGI_report_2026-08-05.html (47.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./SPGI_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="snps 新思科技半导体 eda 与 ip 垄断巨头 (snps) 深度投资研究与多因子评估报告 - investskill snps_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SNPS</span></td>
+          <td>
+            <a href="./SNPS_report_2026-08-05.html" class="report-title-link">新思科技半导体 EDA 与 IP 垄断巨头 (SNPS) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">SNPS_report_2026-08-05.html (47.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.9/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./SNPS_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="skhy sk海力士全球 ai hbm 高带宽内存垄断巨头 (skhy) 深度投资研究与多因子评估报告 - investskill skhy_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SKHY</span></td>
+          <td>
+            <a href="./SKHY_report_2026-08-05.html" class="report-title-link">SK海力士全球 AI HBM 高带宽内存垄断巨头 (SKHY) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">SKHY_report_2026-08-05.html (47.7 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.0/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./SKHY_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="qcom 高通移动通信与端侧 ai 芯片龙头 (qcom) 深度投资研究与多因子评估报告 - investskill qcom_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">QCOM</span></td>
+          <td>
+            <a href="./QCOM_report_2026-08-05.html" class="report-title-link">高通移动通信与端侧 AI 芯片龙头 (QCOM) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">QCOM_report_2026-08-05.html (47.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./QCOM_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="pep 百事公司快消食品与饮料双巨头 (pep) 深度投资研究与多因子评估报告 - investskill pep_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">PEP</span></td>
+          <td>
+            <a href="./PEP_report_2026-08-05.html" class="report-title-link">百事公司快消食品与饮料双巨头 (PEP) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">PEP_report_2026-08-05.html (47.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 7.9/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./PEP_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="orcl 甲骨文企业云基础设施 oci 与数据库巨头 (orcl) 深度投资研究与多因子评估报告 - investskill orcl_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">ORCL</span></td>
+          <td>
+            <a href="./ORCL_report_2026-08-05.html" class="report-title-link">甲骨文企业云基础设施 OCI 与数据库巨头 (ORCL) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">ORCL_report_2026-08-05.html (47.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.9/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./ORCL_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="nxpi 恩智浦全球车载芯片与物联网半导体先锋 (nxpi) 深度投资研究与多因子评估报告 - investskill nxpi_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">NXPI</span></td>
+          <td>
+            <a href="./NXPI_report_2026-08-05.html" class="report-title-link">恩智浦全球车载芯片与物联网半导体先锋 (NXPI) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">NXPI_report_2026-08-05.html (47.7 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./NXPI_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="nrg nrg 能源美国顶尖独立发电商与电力零售商 (nrg) 深度投资研究与多因子评估报告 - investskill nrg_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">NRG</span></td>
+          <td>
+            <a href="./NRG_report_2026-08-05.html" class="report-title-link">NRG 能源美国顶尖独立发电商与电力零售商 (NRG) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">NRG_report_2026-08-05.html (47.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.0/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./NRG_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="noc 诺斯罗普·格鲁曼美国隐身轰炸机与太空军工霸主 (noc) 深度投资研究与多因子评估报告 - investskill noc_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">NOC</span></td>
+          <td>
+            <a href="./NOC_report_2026-08-05.html" class="report-title-link">诺斯罗普·格鲁曼美国隐身轰炸机与太空军工霸主 (NOC) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">NOC_report_2026-08-05.html (47.8 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.7/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./NOC_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="NEUTRAL" data-search="nke 全球运动鞋服第一品牌耐克 (nke) 深度投资研究与多因子评估报告 - investskill nke_report_2026-08-05.html 2026-08-05 中立 (neutral) neutral">
+          <td><span class="ticker-pill ">NKE</span></td>
+          <td>
+            <a href="./NKE_report_2026-08-05.html" class="report-title-link">全球运动鞋服第一品牌耐克 (NKE) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">NKE_report_2026-08-05.html (47.2 KB)</div>
+          </td>
+          <td><span class="badge badge-neutral">🟡 中立 (NEUTRAL) • 6.8/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./NKE_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="nflx 奈飞全球流媒体流式视听娱乐绝对霸主 (nflx) 深度投资研究与多因子评估报告 - investskill nflx_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">NFLX</span></td>
+          <td>
+            <a href="./NFLX_report_2026-08-05.html" class="report-title-link">奈飞全球流媒体流式视听娱乐绝对霸主 (NFLX) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">NFLX_report_2026-08-05.html (47.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./NFLX_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="mstr microstrategy 比特币储备策略先锋 (mstr) 深度投资研究与多因子评估报告 - investskill mstr_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">MSTR</span></td>
+          <td>
+            <a href="./MSTR_report_2026-08-05.html" class="report-title-link">MicroStrategy 比特币储备策略先锋 (MSTR) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">MSTR_report_2026-08-05.html (47.8 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.5/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./MSTR_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="meta meta 全球社交网络与开源 ai 基础设施霸主 (meta) 深度投资研究与多因子评估报告 - investskill meta_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">META</span></td>
+          <td>
+            <a href="./META_report_2026-08-05.html" class="report-title-link">Meta 全球社交网络与开源 AI 基础设施霸主 (META) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">META_report_2026-08-05.html (47.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.1/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./META_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="mdt 美敦力全球医疗科技与器械多元化巨头 (mdt) 深度投资研究与多因子评估报告 - investskill mdt_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">MDT</span></td>
+          <td>
+            <a href="./MDT_report_2026-08-05.html" class="report-title-link">美敦力全球医疗科技与器械多元化巨头 (MDT) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">MDT_report_2026-08-05.html (47.2 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 7.8/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./MDT_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="mcd 麦当劳全球快餐特许经营与商业地产巨头 (mcd) 深度投资研究与多因子评估报告 - investskill mcd_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">MCD</span></td>
+          <td>
+            <a href="./MCD_report_2026-08-05.html" class="report-title-link">麦当劳全球快餐特许经营与商业地产巨头 (MCD) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">MCD_report_2026-08-05.html (47.7 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./MCD_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="lulu 高端运动服饰龙头露露乐蒙 (lulu) 深度投资研究与多因子评估报告 - investskill lulu_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">LULU</span></td>
+          <td>
+            <a href="./LULU_report_2026-08-05.html" class="report-title-link">高端运动服饰龙头露露乐蒙 (LULU) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">LULU_report_2026-08-05.html (47.3 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.0/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./LULU_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="NEUTRAL" data-search="kr 克罗格全美生鲜连锁超市零售巨头 (kr) 深度投资研究与多因子评估报告 - investskill kr_report_2026-08-05.html 2026-08-05 中立 (neutral) neutral">
+          <td><span class="ticker-pill ">KR</span></td>
+          <td>
+            <a href="./KR_report_2026-08-05.html" class="report-title-link">克罗格全美生鲜连锁超市零售巨头 (KR) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">KR_report_2026-08-05.html (47.3 KB)</div>
+          </td>
+          <td><span class="badge badge-neutral">🟡 中立 (NEUTRAL) • 6.9/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./KR_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="isrg 直觉外科达芬奇手术机器人垄断龙头 (isrg) 深度投资研究与多因子评估报告 - investskill isrg_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">ISRG</span></td>
+          <td>
+            <a href="./ISRG_report_2026-08-05.html" class="report-title-link">直觉外科达芬奇手术机器人垄断龙头 (ISRG) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">ISRG_report_2026-08-05.html (47.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.0/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./ISRG_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="intu 财税与中小企业 saas 巨头 intuit (intu) 深度投资研究与多因子评估报告 - investskill intu_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">INTU</span></td>
+          <td>
+            <a href="./INTU_report_2026-08-05.html" class="report-title-link">财税与中小企业 SaaS 巨头 Intuit (INTU) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">INTU_report_2026-08-05.html (47.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./INTU_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="ice 洲际交易所与纽交所金融基础设施巨头 (ice) 深度投资研究与多因子评估报告 - investskill ice_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">ICE</span></td>
+          <td>
+            <a href="./ICE_report_2026-08-05.html" class="report-title-link">洲际交易所与纽交所金融基础设施巨头 (ICE) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">ICE_report_2026-08-05.html (47.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./ICE_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="ibm ibm 百年科技转型混合云与企业级 ai 巨头 (ibm) 深度投资研究与多因子评估报告 - investskill ibm_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">IBM</span></td>
+          <td>
+            <a href="./IBM_report_2026-08-05.html" class="report-title-link">IBM 百年科技转型混合云与企业级 AI 巨头 (IBM) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">IBM_report_2026-08-05.html (47.6 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./IBM_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="ibit 贝莱德 ishares 比特币信托现货 etf (ibit) 深度投资研究与多因子评估报告 - investskill ibit_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">IBIT</span></td>
+          <td>
+            <a href="./IBIT_report_2026-08-05.html" class="report-title-link">贝莱德 iShares 比特币信托现货 ETF (IBIT) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">IBIT_report_2026-08-05.html (47.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./IBIT_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="hood robinhood 全球散户交易与金融科技先锋 (hood) 深度投资研究与多因子评估报告 - investskill hood_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">HOOD</span></td>
+          <td>
+            <a href="./HOOD_report_2026-08-05.html" class="report-title-link">Robinhood 全球散户交易与金融科技先锋 (HOOD) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">HOOD_report_2026-08-05.html (47.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./HOOD_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="fico 费埃哲全球个人与企业信用评分垄断者 (fico) 深度投资研究与多因子评估报告 - investskill fico_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">FICO</span></td>
+          <td>
+            <a href="./FICO_report_2026-08-05.html" class="report-title-link">费埃哲全球个人与企业信用评分垄断者 (FICO) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">FICO_report_2026-08-05.html (47.9 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.9/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./FICO_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="dis 迪士尼全球娱乐帝国与主题乐园巨头 (dis) 深度投资研究与多因子评估报告 - investskill dis_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">DIS</span></td>
+          <td>
+            <a href="./DIS_report_2026-08-05.html" class="report-title-link">迪士尼全球娱乐帝国与主题乐园巨头 (DIS) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">DIS_report_2026-08-05.html (47.7 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.2/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./DIS_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="dhr 丹纳赫生命科学与生物工艺工具平台 (dhr) 深度投资研究与多因子评估报告 - investskill dhr_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">DHR</span></td>
+          <td>
+            <a href="./DHR_report_2026-08-05.html" class="report-title-link">丹纳赫生命科学与生物工艺工具平台 (DHR) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">DHR_report_2026-08-05.html (47.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./DHR_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="cost 好市多全球仓储会员制零售模式典范 (cost) 深度投资研究与多因子评估报告 - investskill cost_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">COST</span></td>
+          <td>
+            <a href="./COST_report_2026-08-05.html" class="report-title-link">好市多全球仓储会员制零售模式典范 (COST) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">COST_report_2026-08-05.html (47.6 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.3/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./COST_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="coin coinbase 全球合规加密资产基础设施龙头 (coin) 深度投资研究与多因子评估报告 - investskill coin_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">COIN</span></td>
+          <td>
+            <a href="./COIN_report_2026-08-05.html" class="report-title-link">Coinbase 全球合规加密资产基础设施龙头 (COIN) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">COIN_report_2026-08-05.html (47.7 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.7/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./COIN_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="cme 芝商所全球最大金融衍生品交易所 (cme) 深度投资研究与多因子评估报告 - investskill cme_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">CME</span></td>
+          <td>
+            <a href="./CME_report_2026-08-05.html" class="report-title-link">芝商所全球最大金融衍生品交易所 (CME) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">CME_report_2026-08-05.html (47.5 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.4/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./CME_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="ceg 星座能源全美最大无碳核电运营巨头 (ceg) 深度投资研究与多因子评估报告 - investskill ceg_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">CEG</span></td>
+          <td>
+            <a href="./CEG_report_2026-08-05.html" class="report-title-link">星座能源全美最大无碳核电运营巨头 (CEG) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">CEG_report_2026-08-05.html (47.8 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.1/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./CEG_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="ccj 卡梅科全球纯商业铀矿与核燃料龙头 (ccj) 深度投资研究与多因子评估报告 - investskill ccj_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">CCJ</span></td>
+          <td>
+            <a href="./CCJ_report_2026-08-05.html" class="report-title-link">卡梅科全球纯商业铀矿与核燃料龙头 (CCJ) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">CCJ_report_2026-08-05.html (47.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.9/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./CCJ_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="bwxt bwx 科技美国海军核反应堆垄断供应商 (bwxt) 深度投资研究与多因子评估报告 - investskill bwxt_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">BWXT</span></td>
+          <td>
+            <a href="./BWXT_report_2026-08-05.html" class="report-title-link">BWX 科技美国海军核反应堆垄断供应商 (BWXT) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">BWXT_report_2026-08-05.html (47.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.7/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./BWXT_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="bsx 波士顿科学微创医疗器械创新巨头 (bsx) 深度投资研究与多因子评估报告 - investskill bsx_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">BSX</span></td>
+          <td>
+            <a href="./BSX_report_2026-08-05.html" class="report-title-link">波士顿科学微创医疗器械创新巨头 (BSX) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">BSX_report_2026-08-05.html (47.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.7/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./BSX_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="ashr 德银嘉实沪深300中国 a 股核心 etf (ashr) 深度投资研究与多因子评估报告 - investskill ashr_report_2026-08-05.html 2026-08-05 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">ASHR</span></td>
+          <td>
+            <a href="./ASHR_report_2026-08-05.html" class="report-title-link">德银嘉实沪深300中国 A 股核心 ETF (ASHR) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">ASHR_report_2026-08-05.html (47.8 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./ASHR_report_2026-08-05.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="amt 美洲铁塔全球通信基础设施 reits 巨头 (amt) 深度投资研究与多因子评估报告 - investskill amt_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">AMT</span></td>
+          <td>
+            <a href="./AMT_report_2026-08-05.html" class="report-title-link">美洲铁塔全球通信基础设施 REITs 巨头 (AMT) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">AMT_report_2026-08-05.html (47.6 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.2/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./AMT_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="acn 埃森哲全球 it 咨询与数字化转型巨头 (acn) 深度投资研究与多因子评估报告 - investskill acn_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">ACN</span></td>
+          <td>
+            <a href="./ACN_report_2026-08-05.html" class="report-title-link">埃森哲全球 IT 咨询与数字化转型巨头 (ACN) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">ACN_report_2026-08-05.html (47.3 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.2/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./ACN_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BULLISH" data-search="abt 雅培多元化医疗健康与连续血糖监测巨头 (abt) 深度投资研究与多因子评估报告 - investskill abt_report_2026-08-05.html 2026-08-05 看多 (bullish) bullish">
+          <td><span class="ticker-pill ">ABT</span></td>
+          <td>
+            <a href="./ABT_report_2026-08-05.html" class="report-title-link">雅培多元化医疗健康与连续血糖监测巨头 (ABT) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">ABT_report_2026-08-05.html (47.4 KB)</div>
+          </td>
+          <td><span class="badge badge-bullish">🟢 看多 (BULLISH) • 8.1/10</span></td>
+          <td>2026-08-05</td>
+          <td style="text-align: right;">
+            <a href="./ABT_report_2026-08-05.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="vst 维斯特拉能源 (vistra corp.) (vst) 深度投资研究与多因子评估报告 - investskill vst_report_2026-07-28.html 2026-07-28 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">VST</span></td>
+          <td>
+            <a href="./VST_report_2026-07-28.html" class="report-title-link">维斯特拉能源 (Vistra Corp.) (VST) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">VST_report_2026-07-28.html (87.8 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.4/10</span></td>
+          <td>2026-07-28</td>
+          <td style="text-align: right;">
+            <a href="./VST_report_2026-07-28.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="tsla 特斯拉 (tesla, inc.) (tsla) 深度投资研究与多因子评估报告 - investskill tsla_report_2026-07-28.html 2026-07-28 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">TSLA</span></td>
+          <td>
+            <a href="./TSLA_report_2026-07-28.html" class="report-title-link">特斯拉 (Tesla, Inc.) (TSLA) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">TSLA_report_2026-07-28.html (83.2 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.4/10</span></td>
+          <td>2026-07-28</td>
+          <td style="text-align: right;">
+            <a href="./TSLA_report_2026-07-28.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="skhy sk海力士 (sk hynix inc. / 000660.ks) (skhy) 深度投资研究与多因子评估报告 - investskill skhy_report_2026-07-28.html 2026-07-28 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SKHY</span></td>
+          <td>
+            <a href="./SKHY_report_2026-07-28.html" class="report-title-link">SK海力士 (SK hynix Inc. / 000660.KS) (SKHY) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">SKHY_report_2026-07-28.html (92.1 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-07-28</td>
+          <td style="text-align: right;">
+            <a href="./SKHY_report_2026-07-28.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="tsm 台积电 (tsmc / 2330.tw) (tsm) 深度投资研究与多因子评估报告 - investskill tsm_report_2026-07-27.html 2026-07-27 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">TSM</span></td>
+          <td>
+            <a href="./TSM_report_2026-07-27.html" class="report-title-link">台积电 (TSMC / 2330.TW) (TSM) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">TSM_report_2026-07-27.html (94.7 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.2/10</span></td>
+          <td>2026-07-27</td>
+          <td style="text-align: right;">
+            <a href="./TSM_report_2026-07-27.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BEARISH" data-search="smci 超微电脑 (super micro computer, inc.) (smci) 深度投资研究与多因子评估报告 - investskill smci_report_2026-07-27.html 2026-07-27 看空 (bearish) bearish">
+          <td><span class="ticker-pill ">SMCI</span></td>
+          <td>
+            <a href="./SMCI_report_2026-07-27.html" class="report-title-link">超微电脑 (Super Micro Computer, Inc.) (SMCI) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">SMCI_report_2026-07-27.html (83.2 KB)</div>
+          </td>
+          <td><span class="badge badge-bearish">🔴 看空 (BEARISH) • 4.5/10</span></td>
+          <td>2026-07-27</td>
+          <td style="text-align: right;">
+            <a href="./SMCI_report_2026-07-27.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="skhy sk海力士 (sk hynix inc. / 000660.ks) (skhy) 深度投资研究与多因子评估报告 - investskill skhy_report_2026-07-27.html 2026-07-27 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SKHY</span></td>
+          <td>
+            <a href="./SKHY_report_2026-07-27.html" class="report-title-link">SK海力士 (SK hynix Inc. / 000660.KS) (SKHY) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">SKHY_report_2026-07-27.html (92.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-07-27</td>
+          <td style="text-align: right;">
+            <a href="./SKHY_report_2026-07-27.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row " data-signal-type="BEARISH" data-search="intc 英特尔 (intel corporation) (intc) 深度投资研究与多因子评估报告 - investskill intc_report_2026-07-27.html 2026-07-27 看空 (bearish) bearish">
+          <td><span class="ticker-pill ">INTC</span></td>
+          <td>
+            <a href="./INTC_report_2026-07-27.html" class="report-title-link">英特尔 (Intel Corporation) (INTC) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">INTC_report_2026-07-27.html (83.3 KB)</div>
+          </td>
+          <td><span class="badge badge-bearish">🔴 看空 (BEARISH) • 4.2/10</span></td>
+          <td>2026-07-27</td>
+          <td style="text-align: right;">
+            <a href="./INTC_report_2026-07-27.html" class="open-btn ">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="ceg 星座能源 (constellation energy corporation) (ceg) 深度投资研究与多因子评估报告 - investskill ceg_report_2026-07-27.html 2026-07-27 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">CEG</span></td>
+          <td>
+            <a href="./CEG_report_2026-07-27.html" class="report-title-link">星座能源 (Constellation Energy Corporation) (CEG) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">CEG_report_2026-07-27.html (88.9 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.9/10</span></td>
+          <td>2026-07-27</td>
+          <td style="text-align: right;">
+            <a href="./CEG_report_2026-07-27.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="amd 超威半导体 (advanced micro devices, inc.) (amd) 深度投资研究与多因子评估报告 - investskill amd_report_2026-07-27.html 2026-07-27 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">AMD</span></td>
+          <td>
+            <a href="./AMD_report_2026-07-27.html" class="report-title-link">超威半导体 (Advanced Micro Devices, Inc.) (AMD) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">AMD_report_2026-07-27.html (86.2 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.6/10</span></td>
+          <td>2026-07-27</td>
+          <td style="text-align: right;">
+            <a href="./AMD_report_2026-07-27.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="sofi sofi (sofi technologies, inc.) (sofi) 深度投资研究与多因子评估报告 - investskill sofi_report_2026-07-24.html 2026-07-24 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SOFI</span></td>
+          <td>
+            <a href="./SOFI_report_2026-07-24.html" class="report-title-link">SoFi (SoFi Technologies, Inc.) (SOFI) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">SOFI_report_2026-07-24.html (120.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.3/10</span></td>
+          <td>2026-07-24</td>
+          <td style="text-align: right;">
+            <a href="./SOFI_report_2026-07-24.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="hood 罗宾汉 (robinhood markets, inc.) (hood) 深度投资研究与多因子评估报告 - investskill hood_report_2026-07-24.html 2026-07-24 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">HOOD</span></td>
+          <td>
+            <a href="./HOOD_report_2026-07-24.html" class="report-title-link">罗宾汉 (Robinhood Markets, Inc.) (HOOD) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">HOOD_report_2026-07-24.html (98.3 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.0/10</span></td>
+          <td>2026-07-24</td>
+          <td style="text-align: right;">
+            <a href="./HOOD_report_2026-07-24.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="crcl circle (circle internet group) (crcl) 深度投资研究与多因子评估报告 - investskill crcl_report_2026-07-24.html 2026-07-24 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">CRCL</span></td>
+          <td>
+            <a href="./CRCL_report_2026-07-24.html" class="report-title-link">Circle (Circle Internet Group) (CRCL) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">CRCL_report_2026-07-24.html (99.1 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.1/10</span></td>
+          <td>2026-07-24</td>
+          <td style="text-align: right;">
+            <a href="./CRCL_report_2026-07-24.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="cmcsa 康卡斯特 (comcast corporation) (cmcsa) 深度投资研究与多因子评估报告 - investskill cmcsa_report_2026-07-24.html 2026-07-24 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">CMCSA</span></td>
+          <td>
+            <a href="./CMCSA_report_2026-07-24.html" class="report-title-link">康卡斯特 (Comcast Corporation) (CMCSA) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">CMCSA_report_2026-07-24.html (129.8 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 7.6/10</span></td>
+          <td>2026-07-24</td>
+          <td style="text-align: right;">
+            <a href="./CMCSA_report_2026-07-24.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="tsla 特斯拉 (tesla, inc.) (tsla) 深度投资研究与多因子评估报告 - investskill tsla_report_2026-07-23.html 2026-07-23 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">TSLA</span></td>
+          <td>
+            <a href="./TSLA_report_2026-07-23.html" class="report-title-link">特斯拉 (Tesla, Inc.) (TSLA) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">TSLA_report_2026-07-23.html (51.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.4/10</span></td>
+          <td>2026-07-23</td>
+          <td style="text-align: right;">
+            <a href="./TSLA_report_2026-07-23.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="spcx spacex (space exploration technologies corp.) (spcx) 深度投资研究与多因子评估报告 - investskill spcx_report_2026-07-23.html 2026-07-23 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">SPCX</span></td>
+          <td>
+            <a href="./SPCX_report_2026-07-23.html" class="report-title-link">SpaceX (Space Exploration Technologies Corp.) (SPCX) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">SPCX_report_2026-07-23.html (68.2 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.1/10</span></td>
+          <td>2026-07-23</td>
+          <td style="text-align: right;">
+            <a href="./SPCX_report_2026-07-23.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="pltr palantir (palantir technologies inc.) (pltr) 深度投资研究与多因子评估报告 - investskill pltr_report_2026-07-23.html 2026-07-23 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">PLTR</span></td>
+          <td>
+            <a href="./PLTR_report_2026-07-23.html" class="report-title-link">Palantir (Palantir Technologies Inc.) (PLTR) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">PLTR_report_2026-07-23.html (67.6 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.5/10</span></td>
+          <td>2026-07-23</td>
+          <td style="text-align: right;">
+            <a href="./PLTR_report_2026-07-23.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="veev veeva systems (veeva systems inc.) (veev) 深度投资研究与多因子评估报告 - investskill veev_report_2026-07-22.html 2026-07-22 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">VEEV</span></td>
+          <td>
+            <a href="./VEEV_report_2026-07-22.html" class="report-title-link">Veeva Systems (Veeva Systems Inc.) (VEEV) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">VEEV_report_2026-07-22.html (48.2 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.2/10</span></td>
+          <td>2026-07-22</td>
+          <td style="text-align: right;">
+            <a href="./VEEV_report_2026-07-22.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="nke 耐克 (nike, inc.) (nke) 深度投资研究与多因子评估报告 - investskill nke_report_2026-07-22.html 2026-07-22 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">NKE</span></td>
+          <td>
+            <a href="./NKE_report_2026-07-22.html" class="report-title-link">耐克 (NIKE, Inc.) (NKE) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">NKE_report_2026-07-22.html (49.0 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 7.5/10</span></td>
+          <td>2026-07-22</td>
+          <td style="text-align: right;">
+            <a href="./NKE_report_2026-07-22.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="mcd 麦当劳 (mcdonald's corporation) (mcd) 深度投资研究与多因子评估报告 - investskill mcd_report_2026-07-22.html 2026-07-22 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">MCD</span></td>
+          <td>
+            <a href="./MCD_report_2026-07-22.html" class="report-title-link">麦当劳 (McDonald's Corporation) (MCD) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">MCD_report_2026-07-22.html (47.7 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-07-22</td>
+          <td style="text-align: right;">
+            <a href="./MCD_report_2026-07-22.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="intu 直觉软件 (intuit inc.) (intu) 深度投资研究与多因子评估报告 - investskill intu_report_2026-07-22.html 2026-07-22 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">INTU</span></td>
+          <td>
+            <a href="./INTU_report_2026-07-22.html" class="report-title-link">直觉软件 (Intuit Inc.) (INTU) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">INTU_report_2026-07-22.html (52.3 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.4/10</span></td>
+          <td>2026-07-22</td>
+          <td style="text-align: right;">
+            <a href="./INTU_report_2026-07-22.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="dhr 丹纳赫 (danaher corporation) (dhr) 深度投资研究与多因子评估报告 - investskill dhr_report_2026-07-22.html 2026-07-22 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">DHR</span></td>
+          <td>
+            <a href="./DHR_report_2026-07-22.html" class="report-title-link">丹纳赫 (Danaher Corporation) (DHR) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">DHR_report_2026-07-22.html (47.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 9.0/10</span></td>
+          <td>2026-07-22</td>
+          <td style="text-align: right;">
+            <a href="./DHR_report_2026-07-22.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="acn 埃森哲 (accenture plc) (acn) 深度投资研究与多因子评估报告 - investskill acn_report_2026-07-22.html 2026-07-22 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">ACN</span></td>
+          <td>
+            <a href="./ACN_report_2026-07-22.html" class="report-title-link">埃森哲 (Accenture plc) (ACN) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">ACN_report_2026-07-22.html (47.9 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.8/10</span></td>
+          <td>2026-07-22</td>
+          <td style="text-align: right;">
+            <a href="./ACN_report_2026-07-22.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="intu 直觉软件 (intuit inc.) (intu) 深度投资研究与多因子评估报告 - investskill intu_report_2026-07-21.html 2026-07-21 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">INTU</span></td>
+          <td>
+            <a href="./INTU_report_2026-07-21.html" class="report-title-link">直觉软件 (Intuit Inc.) (INTU) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">INTU_report_2026-07-21.html (38.0 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.4/10</span></td>
+          <td>2026-07-21</td>
+          <td style="text-align: right;">
+            <a href="./INTU_report_2026-07-21.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="ibm ibm (international business machines) (ibm) 深度投资研究与多因子评估报告 - investskill ibm_report_2026-07-20.html 2026-07-20 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">IBM</span></td>
+          <td>
+            <a href="./IBM_report_2026-07-20.html" class="report-title-link">IBM (International Business Machines) (IBM) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">IBM_report_2026-07-20.html (32.2 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 7.5/10</span></td>
+          <td>2026-07-20</td>
+          <td style="text-align: right;">
+            <a href="./IBM_report_2026-07-20.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="tcom 携程集团 (trip.com group limited) (tcom) 深度投资研究与多因子评估报告 - investskill tcom_report_2026-07-17.html 2026-07-17 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">TCOM</span></td>
+          <td>
+            <a href="./TCOM_report_2026-07-17.html" class="report-title-link">携程集团 (Trip.com Group Limited) (TCOM) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">TCOM_report_2026-07-17.html (30.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.0/10</span></td>
+          <td>2026-07-17</td>
+          <td style="text-align: right;">
+            <a href="./TCOM_report_2026-07-17.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="mstr 微策略 (microstrategy incorporated) (mstr) 深度投资研究与多因子评估报告 - investskill mstr_report_2026-07-17.html 2026-07-17 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">MSTR</span></td>
+          <td>
+            <a href="./MSTR_report_2026-07-17.html" class="report-title-link">微策略 (MicroStrategy Incorporated) (MSTR) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">MSTR_report_2026-07-17.html (30.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 6.8/10</span></td>
+          <td>2026-07-17</td>
+          <td style="text-align: right;">
+            <a href="./MSTR_report_2026-07-17.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="goog 谷歌 / alphabet (alphabet inc.) (goog) 深度投资研究与多因子评估报告 - investskill goog_report_2026-07-17.html 2026-07-17 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">GOOG</span></td>
+          <td>
+            <a href="./GOOG_report_2026-07-17.html" class="report-title-link">谷歌 / Alphabet (Alphabet Inc.) (GOOG) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">GOOG_report_2026-07-17.html (30.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.4/10</span></td>
+          <td>2026-07-17</td>
+          <td style="text-align: right;">
+            <a href="./GOOG_report_2026-07-17.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="brk.b 伯克希尔·哈撒韦 (berkshire hathaway inc.) (brk.b) 深度投资研究与多因子评估报告 - investskill brk.b_report_2026-07-17.html 2026-07-17 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">BRK.B</span></td>
+          <td>
+            <a href="./BRK.B_report_2026-07-17.html" class="report-title-link">伯克希尔·哈撒韦 (Berkshire Hathaway Inc.) (BRK.B) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">BRK.B_report_2026-07-17.html (30.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.4/10</span></td>
+          <td>2026-07-17</td>
+          <td style="text-align: right;">
+            <a href="./BRK.B_report_2026-07-17.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="tsm 台积电 (tsmc / 2330.tw) (tsm) 深度投资研究与多因子评估报告 - investskill tsm_report_2026-07-16.html 2026-07-16 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">TSM</span></td>
+          <td>
+            <a href="./TSM_report_2026-07-16.html" class="report-title-link">台积电 (TSMC / 2330.TW) (TSM) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">TSM_report_2026-07-16.html (30.3 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.3/10</span></td>
+          <td>2026-07-16</td>
+          <td style="text-align: right;">
+            <a href="./TSM_report_2026-07-16.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="orcl 甲骨文 (oracle corporation) (orcl) 深度投资研究与多因子评估报告 - investskill orcl_report_2026-07-16.html 2026-07-16 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">ORCL</span></td>
+          <td>
+            <a href="./ORCL_report_2026-07-16.html" class="report-title-link">甲骨文 (Oracle Corporation) (ORCL) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">ORCL_report_2026-07-16.html (31.3 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 7.2/10</span></td>
+          <td>2026-07-16</td>
+          <td style="text-align: right;">
+            <a href="./ORCL_report_2026-07-16.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="mu 美光科技 (micron technology, inc.) (mu) 深度投资研究与多因子评估报告 - investskill mu_report_2026-07-16.html 2026-07-16 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">MU</span></td>
+          <td>
+            <a href="./MU_report_2026-07-16.html" class="report-title-link">美光科技 (Micron Technology, Inc.) (MU) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">MU_report_2026-07-16.html (27.7 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 8.2/10</span></td>
+          <td>2026-07-16</td>
+          <td style="text-align: right;">
+            <a href="./MU_report_2026-07-16.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="intu 直觉软件 (intuit inc.) (intu) 深度投资研究与多因子评估报告 - investskill intu_report_2026-07-16.html 2026-07-16 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">INTU</span></td>
+          <td>
+            <a href="./INTU_report_2026-07-16.html" class="report-title-link">直觉软件 (Intuit Inc.) (INTU) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">INTU_report_2026-07-16.html (30.4 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 7.9/10</span></td>
+          <td>2026-07-16</td>
+          <td style="text-align: right;">
+            <a href="./INTU_report_2026-07-16.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="ibm ibm (international business machines) (ibm) 深度投资研究与多因子评估报告 - investskill ibm_report_2026-07-16.html 2026-07-16 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">IBM</span></td>
+          <td>
+            <a href="./IBM_report_2026-07-16.html" class="report-title-link">IBM (International Business Machines) (IBM) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">IBM_report_2026-07-16.html (30.8 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 7.2/10</span></td>
+          <td>2026-07-16</td>
+          <td style="text-align: right;">
+            <a href="./IBM_report_2026-07-16.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+
+        <tr class="report-row row-strong-buy" data-signal-type="STRONG_BUY" data-search="aapl 苹果公司 (apple inc.) (aapl) 深度投资研究与多因子评估报告 - investskill aapl_report_2026-07-16.html 2026-07-16 强烈看多 (strong buy) strong_buy">
+          <td><span class="ticker-pill ticker-strong-buy">AAPL</span></td>
+          <td>
+            <a href="./AAPL_report_2026-07-16.html" class="report-title-link">苹果公司 (Apple Inc.) (AAPL) 深度投资研究与多因子评估报告 - InvestSkill</a>
+            <div class="file-name">AAPL_report_2026-07-16.html (27.5 KB)</div>
+          </td>
+          <td><span class="badge badge-strong-buy">🚀 强烈看多 (STRONG BUY) • 7.6/10</span></td>
+          <td>2026-07-16</td>
+          <td style="text-align: right;">
+            <a href="./AAPL_report_2026-07-16.html" class="open-btn btn-strong-buy">View Report &rarr;</a>
+          </td>
+        </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer">
+      Generated automatically by InvestSkill Engine • Last updated: Aug 18, 2026, 3:57 PM
+    </div>
+  </div>
+
+  <script>
+    let activeSignalFilter = 'ALL';
+
+    function setSignalFilter(filterType, btn) {
+      activeSignalFilter = filterType;
+      document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      applyFilter();
+    }
+
+    function filterBySignal(sig) {
+      const btn = document.querySelector(`.filter-pill[data-filter="${sig}"]`);
+      setSignalFilter(sig, btn);
+    }
+
+    function applyFilter() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const rows = document.querySelectorAll('.report-row');
+
+      rows.forEach(row => {
+        const text = row.getAttribute('data-search') || '';
+        const sigType = row.getAttribute('data-signal-type') || '';
+
+        const matchesQuery = !q || text.includes(q);
+        let matchesSignal = true;
+
+        if (activeSignalFilter === 'STRONG_BUY') {
+          matchesSignal = (sigType === 'STRONG_BUY');
+        } else if (activeSignalFilter === 'BULLISH') {
+          matchesSignal = (sigType === 'BULLISH');
+        } else if (activeSignalFilter === 'NEUTRAL') {
+          matchesSignal = (sigType === 'NEUTRAL');
+        } else if (activeSignalFilter === 'BEARISH') {
+          matchesSignal = (sigType === 'BEARISH' || sigType === 'STRONG_SELL');
+        }
+
+        if (matchesQuery && matchesSignal) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

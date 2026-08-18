@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Waste Management (WM) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid #34D399; }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 900px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sec-title-wrap { display: flex; align-items: center; gap: 12px; }
+        .sec-num {
+            width: 32px; height: 32px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 14px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--accent-light);
+        }
+        .sec-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+        .sec-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid var(--accent-light);
+        }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 20px;
+        }
+        .card-green { background: var(--primary-light); border-color: var(--accent-light); }
+        .card-amber { background: var(--amber-light); border-color: #FDE68A; }
+        .card-red { background: var(--red-light); border-color: #FECACA; }
+        .card-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; }
+
+        .metric-big { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+        .metric-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin: 16px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #F1F5F9;
+            color: var(--text-primary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+        .td-green { color: var(--primary); font-weight: 600; }
+        .td-red { color: var(--red); font-weight: 600; }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            margin: 16px 0;
+        }
+
+        .thesis-box {
+            background: linear-gradient(135deg, rgba(5,150,105,.05) 0%, rgba(16,185,129,.1) 100%);
+            border-left: 4px solid var(--primary);
+            padding: 16px 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 16px 0;
+        }
+        .thesis-title { font-weight: 700; color: var(--primary-dark); font-size: 14px; margin-bottom: 6px; }
+
+        .signal-box {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            border-radius: 16px;
+            padding: 28px 32px;
+            color: #fff;
+            margin: 24px 0 0;
+            box-shadow: 0 8px 24px rgba(5,150,105,.25);
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 16px;
+        }
+        .signal-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; }
+        .signal-val { font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+
+        @media (max-width: 768px) {
+            .report-hero { padding: 32px 16px 28px; }
+            .hero-title { font-size: 24px; }
+            .main-wrap { padding: 16px 12px 48px; }
+            .section { padding: 20px 16px; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: WM</span>
+            <span class="badge badge-hero-signal">评级: 看多 (BULLISH) • 8.4/10</span>
+            <span class="badge badge-hero-cat">工业 / 固废与环境综合服务龙头</span>
+            <span class="badge badge-hero-cat">15模块全景量化深度研报</span>
+        </div>
+        <h1 class="hero-title">Waste Management, Inc. (WM) 全景深度研究与多因子量化评估报告</h1>
+        <p class="hero-sub">北美固废与环卫绝对霸主：垄断级垃圾填埋场与空域特许权护城河、Stericycle 医疗废弃物整合释放协同效应、可再生天然气 (RNG) 与自动化回收开启第二增长曲线</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                <div class="hero-kpi-val">$224.55</div>
+                <div class="hero-kpi-sub">52周区间: $194.11 - $248.13</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">12M 目标价 (Target)</div>
+                <div class="hero-kpi-val">$260.00</div>
+                <div class="hero-kpi-sub">潜在上行空间: +15.79%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">企业价值 (EV) / 市值</div>
+                <div class="hero-kpi-val">$1,125.6亿</div>
+                <div class="hero-kpi-sub">总市值: $897.6亿 (4.00亿股)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">估值乘数 (Forward P/E)</div>
+                <div class="hero-kpi-val">24.60x</div>
+                <div class="hero-kpi-sub">EV/EBITDA: 14.48x (同行折价)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息派发与收益率</div>
+                <div class="hero-kpi-val">1.58% ($3.78/年)</div>
+                <div class="hero-kpi-sub">连续22年上调股息 (分红率 ~55% FCF)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">自由现金流 (FY25 FCF)</div>
+                <div class="hero-kpi-val">$28.16亿</div>
+                <div class="hero-kpi-sub">同比强劲增长 +30.43%</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+
+    <!-- TOC Navigation -->
+    <nav class="toc-bar">
+        <div class="toc-title">研报导航目录 (15 核心模块全量深度覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">1. 执行摘要与投资核心逻辑</a>
+            <a href="#sec-2" class="toc-link">2. 多因子量化评分雷达</a>
+            <a href="#sec-3" class="toc-link">3. 商业模式与波特五力护城河</a>
+            <a href="#sec-4" class="toc-link">4. 财务报表与盈利质量剖析</a>
+            <a href="#sec-5" class="toc-link">5. 杜邦三因子拆解与运营效率</a>
+            <a href="#sec-6" class="toc-link">6. 行业竞争格局与同行对标</a>
+            <a href="#sec-7" class="toc-link">7. DCF估值与内在价值敏感性</a>
+            <a href="#sec-8" class="toc-link">8. 技术面量化与均线筹码</a>
+            <a href="#sec-9" class="toc-link">9. 资本配置与股息政策披露</a>
+            <a href="#sec-10" class="toc-link">10. 现金担保卖Put期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与主力资金动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人交易与管理层语气</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空风险评估</a>
+            <a href="#sec-14" class="toc-link">14. 核心风险矩阵与熊市压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂日历与增长里程碑</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级与执行建议</a>
+        </div>
+    </nav>
+
+    <!-- MODULE 1: Executive Summary -->
+    <section id="sec-1" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">01</div>
+                <h2 class="sec-title">执行摘要与投资核心逻辑 (Executive Summary & Thesis)</h2>
+            </div>
+            <span class="sec-badge">核心投资论点</span>
+        </div>
+
+        <p style="margin-bottom: 14px; font-size: 14px; color: var(--text-secondary);">
+            <strong>Waste Management, Inc. (NYSE: WM)</strong> 是北美规模最大的综合环境废弃物管理及循环经济龙头。公司拥有全美最核心、无法复制的固废基础设施网络，包括 <strong>260+ 座垃圾填埋场 (Landfills)、340+ 座中转站 (Transfer Stations) 以及 100+ 座现代化回收处理中心 (MRFs)</strong>，掌控北美近 30% 的垃圾填埋空域特许权 (Airspace)。
+        </p>
+
+        <div class="thesis-box">
+            <div class="thesis-title">🎯 核心看多逻辑三大支柱 (Three Pillars of Bullish Thesis)</div>
+            <ul style="padding-left: 20px; font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
+                <li><strong>无可复制的地理与特许权垄断 (Unmatched Landfill Moat)：</strong> 受制于极度严苛的环保法规与“邻避效应”(NIMBY)，全美新建垃圾填埋场几乎不可能获批。填埋场空域具备天然稀缺性与绝对定价权，WM 能够每年持续实现 4%-6% 的核心核心服务提价 (Core Price Yield)，全面跑赢通胀。</li>
+                <li><strong>收购 Stericycle 驱动医疗废弃物协同与版图扩张：</strong> 成功以 $72 亿美元整合 Stericycle 后，WM 成为受规管医疗废弃物 (RMW) 及机密文件销毁 (Shred-it) 领域的绝对领军者。通过路线密度整合 (Route Density)、后台 SG&A 精简与交叉销售，预计到 2026 年底实现年化 $1.5 亿至 $2.0 亿美元的强劲税前协同效应。</li>
+                <li><strong>可再生天然气 (RNG) 与自动化循环经济第二增长曲线：</strong> WM 投资推进 20+ 座填埋气制可再生天然气 (RNG) 工厂，年产超 2,500 万 MMBtu 生物天然气，不仅自给自足庞大的 CNG 环卫车队，更能享受联邦 RINs 及加州 LCFS 碳积分溢价，单项目税后 IRR 超 20%-25%。</li>
+            </ul>
+        </div>
+
+        <div class="grid-3" style="margin-top: 18px;">
+            <div class="card card-green">
+                <div class="card-title">稳健增长与充沛现金流</div>
+                <div class="metric-big" style="color: var(--primary);">$28.16亿</div>
+                <div class="metric-sub">FY2025 自由现金流 (FCF Margin 11.2%)</div>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">防御性与低波动属性</div>
+                <div class="metric-big" style="color: var(--primary);">0.44 Beta</div>
+                <div class="metric-sub">抗经济周期波动能力极强，公用事业级刚需</div>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">连续股东回报纪录</div>
+                <div class="metric-big" style="color: var(--primary);">22 年</div>
+                <div class="metric-sub">连续股息递增 (当前股息率 1.58% + 每年数十亿回购)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 2: Multi-Factor Scorecard & Radar Chart -->
+    <section id="sec-2" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">02</div>
+                <h2 class="sec-title">多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</h2>
+            </div>
+            <span class="sec-badge">量化综合得分: 8.4 / 10 (看多)</span>
+        </div>
+
+        <div class="grid-2" style="align-items: center;">
+            <div>
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>评估因子 (Factor)</th>
+                            <th>权重</th>
+                            <th>得分 (0-10)</th>
+                            <th>评价维度与核心支撑</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. 护城河与竞争壁垒 (Moat)</strong></td>
+                            <td class="td-mono">20%</td>
+                            <td class="td-mono td-green"><strong>9.6</strong></td>
+                            <td>填埋场地理垄断与极度稀缺空域特许权，极强定价权</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. 盈利能力与现金流质量 (Profitability)</strong></td>
+                            <td class="td-mono">20%</td>
+                            <td class="td-mono td-green"><strong>8.8</strong></td>
+                            <td>EBITDA Margin 28.6%，FCF 强劲达 $28.16亿，应收账款周转稳定</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. 资产负债表与财务健康 (Balance Sheet)</strong></td>
+                            <td class="td-mono">15%</td>
+                            <td class="td-mono"><strong>7.2</strong></td>
+                            <td>净杠杆约 3.1x EBITDA (受 Stericycle 收购影响)，去杠杆路径清晰</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. 估值吸引力与安全边际 (Valuation)</strong></td>
+                            <td class="td-mono">15%</td>
+                            <td class="td-mono td-green"><strong>8.0</strong></td>
+                            <td>Forward P/E 24.6x，EV/EBITDA 14.5x 较同行 RSG/WCN 折价</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5. 增长驱动与战略催化 (Growth & Catalysts)</strong></td>
+                            <td class="td-mono">15%</td>
+                            <td class="td-mono td-green"><strong>8.6</strong></td>
+                            <td>Stericycle 协同释放 + 20+ RNG 新产能投产 + 自动化回收提效</td>
+                        </tr>
+                        <tr>
+                            <td><strong>6. 股东回报与分红稳定性 (Capital Return)</strong></td>
+                            <td class="td-mono">15%</td>
+                            <td class="td-mono td-green"><strong>8.5</strong></td>
+                            <td>连续22年提高股息，股息率 1.58%，年均回购 $10亿+</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 3: Business Model & Porter's 5 Forces -->
+    <section id="sec-3" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">03</div>
+                <h2 class="sec-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</h2>
+            </div>
+            <span class="sec-badge">Wide Moat (宽护城河)</span>
+        </div>
+
+        <p style="margin-bottom: 14px; font-size: 14px; color: var(--text-secondary);">
+            WM 构筑了北美环卫行业最深厚的“垂直闭环”(Vertically Integrated Ecosystem)：从前端的商业/住宅/工业垃圾收集 (Collection)，到中端中转站集约化运输 (Transfer)，再到后端的填埋处置 (Landfill)、资源循环 (Recycling) 与能源转化 (RNG)。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>业务板块 (Segment)</th>
+                        <th>收入贡献</th>
+                        <th>毛利率水平</th>
+                        <th>核心运作模式与竞争壁垒</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>商业与工业收集 (Commercial & Industrial Collection)</strong></td>
+                        <td class="td-mono">~42%</td>
+                        <td class="td-mono">42% - 46%</td>
+                        <td>高路线密度，长期多年度合同，拥有 15,000+ 专用路线，单位运输成本业内最低</td>
+                    </tr>
+                    <tr>
+                        <td><strong>垃圾填埋与倾倒特许费 (Landfill Tipping)</strong></td>
+                        <td class="td-mono">~26%</td>
+                        <td class="td-mono td-green"><strong>50% - 55%</strong></td>
+                        <td>向第三方收集商收取每吨 $50-$80 倾倒费 (Tipping Fee)，边际毛利极高，印钞机业务</td>
+                    </tr>
+                    <tr>
+                        <td><strong>市政住宅收集 (Residential Collection)</strong></td>
+                        <td class="td-mono">~15%</td>
+                        <td class="td-mono">25% - 30%</td>
+                        <td>3-7年排他性独家特许经营权合同，自带 CPI 通胀自动价格上调联动条款</td>
+                    </tr>
+                    <tr>
+                        <td><strong>医疗废弃物与保密销毁 (Stericycle RMW & Shred-it)</strong></td>
+                        <td class="td-mono">~10%</td>
+                        <td class="td-mono">36% - 40%</td>
+                        <td>受 EPA/DOT 严格监管的危险/医疗废弃物闭环处置，高转换成本与客户粘性</td>
+                    </tr>
+                    <tr>
+                        <td><strong>回收处理与可再生能源 (Recycling & Renewable RNG)</strong></td>
+                        <td class="td-mono">~7%</td>
+                        <td class="td-mono">35% - 48%</td>
+                        <td>将填埋气提纯为管网级生物天然气 (RNG)，享受环保溢价与高碳排放权积分</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 style="font-size: 15px; margin: 20px 0 10px; color: var(--text-primary);">波特五力模型量化评估 (Porter's Five Forces Analysis)</h3>
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">1. 潜在进入者威胁: 极低 (Very Low)</div>
+                <p style="font-size: 12px; color: var(--text-secondary);">新建填埋场需长达 7-10 年环保审批与数亿美元 Capex，NIMBY 效应构筑不可逾越的行政进入壁垒。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">2. 替代品威胁: 极低 (Very Low)</div>
+                <p style="font-size: 12px; color: var(--text-secondary);">人类生活与工业运转必然产生物理垃圾，焚烧与堆肥无法替代固废综合填埋处置。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">3. 买方议价能力: 低 (Low)</div>
+                <p style="font-size: 12px; color: var(--text-secondary);">合同具备通胀挂钩提价机制 (Core Price Yield 4%-6%)，固废开支占企业总成本 <0.5%，价格敏感度极低。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">4. 供应商议价能力: 中低 (Low-Moderate)</div>
+                <p style="font-size: 12px; color: var(--text-secondary);">车辆及设备采购规模巨大拥有规模集采优势，自产 RNG 燃料大幅对冲外部油价波动风险。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">5. 行业内部竞争: 中等偏低 (Moderate-Low)</div>
+                <p style="font-size: 12px; color: var(--text-secondary);">北美固废呈 WM 与 Republic Services (RSG) 双寡头垄断，理性定价，避免恶性价格战。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">护城河综合评级: WIDE MOAT</div>
+                <p style="font-size: 12px; color: var(--text-secondary);">资本回报率 (ROIC) 长期稳定在 12%-14%，显著高于其 7.2% 的 WACC 加权平均资本成本。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 4: Financial Statements & Cash Flow Quality -->
+    <section id="sec-4" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">04</div>
+                <h2 class="sec-title">核心财务报表与盈利质量深度剖析 (Financials & Cash Flow)</h2>
+            </div>
+            <span class="sec-badge">现金流极为充沛</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--text-primary);">近四年核心财务数据走势 (单位: 亿美元)</h3>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>财务指标 (FY)</th>
+                                <th>2022</th>
+                                <th>2023</th>
+                                <th>2024</th>
+                                <th>2025</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>营业收入 (Revenue)</strong></td>
+                                <td class="td-mono">$196.98亿</td>
+                                <td class="td-mono">$204.26亿</td>
+                                <td class="td-mono">$220.63亿</td>
+                                <td class="td-mono td-green"><strong>$252.04亿</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>毛利润 (Gross Profit)</strong></td>
+                                <td class="td-mono">$74.04亿</td>
+                                <td class="td-mono">$78.20亿</td>
+                                <td class="td-mono">$86.80亿</td>
+                                <td class="td-mono td-green"><strong>$101.92亿</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>毛利率 (Gross Margin)</strong></td>
+                                <td class="td-mono">37.59%</td>
+                                <td class="td-mono">38.28%</td>
+                                <td class="td-mono">39.34%</td>
+                                <td class="td-mono td-green"><strong>40.44%</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>营业利润 (Operating Income)</strong></td>
+                                <td class="td-mono">$34.28亿</td>
+                                <td class="td-mono">$38.23亿</td>
+                                <td class="td-mono">$41.49亿</td>
+                                <td class="td-mono td-green"><strong>$46.07亿</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>EBITDA</strong></td>
+                                <td class="td-mono">$53.34亿</td>
+                                <td class="td-mono">$55.92亿</td>
+                                <td class="td-mono">$63.23亿</td>
+                                <td class="td-mono td-green"><strong>$72.01亿</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>净利润 (Net Income)</strong></td>
+                                <td class="td-mono">$22.38亿</td>
+                                <td class="td-mono">$23.04亿</td>
+                                <td class="td-mono">$27.46亿</td>
+                                <td class="td-mono td-green"><strong>$27.08亿</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>经营现金流 (OCF)</strong></td>
+                                <td class="td-mono">$45.36亿</td>
+                                <td class="td-mono">$47.19亿</td>
+                                <td class="td-mono">$53.90亿</td>
+                                <td class="td-mono td-green"><strong>$60.43亿</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>资本开支 (CapEx)</strong></td>
+                                <td class="td-mono">-$25.87亿</td>
+                                <td class="td-mono">-$28.95亿</td>
+                                <td class="td-mono">-$32.31亿</td>
+                                <td class="td-mono">-$32.27亿</td>
+                            </tr>
+                            <tr>
+                                <td><strong>自由现金流 (FCF)</strong></td>
+                                <td class="td-mono">$19.49亿</td>
+                                <td class="td-mono">$18.24亿</td>
+                                <td class="td-mono">$21.59亿</td>
+                                <td class="td-mono td-green"><strong>$28.16亿</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--text-primary);">营收与自由现金流增长趋势图</h3>
+                <div class="chart-container">
+                    <canvas id="financialsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-green" style="margin-top: 16px;">
+            <div class="card-title">盈利质量与现金转化率评估 (Cash Conversion Quality)</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                WM 展现出极高水准的现金流真实度：2025 年经营现金流 ($60.43亿) 达到净利润 ($27.08亿) 的 <strong>2.23 倍</strong>，FCF 转化率达 104% (FCF / Net Income)。资本开支中约 55% 为填埋场常规维护性支出，45% 为高 ROI 的可持续投资 (RNG 工厂建设与 MRF 自动化分选线)，未来 2-3 年随着可持续项目建设达峰，CapEx 强度将自然回落，释放更庞大自由现金流。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 5: DuPont Analysis -->
+    <section id="sec-5" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">05</div>
+                <h2 class="sec-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</h2>
+            </div>
+            <span class="sec-badge">ROE: 27.11% (极高股东回报效率)</span>
+        </div>
+
+        <p style="margin-bottom: 14px; font-size: 14px; color: var(--text-secondary);">
+            通过杜邦三因子模型拆解 WM 的净资产收益率 (ROE)，揭示其超额资本回报的深层动力架构：
+        </p>
+
+        <div class="grid-3">
+            <div class="card">
+                <div class="card-title">1. 净利润率 (Net Margin)</div>
+                <div class="metric-big td-green">10.74%</div>
+                <div class="metric-sub">净利润 $27.08亿 / 营业收入 $252.04亿</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">得益于持续的核心定价权与提价溢价，抵御了劳动力与通胀成本，净利率保持两位数稳健水准。</p>
+            </div>
+            <div class="card">
+                <div class="card-title">2. 资产周转率 (Asset Turnover)</div>
+                <div class="metric-big td-green">0.55x</div>
+                <div class="metric-sub">营业收入 $252.04亿 / 总资产 $458.35亿</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">重资产固废行业典型周转特征，填埋场与中转站利用率保持 90%+ 历史高位，产出效率行业领先。</p>
+            </div>
+            <div class="card">
+                <div class="card-title">3. 权益乘数 (Financial Leverage)</div>
+                <div class="metric-big td-amber">4.59x</div>
+                <div class="metric-sub">总资产 $458.35亿 / 股东权益 $99.90亿</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">收购 Stericycle 后阶段性推升负债率，由于现金流具备公用事业级稳定性，企业能安全承受稳健适度杠杆。</p>
+            </div>
+        </div>
+
+        <div class="thesis-box" style="margin-top: 16px;">
+            <div class="thesis-title">杜邦公式连乘汇总: ROE = 10.74% × 0.55 × 4.59 = 27.11%</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                WM 的 ROE 显著跑赢标普 500 平均水平 (~18%) 及工业板块中位数 (~14%)。随着 2026-2027 年 Stericycle 协同效应完全兑现并使用充沛 FCF 偿还债务，权益乘数将向 3.5x-3.8x 稳步回归，而净利润率将进一步扩张至 11.5%+，驱动高质量内生 ROE 持续维持在 25% 以上。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 6: Peer Comparison Matrix -->
+    <section id="sec-6" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">06</div>
+                <h2 class="sec-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</h2>
+            </div>
+            <span class="sec-badge">全美绝对市场份额第一</span>
+        </div>
+
+        <p style="margin-bottom: 14px; font-size: 14px; color: var(--text-secondary);">
+            将 WM 与北美固废/环卫三大核心上市同行（Republic Services、Waste Connections、Casella Waste）及危废龙头（Clean Harbors）进行多维度对标：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>对标公司 (Ticker)</th>
+                        <th>市值 ($)</th>
+                        <th>Forward P/E</th>
+                        <th>EV / EBITDA</th>
+                        <th>P / Sales</th>
+                        <th>毛利率</th>
+                        <th>营业利润率</th>
+                        <th>ROE</th>
+                        <th>股息率</th>
+                        <th>Beta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: var(--primary-light); font-weight: 700;">
+                        <td><strong>WM (Waste Management)</strong></td>
+                        <td class="td-mono">$897.6亿</td>
+                        <td class="td-mono td-green"><strong>24.60x</strong></td>
+                        <td class="td-mono td-green"><strong>14.48x</strong></td>
+                        <td class="td-mono">3.50x</td>
+                        <td class="td-mono">40.44%</td>
+                        <td class="td-mono">18.28%</td>
+                        <td class="td-mono td-green"><strong>27.11%</strong></td>
+                        <td class="td-mono td-green"><strong>1.58%</strong></td>
+                        <td class="td-mono">0.44</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RSG (Republic Services)</strong></td>
+                        <td class="td-mono">$657.5亿</td>
+                        <td class="td-mono">26.65x</td>
+                        <td class="td-mono">15.21x</td>
+                        <td class="td-mono">3.89x</td>
+                        <td class="td-mono">43.04%</td>
+                        <td class="td-mono">20.43%</td>
+                        <td class="td-mono">18.15%</td>
+                        <td class="td-mono">1.25%</td>
+                        <td class="td-mono">0.40</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WCN (Waste Connections)</strong></td>
+                        <td class="td-mono">$418.3亿</td>
+                        <td class="td-mono">26.80x</td>
+                        <td class="td-mono">16.47x</td>
+                        <td class="td-mono">4.28x</td>
+                        <td class="td-mono">42.53%</td>
+                        <td class="td-mono">19.70%</td>
+                        <td class="td-mono">13.03%</td>
+                        <td class="td-mono">0.84%</td>
+                        <td class="td-mono">0.48</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CWST (Casella Waste)</strong></td>
+                        <td class="td-mono">$57.7亿</td>
+                        <td class="td-mono">61.83x</td>
+                        <td class="td-mono">17.17x</td>
+                        <td class="td-mono">2.95x</td>
+                        <td class="td-mono">33.42%</td>
+                        <td class="td-mono">4.99%</td>
+                        <td class="td-mono">0.36%</td>
+                        <td class="td-mono">无 (None)</td>
+                        <td class="td-mono">0.74</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CLH (Clean Harbors)</strong></td>
+                        <td class="td-mono">$170.0亿</td>
+                        <td class="td-mono">32.40x</td>
+                        <td class="td-mono">16.49x</td>
+                        <td class="td-mono">2.72x</td>
+                        <td class="td-mono">32.26%</td>
+                        <td class="td-mono">15.50%</td>
+                        <td class="td-mono">15.56%</td>
+                        <td class="td-mono">无 (None)</td>
+                        <td class="td-mono">0.86</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">对标总结与估值套利机会</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                WM 目前的前瞻市盈率 (24.60x) 与 EV/EBITDA (14.48x) 均处于同行第一梯队中的<strong>估值洼地</strong>（较 RSG 折价 ~8%，较 WCN 折价 ~12%），且股息率 (1.58%) 为全行业最高。考虑到 WM 拥有规模最庞大的填埋场资产与即将释放的 Stericycle 协同效益，当前估值极具重估与均值回归空间。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 7: DCF Valuation & Sensitivity Analysis -->
+    <section id="sec-7" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">07</div>
+                <h2 class="sec-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</h2>
+            </div>
+            <span class="sec-badge">内在公允价值: $263.25 (基准)</span>
+        </div>
+
+        <p style="margin-bottom: 14px; font-size: 14px; color: var(--text-secondary);">
+            基于 5 年期两阶段自由现金流折现模型 (DCF)，以 2025 财年实际 FCF $28.16 亿美元为基期，设定基准 WACC 为 7.20%，终值永续增长率 (Terminal Growth Rate) 为 2.50%：
+        </p>
+
+        <div class="grid-3">
+            <div class="card card-red">
+                <div class="card-title">🐻 悲观情景 (Bear Case - 20% 概率)</div>
+                <div class="metric-big" style="color: var(--red);">$212.00</div>
+                <div class="metric-sub">较现价空间: -5.59%</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">假设宏观工业产出放缓，FCF 增速仅 4.0%，WACC 提升至 8.00%，终值增速 2.00%。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">⚖️ 基准情景 (Base Case - 60% 概率)</div>
+                <div class="metric-big td-green">$263.25</div>
+                <div class="metric-sub">较现价空间: +17.23%</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">FCF 未来3年 CAGR 7.5%，后2年 6.0%，协同效应顺利兑现，WACC 7.20%，终值增速 2.50%。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🐂 乐观情景 (Bull Case - 20% 概率)</div>
+                <div class="metric-big td-green">$302.50</div>
+                <div class="metric-sub">较现价空间: +34.71%</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Stericycle 协同超预期 + RNG 碳积分爆发，FCF CAGR 10.0%，WACC 6.80%，终值增速 3.00%。</p>
+            </div>
+        </div>
+
+        <h3 style="font-size: 14px; margin: 20px 0 10px; color: var(--text-primary);">WACC vs 永续增长率敏感性分析矩阵 (每股内在价值 $)</h3>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th>2.00%</th>
+                        <th>2.25%</th>
+                        <th>2.50% (基准)</th>
+                        <th>2.75%</th>
+                        <th>3.00%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>6.50%</strong></td>
+                        <td class="td-mono">$282.10</td>
+                        <td class="td-mono">$294.60</td>
+                        <td class="td-mono td-green"><strong>$308.80</strong></td>
+                        <td class="td-mono td-green"><strong>$325.20</strong></td>
+                        <td class="td-mono td-green"><strong>$344.50</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>7.00%</strong></td>
+                        <td class="td-mono">$252.30</td>
+                        <td class="td-mono">$261.80</td>
+                        <td class="td-mono td-green"><strong>$272.50</strong></td>
+                        <td class="td-mono td-green"><strong>$284.70</strong></td>
+                        <td class="td-mono td-green"><strong>$298.60</strong></td>
+                    </tr>
+                    <tr style="background: var(--primary-light); font-weight: 700;">
+                        <td><strong>7.20% (基准)</strong></td>
+                        <td class="td-mono">$242.40</td>
+                        <td class="td-mono">$251.20</td>
+                        <td class="td-mono td-green" style="font-size: 14px;"><strong>$263.25</strong></td>
+                        <td class="td-mono td-green"><strong>$274.60</strong></td>
+                        <td class="td-mono td-green"><strong>$287.40</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>7.50%</strong></td>
+                        <td class="td-mono">$228.60</td>
+                        <td class="td-mono">$236.40</td>
+                        <td class="td-mono">$245.10</td>
+                        <td class="td-mono">$254.90</td>
+                        <td class="td-mono">$265.90</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8.00%</strong></td>
+                        <td class="td-mono">$208.90</td>
+                        <td class="td-mono">$215.30</td>
+                        <td class="td-mono">$222.40</td>
+                        <td class="td-mono">$230.30</td>
+                        <td class="td-mono">$239.20</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">加权目标价计算: 20% × $212.00 + 60% × $263.25 + 20% × $302.50 = <strong>$260.85</strong> (保守取整为 <strong>$260.00</strong>)。</p>
+    </section>
+
+    <!-- MODULE 8: Technical Analysis & Key Levels -->
+    <section id="sec-8" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">08</div>
+                <h2 class="sec-title">技术面量化、均线系统与关键筹码位 (Technical Analysis)</h2>
+            </div>
+            <span class="sec-badge">超卖反弹触及 200日均线强支撑</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--text-primary);">关键技术指标量化快照</h3>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>技术指标</th>
+                                <th>当前数值</th>
+                                <th>状态评估与信号</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>当前价格 (Spot Price)</strong></td>
+                                <td class="td-mono">$224.55</td>
+                                <td>位于 200日均线上方附近蓄势</td>
+                            </tr>
+                            <tr>
+                                <td><strong>20日移动平均线 (SMA20)</strong></td>
+                                <td class="td-mono">$230.63</td>
+                                <td class="td-red">短期阻力位 (近期回调下穿)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>50日移动平均线 (SMA50)</strong></td>
+                                <td class="td-mono">$227.45</td>
+                                <td class="td-amber">中期多空分水岭</td>
+                            </tr>
+                            <tr>
+                                <td><strong>200日移动平均线 (SMA200)</strong></td>
+                                <td class="td-mono">$222.50</td>
+                                <td class="td-green"><strong>长期牛熊生命线强支撑</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>14日相对强弱指标 (RSI)</strong></td>
+                                <td class="td-mono td-green"><strong>25.63</strong></td>
+                                <td class="td-green"><strong>深度超卖区间 (Oversold < 30)</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>MACD (12, 26, 9)</strong></td>
+                                <td class="td-mono">-1.38 / -0.36</td>
+                                <td>柱状图 -1.02，下行动能衰竭接近金叉</td>
+                            </tr>
+                            <tr>
+                                <td><strong>关键支撑位 (Support S1 / S2)</strong></td>
+                                <td class="td-mono">$222.50 / $218.00</td>
+                                <td>200日均线与前期成交密集筹码峰</td>
+                            </tr>
+                            <tr>
+                                <td><strong>关键阻力位 (Resistance R1 / R2)</strong></td>
+                                <td class="td-mono">$230.50 / $248.00</td>
+                                <td>20日均线与 52周历史前高区间</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--text-primary);">近期 30 交易日股价走势与均线图</h3>
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-green" style="margin-top: 14px;">
+            <div class="card-title">技术形态结构洞察</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                WM 股价自 7 月底的 $242 回落至当前 $224.55，日线 RSI 探底至 <strong>25.63 的极端超卖区间</strong>。历史上 WM 的 RSI 跌破 30 往往对应极高胜率的中长线波段买点。当前股价正精准回踩 200 日牛熊生命线 ($222.50)，下行空间极为有限，形成了高性价比的右侧反弹博弈形态。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 9: Capital Allocation & Dividend Disclosure -->
+    <section id="sec-9" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">09</div>
+                <h2 class="sec-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</h2>
+            </div>
+            <span class="sec-badge">股息贵族潜力股 (22年连增)</span>
+        </div>
+
+        <div class="grid-4">
+            <div class="card card-green">
+                <div class="card-title">当前股息率 (Dividend Yield)</div>
+                <div class="metric-big td-green">1.58%</div>
+                <div class="metric-sub">远高于行业中位数 0.85%</div>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">年化每股派息 (Annual Payout)</div>
+                <div class="metric-big td-green">$3.78</div>
+                <div class="metric-sub">季度派息 $0.945 / 股</div>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">自由现金流派息率 (FCF Payout)</div>
+                <div class="metric-big td-green">53.69%</div>
+                <div class="metric-sub">股息覆盖倍数 1.86x (极度安全)</div>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">连续提高股息年限</div>
+                <div class="metric-big td-green">22 年</div>
+                <div class="metric-sub">5年股息复合增速 (CAGR) ~8.2%</div>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 16px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>最近派息财季</th>
+                        <th>除息日 (Ex-Div Date)</th>
+                        <th>每股派息金额 ($)</th>
+                        <th>派息属性与变动说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026 Q2</strong></td>
+                        <td class="td-mono">2026-06-05</td>
+                        <td class="td-mono td-green"><strong>$0.9450</strong></td>
+                        <td>常规现金股息 (季度上调后维持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q1</strong></td>
+                        <td class="td-mono">2026-03-13</td>
+                        <td class="td-mono td-green"><strong>$0.9450</strong></td>
+                        <td>年度股息上调 (+14.5% 较 2025 年 $0.825 显著提升)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2025 Q4</strong></td>
+                        <td class="td-mono">2025-12-05</td>
+                        <td class="td-mono">$0.8250</td>
+                        <td>常规季度现金股息</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2025 Q3</strong></td>
+                        <td class="td-mono">2025-09-12</td>
+                        <td class="td-mono">$0.8250</td>
+                        <td>常规季度现金股息</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">资本配置优先级顺序 (Capital Allocation Priority)</div>
+            <ol style="padding-left: 20px; font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
+                <li><strong>高回报内生投资：</strong> 每年投入约 $10亿-$12亿美元用于可持续高回报项目（RNG 工厂及回收分选自动化），创造长期有机增长。</li>
+                <li><strong>渐进式股息增长：</strong> 维持 45%-55% 的 FCF 派息率，保证每年稳步提升每股股息，奖励长线股东。</li>
+                <li><strong>杠杆优化与债务偿还：</strong> 优先利用 Stericycle 整合后的增量现金流快速降杠杆至 2.5x-2.8x EBITDA。</li>
+                <li><strong>反周期股票回购：</strong> 董事会维持常态化回购授权（年均回购规模约 $10亿-$15亿美元），在股价低估期积极回购注销。</li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- MODULE 10: Cash-Secured Sell Put Strategy -->
+    <section id="sec-10" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">10</div>
+                <h2 class="sec-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</h2>
+            </div>
+            <span class="sec-badge">推荐到期日: 2026-09-18 (33 DTE)</span>
+        </div>
+
+        <p style="margin-bottom: 14px; font-size: 14px; color: var(--text-secondary);">
+            鉴于 WM 股价处于 200日均线强支撑位 ($222.50) 且 RSI 处于 25.6 深度超卖区，非常适合采用<strong>现金担保卖出看跌期权 (Cash-Secured Put)</strong> 策略，以折价锁定建仓成本或赚取高确定性时间价值：
+        </p>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">🟢 保守型方案 (Conservative Tier)</div>
+                <div class="metric-big td-green">行权价: $210.00</div>
+                <div class="metric-sub">虚值程度: 6.48% OTM | Delta: -0.18</div>
+                <ul style="padding-left: 16px; font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.7;">
+                    <li><strong>权利金 (Mid Price):</strong> $0.95 / 股 ($95/张)</li>
+                    <li><strong>年化现金收益率:</strong> <strong>5.00%</strong></li>
+                    <li><strong>安全垫保护:</strong> -6.48% (跌破 $209.05 才亏损)</li>
+                    <li><strong>适用对象:</strong> 追求稳健利息增厚、要求极低接盘风险的防守型资金</li>
+                </ul>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🟡 平衡型方案 (Moderate Tier - 推荐)</div>
+                <div class="metric-big td-green">行权价: $220.00</div>
+                <div class="metric-sub">虚值程度: 2.03% OTM | Delta: -0.36</div>
+                <ul style="padding-left: 16px; font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.7;">
+                    <li><strong>权利金 (Mid Price):</strong> $3.20 / 股 ($320/张)</li>
+                    <li><strong>年化现金收益率:</strong> <strong>16.08%</strong></li>
+                    <li><strong>实际持仓成本:</strong> <strong>$216.80</strong> (较现价折价 3.45%)</li>
+                    <li><strong>适用对象:</strong> 意向在 200日线下方坚实筹码区逢低建仓的核心配置者</li>
+                </ul>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🔴 积极型方案 (Aggressive Tier)</div>
+                <div class="metric-big td-green">行权价: $225.00 / $230.00</div>
+                <div class="metric-sub">平值/轻度实值 (ATM/ITM) | Delta: -0.52</div>
+                <ul style="padding-left: 16px; font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.7;">
+                    <li><strong>权利金 (Mid Price):</strong> $8.05 / 股 ($805/张)</li>
+                    <li><strong>年化现金收益率:</strong> <strong>38.68%</strong></li>
+                    <li><strong>实际持仓成本:</strong> <strong>$221.95</strong> (低于现价 $224.55)</li>
+                    <li><strong>适用对象:</strong> 强烈看多反弹、追求高额期权金且渴望立即接股的投资者</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 16px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略方案</th>
+                        <th>到期日</th>
+                        <th>行权价 ($)</th>
+                        <th>买价 (Bid)</th>
+                        <th>卖价 (Ask)</th>
+                        <th>中间价 ($)</th>
+                        <th>隐含波动率 (IV)</th>
+                        <th>未平仓量 (OI)</th>
+                        <th>年化收益率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>保守型</strong></td>
+                        <td class="td-mono">2026-09-18</td>
+                        <td class="td-mono">$210.00</td>
+                        <td class="td-mono">$0.90</td>
+                        <td class="td-mono">$1.00</td>
+                        <td class="td-mono">$0.95</td>
+                        <td class="td-mono">20.90%</td>
+                        <td class="td-mono">2,274</td>
+                        <td class="td-mono td-green"><strong>5.00%</strong></td>
+                    </tr>
+                    <tr style="background: var(--primary-light); font-weight: 700;">
+                        <td><strong>平衡型 (推荐)</strong></td>
+                        <td class="td-mono">2026-09-18</td>
+                        <td class="td-mono">$220.00</td>
+                        <td class="td-mono">$3.00</td>
+                        <td class="td-mono">$3.40</td>
+                        <td class="td-mono td-green">$3.20</td>
+                        <td class="td-mono">20.20%</td>
+                        <td class="td-mono">5,732</td>
+                        <td class="td-mono td-green"><strong>16.08%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>积极型</strong></td>
+                        <td class="td-mono">2026-09-18</td>
+                        <td class="td-mono">$230.00</td>
+                        <td class="td-mono">$7.20</td>
+                        <td class="td-mono">$8.90</td>
+                        <td class="td-mono">$8.05</td>
+                        <td class="td-mono">21.20%</td>
+                        <td class="td-mono">316</td>
+                        <td class="td-mono td-green"><strong>38.68%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 11: Institutional Ownership -->
+    <section id="sec-11" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">11</div>
+                <h2 class="sec-title">机构持仓与主力资金动向 (Institutional Ownership)</h2>
+            </div>
+            <span class="sec-badge">机构持股比例: 82.4%</span>
+        </div>
+
+        <p style="margin-bottom: 14px; font-size: 14px; color: var(--text-secondary);">
+            WM 长期受到全球顶级长线主权基金与家族信托的青睐，尤其是<strong>比尔·盖茨信托基金 (Gates Foundation Trust / Cascade Investment)</strong> 连续二十余年重仓持有，为第一大战略股东之一：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (Institutional Holder)</th>
+                        <th>持股比例 (%)</th>
+                        <th>持股数量 (股)</th>
+                        <th>持股市值 ($)</th>
+                        <th>最新季度变动</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BlackRock, Inc.</strong></td>
+                        <td class="td-mono td-green"><strong>7.69%</strong></td>
+                        <td class="td-mono">30,733,944</td>
+                        <td class="td-mono">$69.01亿</td>
+                        <td class="td-mono td-green">+1.77% (增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gates Foundation Trust (比尔·盖茨信托)</strong></td>
+                        <td class="td-mono td-green"><strong>6.92%</strong></td>
+                        <td class="td-mono">27,642,344</td>
+                        <td class="td-mono">$62.07亿</td>
+                        <td class="td-mono">-4.47% (常规慈善调仓)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Group, Inc.</strong></td>
+                        <td class="td-mono td-green"><strong>6.30%</strong></td>
+                        <td class="td-mono">25,179,716</td>
+                        <td class="td-mono">$56.54亿</td>
+                        <td class="td-mono">+0.04% (平稳)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation</strong></td>
+                        <td class="td-mono"><strong>4.51%</strong></td>
+                        <td class="td-mono">18,008,931</td>
+                        <td class="td-mono">$40.44亿</td>
+                        <td class="td-mono td-green">+2.90% (增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Capital Research Global Investors</strong></td>
+                        <td class="td-mono"><strong>2.61%</strong></td>
+                        <td class="td-mono">10,438,136</td>
+                        <td class="td-mono">$23.44亿</td>
+                        <td class="td-mono td-green">+19.54% (大幅加仓)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card card-green" style="margin-top: 14px;">
+            <div class="card-title">主力资金态度分析</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                前五大顶级机构合计持股近 28%，总体机构持股比例高达 82.4%。Capital Research 等头部主动权益基金在最新季度大幅增持近 20%，体现机构主力资金对 WM 整合 Stericycle 后现金流扩张与防御属性的高度共识。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 12: Insider Trading & Management Tone -->
+    <section id="sec-12" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">12</div>
+                <h2 class="sec-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Tone)</h2>
+            </div>
+            <span class="sec-badge">管理层基调: 积极乐观 (Positive)</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--text-primary);">SEC Form 4 内部人交易动态</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.7;">
+                    过去 12 个月中，高管交易主要集中于既定 10b5-1 计划下的常规期权行权与税务卖出，<strong>未见任何异常恐慌性集中抛售</strong>。CEO 与 CFO 持续保持高比例的股权激励绑定，管理层利益与长线股东高度一致。
+                </p>
+                <div class="card" style="margin-top: 12px;">
+                    <div class="card-title">高管持股与治理结构</div>
+                    <p style="font-size: 12px; color: var(--text-secondary);">CEO Jim Fish 领导管理层团队深耕固废行业超 20 年，严格执行资本回报率 (ROIC) 考核机制，薪酬激励高度挂钩自由现金流转化率与 ESG 减排目标。</p>
+                </div>
+            </div>
+            <div>
+                <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--text-primary);">财报电话会管理层核心指引与语气 (Tone)</h3>
+                <div class="thesis-box">
+                    <div class="thesis-title">🗣️ 电话会核心纪要要点</div>
+                    <ul style="padding-left: 16px; font-size: 12px; color: var(--text-secondary); line-height: 1.7;">
+                        <li><strong>定价韧性：</strong> 确认 2026 全年核心提价收益率 (Core Price) 将维持在 5.0%-5.5%，完全覆盖劳动力成本上涨。</li>
+                        <li><strong>Stericycle 整合超预期：</strong> 医废路线网络重叠度高，已实现首批 $6,000 万协同降本，全额兑现 $1.5亿-$2.0亿目标信心极足。</li>
+                        <li><strong>RNG 投产加速：</strong> 2026 年底前将有 6 座新建 RNG 工厂集中并网，单厂年化 EBITDA 增量可达 $1,500万-$2,000万美元。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13: Short Interest & Options P/C Ratio -->
+    <section id="sec-13" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">13</div>
+                <h2 class="sec-title">做空比例、平仓天数与轧空风险评估 (Short Interest)</h2>
+            </div>
+            <span class="sec-badge">做空比例极低 (1.55%)</span>
+        </div>
+
+        <div class="grid-4">
+            <div class="card card-green">
+                <div class="card-title">做空比例 (Short % Float)</div>
+                <div class="metric-big td-green">1.55%</div>
+                <div class="metric-sub">空头头寸 619.6 万股 (极低水平)</div>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">平仓天数 (Days to Cover)</div>
+                <div class="metric-big td-green">3.44 天</div>
+                <div class="metric-sub">空头极易在常态流动性下平仓</div>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">期权沽购比 (Put/Call Ratio)</div>
+                <div class="metric-big td-green">0.68</div>
+                <div class="metric-sub">看涨期权持仓占据主导</div>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">轧空风险评级 (Squeeze Risk)</div>
+                <div class="metric-big" style="color: var(--slate);">极低 (Low)</div>
+                <div class="metric-sub">基本面驱动型长线标的</div>
+            </div>
+        </div>
+
+        <p style="margin-top: 14px; font-size: 13px; color: var(--text-secondary);">
+            低达 1.55% 的空头比例表明机构对 WM 的商业模式与护城河极为敬畏，市场上几乎不存在系统性做空逻辑。低空头比例与低 Beta (0.44) 赋予其极其稳固的防御下限。
+        </p>
+    </section>
+
+    <!-- MODULE 14: Risk Matrix & Stress Test -->
+    <section id="sec-14" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">14</div>
+                <h2 class="sec-title">核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Case)</h2>
+            </div>
+            <span class="sec-badge">整体风险可控</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子 (Risk Factor)</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>风险传导机制与公司对冲/缓解策略</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Stericycle 整合与商誉风险</strong></td>
+                        <td class="td-mono td-amber">中等 (Medium)</td>
+                        <td class="td-mono td-amber">中高 (Moderate)</td>
+                        <td>若医疗废弃物合规成本或 IT 整合受阻，可能延缓协同落地；对策：聘用原医废资深运营团队保持运营独立与渐进整合。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 环保合规与 PFAS 填埋渗滤液监管</strong></td>
+                        <td class="td-mono td-amber">中等 (Medium)</td>
+                        <td class="td-mono td-amber">中等 (Moderate)</td>
+                        <td>EPA 加强对永久化学品 (PFAS) 处置标准，或增加填埋场封场及渗滤液处理 CapEx；对策：WM 具备全美最先进膜处理技术并转嫁成本。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 宏观建筑与工业废弃物量下滑</strong></td>
+                        <td class="td-mono">低 (Low)</td>
+                        <td class="td-mono">低 (Low)</td>
+                        <td>高利率环境下大型商业地产开工减速可能影响特殊废弃物货量；对策：市政住宅与商业垃圾刚性需求占大头，能有效平滑周期。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 再生资源商品与碳积分价格波动</strong></td>
+                        <td class="td-mono td-amber">中等 (Medium)</td>
+                        <td class="td-mono">低 (Low)</td>
+                        <td>旧纸板 (OCC) 及 RINs 碳积分价格波动；对策：采用“收费服务制 (Fee-for-service)”回收合同模型，将大宗价格风险转移至客户。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card card-red" style="margin-top: 14px;">
+            <div class="card-title">熊市极端情景压力测试 (Severe Bear Case Stress Test)</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                在假设“美国陷入深度经济衰退 + 工业产出下滑 10% + 提价受限至 2% + WACC 升至 8.5%”的极端情景下，WM 的 2026 年 FCF 依然能维持在 <strong>$23.5 亿美元以上</strong>，足以完全覆盖其每年 ~$15 亿美元的股息派发与利息支出，股息绝无削减风险，下行估值底线约在 <strong>$195.00 - $205.00</strong> (下行空间 < 10%)。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 15: Catalyst Calendar & Strategic Milestones -->
+    <section id="sec-15" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">15</div>
+                <h2 class="sec-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar)</h2>
+            </div>
+            <span class="sec-badge">催化剂密集</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预期时间窗口 (Timeline)</th>
+                        <th>催化事件 (Catalyst Event)</th>
+                        <th>预期业务里程碑与对股价的潜在影响</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026 年 Q3 (9月-10月)</strong></td>
+                        <td><strong>2026 Q3 财报公布与 Stericycle 协同更新</strong></td>
+                        <td>管理层将披露收购后首个完整整合季度的协同降本成果，若年化协同超 $1.2 亿美元将触发机构上调评级。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 年 Q4 (11月-12月)</strong></td>
+                        <td><strong>新建 4 座大型 RNG 填埋气工厂集中并网</strong></td>
+                        <td>可再生天然气产能突破 2,000 万 MMBtu/年，显著增厚高毛利可持续业务营收与现金流。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 年 12 月</strong></td>
+                        <td><strong>2027 年度股息上调与年度资本配置指引</strong></td>
+                        <td>预计将宣布第 23 年连续提高季度股息（预期增幅 7%-10%）并公布新一轮数十亿美元回购计划。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 年上半年</strong></td>
+                        <td><strong>净杠杆率降至 2.8x 以下与信用评级展望上调</strong></td>
+                        <td>随着充沛 FCF 优先偿债，公司有望获得评级机构对投资级信用的正面展望，进一步降低债务融资成本。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 16: Final Verdict & Signal Block -->
+    <section id="sec-16" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">16</div>
+                <h2 class="sec-title">最终投资评级与执行建议 (Final Verdict & Execution)</h2>
+            </div>
+            <span class="sec-badge">BULLISH / BUY</span>
+        </div>
+
+        <div class="signal-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,.2); padding-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                <div style="font-size: 22px; font-weight: 800; letter-spacing: -.5px;">🏆 最终投资决策评级结论</div>
+                <span class="badge" style="background: #fff; color: var(--primary-dark); font-size: 14px; font-weight: 800;">看多 (BULLISH) • BUY</span>
+            </div>
+
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-lbl">投资信号 (Signal)</div>
+                    <div class="signal-val" style="color: #34D399;">看多 (BULLISH)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">综合评分 (Score)</div>
+                    <div class="signal-val">8.4 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">目标价位 (Target Price)</div>
+                    <div class="signal-val">$260.00</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">置信度 (Confidence)</div>
+                    <div class="signal-val">高 (HIGH)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">投资周期 (Horizon)</div>
+                    <div class="signal-val">中长线 (6-18个月)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">操作建议 (Action)</div>
+                    <div class="signal-val" style="color: #34D399;">买入 (BUY)</div>
+                </div>
+            </div>
+
+            <div style="background: rgba(0,0,0,.15); padding: 16px 20px; border-radius: 10px; font-size: 13px; line-height: 1.7;">
+                <strong>💡 最终交易与配置执行指引：</strong>
+                <br>1. <strong>现货建仓：</strong> 当前股价 $224.55 已精准回踩 200日均线 ($222.50) 且 RSI 处于 25.6 深度超卖区，建议当前位置建立 50% 底仓，若回踩 $220-$222 支撑区间可补满全仓。
+                <br>2. <strong>期权收益增强：</strong> 推荐同步卖出 2026-09-18 到期、行权价 $220.00 的现金担保 Put (收取 $3.20 权利金，年化收益率 16.08%)，实现“进可锁定高额期权金收益，退可 $216.80 折价拿好筹码”。
+                <br>3. <strong>中长线止盈目标：</strong> 第一目标位 $248.00 (历史前高)，核心估值目标位 <strong>$260.00</strong> (+15.79% 资本利得 + 1.58% 股息收益)。
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    // Radar Chart
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['护城河壁垒', '盈利与现金流', '财务健康度', '估值吸引力', '战略增长催化', '股东回报分红'],
+            datasets: [{
+                label: 'WM 多因子得分',
+                data: [9.6, 8.8, 7.2, 8.0, 8.6, 8.5],
+                backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#10B981',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#059669',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#E2E8F0' },
+                    grid: { color: '#E2E8F0' },
+                    pointLabels: {
+                        font: { size: 11, family: 'Inter', weight: '600' },
+                        color: '#475569'
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Financials Bar/Line Chart
+    const ctxFin = document.getElementById('financialsChart').getContext('2d');
+    new Chart(ctxFin, {
+        type: 'bar',
+        data: {
+            labels: ['2022', '2023', '2024', '2025'],
+            datasets: [
+                {
+                    type: 'bar',
+                    label: '营业收入 ($亿)',
+                    data: [196.98, 204.26, 220.63, 252.04],
+                    backgroundColor: 'rgba(5, 150, 105, 0.75)',
+                    borderRadius: 6,
+                    yAxisID: 'y'
+                },
+                {
+                    type: 'line',
+                    label: '自由现金流 FCF ($亿)',
+                    data: [19.49, 18.24, 21.59, 28.16],
+                    borderColor: '#10B981',
+                    backgroundColor: '#10B981',
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    grid: { color: '#F1F5F9' },
+                    title: { display: true, text: '营收 ($亿)' }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: 'FCF ($亿)' }
+                }
+            },
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+
+    // Recent 30 Days Price Chart
+    const ctxPrice = document.getElementById('priceChart').getContext('2d');
+    const priceDates = ['07-06', '07-07', '07-08', '07-09', '07-10', '07-13', '07-14', '07-15', '07-16', '07-17', '07-20', '07-21', '07-22', '07-23', '07-24', '07-27', '07-28', '07-29', '07-30', '07-31', '08-03', '08-04', '08-05', '08-06', '08-07', '08-10', '08-11', '08-12', '08-13', '08-14'];
+    const priceValues = [228.98, 237.21, 233.94, 231.67, 233.33, 236.71, 234.27, 232.80, 242.25, 239.31, 239.05, 233.18, 236.38, 237.27, 238.75, 237.90, 239.41, 236.60, 226.33, 226.55, 226.43, 225.25, 224.31, 229.01, 227.68, 226.60, 226.85, 226.32, 224.21, 224.55];
+    const sma200Value = 222.50;
+
+    new Chart(ctxPrice, {
+        type: 'line',
+        data: {
+            labels: priceDates,
+            datasets: [
+                {
+                    label: 'WM 收盘价 ($)',
+                    data: priceValues,
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                    fill: true,
+                    tension: 0.2,
+                    borderWidth: 2,
+                    pointRadius: 3
+                },
+                {
+                    label: '200日均线支撑 ($222.50)',
+                    data: Array(30).fill(sma200Value),
+                    borderColor: '#DC2626',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    grid: { color: '#F1F5F9' },
+                    title: { display: true, text: '股价 ($)' },
+                    suggestedMin: 220,
+                    suggestedMax: 245
+                }
+            },
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

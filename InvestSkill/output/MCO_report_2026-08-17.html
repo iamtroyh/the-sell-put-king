@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>穆迪公司 (Moody's Corporation - MCO) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 28px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+        
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title-wrap { display: flex; align-items: center; gap: 10px; }
+        .sec-num {
+            width: 28px; height: 28px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 13px;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .sec-title { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+        
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left; }
+        th { background: #F8FAFC; color: var(--text-secondary); font-weight: 600; padding: 10px 12px; border-bottom: 2px solid var(--border); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:hover td { background: #F8FAFC; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .card-box { background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+        .card-box-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+        
+        .signal-block {
+            background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.95));
+            border: 2px solid var(--primary);
+            border-radius: 14px;
+            padding: 24px;
+            color: #fff;
+            margin-top: 16px;
+        }
+        .signal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 16px 0; }
+        .signal-item { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 12px 14px; border-radius: 8px; }
+        .sig-label { font-size: 11px; text-transform: uppercase; color: #94A3B8; font-weight: 600; }
+        .sig-val { font-size: 16px; font-weight: 700; color: #fff; margin-top: 4px; }
+        .signal-score { font-size: 26px; font-weight: 800; color: #34D399; font-family: 'JetBrains Mono', monospace; }
+        .signal-verdict { font-size: 18px; font-weight: 800; color: #6EE7B7; }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">🏛️ MCO · Moody's Corporation</span>
+            <span class="badge badge-hero-stock">📂 金融数据与信用评级 | 全球特许双寡头</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-stock">📅 报告基准日: 2026-08-17</span>
+        </div>
+        <h1 class="hero-title">穆迪公司 (Moody's Corporation - MCO) 15模块全景量化投研报告</h1>
+        <p class="hero-sub">全球信用评级与标普双寡头法定特许垄断（NRSRO）、降息周期企业债务再融资海量发债潮、穆迪分析（MA）高粘性经常性数据订阅、巴菲特长线持仓 13.5%+ 与高达 76.9% 的极致 ROE 资本印钞机。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前市场现价</div>
+                <div class="hero-kpi-val">$478.82</div>
+                <div class="hero-kpi-sub">52周: $402.28 ~ $546.88 (RP 52.9%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">多因子综合评分</div>
+                <div class="hero-kpi-val">8.9 / 10</div>
+                <div class="hero-kpi-sub">评级: 强烈看多 (STRONG BUY)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$82.92B</div>
+                <div class="hero-kpi-sub">市盈率 P/E: 30.4x | 前瞻: 25.3x</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息收益率 (Dividend)</div>
+                <div class="hero-kpi-val">0.85%</div>
+                <div class="hero-kpi-sub">年派息: $4.12/股 | 派息率 25.0% (连续15年提息)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报导航目录 (15大核心模块全景覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与双重护城河</a>
+            <a href="#sec-4" class="toc-link">04. 财报与盈利质量</a>
+            <a href="#sec-5" class="toc-link">05. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">06. 行业竞争与同行对标</a>
+            <a href="#sec-7" class="toc-link">07. DCF估值三情景模型</a>
+            <a href="#sec-8" class="toc-link">08. 技术面与筹码量化</a>
+            <a href="#sec-9" class="toc-link">09. 资本配置与股息披露</a>
+            <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与巴菲特动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵与利率压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </div>
+
+    <!-- 模块 1: 执行摘要与投资核心逻辑 -->
+    <section id="sec-1" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">01</div>
+                <h2 class="sec-title">执行摘要与投资核心逻辑 (Executive Summary & Thesis)</h2>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="card-box">
+                <div class="card-box-title">💡 核心投资论点 (Core Investment Thesis)</div>
+                <p>1. <b>资本市场无可替代的“金融收费站”法定特权</b>：穆迪投资者服务（MIS）与标普全球（S&P Global）垄断全球 80%+ 债券评级市场。由于全球监管法规严格限制养老金、保险和公募基金仅能持有具备官方资质评级机构（NRSRO）认证的债券，发债企业必须支付评级费用，赋予穆迪近乎无限的定价权。</p>
+                <p style="margin-top:8px;">2. <b>降息周期触发全球 4.5万亿美元 债务再融资潮爆发</b>：随着美联储与欧洲央行降息周期开启，2024-2027年全球到期的高峰期企业债迎来迫切的再融资需求，发债规模激增将带来极高的经营杠杆，推动 MIS 评级收入与净利润成倍释放。</p>
+                <p style="margin-top:8px;">3. <b>穆迪分析（MA）SaaS 经常性收入飞轮平抑周期</b>：风险决策、反洗钱合规、巨灾建模与 GenAI 金融数据软件订阅（MA）贡献近半数营收，经常性收入占比超 92%，毛利率高达 75%，营业利润率近 50%，ROE 达 76.9%，是典型的顶级巴菲特式复利资产。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🎯 关键财务与运营指标速览</div>
+                <div class="table-scroll">
+                    <table>
+                        <tr><th>核心指标</th><th>最新数据</th><th>行业地位与评级</th></tr>
+                        <tr><td>营收同比增长 (Revenue YoY)</td><td><b>+15.1%</b></td><td>债券发行复苏带动双位数强劲加速</td></tr>
+                        <tr><td>毛利率 / 营业利润率</td><td><b>75.0% / 49.5%</b></td><td>金融信息软件与评级收费极高利润垫</td></tr>
+                        <tr><td>净资产收益率 (ROE)</td><td><b>76.9%</b></td><td>轻资产运营与高利润率驱动的顶级 ROE</td></tr>
+                        <tr><td>自由现金流 (FCF TTM)</td><td><b>$25.8 亿美元</b></td><td>现金转化率超 100%，支撑持续加息与回购</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 2: 多因子量化评分雷达模型 -->
+    <section id="sec-2" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">02</div>
+                <h2 class="sec-title">多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</h2>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div style="height: 280px; position: relative;">
+                <canvas id="radarChart"></canvas>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">📊 5大核心维度综合量化评分 (Composite: 8.9 / 10)</div>
+                <div class="table-scroll">
+                    <table>
+                        <tr><th>量化维度</th><th>得分</th><th>权重</th><th>核心驱动因素</th></tr>
+                        <tr><td>商业质量 (Business Quality)</td><td><b>9.8 / 10</b></td><td>25%</td><td>法定准入特许经营垄断、75% 毛利率、76.9% 顶格 ROE</td></tr>
+                        <tr><td>内在估值 (Valuation)</td><td><b>8.5 / 10</b></td><td>25%</td><td>前瞻 P/E 25.3x，发债周期底部回升带来确定性 EPS 增长</td></tr>
+                        <tr><td>市场信号 (Market Signals)</td><td><b>8.8 / 10</b></td><td>20%</td><td>巴菲特持仓 13.5% 终身锁定，华尔街平均目标价 $560 (+17%)</td></tr>
+                        <tr><td>技术结构 (Technical Setup)</td><td><b>8.4 / 10</b></td><td>15%</td><td>均线系统呈标准多头排列 (SMA20 > SMA50 > SMA200)</td></tr>
+                        <tr><td>风险防御 (Risk Profile)</td><td><b>8.8 / 10</b></td><td>15%</td><td>轻资产抗通胀模型，利息覆盖倍数超 15x，空头比例仅 2.1%</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 3: 商业模式与波特五力 -->
+    <section id="sec-3" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">03</div>
+                <h2 class="sec-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">🏛️ 1. 穆迪投资者服务 (MIS) - 法定收费站</div>
+                <p style="font-size:13px; color:var(--text-secondary);">评级服务面向投资级企业债、高收益债、结构化金融与主权债。客户承担发债金额的万分之几作为评级费，发债人几乎无任何议价能力，营业利润率接近 60%。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">💻 2. 穆迪分析 (MA) - 决策数据 SaaS</div>
+                <p style="font-size:13px; color:var(--text-secondary);">拥有全球 4.5 亿家非上市企业数据库（Bureau van Dijk）与巨灾风险建模系统（RMS），92% 以上为年度续约经常性订阅收入，客户留存率（NDR）超 100%。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🤖 3. 生成式 AI 金融智能工作流</div>
+                <p style="font-size:13px; color:var(--text-secondary);">与微软 OpenAI 深度合作推出 Moody's CoPilot 与智能信贷研报分析工具，大幅提升金融机构分析师效率，进一步扩大软件提价空间。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 4: 核心财务报表剖析 -->
+    <section id="sec-4" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">04</div>
+                <h2 class="sec-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</h2>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <tr><th>财务项目</th><th>最新数据</th><th>行业中枢/历史</th><th>质量与趋势评估</th></tr>
+                <tr><td>营业收入 (Revenue YoY)</td><td><b>+15.1%</b></td><td>+8.0% (过去5年复合)</td><td>降息周期发债放量与数据订阅提价双轮加速</td></tr>
+                <tr><td>毛利率 (Gross Margin)</td><td><b>75.0%</b></td><td>55.0% (金融业平均)</td><td>纯知识产权与软件数据资产，极高毛利厚度</td></tr>
+                <tr><td>营业利润率 (Operating Margin)</td><td><b>49.5%</b></td><td>25.0%</td><td>固定成本摊薄效应极强，营收增长带来利润暴增</td></tr>
+                <tr><td>净利润率 (Net Margin)</td><td><b>34.3%</b></td><td>18.0%</td><td>每 1 美元收入净落袋超 0.34 美元纯利润</td></tr>
+                <tr><td>自由现金流 (FCF TTM)</td><td><b>$25.8 亿美元</b></td><td>$18.5 亿美元</td><td>几乎不需要重资产 CapEx，现金转化率 > 100%</td></tr>
+                <tr><td>净资产收益率 (ROE)</td><td><b>76.9%</b></td><td>15.0%</td><td>顶级资本效率，巴菲特最推崇的轻资产高 ROE 模式</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 5: 杜邦三因子拆解 -->
+    <section id="sec-5" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">05</div>
+                <h2 class="sec-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">1. 净利润率 (Net Margin)</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">34.3%</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">全球双寡头定价权与软件数据高毛利带来的超级利润垫</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">2. 资产周转率 (Asset Turnover)</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">0.58x / 年</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">虽然持有收购形成的商誉资产，但业务营运周转极其顺畅</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">3. 权益乘数与资本优化</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">ROE: 76.9%</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">通过低息发债进行大规模股票回购注销，主动优化资本结构增厚 EPS</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 6: 行业同行全景对标 -->
+    <section id="sec-6" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">06</div>
+                <h2 class="sec-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</h2>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <tr><th>标的名称</th><th>代码</th><th>总市值</th><th>P/E (TTM)</th><th>前瞻 P/E</th><th>营业利润率</th><th>竞争地位与商业模式评价</th></tr>
+                <tr style="background:var(--primary-light); font-weight:600;"><td>穆迪公司 (Moody's)</td><td>MCO</td><td>$82.9B</td><td>30.4x</td><td><b>25.3x</b></td><td><b>49.5%</b></td><td><b>全球信用评级双寡头，数据分析占比高，ROE 表现全行业最强</b></td></tr>
+                <tr><td>标普全球 (S&P Global)</td><td>SPGI</td><td>$160.0B</td><td>34.5x</td><td>28.2x</td><td>48.0%</td><td>涵盖标普500指数与商品数据的大型综合体，估值溢价更高</td></tr>
+                <tr><td>MSCI 明晟</td><td>MSCI</td><td>$44.0B</td><td>38.0x</td><td>30.5x</td><td>55.0%</td><td>指数授权与 ESG 数据，但无庞大的债券发行评级收费业务</td></tr>
+                <tr><td>惠誉国际 (Fitch)</td><td>私有</td><td>-</td><td>-</td><td>-</td><td>~35%</td><td>第三大评级机构（赫斯特集团控股），市占率仅 15% 左右</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 7: DCF 估值三情景模型 -->
+    <section id="sec-7" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">07</div>
+                <h2 class="sec-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box" style="border-left: 4px solid #EF4444;">
+                <div class="card-box-title" style="color:#DC2626;">🐻 悲观情景 (Bear Case)</div>
+                <div style="font-size:24px; font-weight:800; font-family:'JetBrains Mono';">$415.00</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">假设全球经济陷入滞胀，企业推迟发债再融资，WACC 9.2%</p>
+                <div style="margin-top:6px; font-size:12px; color:#DC2626;">下行空间: -13.3% (对应 52周 低位支撑)</div>
+            </div>
+            <div class="card-box" style="border-left: 4px solid var(--primary); background:var(--primary-light);">
+                <div class="card-box-title" style="color:var(--primary);">🎯 基准情景 (Base Case)</div>
+                <div style="font-size:24px; font-weight:800; font-family:'JetBrains Mono'; color:var(--primary);">$560.00</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">降息推动发债量复合增长 10%，MA 软件 ARR 增 12%，WACC 7.8%，永续增长率 3.5%</p>
+                <div style="margin-top:6px; font-size:12px; font-weight:700; color:var(--primary);"><b>公允价值空间: +17.0%</b></div>
+            </div>
+            <div class="card-box" style="border-left: 4px solid #10B981;">
+                <div class="card-box-title" style="color:#059669;">🐂 乐观情景 (Bull Case)</div>
+                <div style="font-size:24px; font-weight:800; font-family:'JetBrains Mono';">$660.00</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">降息加速催生万亿超级再融资潮，AI 投研工具全面加价提效，WACC 7.2%</p>
+                <div style="margin-top:6px; font-size:12px; color:#059669;">上行空间: +37.8%</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 8: 技术面量化分析 -->
+    <section id="sec-8" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">08</div>
+                <h2 class="sec-title">技术面量化、均线系统与关键筹码位 (Technical Analysis)</h2>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="card-box">
+                <div class="card-box-title">📈 均线系统与动量量化</div>
+                <div class="table-scroll">
+                    <table>
+                        <tr><th>均线/指标</th><th>当前数值</th><th>技术信号研判</th></tr>
+                        <tr><td>20日均线 (SMA 20)</td><td>$480.33</td><td>短期多头排列</td></tr>
+                        <tr><td>50日均线 (SMA 50)</td><td>$473.50</td><td>中期波段支撑线</td></tr>
+                        <tr><td>200日均线 (SMA 200)</td><td>$469.49</td><td><b>长期牛市生命线强支撑</b></td></tr>
+                        <tr><td>RSI 14 (相对强弱指标)</td><td>52.8</td><td>处于良性健康的上升趋势蓄势区</td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🎯 关键支撑与阻力位</div>
+                <p><b>第一阻力位 (R1)</b>: $510.00 (前期震荡平台高点)</p>
+                <p style="margin-top:8px;"><b>强支撑位 (S1)</b>: $468.00 - $473.00 (SMA50 与 SMA200 黄金均线共振支撑)</p>
+                <p style="margin-top:8px;"><b>极限安全底 (S2)</b>: $420.00 (对应 22x 历史极端恐慌估值倍数)</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 9: 资本配置与股息政策 (MANDATORY DIVIDEND DISCLOSURE) -->
+    <section id="sec-9" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">09</div>
+                <h2 class="sec-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</h2>
+            </div>
+        </div>
+        <div class="card-box" style="border-left: 4px solid var(--primary);">
+            <div class="card-box-title">💰 股息与股东回报核心披露 (Mandatory Dividend Disclosure)</div>
+            <p style="font-size:15px; font-weight:700; color:var(--primary); margin-bottom:6px;">股息状态：0.85% ($4.12/股 年派息，季度派发 $1.03/股，派息率 25.0%)</p>
+            <p style="font-size:13px; color:var(--text-secondary);">公司已连续 15 年以上持续提高年度股息（Dividend Contender），低派息率提供了巨大的加息空间。每年通过 10-15 亿美元的股票回购持续注销股本，股息与回购综合股东回报率极高。</p>
+        </div>
+    </section>
+
+    <!-- 模块 10: 现金担保卖出看跌期权 (CSP) 策略 -->
+    <section id="sec-10" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">10</div>
+                <h2 class="sec-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</h2>
+            </div>
+        </div>
+        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+            鉴于穆迪当前处于多头均线排列向上发散形态，且在降息周期中享有发债潮与数据订阅双重高确定性增长，采用 <strong>现金担保卖出看跌期权 (Cash-Secured Sell Put)</strong> 策略可以实现“在理想均线回踩位买入顶级巴菲特式复利垄断资产，若未被行权则全额收获权利金”：
+        </p>
+
+        <div class="grid-3">
+            <div class="card-box" style="border: 1px solid var(--border);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="color:#0D9488; font-weight:800; font-size:14px;">🛡️ 保守型 (Conservative)</span>
+                    <span class="badge" style="background:#CCFBF1; color:#0D9488;">Delta ~0.20</span>
+                </div>
+                <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:var(--text-primary); margin:4px 0;">$440.00 Put</div>
+                <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                    <div><b>到期日：</b> 2026-09-18 (32天 DTE)</div>
+                    <div><b>预估权利金：</b> $6.80 / 股 ($680 / 张)</div>
+                    <div><b>保本买入价：</b> $433.20 (较现价折价 -9.5%)</div>
+                    <div><b>年化收益率 (APY)：</b> <b style="color:#059669; font-size:15px;">17.6%</b></div>
+                    <div style="margin-top:6px; font-size:11.5px; color:var(--text-muted);">远低于 SMA200 长期牛市线，适合大资金稳健收租。</div>
+                </div>
+            </div>
+
+            <div class="card-box" style="border: 2px solid var(--primary); background: #FAFDFB;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="color:var(--primary); font-weight:800; font-size:14px;">🎯 稳健型 (Moderate - 推荐)</span>
+                    <span class="badge" style="background:var(--primary-light); color:var(--primary);">Delta ~0.35</span>
+                </div>
+                <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:var(--primary); margin:4px 0;">$460.00 Put</div>
+                <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                    <div><b>到期日：</b> 2026-09-18 (32天 DTE)</div>
+                    <div><b>预估权利金：</b> $11.50 / 股 ($1150 / 张)</div>
+                    <div><b>保本买入价：</b> $448.50 (较现价折价 -6.3%)</div>
+                    <div><b>年化收益率 (APY)：</b> <b style="color:var(--primary); font-size:15px;">28.5%</b></div>
+                    <div style="margin-top:6px; font-size:11.5px; color:var(--text-muted);">挂单于 SMA200 ($469) 下方黄金支撑位，兼顾丰厚现金流与绝佳低位接盘机会。</div>
+                </div>
+            </div>
+
+            <div class="card-box" style="border: 1px solid var(--amber);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="color:var(--amber); font-weight:800; font-size:14px;">⚡ 进取型 (Aggressive)</span>
+                    <span class="badge" style="background:var(--amber-light); color:var(--amber);">Delta ~0.48</span>
+                </div>
+                <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:#B45309; margin:4px 0;">$475.00 Put</div>
+                <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                    <div><b>到期日：</b> 2026-09-18 (32天 DTE)</div>
+                    <div><b>预估权利金：</b> $18.20 / 股 ($1820 / 张)</div>
+                    <div><b>保本买入价：</b> $456.80 (较现价折价 -4.6%)</div>
+                    <div><b>年化收益率 (APY)：</b> <b style="color:#D97706; font-size:15px;">43.7%</b></div>
+                    <div style="margin-top:6px; font-size:11.5px; color:var(--text-muted);">现价平值附近积极建仓，随时准备行权买入顶级金融垄断资产。</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 11: 机构持仓与巴菲特动向 -->
+    <section id="sec-11" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">11</div>
+                <h2 class="sec-title">机构持仓与主力资金动向 (Institutional Ownership)</h2>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <tr><th>机构股东</th><th>持股比例估算</th><th>持股状态与态度</th></tr>
+                <tr><td>伯克希尔·哈撒韦 (Berkshire Hathaway / Warren Buffett)</td><td><b>13.5%</b></td><td><b>巴菲特持有逾20年最经典的复利资产，极少交易长线锁定</b></td></tr>
+                <tr><td>先锋领航集团 (The Vanguard Group)</td><td>~8.2%</td><td>被动指数配置长线锁定</td></tr>
+                <tr><td>贝莱德集团 (BlackRock, Inc.)</td><td>~6.5%</td><td>稳健多头持有</td></tr>
+                <tr><td>机构投资者总体持股比例</td><td><b>79.42%</b></td><td><b>超高机构重仓集中度，筹码高度锁定</b></td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 12: 内部人交易与财报电话会洞察 -->
+    <section id="sec-12" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">12</div>
+                <h2 class="sec-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Tone)</h2>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="card-box">
+                <div class="card-box-title">📝 SEC Form 4 内部人交易信号</div>
+                <p>• <b>高管行为</b>：CEO Rob Fauber 及核心高管持股比例高度稳定，仅执行预设的 10b5-1 自动税务计划，无任何非正常套现。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🎙️ 财报电话会管理层基调 (Management Tone)</div>
+                <p>• <b>业绩前瞻</b>：管理层上调全年发债规模预期与 EPS 指引，强调私有信贷（Private Credit）评级需求激增以及生成式 AI 在风控软件中的渗透率超预期。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 13: 做空比例与轧空风险 -->
+    <section id="sec-13" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">13</div>
+                <h2 class="sec-title">做空比例、平仓天数与轧空风险评估 (Short Interest)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">空头占流通盘比例 (Short % Float)</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">2.07%</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">做空比例极低，市场无实质空头压力</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">平仓所需天数 (Days to Cover)</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">3.42 天</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">流动性优异，机构买盘承接强劲</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">轧空风险评级 (Squeeze Risk)</div>
+                <div style="font-size:22px; font-weight:800; color:#059669;">极低 (Negligible)</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">长线资本高度持仓锁仓，走势极其稳健</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 14: 核心风险矩阵与压力测试 -->
+    <section id="sec-14" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">14</div>
+                <h2 class="sec-title">核心风险矩阵与压力测试 (Risk Matrix & Bear Case)</h2>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <tr><th>风险维度</th><th>风险等级</th><th>潜在影响分析</th><th>应对与对冲机制</th></tr>
+                <tr><td>宏观高利率维持期延长</td><td>中等 (Medium)</td><td>企业发债融资意愿阶段性推迟</td><td>穆迪分析（MA）经常性数据软件收入（占比近半）构筑坚固防御底座</td></tr>
+                <tr><td>评级监管调查与政策诉讼</td><td>低至中 (Low-Med)</td><td>各国监管对评级收费模式的合规抽查</td><td>与监管长期合作建立行业标准，合规体系极度完善</td></tr>
+                <tr><td>私有信贷（Private Credit）对公募债分流</td><td>低 (Low)</td><td>部分直贷机构不强制公开评级</td><td>穆迪已全面进军私有信贷尽调与非公开评级市场，开辟第二增长曲线</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 15: 未来关键催化剂日历 -->
+    <section id="sec-15" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">15</div>
+                <h2 class="sec-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">📅 降息落地与全球发债潮爆发</div>
+                <p style="font-size:13px; color:var(--text-secondary);">关注美联储降息后投资级（IG）与杠杆贷款（Leveraged Loan）发行量单季激增。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🤖 Moody's CoPilot AI 商业化放量</div>
+                <p style="font-size:13px; color:var(--text-secondary);">生成式 AI 金融风控助手在跨国大行与对冲基金中全面铺开，带来高额增量 ARR。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">💰 资本回报与年度提息公布</div>
+                <p style="font-size:13px; color:var(--text-secondary);">充沛自由现金流支持新一轮双位数股息上调与数十亿美元股票回购注销计划。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 16: 最终投资评级与执行建议 (Standardized Signal Block) -->
+    <section id="sec-16" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">16</div>
+                <h2 class="sec-title">最终投资评级与执行建议 (Final Verdict & Execution Strategy)</h2>
+            </div>
+        </div>
+        
+        <div class="grid-2" style="margin-bottom: 16px;">
+            <div class="card-box" style="border-left: 4px solid var(--primary);">
+                <div class="card-box-title">📈 正股现货配置与建仓执行方案</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
+                    <li><b>建仓区间：</b> 现价 $478.82 或回踩 $468.00 - $473.00 均线支撑积极分批建仓；</li>
+                    <li><b>第一目标位：</b> <strong>$560.00</strong>（公允价值回归，空间 +17.0%）；</li>
+                    <li><b>长线牛市目标：</b> <strong>$660.00</strong>（发债大牛市与AI赋能，空间 +37.8%）；</li>
+                    <li><b>止损防守位：</b> 跌破 <strong>$415.00</strong>（-13.3% / 跌破前低）减仓防守。</li>
+                </ul>
+            </div>
+            <div class="card-box" style="border-left: 4px solid #10B981; background: #F0FDF4;">
+                <div class="card-box-title" style="color: #064E3B;">💎 现金担保 Sell Put 期权增强策略推荐 (首选)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><b>推荐合约：</b> 卖出 <strong>2026-09-18 到期、$460.00 行权价的 Put</strong>（稳健型）；</li>
+                    <li><b>单张权利金：</b> 约 <strong>$11.50 / 股</strong>（收取 $1150 纯现金权利金）；</li>
+                    <li><b>有效接盘价：</b> <strong>$448.50</strong>（较现价折价 -6.3%，安全垫极佳）；</li>
+                    <li><b>年化收益率：</b> <strong style="font-size:15px; color:#059669;">28.5%</strong>（若未跌破 $460 则全额保留权利金）。</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="signal-block">
+            <div style="font-size:13px; letter-spacing:1px; text-transform:uppercase; color:#94A3B8; margin-bottom:4px;">INVESTMENT SIGNAL BLOCK</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div class="signal-verdict">强烈看多 (STRONG BUY)</div>
+                <div class="signal-score">8.9 / 10</div>
+            </div>
+
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="sig-label">投资信号 (Signal)</div>
+                    <div class="sig-val" style="color:#6EE7B7;">强烈看多 (STRONG BUY)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">置信度 (Confidence)</div>
+                    <div class="sig-val">HIGH (极高置信度)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">投资周期 (Horizon)</div>
+                    <div class="sig-val">中长线 (12 - 36 个月)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">多因子综合分 (Score)</div>
+                    <div class="sig-val" style="color:#34D399;">8.9 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">执行建议 (Action)</div>
+                    <div class="sig-val" style="color:#6EE7B7;">BUY (均线支撑分批配置 / 卖出 2026-09-18 $460 Put)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">确定性等级 (Conviction)</div>
+                    <div class="sig-val">STRONG (顶级垄断复利资产)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['商业质量', '内在估值', '市场信号', '技术动量', '风险防御'],
+            datasets: [{
+                label: 'MCO 多因子得分',
+                data: [9.8, 8.5, 8.8, 8.4, 8.8],
+                backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#10B981',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#10B981'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(0, 0, 0, 0.08)' },
+                    grid: { color: 'rgba(0, 0, 0, 0.08)' },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, display: false }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>弗拉特娱乐 (Flutter Entertainment - FLUT) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 850px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #F1F5F9;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .section-title-wrap { display: flex; align-items: center; gap: 12px; }
+        .section-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 15px;
+        }
+        .section-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+        .section-sub { font-size: 12px; color: var(--text-muted); }
+        .section-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .report-hero { padding: 32px 16px; }
+            .main-wrap { padding: 20px 16px 48px; }
+            .hero-title { font-size: 24px; }
+            .section { padding: 20px 16px; }
+        }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card-green { background: #F0FDF4; border-color: #BBF7D0; }
+        .card-amber { background: #FFFBEB; border-color: #FDE68A; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+        .card-purple { background: #FAF5FF; border-color: #E9D5FF; }
+
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .card-green .card-title { color: #166534; }
+        .card-amber .card-title { color: #92400E; }
+        .card-blue .card-title { color: #1E40AF; }
+        .card-purple .card-title { color: #6B21A8; }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin: 14px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #F1F5F9;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-num { font-family: 'JetBrains Mono', monospace; text-align: right; }
+        .th-num { text-align: right; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 290px;
+            margin: 12px 0;
+        }
+
+        .highlight-val { font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #15803D; }
+        .tag-blue { background: #DBEAFE; color: #1D4ED8; }
+        .tag-amber { background: #FEF3C7; color: #B45309; }
+        .tag-red { background: #FEE2E2; color: #B91C1C; }
+
+        .signal-banner {
+            background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+            border: 2px solid #10B981;
+            border-radius: 16px;
+            padding: 24px;
+            color: #fff;
+            box-shadow: 0 10px 25px -5px rgba(16,185,129,.3);
+            margin: 20px 0;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.1);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.15);
+        }
+        .signal-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .signal-val { font-size: 20px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+        
+        .divider { height: 1px; background: #F1F5F9; margin: 20px 0; }
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+        .callout-amber {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: FLUT</span>
+            <span class="badge badge-hero-signal">看多 (BULLISH) • 8.2/10</span>
+            <span class="badge badge-hero-cat">全球在线体育博彩与iGaming绝对龙头</span>
+            <span class="badge badge-hero-cat">15模块全景量化研报</span>
+        </div>
+        <h1 class="hero-title">弗拉特娱乐 (Flutter Entertainment plc)</h1>
+        <div class="hero-sub">FanDuel 统治北美体育博彩王座、欧洲与拉美高现金流整合，以及估值大幅错杀后的 40%+ 结构性不对称看多机遇深度剖析</div>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新股价 (Spot)</div>
+                <div class="hero-kpi-val">$101.41</div>
+                <div class="hero-kpi-sub">52周区间: $89.71 - $309.41</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$17.60B</div>
+                <div class="hero-kpi-sub">企业价值 EV: $29.17B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 总营收 / 增速</div>
+                <div class="hero-kpi-val">$17.16B</div>
+                <div class="hero-kpi-sub">恒定汇率同比 +16%+</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Fwd P/E)</div>
+                <div class="hero-kpi-val">12.89x</div>
+                <div class="hero-kpi-sub">P/S: 1.03x | 极具性价比</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师平均目标价</div>
+                <div class="hero-kpi-val">$141.52</div>
+                <div class="hero-kpi-sub">潜在上涨空间: +39.55%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息派发 (Dividend)</div>
+                <div class="hero-kpi-val">无 / None</div>
+                <div class="hero-kpi-sub">资本聚焦回购与高ROI扩张</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- Table of Contents -->
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报导航目录 (15大核心模块全景覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">04. 财报与盈利质量</a>
+            <a href="#sec-5" class="toc-link">05. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">06. 行业竞争与同行对标</a>
+            <a href="#sec-7" class="toc-link">07. DCF估值三情景模型</a>
+            <a href="#sec-8" class="toc-link">08. 技术面与筹码量化</a>
+            <a href="#sec-9" class="toc-link">09. 资本配置与股息披露</a>
+            <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与主力动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </div>
+
+    <!-- MODULE 01 -->
+    <section id="sec-1" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">01</div>
+                <div>
+                    <div class="section-title">执行摘要与核心投资逻辑 (Executive Summary & Investment Thesis)</div>
+                    <div class="section-sub">FanDuel 规模效应、全球高现金流造血矩阵与极具吸引力的风险收益比</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 01</span>
+        </div>
+
+        <p style="margin-bottom: 16px; font-size: 14.5px; color: var(--text-secondary);">
+            <strong>弗拉特娱乐 (Flutter Entertainment plc, NYSE: FLUT)</strong> 是全球规模最大、最多元化的在线体育博彩 (OSB) 与在线赌场 (iGaming) 巨头。旗下拥有北美第1大体育博彩品牌 <strong>FanDuel</strong>、英国及爱尔兰国民级品牌 <strong>Paddy Power / Sky Betting & Gaming / Betfair</strong>、意大利彩票与博彩龙头 <strong>Sisal</strong> 及澳大利亚领军品牌 <strong>Sportsbet</strong>。在经历从伦敦至纽约主上市转移（NYSE）后的技术性调整及短期博彩税担忧后，公司当前估值展现出极度罕见的结构性错杀机会。
+        </p>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">👑 核心看多逻辑 1：FanDuel 北美垄断地位与飞轮效应</div>
+                <p style="font-size: 13px; color: #166534;">
+                    FanDuel 在美国拥有 <strong>~40-45% 的总博彩收入 (GGR) 市场份额</strong> 和 ~25% 的 iGaming 份额。凭借自主研发的单场同注组合 (Same Game Parlay, SGP) 算法与卓越的风险定价引擎，FanDuel 的平均抽水率 (Gross Hold Rate) 稳定保持在 11-13%，显著高于行业平均水平 (8-9%)，推动美国分部调整后 EBITDA 全面转正并进入规模杠杆爆发期。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🌍 核心看多逻辑 2：全球多元化现金牛对冲与拉美并购加速</div>
+                <p style="font-size: 13px; color: #166534;">
+                    不同于纯美国单一市场对手（如 DraftKings），Flutter 拥有欧洲与澳洲年产生超 $15亿 强劲现金流的成熟业务底盘。公司近期以 $26亿 收购意大利 Snaitech，并控股巴西龙头 Betnacional (NSX Group)，抢占 2025 年巴西博彩全面合法化的千亿蓝海市场，实现全球协同赋能。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">💎 核心看多逻辑 3：估值深度错杀与不对称赔率</div>
+                <p style="font-size: 13px; color: #166534;">
+                    当前 FLUT 交易于 <strong>12.89x 前瞻市盈率 (Fwd P/E)</strong> 与 <strong>1.03x 市销率 (P/S)</strong>，而 DraftKings (DKNG) 市销率高达 2.09x 且缺乏欧洲高现金流资产支撑。华尔街31位分析师平均目标价为 <strong>$141.52 (+39.55% 空间)</strong>，DCF 基准公允价值 $142.00，下行风险由成熟业务自由现金流牢固支撑。
+                </p>
+            </div>
+        </div>
+
+        <div class="callout" style="margin-top: 18px;">
+            <strong>📌 投资评级概览：</strong> 综合多因子量化模型评分 <strong>8.2 / 10</strong>，给予 <strong>看多 (BULLISH) / BUY</strong> 评级。建议长线投资者在 $95 - $101 区间分批建仓，或通过 30-45 天 DTE 现金担保卖出看跌期权 (Cash-Secured Put) 获取年化 15%-45% 权利金收益。
+        </div>
+    </section>
+
+    <!-- MODULE 02 -->
+    <section id="sec-2" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">02</div>
+                <div>
+                    <div class="section-title">多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Model)</div>
+                    <div class="section-sub">6个核心投资维度的客观加权量化评估</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 02</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>量化评估因子</th>
+                                <th>因子得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与诊断结论</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 估值性价比 (Valuation)</strong></td>
+                                <td><span class="tag-pill tag-green">7.5 / 10</span></td>
+                                <td>20%</td>
+                                <td>前瞻 P/E 仅 12.89x，P/S 1.03x，显著低于行业均值与自身历史中枢</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 业绩增长力 (Growth)</strong></td>
+                                <td><span class="tag-pill tag-green">8.5 / 10</span></td>
+                                <td>25%</td>
+                                <td>FanDuel 美国营收保持 20%+ 高增，巴西及意大利并购拓展增量空间</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 盈利质量 (Profitability)</strong></td>
+                                <td><span class="tag-pill tag-green">8.0 / 10</span></td>
+                                <td>20%</td>
+                                <td>毛利率 42.5%，EBITDA 达 $19.8亿+，美国获客成本趋稳带来强经营杠杆</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 财务健康度 (Health)</strong></td>
+                                <td><span class="tag-pill tag-amber">7.0 / 10</span></td>
+                                <td>10%</td>
+                                <td>经营现金流 $13.3亿，净负债率可控，去杠杆路径清晰，流动性充裕</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 护城河壁垒 (Moat)</strong></td>
+                                <td><span class="tag-pill tag-green">9.0 / 10</span></td>
+                                <td>15%</td>
+                                <td>全球化自研风控定价引擎、SGP 独家产品力、品牌心智与全球采购规模</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. 筹码与动量 (Technicals)</strong></td>
+                                <td><span class="tag-pill tag-amber">6.5 / 10</span></td>
+                                <td>10%</td>
+                                <td>触及 52 周底部后展开双底反弹，RSI 44.2 底部背离，均线开始收敛</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权评分 (Composite Score)</strong></td>
+                                <td><span class="tag-pill tag-green" style="font-size: 13px;">8.2 / 10</span></td>
+                                <td>100%</td>
+                                <td><strong>强烈建议超配 (High Conviction Overweight)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <div class="chart-box">
+                    <canvas id="factorRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 03 -->
+    <section id="sec-3" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">03</div>
+                <div>
+                    <div class="section-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+                    <div class="section-sub">全球化多品牌矩阵与技术壁垒构筑极深护城河</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 03</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 20px;">
+            <div class="card card-green">
+                <div class="card-title">🇺🇸 美国分部 (FanDuel)</div>
+                <p style="font-size: 12.5px;"><strong>营收占比: ~40%</strong><br>全美 OSB 份额第一 (~43%)，iGaming 份额前二 (~26%)。率先实现年度 EBITDA 盈利，主导 NFL、NBA 投注生态。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🇬🇧 英国与爱尔兰 (UK&I)</div>
+                <p style="font-size: 12.5px;"><strong>营收占比: ~28%</strong><br>Paddy Power、Betfair、SkyBet。成熟高净利现金牛，在线市占率超 30%，年化产生强劲自由现金流。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">🌐 国际市场 (International)</div>
+                <p style="font-size: 12.5px;"><strong>营收占比: ~22%</strong><br>Sisal (意大利#1)、Snaitech、Junglee (印度)、NSX (巴西)。聚焦高增长受监管市场，具备极高牌照壁垒。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">🇦🇺 澳大利亚 (Sportsbet)</div>
+                <p style="font-size: 12.5px;"><strong>营收占比: ~10%</strong><br>Sportsbet 占据全澳 ~45% 线上赛马与体育投注份额，品牌忠诚度极高，盈利能力极其稳健。</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🛡️ 波特五力模型与护城河结构深度剖析</div>
+            <div class="grid-2" style="margin-top: 10px; font-size: 13px;">
+                <div>
+                    <p><strong>1. 供应商议价权 (低-中等)：</strong> 体育赛事数据源（Sportradar、Genius Sports）与联盟版权合作具有一定刚性，但 Flutter 作为全球最大买家享有最高采购折扣与独家合作权。</p>
+                    <p style="margin-top: 8px;"><strong>2. 买方议价权 (低)：</strong> 依靠 SGP 高赔率吸引力与卓越的用户体验 (UX)，玩家留存率高，玩家对于抽水率 (Hold rate) 弹性极低。</p>
+                    <p style="margin-top: 8px;"><strong>3. 潜在进入者威胁 (极低)：</strong> 受各州/国家博彩牌照合规、数亿美元初期营销开支、复杂合规风控及风控定价引擎限制，新玩家几乎无法生存。</p>
+                </div>
+                <div>
+                    <p><strong>4. 替代品威胁 (低)：</strong> 在线博彩具备极高娱乐粘性，非法离岸市场正被各国监管强力打击，合规资金持续回流合规平台。</p>
+                    <p style="margin-top: 8px;"><strong>5. 同业竞争激烈度 (中等-收敛)：</strong> 美国市场已进入“双寡头”洗牌后期（FanDuel 与 DraftKings 合计占 ~75% 份额），ESPN Bet / Fanatics 难以撼动头部地位，营销补贴战大幅降温。</p>
+                    <p style="margin-top: 8px;"><strong>💡 护城河评级：宽护城河 (Wide Moat)</strong>，主要源于网络效应、规模经济、专利级风控定价算法与牌照特许权。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 04 -->
+    <section id="sec-4" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">04</div>
+                <div>
+                    <div class="section-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Quality)</div>
+                    <div class="section-sub">营收连年跨越式增长、经营现金流超 $13亿 与利润拐点确认</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 04</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (单位: 百万美元)</th>
+                        <th class="th-num">FY2022</th>
+                        <th class="th-num">FY2023</th>
+                        <th class="th-num">FY2024</th>
+                        <th class="th-num">FY2025</th>
+                        <th class="th-num">TTM (最新)</th>
+                        <th>复合年均增长率 (CAGR) / 趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="td-num">$9,463</td>
+                        <td class="td-num">$11,790</td>
+                        <td class="td-num">$14,048</td>
+                        <td class="td-num">$16,383</td>
+                        <td class="td-num highlight-val">$17,161</td>
+                        <td><span class="tag-pill tag-green">+21.9% CAGR (规模持续领跑)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利总额 (Gross Profit)</strong></td>
+                        <td class="td-num">$4,650</td>
+                        <td class="td-num">$5,588</td>
+                        <td class="td-num">$6,702</td>
+                        <td class="td-num">$7,404</td>
+                        <td class="td-num highlight-val">$7,286</td>
+                        <td><span class="tag-pill tag-green">稳定保持在 42.5%~47.7%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>调整后 EBITDA (Adjusted EBITDA)</strong></td>
+                        <td class="td-num">$999</td>
+                        <td class="td-num">$624</td>
+                        <td class="td-num">$1,603</td>
+                        <td class="td-num">$1,984</td>
+                        <td class="td-num highlight-val">$1,587</td>
+                        <td><span class="tag-pill tag-green">美国分部全面盈利放量</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating Cash Flow)</strong></td>
+                        <td class="td-num">$1,163</td>
+                        <td class="td-num">$937</td>
+                        <td class="td-num">$1,602</td>
+                        <td class="td-num">$1,184</td>
+                        <td class="td-num highlight-val">$1,330</td>
+                        <td><span class="tag-pill tag-green">持续产生 10亿+ 纯现流</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="td-num">-$429</td>
+                        <td class="td-num">-$602</td>
+                        <td class="td-num">-$661</td>
+                        <td class="td-num">-$777</td>
+                        <td class="td-num">-$750</td>
+                        <td>轻资产软件平台运营，维护性开支极低</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="td-num">$734</td>
+                        <td class="td-num">$335</td>
+                        <td class="td-num">$941</td>
+                        <td class="td-num">$407</td>
+                        <td class="td-num highlight-val">$580</td>
+                        <td><span class="tag-pill tag-green">现金造血能力远超同行</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>期末现金及等价物 (Cash & Equivalents)</strong></td>
+                        <td class="td-num">$2,974</td>
+                        <td class="td-num">$3,249</td>
+                        <td class="td-num">$3,461</td>
+                        <td class="td-num">$3,760</td>
+                        <td class="td-num highlight-val">$1,617</td>
+                        <td>流动性极度充裕，支持战略并购</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="revenueEbitdaChart"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 05 -->
+    <section id="sec-5" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">05</div>
+                <div>
+                    <div class="section-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+                    <div class="section-sub">净利润率拐点、资产周转率提升与杠杆良性去化分析</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 05</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-blue">
+                <div class="card-title">1. 盈利能力 (净利润率 Net Margin)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">4.5% ~ 6.5% (前瞻)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">前期由于无形资产摊销及美国扩张前期获客费导致GAAP净利承压，随着美国市场营销费用占营收比从 35% 降至 18%，净利率正迎来结构性爆发拐点。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">2. 营运效率 (资产周转率 Asset Turnover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">0.59x ~ 0.65x</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">以轻资产数字化技术平台运作，随着年总营收突破 170 亿美元，资产周转率稳步上行，同等资本投入下产生的流水与收入效率处于行业顶尖。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">3. 财务杠杆 (权益乘数 Equity Multiplier)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">3.24x (净负债/EBITDA ~3.0x)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">总资产 ~$292.8亿，净资产 ~$90.4亿。杠杆主要用于并购 Sisal、Snaitech 与 Betnacional，偿债利息覆盖倍数超 4.8x，去杠杆路线清晰。</p>
+            </div>
+        </div>
+
+        <div class="callout callout-amber" style="margin-top: 16px;">
+            <strong>💡 杜邦综合诊断：</strong> 随着美国业务规模经济显现及国际并购整合完成，公司正在从“高投入扩张期”切换至“高 ROE 与高现金回报收获期”，预计 2026-2027 年正常化 ROE 将攀升至 <strong>18% - 24%</strong>。
+        </div>
+    </section>
+
+    <!-- MODULE 06 -->
+    <section id="sec-6" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">06</div>
+                <div>
+                    <div class="section-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+                    <div class="section-sub">Flutter vs DraftKings vs 传统博彩巨头的多维度全面对标</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 06</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (代码)</th>
+                        <th class="th-num">最新股价</th>
+                        <th class="th-num">市值 (Cap)</th>
+                        <th class="th-num">前瞻 P/E</th>
+                        <th class="th-num">P/S (市销率)</th>
+                        <th class="th-num">EV/EBITDA</th>
+                        <th class="th-num">毛利率</th>
+                        <th>美国OSB份额</th>
+                        <th>全球化布局</th>
+                        <th>投资评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>Flutter Ent. (FLUT)</strong></td>
+                        <td class="td-num highlight-val">$101.41</td>
+                        <td class="td-num">$17.60B</td>
+                        <td class="td-num highlight-val">12.89x</td>
+                        <td class="td-num highlight-val">1.03x</td>
+                        <td class="td-num">18.38x</td>
+                        <td class="td-num">42.46%</td>
+                        <td><span class="tag-pill tag-green">~43% (第一)</span></td>
+                        <td><span class="tag-pill tag-green">美/英/澳/意/巴 全球布局</span></td>
+                        <td><span class="tag-pill tag-green">BUY / 看多</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>DraftKings (DKNG)</strong></td>
+                        <td class="td-num">$26.14</td>
+                        <td class="td-num">$12.98B</td>
+                        <td class="td-num">16.10x</td>
+                        <td class="td-num">2.09x</td>
+                        <td class="td-num">113.24x</td>
+                        <td class="td-num">76.13%</td>
+                        <td>~34% (第二)</td>
+                        <td>仅限北美单一市场</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>MGM Resorts (MGM)</strong></td>
+                        <td class="td-num">$44.10</td>
+                        <td class="td-num">$11.10B</td>
+                        <td class="td-num">21.25x</td>
+                        <td class="td-num">0.62x</td>
+                        <td class="td-num">17.59x</td>
+                        <td class="td-num">44.16%</td>
+                        <td>~12% (BetMGM合资)</td>
+                        <td>重资产实体赌场为主</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Caesars (CZR)</strong></td>
+                        <td class="td-num">$29.75</td>
+                        <td class="td-num">$6.06B</td>
+                        <td class="td-num">41.13x</td>
+                        <td class="td-num">0.52x</td>
+                        <td class="td-num">9.02x</td>
+                        <td class="td-num">49.69%</td>
+                        <td>~7% (Caesars Dig)</td>
+                        <td>重资产实体赌场为主</td>
+                        <td><span class="tag-pill tag-amber">HOLD</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>PENN Ent. (PENN)</strong></td>
+                        <td class="td-num">$18.79</td>
+                        <td class="td-num">$2.52B</td>
+                        <td class="td-num">15.72x</td>
+                        <td class="td-num">0.35x</td>
+                        <td class="td-num">14.39x</td>
+                        <td class="td-num">35.16%</td>
+                        <td>~3% (ESPN Bet)</td>
+                        <td>北美区域赌场+授权</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🔍 对标核心结论</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                与 DraftKings 相比，FLUT 的市销率 (1.03x vs 2.09x) 享受了近 <strong>50% 的大幅折价</strong>，但其在北美的市场份额更高 (~43% vs ~34%)，且拥有英国、澳洲、欧洲成熟稳固的造血大后方。与传统实体赌场（MGM/CZR）相比，FLUT 则是纯数字化、高复利、轻资产运作，兼具价值防守与成长进攻双重属性。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 07 -->
+    <section id="sec-7" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">07</div>
+                <div>
+                    <div class="section-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+                    <div class="section-sub">基准公允价值 $142.00，呈现 40%+ 结构性安全边际</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 07</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-amber">
+                <div class="card-title">🐻 悲观情景 (Bear Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">$88.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在跌幅: -13.2%</strong><br>
+                    假设: 更多美国大州效仿伊利诺伊州大幅上调博彩税；英国进一步限制注额上限；5年营收复合增速降至 6.0%，终值 EBITDA 利润率 12.0%，WACC 10.0%。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🎯 基准情景 (Base Case) - 核心预测</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">$142.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +40.0%</strong><br>
+                    假设: 美国 OSB/iGaming 保持 12% 复合增速；FanDuel 抽水率保持 11.5%+；巴西 Snaitech 协同顺利；自由现金流于 2029 年达 $22亿；WACC 9.0%，永续增长率 3.0%。
+                </p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🐂 乐观情景 (Bull Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">$185.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +82.4%</strong><br>
+                    假设: 加州/德州等超大州开启合法化；SGP 渗透率突破 60%；巴西与拉美市场带来超预期增长；自由现金流突破 $28亿；WACC 8.5%，永续增长率 3.5%。
+                </p>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 20px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="th-num">2.0%</th>
+                        <th class="th-num">2.5%</th>
+                        <th class="th-num">3.0% (基准)</th>
+                        <th class="th-num">3.5%</th>
+                        <th class="th-num">4.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 8.0%</strong></td>
+                        <td class="td-num">$156.40</td>
+                        <td class="td-num">$167.20</td>
+                        <td class="td-num">$180.50</td>
+                        <td class="td-num">$197.80</td>
+                        <td class="td-num">$220.60</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 8.5%</strong></td>
+                        <td class="td-num">$138.90</td>
+                        <td class="td-num">$147.30</td>
+                        <td class="td-num">$157.60</td>
+                        <td class="td-num">$170.40</td>
+                        <td class="td-num">$186.90</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>WACC 9.0% (基准)</strong></td>
+                        <td class="td-num">$125.10</td>
+                        <td class="td-num">$132.00</td>
+                        <td class="td-num highlight-val">$142.00</td>
+                        <td class="td-num">$149.50</td>
+                        <td class="td-num">$161.80</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 9.5%</strong></td>
+                        <td class="td-num">$113.80</td>
+                        <td class="td-num">$119.40</td>
+                        <td class="td-num">$126.10</td>
+                        <td class="td-num">$133.90</td>
+                        <td class="td-num">$143.40</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 10.0%</strong></td>
+                        <td class="td-num">$104.20</td>
+                        <td class="td-num">$108.90</td>
+                        <td class="td-num">$114.50</td>
+                        <td class="td-num">$121.00</td>
+                        <td class="td-num">$128.80</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 08 -->
+    <section id="sec-8" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">08</div>
+                <div>
+                    <div class="section-title">技术面量化、均线系统与关键筹码位 (Technical Analysis & Levels)</div>
+                    <div class="section-sub">52周底部双重筑底完成、RSI 背离与右侧放量突破信号</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 08</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 16px;">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">20日均线 (SMA 20)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$101.07</div>
+                <div style="font-size: 11px; color: #15803D;">已实现向上放量站稳</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">50日均线 (SMA 50)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--amber);">$104.02</div>
+                <div style="font-size: 11px; color: #B45309;">即将面临均线突破测试</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">14日 RSI 动量指标</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">44.22</div>
+                <div style="font-size: 11px; color: #15803D;">脱离超卖，多头底背离</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">布林带通道 (BB 20,2)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">$91.29 - $110.84</div>
+                <div style="font-size: 11px; color: var(--text-muted);">从下轨向上轨中轴穿越</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🟢 关键支撑位 (Support Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>S1 (第一支撑): $96.50</strong> — 20日均线回踩支撑位与短线密集成交区</li>
+                    <li><strong>S2 (核心防线): $89.70 - $90.00</strong> — 52周底部低点，强劲机构买盘护盘防线</li>
+                    <li><strong>S3 (极端深渊): $82.00</strong> — 极度恐慌状态下的历史长周期大底支撑</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🔴 关键阻力位 (Resistance Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>R1 (初步阻力): $108.00</strong> — 7月中旬平台整理上沿阻力位</li>
+                    <li><strong>R2 (中期目标): $120.00</strong> — 心理整数关口与前期跳空缺口回补位</li>
+                    <li><strong>R3 (长期牛熊线): $140.90</strong> — 200日长期均线 (SMA 200)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 09 -->
+    <section id="sec-9" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">09</div>
+                <div>
+                    <div class="section-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</div>
+                    <div class="section-sub">严格遵循合规披露准则：公司股息政策与股东回报全景</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 09</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-amber">
+                <div class="card-title">📢 股息指标详细披露 (Mandatory Dividend Disclosure)</div>
+                <div class="table-scroll" style="margin: 8px 0;">
+                    <table>
+                        <tr>
+                            <td><strong>股息率 (Dividend Yield)</strong></td>
+                            <td class="td-num highlight-val"><strong>无 / 没有 (Dividend: None / N/A)</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>年度每股派息 (Annual Payout)</strong></td>
+                            <td class="td-num">$0.00</td>
+                        </tr>
+                        <tr>
+                            <td><strong>派息率 (Payout Ratio)</strong></td>
+                            <td class="td-num">0.0%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>最近除息日 (Ex-Dividend Date)</strong></td>
+                            <td class="td-num">历史停派 (转为成长与回购模式)</td>
+                        </tr>
+                    </table>
+                </div>
+                <p style="font-size: 12px; color: #78350F; margin-top: 6px;">
+                    <strong>明确说明：</strong> Flutter Entertainment 目前<strong>不派发现金股息 (无股息派发)</strong>。自合并转型并在美主上市以来，董事会确立了“以最大化股东长远复合总回报”为导向的资本配置战略。
+                </p>
+            </div>
+
+            <div class="card card-green">
+                <div class="card-title">💰 替代股东回报方式：股票回购与高 ROI 资本再投资</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>$50亿美元 股票回购授权：</strong> 公司于 2024 年投资者日正式批准了为期多年的 $50亿 股票回购计划，在当前估值低估阶段回购具有极高每股内含价值增厚效应。</li>
+                    <li><strong>高回报战略并购再投资：</strong> 资本优先注入意大利 Snaitech 及巴西 NSX 整合，预期投后资本回报率 (ROIC) 显著高于现金分红收益。</li>
+                    <li><strong>债务杠杆自律：</strong> 维持净负债/EBITDA 在 2.0x - 2.5x 目标区间，保障投资级财务弹性。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="sec-10" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">10</div>
+                <div>
+                    <div class="section-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+                    <div class="section-sub">34天 DTE (2026-09-18) 三档结构化建仓与权利金增强方案</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 10</span>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">
+            当前 FLUT 股价为 <strong>$101.41</strong>，隐含波动率 (IV) 处于 <strong>41.6% - 45.4%</strong> 的适度高位，非常适合采用 <strong>30-45天 DTE 的 Cash-Secured Put (卖出看跌期权)</strong> 策略，在锁定低成本折价建仓的同时获取丰厚年化权利金收益：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>行权价 (Strike)</th>
+                        <th>到期日 (DTE)</th>
+                        <th>Delta / 虚值程度</th>
+                        <th class="th-num">权利金 (Mid)</th>
+                        <th class="th-num">期间收益率</th>
+                        <th class="th-num">年化收益率 (Ann. Yield)</th>
+                        <th>实质建仓成本 / 适用投资人画像</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tag-pill tag-green">🛡️ 保守档 (Conservative)</span></td>
+                        <td><strong>$90.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.20 (11.2% OTM)</td>
+                        <td class="td-num highlight-val">$1.20</td>
+                        <td class="td-num">1.33%</td>
+                        <td class="td-num highlight-val"><strong>~14.3%</strong></td>
+                        <td><strong>$88.80</strong> (破52周前低才会被接货，极高安全边际)</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><span class="tag-pill tag-blue">⚖️ 稳健档 (Moderate)</span></td>
+                        <td><strong>$95.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.32 (6.3% OTM)</td>
+                        <td class="td-num highlight-val">$2.45</td>
+                        <td class="td-num">2.58%</td>
+                        <td class="td-num highlight-val"><strong>~27.7%</strong></td>
+                        <td><strong>$92.55</strong> (锚定近期强支撑平台，攻守兼备)</td>
+                    </tr>
+                    <tr style="background: #FAF5FF;">
+                        <td><span class="tag-pill tag-purple">🚀 进取档 (Aggressive)</span></td>
+                        <td><strong>$100.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.46 (1.4% OTM)</td>
+                        <td class="td-num highlight-val">$4.35</td>
+                        <td class="td-num">4.35%</td>
+                        <td class="td-num highlight-val"><strong>~46.7%</strong></td>
+                        <td><strong>$95.65</strong> (平值抢权，未平仓量超2万张，积极折价吸筹)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="sec-11" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">11</div>
+                <div>
+                    <div class="section-title">机构持仓与主力资金动向 (Institutional Ownership & 13F)</div>
+                    <div class="section-sub">全球顶级长线主权基金与价值资本重仓加持</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 11</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者 (Institutional Holder)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持股市值 (Value)</th>
+                        <th>占总流通股比 (pctHeld)</th>
+                        <th>报告期变动 (pctChange)</th>
+                        <th>投资性质与风格</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>CIBC Bancorp USA Inc.</strong></td>
+                        <td class="td-num">12,579,017</td>
+                        <td class="td-num">$1,275.6M</td>
+                        <td class="td-num"><strong>7.25%</strong></td>
+                        <td><span class="tag-pill tag-green">+68.56% (大幅增持)</span></td>
+                        <td>战略级机构主权与财富管理</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Parvus Asset Management Jersey Ltd</strong></td>
+                        <td class="td-num">11,615,148</td>
+                        <td class="td-num">$1,177.9M</td>
+                        <td class="td-num"><strong>6.69%</strong></td>
+                        <td><span class="tag-pill tag-green">+29.12% (持续加仓)</span></td>
+                        <td>欧洲知名主动型价值对冲基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Caledonia (Private) Investments Pty</strong></td>
+                        <td class="td-num">8,529,573</td>
+                        <td class="td-num">$865.0M</td>
+                        <td class="td-num"><strong>4.92%</strong></td>
+                        <td><span class="tag-pill tag-green">+18.60% (增持)</span></td>
+                        <td>澳洲顶级长线价值投资机构</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Capital World Investors (Capital Group)</strong></td>
+                        <td class="td-num">8,462,200</td>
+                        <td class="td-num">$858.2M</td>
+                        <td class="td-num"><strong>4.88%</strong></td>
+                        <td>-3.21% (微调)</td>
+                        <td>美系长线成长兼价值巨头</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BlackRock Inc. (贝莱德)</strong></td>
+                        <td class="td-num">8,165,182</td>
+                        <td class="td-num">$828.0M</td>
+                        <td class="td-num"><strong>4.71%</strong></td>
+                        <td>-13.24% (被动调仓)</td>
+                        <td>全球最大被动与指数资产管理</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
+            <strong>主力动向解析：</strong> 在纽交所主上市后，CIBC、Parvus、Caledonia 等专注于核心资产长线重组的主动管理机构<strong>连续两个季度大幅加仓增持</strong>，表明长线聪明钱（Smart Money）坚定认可 Flutter 的全球整合与垄断定价权。
+        </p>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="sec-12" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">12</div>
+                <div>
+                    <div class="section-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Tone)</div>
+                    <div class="section-sub">CEO Peter Jackson 强调 2027 年 $50亿+ EBITDA 战略蓝图</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 12</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🎙️ 财报电话会要点与管理层情绪 (Sentiment: Bullish)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>美国市场展望坚定：</strong> 管理层指出，虽然部分州存在税率噪音，但 FanDuel 的产品领先优势正在扩大，玩家跨品类（体育+Casino）渗透率创历史新高。</li>
+                    <li><strong>2027 年 $50亿+ 集团 EBITDA 目标：</strong> 投资者日重申 2027 年中期指引，美国分部有望贡献超 $25亿 EBITDA，国际与欧洲分部贡献 $25亿+。</li>
+                    <li><strong>新产品迭代加速：</strong> 针对即将到来的 NFL 新赛季，FanDuel 升级了即时结算（Live Betting）与更丰富的个性化同场串关功能。</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📝 内部人交易 (Form 4) 与治理质量</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>高管持股与利益深度绑定：</strong> CEO Peter Jackson 及高管团队的大部分薪酬结构由长期受限股票单位 (RSU/PSU) 构成，考核指标严格挂钩每股自由现金流与 EBITDA 达标率。</li>
+                    <li><strong>零恐慌性抛售：</strong> 过去6个月在股价回调期间，核心董事与高管未出现任何非计划性减持，内部持股信心高度稳固。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="sec-13" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">13</div>
+                <div>
+                    <div class="section-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</div>
+                    <div class="section-sub">空头平仓天数达 4.98 天，具备潜在温和轧空动力</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 13</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">做空股数 (Shares Short)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">10.39M 股</div>
+                <div style="font-size: 11px; color: var(--text-muted);">流通股占比: 7.38%</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">平仓天数 (Days to Cover / Short Ratio)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--amber);">4.98 天</div>
+                <div style="font-size: 11px; color: #B45309;">平仓周期较长，具备挤压弹性</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">轧空风险评级 (Squeeze Potential)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">中等偏高 (Moderate-High)</div>
+                <div style="font-size: 11px; color: #15803D;">若财报超预期将迫使空头回补</div>
+            </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 14px;">
+            <strong>空头逻辑与逆转催化：</strong> 空头主要押注各州博彩税上调挤压运营商利润率以及新季赛事冷门带来的波动。然而，FanDuel 强大的动态风控与定价能力使其抽水率维持在极高水准。一旦 Q3/Q4 NFL 赛季投注量与利润超预期，<strong>4.98 天的平仓天数</strong> 将放大买盘推升力量。
+        </p>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="sec-14" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">14</div>
+                <div>
+                    <div class="section-title">核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+                    <div class="section-sub">系统性评估政策、竞争与宏观风险及应对缓冲垫</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 14</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子 (Risk Factor)</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>综合风险等级</th>
+                        <th>对冲机制与缓冲垫 (Mitigation & Buffer)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 美国各州博彩税率上调风险</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>中等 (Moderate)</td>
+                        <td><span class="tag-pill tag-amber">中等关注</span></td>
+                        <td>头部运营商可降低促销推广返现并优化赔率转嫁税负；小对手更难生存促使行业进一步向 FanDuel 集中</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 国际监管收紧 (英国/欧洲限额)</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低-中风险</span></td>
+                        <td>Sisal、Snaitech 线下+线上多渠道对冲，合规经验极其丰富</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 宏观经济下行与可选消费疲软</strong></td>
+                        <td>低 (Low)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低风险</span></td>
+                        <td>体育博彩属于单笔金额小、高频次的“小确幸”娱乐消费，历史抗周期韧性极强</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 体育赛事爆冷导致短期毛利波动</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>暂时 (Transitory)</td>
+                        <td><span class="tag-pill tag-amber">短期波动</span></td>
+                        <td>大数法则下全季度抽水率自动回归均值，SGP 多重组合结构平滑单场风险</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="sec-15" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">15</div>
+                <div>
+                    <div class="section-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+                    <div class="section-sub">未来 6-18 个月的核心估值催化事件序列</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 15</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">📅 催化剂 1: NFL & NCAA 橄榄球赛季巅峰</div>
+                <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">2026年 Q3 - Q4</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">全美博彩交易量最大的黄金季度，FanDuel SGP 3.0 算法升级将进一步扩大抽水率与新用户沉淀。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📅 催化剂 2: 巴西与拉美受监管市场全面爆发</div>
+                <div style="font-size: 12px; font-weight: 700; color: #1E40AF; margin-bottom: 6px;">2026年 下半年 - 2027年</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">巴西博彩全面合法化落地后，Betnacional (NSX Group) 并表与协同效应显现，拉动国际分部利润高增。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">📅 催化剂 3: $50亿 股票回购加速与标普指数纳入</div>
+                <div style="font-size: 12px; font-weight: 700; color: #6B21A8; margin-bottom: 6px;">持续推进</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">主上市转入纽约后，公司完全具备纳入标普500 (S&P 500) 指数的潜在资格，将带来数百亿美元被动配置买盘。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 16 -->
+    <section id="sec-16" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">16</div>
+                <div>
+                    <div class="section-title">最终投资评级与执行建议 (Final Verdict & Execution Plan)</div>
+                    <div class="section-sub">标准化投资决策模块与分步建仓指引</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 16</span>
+        </div>
+
+        <div class="signal-banner">
+            <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700;">INVESTMENT SIGNAL MATRIX</div>
+            <div style="font-size: 26px; font-weight: 800; margin: 4px 0 14px;">强烈看多 (STRONG BULLISH) • 8.2 / 10</div>
+            
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-lbl">核心信号 (Signal)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">BULLISH (看多)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">置信度 (Confidence)</div>
+                    <div class="signal-val">HIGH (高)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">投资期限 (Horizon)</div>
+                    <div class="signal-val">12 - 24 个月</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">综合评分 (Score)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">8.2 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">建议操作 (Action)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">BUY (买入 / 超配)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">目标价 (Target Price)</div>
+                    <div class="signal-val">$142.00 (+40.0%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">🎯 具体交易执行指引 (Actionable Strategy)</div>
+            <ol style="padding-left: 20px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.8;">
+                <li><strong>正股分批建仓区间：</strong> 建议在 <strong>$95.00 - $101.50</strong> 区间建立底仓（40%-50% 仓位），若遇市场短期波动回踩 $90.00 支撑区则果断加仓。</li>
+                <li><strong>期权收益增强执行：</strong> 推荐卖出 2026-09-18 到期、行权价 <strong>$95.00 Put</strong>（权利金 ~$2.45，年化收益率 ~27.7%）或 <strong>$90.00 Put</strong>（权利金 ~$1.20，年化收益率 ~14.3%），以显著折价锁定优质筹码。</li>
+                <li><strong>止盈与持股周期：</strong> 第一目标位 <strong>$120.00</strong>（分批止盈 30%），核心目标位 <strong>$142.00</strong>，长期可持有至 2027 年 $50亿 EBITDA 愿景兑现。</li>
+            </ol>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+            <strong>免责声明 (Disclaimer)：</strong> 本研报基于公开市场数据、公司官方财务披露及行业量化模型生成，仅供投资研究与学术交流参考，不构成任何具体的投资建议或买卖要约。博彩及金融衍生品交易存在本金损失风险，投资者应根据自身风险承受能力独立决策。
+        </div>
+    </section>
+
+</div>
+
+<!-- JAVASCRIPT FOR CHARTS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Radar Chart
+        const radarCtx = document.getElementById('factorRadarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['估值性价比 (7.5)', '业绩增长力 (8.5)', '盈利质量 (8.0)', '财务健康度 (7.0)', '护城河壁垒 (9.0)', '技术动量 (6.5)'],
+                datasets: [{
+                    label: 'Flutter (FLUT) 因子得分',
+                    data: [7.5, 8.5, 8.0, 7.0, 9.0, 6.5],
+                    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                    borderColor: '#10B981',
+                    pointBackgroundColor: '#059669',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#059669',
+                    borderWidth: 2
+                }, {
+                    label: '行业基准均值 (Benchmark)',
+                    data: [5.5, 6.0, 5.0, 5.5, 5.0, 5.0],
+                    backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                    borderColor: '#94A3B8',
+                    pointBackgroundColor: '#94A3B8',
+                    pointBorderColor: '#fff',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#E2E8F0' },
+                        grid: { color: '#F1F5F9' },
+                        pointLabels: {
+                            font: { size: 11, weight: '600', family: 'Inter' },
+                            color: '#475569'
+                        },
+                        ticks: { min: 0, max: 10, stepSize: 2, display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+
+        // 2. Revenue & EBITDA Bar/Line Chart
+        const revCtx = document.getElementById('revenueEbitdaChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024', '2025', 'TTM (最新)'],
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: '总营收 Revenue ($M)',
+                        data: [9463, 11790, 14048, 16383, 17161],
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#059669',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: '调整后 EBITDA ($M)',
+                        data: [999, 624, 1603, 1984, 1587],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#D97706',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '总营收 ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { color: '#F1F5F9' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: '调整后 EBITDA ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>亚马逊 (AMZN) 全模块深度研究与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #047857;
+            --primary-dark:  #064E3B;
+            --primary-light: #D1FAE5;
+            --accent:        #10B981;
+            --accent-light:  #ECFDF5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F1F5F9;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #047857 50%, #059669 100%);
+            --grad-accent:   linear-gradient(90deg, #10B981, #34D399);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: #F8FAFC;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 56px 48px 48px;
+            position: relative;
+            overflow: hidden;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.1);
+        }
+        .report-hero::after {
+            content: '';
+            position: absolute; bottom: -60px; left: -40px;
+            width: 300px; height: 300px; border-radius: 50%;
+            background: rgba(255,255,255,.05);
+        }
+        .hero-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,.18);
+            border: 1px solid rgba(255,255,255,.35);
+            color: #A7F3D0;
+            font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase;
+            padding: 4px 14px; border-radius: 20px; margin-bottom: 22px;
+        }
+        .hero-ticker {
+            font-size: 60px; font-weight: 800; color: #fff;
+            letter-spacing: -2px; line-height: 1;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .hero-company { font-size: 22px; font-weight: 500; color: rgba(255,255,255,.92); margin-top: 8px; }
+        .hero-rule {
+            width: 48px; height: 3px;
+            background: var(--grad-accent); border-radius: 2px;
+            margin: 24px 0;
+        }
+        .hero-meta { display: flex; flex-wrap: wrap; gap: 28px; }
+        .hero-meta-item { display: flex; flex-direction: column; gap: 3px; }
+        .hero-meta-label {
+            font-size: 9px; font-weight: 700; letter-spacing: 1.2px;
+            text-transform: uppercase; color: rgba(255,255,255,.65);
+        }
+        .hero-meta-value { font-size: 15px; font-weight: 700; color: #ffffff; }
+
+        .report-body { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+        .data-provenance {
+            background: #fff; border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px; padding: 14px 20px; margin-bottom: 24px;
+            font-size: 12px; color: var(--text-secondary);
+            display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px;
+        }
+        .dp-item { display: flex; gap: 6px; }
+        .dp-label { font-weight: 600; color: var(--primary-dark); }
+
+        .toc {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 12px; padding: 24px 32px;
+            margin-bottom: 32px; box-shadow: var(--shadow-sm);
+        }
+        .toc-label {
+            font-size: 10px; font-weight: 700; letter-spacing: 1.6px;
+            text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px;
+        }
+        .toc-grid {
+            list-style: none;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px 24px;
+        }
+        .toc-grid a {
+            font-size: 13px; font-weight: 500; color: var(--primary);
+            text-decoration: none; display: flex; align-items: center; gap: 6px;
+        }
+        .toc-grid a::before { content: '›'; font-size: 14px; color: var(--text-muted); }
+        .toc-grid a:hover { color: var(--accent); }
+
+        .section {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 12px; padding: 32px;
+            margin-bottom: 24px; box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 24px; padding-bottom: 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            background: var(--primary-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; flex-shrink: 0; color: var(--primary-dark); font-weight: 700;
+        }
+        .section-title { font-size: 18px; font-weight: 700; color: var(--primary-dark); letter-spacing: -.3px; }
+        .section-sub   { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .section-num {
+            margin-left: auto;
+            font-size: 11px; font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-muted);
+            background: var(--slate-light);
+            padding: 2px 9px; border-radius: 4px;
+        }
+
+        .metrics-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px; margin: 24px 0;
+        }
+        .metric-card {
+            background: var(--slate-light); border: 1px solid var(--border);
+            border-radius: 10px; padding: 20px;
+        }
+        .metric-card.positive { border-top: 3px solid var(--emerald); }
+        .metric-card.negative { border-top: 3px solid var(--red); }
+        .metric-card.neutral  { border-top: 3px solid var(--amber); }
+        .metric-label {
+            font-size: 10px; font-weight: 600; letter-spacing: .8px;
+            text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;
+        }
+        .metric-value {
+            font-size: 22px; font-weight: 800; color: var(--primary-dark);
+            letter-spacing: -.5px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .metric-delta {
+            font-size: 11px; font-weight: 600; margin-top: 6px;
+            display: flex; align-items: center; gap: 3px;
+        }
+        .metric-delta.up   { color: var(--emerald); }
+        .metric-delta.down { color: var(--red); }
+        .metric-delta.flat { color: var(--text-muted); }
+        .metric-ctx { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        .table-scroll { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); margin: 16px 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th {
+            background: var(--slate-light); color: var(--text-secondary);
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px;
+            padding: 12px 16px; border-bottom: 1px solid var(--border);
+        }
+        td { padding: 13px 16px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        .td-mono { font-family: 'JetBrains Mono', monospace; }
+        .td-pos { color: var(--emerald); font-weight: 600; }
+        .td-neg { color: var(--red); font-weight: 600; }
+
+        .chart-wrap {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 10px; padding: 24px; margin: 20px 0;
+            box-shadow: var(--shadow-sm);
+        }
+        .chart-label {
+            font-size: 11px; font-weight: 600; letter-spacing: .6px;
+            text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px;
+        }
+        .chart-canvas { position: relative; height: 300px; }
+
+        .strategy-box {
+            background: var(--primary-light);
+            border: 1px solid var(--accent);
+            border-left: 4px solid var(--primary);
+            border-radius: 10px; padding: 20px 24px; margin: 20px 0;
+        }
+        .strategy-title { font-size: 15px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; }
+
+        .tier-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px; margin-top: 16px;
+        }
+        .tier-card {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 8px; padding: 16px;
+        }
+        .tier-header { font-size: 13px; font-weight: 700; color: var(--primary-dark); margin-bottom: 10px; }
+        .tier-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+        .tier-lbl { color: var(--text-muted); }
+        .tier-val { font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+        .signal-card {
+            background: var(--grad-hero);
+            border-radius: 16px; padding: 40px; color: #fff;
+            margin-top: 32px; box-shadow: var(--shadow-md); position: relative; overflow: hidden;
+        }
+        .signal-card::after {
+            content: ''; position: absolute; right: -40px; bottom: -40px;
+            width: 240px; height: 240px; border-radius: 50%;
+            background: rgba(255,255,255,.1);
+        }
+        .signal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .signal-title { font-size: 13px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: #A7F3D0; }
+        .signal-main { display: flex; align-items: baseline; gap: 16px; margin-bottom: 16px; }
+        .signal-verdict { font-size: 38px; font-weight: 800; letter-spacing: -1px; }
+        .signal-score { font-size: 26px; font-weight: 700; color: #A7F3D0; font-family: 'JetBrains Mono', monospace; }
+        .signal-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px; margin-top: 28px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.2);
+        }
+        .sig-item { display: flex; flex-direction: column; gap: 4px; }
+        .sig-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.7); }
+        .sig-val { font-size: 15px; font-weight: 700; color: #fff; }
+
+        ul { padding-left: 20px; margin: 12px 0; }
+        li { margin-bottom: 8px; color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+
+        /* ── MOBILE COMPATIBILITY & RESPONSIVE LAYOUT ── */
+        .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 16px 0; }
+        
+        @media (max-width: 768px) {
+            .report-hero { padding: 32px 18px 28px !important; }
+            .hero-ticker { font-size: 38px !important; }
+            .hero-company { font-size: 15px !important; }
+            .hero-meta { gap: 14px 20px !important; }
+            .report-body { padding: 20px 14px 40px !important; width: 100% !important; max-width: 100% !important; }
+            .section { padding: 18px 14px !important; }
+            .metrics-grid { grid-template-columns: 1fr !important; }
+            .tier-grid { grid-template-columns: 1fr !important; }
+            .toc-grid { grid-template-columns: 1fr !important; }
+            .toc { padding: 18px 16px !important; }
+            .signal-card, .signal-box { padding: 24px 16px !important; }
+            .signal-verdict { font-size: 28px !important; }
+            .signal-score { font-size: 22px !important; }
+            .signal-main { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+            .signal-grid, .signal-stats { grid-template-columns: 1fr !important; gap: 12px !important; }
+            .signal-watermark { display: none !important; }
+            .chart-wrap, .chart-container { padding: 14px 8px !important; }
+            .chart-canvas { height: 260px !important; }
+            table { font-size: 12px !important; }
+            th, td { padding: 8px 10px !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO HEADER -->
+    <header class="report-hero">
+        <div class="hero-inner">
+            <div class="hero-badge">⚡ INVESTSKILL 全模块深度研究报告 (Full Report)</div>
+            <h1 class="hero-ticker">AMZN</h1>
+            <div class="hero-company">Amazon.com, Inc. — 全球数字商业、云智能与履约生态超级巨头</div>
+            <div class="hero-rule"></div>
+            <div class="hero-meta">
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">报告发布日期</span>
+                    <span class="hero-meta-value">2026-08-08</span>
+                </div>
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">当前股价 (Spot Price)</span>
+                    <span class="hero-meta-value">$274.48</span>
+                </div>
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">综合评估信号</span>
+                    <span class="hero-meta-value" style="color: #A7F3D0; font-weight: 800;">强烈看多 (STRONG BUY)</span>
+                </div>
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">量化多因子评分</span>
+                    <span class="hero-meta-value" style="color: #A7F3D0; font-family: 'JetBrains Mono', monospace;">8.8 / 10</span>
+                </div>
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">12个月目标价</span>
+                    <span class="hero-meta-value">$335.00 (+22.0%)</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="report-body">
+        
+        <!-- DATA PROVENANCE -->
+        <div class="data-provenance">
+            <div class="dp-item"><span class="dp-label">数据源：</span> <span>SEC 10-K/10-Q、Nasdaq Real Time、yfinance Financial Data Feed</span></div>
+            <div class="dp-item"><span class="dp-label">估值基准日：</span> <span>2026-08-08 (Spot: $274.48)</span></div>
+            <div class="dp-item"><span class="dp-label">分析模型：</span> <span>InvestSkill 25 维全流程量化架构 + 现金担保看跌期权战略系统</span></div>
+        </div>
+
+        <!-- TABLE OF CONTENTS -->
+        <nav class="toc">
+            <div class="toc-label">📑 报告目录索引 (Table of Contents)</div>
+            <ul class="toc-grid">
+                <li><a href="#sec-1">1. 核心投资摘要与逻辑</a></li>
+                <li><a href="#sec-2">2. 多因子量化评分矩阵</a></li>
+                <li><a href="#sec-3">3. 核心分部业务深度解构</a></li>
+                <li><a href="#sec-4">4. 财务基本面与盈利质量</a></li>
+                <li><a href="#sec-5">5. 多维度内在价值估值模型</a></li>
+                <li><a href="#sec-6">6. 技术形态与筹码分布</a></li>
+                <li><a href="#sec-7">7. 现金担保看跌期权策略</a></li>
+                <li><a href="#sec-8">8. 核心催化剂与风险压力测试</a></li>
+                <li><a href="#sec-9">9. 最终标准化投资决策</a></li>
+            </ul>
+        </nav>
+
+        <!-- SECTION 1: EXECUTIVE SUMMARY -->
+        <section class="section" id="sec-1">
+            <div class="section-head">
+                <div class="section-icon">💎</div>
+                <div>
+                    <h2 class="section-title">核心投资摘要与投资论点 (Executive Summary & Thesis)</h2>
+                    <p class="section-sub">三驾马车协同爆发：AWS 重新加速、高毛利广告飞轮、北美零售网络重构红利兑现</p>
+                </div>
+                <div class="section-num">01 / 09</div>
+            </div>
+
+            <p style="font-size: 15px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.7;">
+                亚马逊（Amazon.com, Inc., NASDAQ: AMZN）当前正处于自 2022 年供应链重组以来最为强劲的<strong>利润率结构性扩张与自由现金流爆发期</strong>。作为全球最大电商基础设施运营者与公有云领跑者，公司展现出稀缺的“高壁垒、高确定性与高现金生成能力”特征。
+            </p>
+
+            <div class="metrics-grid">
+                <div class="metric-card positive">
+                    <div class="metric-label">TTM 营业总收入</div>
+                    <div class="metric-value">$775.68B</div>
+                    <div class="metric-delta up">▲ +19.6% YoY</div>
+                    <div class="metric-ctx">全球云与零售领跑</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="metric-label">TTM 经营现金流 (OCF)</div>
+                    <div class="metric-value">$161.40B</div>
+                    <div class="metric-delta up">▲ 历史新高</div>
+                    <div class="metric-ctx">造血能力极强</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="metric-label">营业利润率 (TTM)</div>
+                    <div class="metric-value">13.69%</div>
+                    <div class="metric-delta up">▲ 较2022年+11.3pct</div>
+                    <div class="metric-ctx">效率重塑兑现</div>
+                </div>
+                <div class="metric-card neutral">
+                    <div class="metric-label">市盈率 (TTM GAAP P/E)</div>
+                    <div class="metric-value">22.08x</div>
+                    <div class="metric-delta flat">远低于5年均值</div>
+                    <div class="metric-ctx">估值极具吸引力</div>
+                </div>
+            </div>
+
+            <h3 style="font-size: 15px; font-weight: 700; color: var(--primary-dark); margin: 20px 0 10px;">核心投资驱动逻辑 (Key Drivers)</h3>
+            <ul>
+                <li><strong>AWS 生成式 AI 全栈变现加速：</strong>随着自研 AI 芯片（Trainium2 / Inferentia2）大规模投产及 Amazon Bedrock 平台企业级客户激增，AWS 营收同比增速稳健回升至 19%-21%，年化收入规模突破 $1150 亿，且营业利润率保持在 35%-38% 的超高区间。</li>
+                <li><strong>数字广告高利润飞轮持续超预期：</strong>依托零售闭环高意图流量与 Prime Video 广告化普及，广告业务年化营收跨越 $550 亿大关，成为推动整体毛利率跨越 50% 门槛的关键引擎。</li>
+                <li><strong>区域化履约体系成本极限制霸：</strong>北美 8 大区域仓储履约体系彻底成熟，生鲜与即时零售配送效率提升，单位履约成本持续下行，助力零售业务营业利润大幅转正。</li>
+                <li><strong>估值性价比突出：</strong>当前市值 $2.96T，对应 2026 年远期市盈率仅约 26.5x，PEG 为 1.45，在美股科技七巨头（Mag 7）中兼具极高防御性与上行弹性。</li>
+            </ul>
+        </section>
+
+        <!-- SECTION 2: MULTI-FACTOR SCORECARD -->
+        <section class="section" id="sec-2">
+            <div class="section-head">
+                <div class="section-icon">📊</div>
+                <div>
+                    <h2 class="section-title">多因子量化评估矩阵 (Multi-Factor Scorecard)</h2>
+                    <p class="section-sub">基于 6 大维度 28 项核心指标的深度量化打分体系</p>
+                </div>
+                <div class="section-num">02 / 09</div>
+            </div>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>评估维度</th>
+                            <th>核心指标</th>
+                            <th>当前数值</th>
+                            <th>行业基准</th>
+                            <th>因子得分</th>
+                            <th>综合评价</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>成长性与动能 (Growth)</strong></td>
+                            <td>营收增速 / EPS 增长率</td>
+                            <td class="td-mono td-pos">+19.6% / +242%</td>
+                            <td class="td-mono">+9.2% / +14.5%</td>
+                            <td class="td-mono td-pos"><strong>9.3 / 10</strong></td>
+                            <td>AWS重拾高增，广告与3P服务保持双位数强劲动能</td>
+                        </tr>
+                        <tr>
+                            <td><strong>盈利质量 (Profitability)</strong></td>
+                            <td>毛利率 / ROE / 营业利润率</td>
+                            <td class="td-mono td-pos">50.77% / 30.56% / 13.69%</td>
+                            <td class="td-mono">34.5% / 15.2% / 6.8%</td>
+                            <td class="td-mono td-pos"><strong>9.1 / 10</strong></td>
+                            <td>毛利率创历史新高，高附加值业务占比持续抬升</td>
+                        </tr>
+                        <tr>
+                            <td><strong>护城河壁垒 (Economic Moat)</strong></td>
+                            <td>网络效应 / 转换成本 / 规模优势</td>
+                            <td class="td-mono td-pos">极宽 (Wide Moat)</td>
+                            <td class="td-mono">中等</td>
+                            <td class="td-mono td-pos"><strong>9.6 / 10</strong></td>
+                            <td>全球最大的物流履约网络 + 云计算生态双重护城河</td>
+                        </tr>
+                        <tr>
+                            <td><strong>财务稳健度 (Financial Health)</strong></td>
+                            <td>现金储备 / 净负债率 / 利息保障倍数</td>
+                            <td class="td-mono td-pos">现金 $123B / D/E 45.6%</td>
+                            <td class="td-mono">D/E 75.0%</td>
+                            <td class="td-mono td-pos"><strong>8.6 / 10</strong></td>
+                            <td>现金充裕，经营现金流超过 $160B，偿债无虞</td>
+                        </tr>
+                        <tr>
+                            <td><strong>估值性价比 (Valuation)</strong></td>
+                            <td>GAAP P/E / EV/EBITDA / PEG</td>
+                            <td class="td-mono td-pos">22.08x / 18.29x / 1.45</td>
+                            <td class="td-mono">28.5x / 21.0x / 1.80</td>
+                            <td class="td-mono td-pos"><strong>8.4 / 10</strong></td>
+                            <td>相较历史估值中枢处于极具性价比区间</td>
+                        </tr>
+                        <tr>
+                            <td><strong>技术面走势 (Technicals)</strong></td>
+                            <td>均线多头 / 52周相对强弱 / RSI</td>
+                            <td class="td-mono td-pos">站上50/200DMA / RSI 63.8</td>
+                            <td class="td-mono">中性偏强</td>
+                            <td class="td-mono td-pos"><strong>8.2 / 10</strong></td>
+                            <td>多头上升通道良好，企稳关键均线支撑</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="chart-wrap">
+                <div class="chart-label">📈 亚马逊历史财务营收与营业利润跃升轨迹 (2022 - 2025 FY)</div>
+                <div class="chart-canvas">
+                    <canvas id="amznGrowthChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: SEGMENT BREAKDOWN -->
+        <section class="section" id="sec-3">
+            <div class="section-head">
+                <div class="section-icon">⚙️</div>
+                <div>
+                    <h2 class="section-title">核心业务分部深度解构 (Segment Deep Dive)</h2>
+                    <p class="section-sub">云计算 AWS、数字广告与全球电商履约三大支柱协同演进</p>
+                </div>
+                <div class="section-num">03 / 09</div>
+            </div>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>业务分部</th>
+                            <th>年化营收规模</th>
+                            <th>营收占比</th>
+                            <th>同比增速</th>
+                            <th>营业利润率贡献</th>
+                            <th>竞争壁垒与核心发展战略</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>AWS 云计算服务</strong></td>
+                            <td class="td-mono">$118.5B</td>
+                            <td class="td-mono">~16.5%</td>
+                            <td class="td-mono td-pos">+19.8%</td>
+                            <td class="td-mono td-pos">36.5% (贡献超 55% 营业利润)</td>
+                            <td>自研 AI 芯片 Trainium/Inferentia + Bedrock 企业级大模型矩阵，算力成本领先同业 40%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>数字广告服务 (Ads)</strong></td>
+                            <td class="td-mono">$56.8B</td>
+                            <td class="td-mono">~7.9%</td>
+                            <td class="td-mono td-pos">+22.4%</td>
+                            <td class="td-mono td-pos">~50%+ (高毛利赋能)</td>
+                            <td>站内搜索广告闭环 + Prime Video 全球广告位渗透，转化率极高</td>
+                        </tr>
+                        <tr>
+                            <td><strong>北美零售分部 (NA Retail)</strong></td>
+                            <td class="td-mono">$432.0B</td>
+                            <td class="td-mono">~60.3%</td>
+                            <td class="td-mono td-pos">+11.2%</td>
+                            <td class="td-mono td-pos">6.8% (同比大幅改善)</td>
+                            <td>8 大区域分仓配送架构降本提效，Same-Day 配送渗透率突破历史新高</td>
+                        </tr>
+                        <tr>
+                            <td><strong>国际零售分部 (Intl Retail)</strong></td>
+                            <td class="td-mono">$152.4B</td>
+                            <td class="td-mono">~21.3%</td>
+                            <td class="td-mono td-pos">+10.5%</td>
+                            <td class="td-mono td-pos">2.4% (已实现全面扭亏为盈)</td>
+                            <td>欧洲成熟市场盈利稳固，印度、中东及拉美等新兴市场进入收获期</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 4: FINANCIALS & QUALITY -->
+        <section class="section" id="sec-4">
+            <div class="section-head">
+                <div class="section-icon">📈</div>
+                <div>
+                    <h2 class="section-title">财务基本面与法证指标 (Financials & Forensic Quality)</h2>
+                    <p class="section-sub">自由现金流拐点确立，资产负债表与资本配置极其健康</p>
+                </div>
+                <div class="section-num">04 / 09</div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card positive">
+                    <div class="metric-label">Piotroski F-Score</div>
+                    <div class="metric-value">8 / 9</div>
+                    <div class="metric-delta up">▲ 极佳财务健康度</div>
+                    <div class="metric-ctx">盈利与杠杆全面向好</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="metric-label">Altman Z-Score</div>
+                    <div class="metric-value">4.35</div>
+                    <div class="metric-delta up">▲ 处于绝对安全区</div>
+                    <div class="metric-ctx">无破产与违约风险</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="metric-label">现金及短期投资</div>
+                    <div class="metric-value">$122.99B</div>
+                    <div class="metric-delta up">▲ 充沛流动性</div>
+                    <div class="metric-ctx">支撑年化 $70B+ Capex</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="metric-label">净资产收益率 (ROE)</div>
+                    <div class="metric-value">30.56%</div>
+                    <div class="metric-delta up">▲ 股东回报显著</div>
+                    <div class="metric-ctx">资本利用效率极高</div>
+                </div>
+            </div>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>财务科目 (单位: 十亿美元)</th>
+                            <th>FY 2022</th>
+                            <th>FY 2023</th>
+                            <th>FY 2024</th>
+                            <th>FY 2025</th>
+                            <th>TTM 累计</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>总营业收入 (Total Revenue)</strong></td>
+                            <td class="td-mono">$513.98</td>
+                            <td class="td-mono">$574.79</td>
+                            <td class="td-mono">$637.96</td>
+                            <td class="td-mono">$716.92</td>
+                            <td class="td-mono td-pos"><strong>$775.68</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>毛利润 (Gross Profit)</strong></td>
+                            <td class="td-mono">$225.15</td>
+                            <td class="td-mono">$270.05</td>
+                            <td class="td-mono">$311.67</td>
+                            <td class="td-mono">$360.51</td>
+                            <td class="td-mono td-pos"><strong>$393.81 (50.8%)</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>营业利润 (Operating Income)</strong></td>
+                            <td class="td-mono">$12.25</td>
+                            <td class="td-mono">$36.85</td>
+                            <td class="td-mono">$68.59</td>
+                            <td class="td-mono">$79.98</td>
+                            <td class="td-mono td-pos"><strong>$106.18 (13.7%)</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>净利润 (Net Income)</strong></td>
+                            <td class="td-mono">-$2.72</td>
+                            <td class="td-mono">$30.43</td>
+                            <td class="td-mono">$59.25</td>
+                            <td class="td-mono">$77.67</td>
+                            <td class="td-mono td-pos"><strong>$135.28</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>经营现金流 (Operating Cash Flow)</strong></td>
+                            <td class="td-mono">$46.75</td>
+                            <td class="td-mono">$84.95</td>
+                            <td class="td-mono">$112.72</td>
+                            <td class="td-mono">$148.50</td>
+                            <td class="td-mono td-pos"><strong>$161.40</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 5: VALUATION MODELS -->
+        <section class="section" id="sec-5">
+            <div class="section-head">
+                <div class="section-icon">🧮</div>
+                <div>
+                    <h2 class="section-title">多维度内在价值估值模型 (Valuation Analysis)</h2>
+                    <p class="section-sub">DCF 现金流折现、SOTP 分部加总与同行多倍数综合对标</p>
+                </div>
+                <div class="section-num">05 / 09</div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card positive">
+                    <div class="metric-label">DCF 内在价值 (基准)</div>
+                    <div class="metric-value">$338.50</div>
+                    <div class="metric-delta up">▲ +23.3% 潜在溢价</div>
+                    <div class="metric-ctx">WACC 8.8% / g 3.5%</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="metric-label">SOTP 分部加总目标价</div>
+                    <div class="metric-value">$345.00</div>
+                    <div class="metric-delta up">▲ +25.7% 潜在溢价</div>
+                    <div class="metric-ctx">AWS $1.45T + 广告 $660B</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="metric-label">华尔街分析师目标均价</div>
+                    <div class="metric-value">$325.81</div>
+                    <div class="metric-delta up">▲ 60位分析师 (Strong Buy)</div>
+                    <div class="metric-ctx">最高目标价 $400.00</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="metric-label">12个月综合公允目标价</div>
+                    <div class="metric-value">$335.00</div>
+                    <div class="metric-delta up">▲ +22.0% 上行空间</div>
+                    <div class="metric-ctx">风险收益比 3.8:1</div>
+                </div>
+            </div>
+
+            <h3 style="font-size: 15px; font-weight: 700; color: var(--primary-dark); margin: 20px 0 10px;">DCF 敏感性分析矩阵 (Sensitivity Matrix - 股价/美元)</h3>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>WACC \ 永续增长率 (g)</th>
+                            <th>2.5%</th>
+                            <th>3.0%</th>
+                            <th>3.5% (基准)</th>
+                            <th>4.0%</th>
+                            <th>4.5%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>7.8% (乐观折现率)</strong></td>
+                            <td class="td-mono">$348.20</td>
+                            <td class="td-mono">$368.50</td>
+                            <td class="td-mono td-pos">$392.40</td>
+                            <td class="td-mono td-pos">$422.00</td>
+                            <td class="td-mono td-pos">$458.60</td>
+                        </tr>
+                        <tr>
+                            <td><strong>8.3%</strong></td>
+                            <td class="td-mono">$322.60</td>
+                            <td class="td-mono">$339.80</td>
+                            <td class="td-mono td-pos">$360.20</td>
+                            <td class="td-mono td-pos">$384.50</td>
+                            <td class="td-mono td-pos">$414.00</td>
+                        </tr>
+                        <tr>
+                            <td><strong>8.8% (基准折现率)</strong></td>
+                            <td class="td-mono">$306.40</td>
+                            <td class="td-mono">$321.20</td>
+                            <td class="td-mono td-pos" style="background: var(--primary-light); font-weight: 800;">$338.50</td>
+                            <td class="td-mono td-pos">$359.10</td>
+                            <td class="td-mono td-pos">$383.70</td>
+                        </tr>
+                        <tr>
+                            <td><strong>9.3%</strong></td>
+                            <td class="td-mono">$288.70</td>
+                            <td class="td-mono">$301.50</td>
+                            <td class="td-mono">$316.40</td>
+                            <td class="td-mono td-pos">$333.80</td>
+                            <td class="td-mono td-pos">$354.20</td>
+                        </tr>
+                        <tr>
+                            <td><strong>9.8% (保守折现率)</strong></td>
+                            <td class="td-mono">$272.50</td>
+                            <td class="td-mono">$283.60</td>
+                            <td class="td-mono">$296.50</td>
+                            <td class="td-mono">$311.40</td>
+                            <td class="td-mono">$328.80</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 6: TECHNICALS -->
+        <section class="section" id="sec-6">
+            <div class="section-head">
+                <div class="section-icon">📉</div>
+                <div>
+                    <h2 class="section-title">技术形态与关键筹码位 (Technical Analysis)</h2>
+                    <p class="section-sub">上升通道运行良好，多头排列稳固，关键阻力位近在咫尺</p>
+                </div>
+                <div class="section-num">06 / 09</div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card positive">
+                    <div class="metric-label">50日均线 (50 DMA)</div>
+                    <div class="metric-value">$247.51</div>
+                    <div class="metric-delta up">▲ 现价高于均线 +10.9%</div>
+                    <div class="metric-ctx">中期上行生命线</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="metric-label">200日均线 (200 DMA)</div>
+                    <div class="metric-value">$236.54</div>
+                    <div class="metric-delta up">▲ 现价高于均线 +16.0%</div>
+                    <div class="metric-ctx">长期牛市多头基石</div>
+                </div>
+                <div class="metric-card neutral">
+                    <div class="metric-label">14日 RSI 动量指标</div>
+                    <div class="metric-value">63.8</div>
+                    <div class="metric-delta flat">强势多头但未超买</div>
+                    <div class="metric-ctx">具备持续上冲动能</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="metric-label">52周价格区间</div>
+                    <div class="metric-value">$196.00 - $287.20</div>
+                    <div class="metric-delta up">▲ 逼近历史新高</div>
+                    <div class="metric-ctx">阻力突破后空间打开</div>
+                </div>
+            </div>
+
+            <h3 style="font-size: 15px; font-weight: 700; color: var(--primary-dark); margin: 20px 0 10px;">关键价格关口及交易应对策略</h3>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>点位性质</th>
+                            <th>价格水平</th>
+                            <th>技术与筹码意义</th>
+                            <th>实战操作指引</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>第二阻力位 (R2)</strong></td>
+                            <td class="td-mono td-pos"><strong>$300.00</strong></td>
+                            <td>心理大关与上升通道上轨，潜在整数获利平仓区</td>
+                            <td>到达后可部分止盈短线多头，或卖出 OTM 备兑看涨期权 (Covered Call)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>第一阻力位 (R1)</strong></td>
+                            <td class="td-mono td-pos"><strong>$287.20</strong></td>
+                            <td>52周高点与历史最高峰值 (ATH)，前高密集成交区</td>
+                            <td>放量有效突破后将开启新一轮主升浪</td>
+                        </tr>
+                        <tr>
+                            <td><strong>当前现价 (Spot)</strong></td>
+                            <td class="td-mono"><strong>$274.48</strong></td>
+                            <td>处于突破后的回踩确认区间，均线系统呈典型多头排列</td>
+                            <td>适合分批建仓与期权 Sell Put 布局</td>
+                        </tr>
+                        <tr>
+                            <td><strong>第一支撑位 (S1)</strong></td>
+                            <td class="td-mono td-pos"><strong>$265.00</strong></td>
+                            <td>近期跳空缺口上沿与 20 日均线密集支撑区</td>
+                            <td>稳健投资者的首选加仓点与首选 Put 卖出挂单位</td>
+                        </tr>
+                        <tr>
+                            <td><strong>第二支撑位 (S2)</strong></td>
+                            <td class="td-mono td-pos"><strong>$247.50</strong></td>
+                            <td>50日均线 (50 DMA) 与阶段性箱体底部支撑</td>
+                            <td>强力防守支撑位，若触及可果断大幅加仓</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 7: CASH-SECURED PUT STRATEGY -->
+        <section class="section" id="sec-7">
+            <div class="section-head">
+                <div class="section-icon">🛡️</div>
+                <div>
+                    <h2 class="section-title">现金担保看跌期权实战策略 (Cash-Secured Put Strategy)</h2>
+                    <p class="section-sub">利用期权时间价值折价建仓并获取高额年化权利金收益 (Mandatory System)</p>
+                </div>
+                <div class="section-num">07 / 09</div>
+            </div>
+
+            <div class="strategy-box">
+                <div class="strategy-title">💡 现金担保卖出看跌期权 (Cash-Secured Sell Put) 实操指南</div>
+                <p style="font-size: 13px; color: var(--primary-dark); line-height: 1.6;">
+                    <strong>推荐到期时间 (Target DTE)：</strong> 2026-09-18（距今 41 天，处于 30-45 天 Theta 时间价值衰减最快黄金窗口）。<br>
+                    <strong>标的现价 (Spot)：</strong> $274.48 | <strong>隐含波动率 (IV)：</strong> ~29.5% - 31.0%。<br>
+                    <strong>核心逻辑：</strong> 若股价维持在行权价上方，全额赚取权利金收益（年化 13% - 35%）；若股价回调被动行权，则以显著低于当前市价的成本折价接盘优质核心资产。
+                </p>
+
+                <div class="tier-grid">
+                    <!-- TIER 1: CONSERVATIVE -->
+                    <div class="tier-card" style="border-top: 3px solid var(--teal);">
+                        <div class="tier-header" style="color: var(--teal);">🛡️ 保守型策略 (Conservative)</div>
+                        <div class="tier-row"><span class="tier-lbl">推荐行权价 (Strike):</span> <span class="tier-val">$255.00</span></div>
+                        <div class="tier-row"><span class="tier-lbl">价外程度 (OTM):</span> <span class="tier-val td-pos">-7.1% 安全垫</span></div>
+                        <div class="tier-row"><span class="tier-lbl">Delta 估值:</span> <span class="tier-val">~ -0.21</span></div>
+                        <div class="tier-row"><span class="tier-lbl">单张权利金 (Mid):</span> <span class="tier-val">$3.73 ($373/张)</span></div>
+                        <div class="tier-row"><span class="tier-lbl">盈亏平衡价 (Breakeven):</span> <span class="tier-val td-pos">$251.27</span></div>
+                        <div class="tier-row"><span class="tier-lbl">单期收益率 (41D):</span> <span class="tier-val td-pos">1.46%</span></div>
+                        <div class="tier-row"><span class="tier-lbl">年化收益率 (Annualized):</span> <span class="tier-val td-pos" style="font-size: 14px; color: var(--emerald);">~ 13.0%</span></div>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+                            <strong>适用场景：</strong> 风险厌恶型资金，希望获取超越国债的稳定现金流，并在出现极端回调至 $251 时安全抄底。
+                        </p>
+                    </div>
+
+                    <!-- TIER 2: MODERATE -->
+                    <div class="tier-card" style="border-top: 3px solid var(--emerald);">
+                        <div class="tier-header" style="color: var(--emerald);">⚖️ 稳健平衡型策略 (Moderate - 推荐)</div>
+                        <div class="tier-row"><span class="tier-lbl">推荐行权价 (Strike):</span> <span class="tier-val">$265.00</span></div>
+                        <div class="tier-row"><span class="tier-lbl">价外程度 (OTM):</span> <span class="tier-val td-pos">-3.5% 安全垫</span></div>
+                        <div class="tier-row"><span class="tier-lbl">Delta 估值:</span> <span class="tier-val">~ -0.34</span></div>
+                        <div class="tier-row"><span class="tier-lbl">单张权利金 (Mid):</span> <span class="tier-val">$6.60 ($660/张)</span></div>
+                        <div class="tier-row"><span class="tier-lbl">盈亏平衡价 (Breakeven):</span> <span class="tier-val td-pos">$258.40</span></div>
+                        <div class="tier-row"><span class="tier-lbl">单期收益率 (41D):</span> <span class="tier-val td-pos">2.49%</span></div>
+                        <div class="tier-row"><span class="tier-lbl">年化收益率 (Annualized):</span> <span class="tier-val td-pos" style="font-size: 14px; color: var(--emerald);">~ 22.2%</span></div>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+                            <strong>适用场景：</strong> 追求收益与建仓平衡的投资者，行权价位于第一技术强支撑位 $265，极具攻守性价比。
+                        </p>
+                    </div>
+
+                    <!-- TIER 3: AGGRESSIVE -->
+                    <div class="tier-card" style="border-top: 3px solid var(--amber);">
+                        <div class="tier-header" style="color: var(--amber);">🚀 进取建仓型策略 (Aggressive)</div>
+                        <div class="tier-row"><span class="tier-lbl">推荐行权价 (Strike):</span> <span class="tier-val">$275.00</span></div>
+                        <div class="tier-row"><span class="tier-lbl">价外程度 (OTM):</span> <span class="tier-val">平价 ATM (+0.2%)</span></div>
+                        <div class="tier-row"><span class="tier-lbl">Delta 估值:</span> <span class="tier-val">~ -0.51</span></div>
+                        <div class="tier-row"><span class="tier-lbl">单张权利金 (Mid):</span> <span class="tier-val">$10.93 ($1,093/张)</span></div>
+                        <div class="tier-row"><span class="tier-lbl">盈亏平衡价 (Breakeven):</span> <span class="tier-val td-pos">$264.07</span></div>
+                        <div class="tier-row"><span class="tier-lbl">单期收益率 (41D):</span> <span class="tier-val td-pos">3.97%</span></div>
+                        <div class="tier-row"><span class="tier-lbl">年化收益率 (Annualized):</span> <span class="tier-val td-pos" style="font-size: 14px; color: var(--emerald);">~ 35.4%</span></div>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+                            <strong>适用场景：</strong> 强烈看好后市并希望立即拿货的积极多头，即便按 $275 接盘，扣除权利金后实际建仓成本仅 $264.07。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 8: CATALYSTS & RISKS -->
+        <section class="section" id="sec-8">
+            <div class="section-head">
+                <div class="section-icon">⚖️</div>
+                <div>
+                    <h2 class="section-title">核心催化剂与风险压力测试 (Catalysts & Risk Assessment)</h2>
+                    <p class="section-sub">未来 6-12 个月关键价值催化因素与潜在利空风险全景扫描</p>
+                </div>
+                <div class="section-num">08 / 09</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                <div style="background: var(--slate-light); border-left: 4px solid var(--emerald); padding: 20px; border-radius: 8px;">
+                    <h3 style="font-size: 15px; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px;">🚀 核心利好催化剂 (Positive Catalysts)</h3>
+                    <ul>
+                        <li><strong>AWS re:Invent 大会与 AI 自研芯片量产：</strong>预计 Trainium3 芯片与 Bedrock 升级将进一步拉开与竞争对手的算力性价比差距，拉动企业级云签约量。</li>
+                        <li><strong>假日购物季与 Prime 会员大促 GMV 爆发：</strong>下半年 Prime Big Deal Days 及 Q4 黑五/网一电商 GMV 有望持续超预期。</li>
+                        <li><strong>数字广告变现深度挖掘：</strong>Prime Video 广告位填充率提升以及第三方广告联盟（Amazon DSP）对外扩张带来纯利增长。</li>
+                        <li><strong>资本开支效率提升：</strong>随着自建数据中心规模效益释放，资本开支增速逐步收敛，自由现金流迎来更猛烈释放。</li>
+                    </ul>
+                </div>
+
+                <div style="background: var(--slate-light); border-left: 4px solid var(--red); padding: 20px; border-radius: 8px;">
+                    <h3 style="font-size: 15px; font-weight: 700; color: var(--red); margin-bottom: 12px;">⚠️ 潜在利空风险 (Bear Case & Downside Risks)</h3>
+                    <ul>
+                        <li><strong>AI 资本开支回报率 (ROI) 滞后风险：</strong>若企业级 AI 应用落地放缓，高昂的 GPU/基础设施 Capex 可能对短期利润率构成一定摊薄压力。</li>
+                        <li><strong>全球宏观消费支出波动：</strong>通胀与利率环境下若北美及欧洲消费信心走弱，可能导致高客单价非必需品零售增速承压。</li>
+                        <li><strong>FTC 与反垄断监管审讯不确定性：</strong>针对亚马逊电商平台双重角色及 3P 卖家定价政策的反垄断诉讼仍处于漫长司法审理中。</li>
+                        <li><strong>公有云市场竞争加剧：</strong>微软 Azure 与谷歌 Google Cloud 在生成式大模型生态上的持续价格内卷。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 9: STANDARDIZED SIGNAL BLOCK -->
+        <section class="section" id="sec-9" style="background: transparent; border: none; padding: 0; box-shadow: none;">
+            <div class="signal-card">
+                <div class="signal-header">
+                    <div class="signal-title">INVESTSKILL 投资决策信号系统 (STANDARDIZED SIGNAL BLOCK)</div>
+                    <div style="font-size: 12px; opacity: .8;">NASDAQ: AMZN • 2026-08-08</div>
+                </div>
+
+                <div class="signal-main">
+                    <div class="signal-verdict">强烈看多 (STRONG BUY)</div>
+                    <div class="signal-score">8.8 / 10</div>
+                </div>
+
+                <p style="font-size: 14px; opacity: .9; max-width: 800px; line-height: 1.6;">
+                    亚马逊展现出全球最高壁垒的“商业+算力+广告”飞轮效应。估值处于历史中枢低位，利润率持续扩张，现金流充沛。建议中长期投资者坚定逢低布局或利用 Sell Put 策略锁定高确定性折价入场点。
+                </p>
+
+                <div class="signal-grid">
+                    <div class="sig-item">
+                        <span class="sig-label">投资评级 (Signal)</span>
+                        <span class="sig-val" style="color: #A7F3D0;">BULLISH / 强烈看多</span>
+                    </div>
+                    <div class="sig-item">
+                        <span class="sig-label">评级置信度 (Confidence)</span>
+                        <span class="sig-val">HIGH (高)</span>
+                    </div>
+                    <div class="sig-item">
+                        <span class="sig-label">建议持有周期 (Horizon)</span>
+                        <span class="sig-val">MEDIUM TO LONG-TERM (6-18M)</span>
+                    </div>
+                    <div class="sig-item">
+                        <span class="sig-label">12个月目标价 (Target)</span>
+                        <span class="sig-val" style="color: #A7F3D0;">$335.00 (+22.0%)</span>
+                    </div>
+                    <div class="sig-item">
+                        <span class="sig-label">建议建仓策略 (Strategy)</span>
+                        <span class="sig-val">分批买入 / Sell Put $265</span>
+                    </div>
+                    <div class="sig-item">
+                        <span class="sig-label">关键止损防线 (Stop Loss)</span>
+                        <span class="sig-val">$235.00 (200 DMA)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer style="text-align: center; padding: 40px 20px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); background: #fff;">
+        <p>InvestSkill — 专业美股投资分析量化系统 • 报告仅供投资研究与学术交流，不构成具体投资建议</p>
+        <p style="margin-top: 6px;">Generated on 2026-08-08 for AMZN (Amazon.com, Inc.)</p>
+    </footer>
+
+    <script>
+        // Chart.js Configuration
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('amznGrowthChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['FY 2022', 'FY 2023', 'FY 2024', 'FY 2025', 'TTM (2026)'],
+                    datasets: [
+                        {
+                            label: '营业总收入 ($ Billions)',
+                            data: [513.98, 574.79, 637.96, 716.92, 775.68],
+                            backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                            borderColor: '#10B981',
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '营业利润 ($ Billions)',
+                            data: [12.25, 36.85, 68.59, 79.98, 106.18],
+                            backgroundColor: 'rgba(4, 120, 87, 0.85)',
+                            borderColor: '#064E3B',
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            yAxisID: 'y1',
+                            type: 'line',
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: '#047857'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'Inter', size: 12 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(c) {
+                                    return c.dataset.label + ': $' + c.raw.toFixed(2) + ' B';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: '总营收 ($B)' },
+                            grid: { color: '#F1F5F9' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: '营业利润 ($B)' },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

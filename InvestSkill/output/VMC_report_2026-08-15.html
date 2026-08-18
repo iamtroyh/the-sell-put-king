@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Vulcan Materials (VMC) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid #34D399; }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 880px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #F1F5F9;
+        }
+        .sec-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 13px;
+            margin-right: 10px;
+        }
+        .sec-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #F1F5F9;
+            color: var(--slate);
+            text-transform: uppercase;
+        }
+
+        h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 18px 0 10px; }
+        h4 { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: .4px; }
+        p { margin-bottom: 12px; color: var(--text-secondary); font-size: 14px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+        .card-emerald { background: #ECFDF5; border-color: #A7F3D0; }
+        .card-amber { background: #FEF3C7; border-color: #FDE68A; }
+        .card-red { background: #FEE2E2; border-color: #FECACA; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+
+        .metric-item {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #E2E8F0;
+            padding-bottom: 4px;
+        }
+        .metric-item:last-child { border-bottom: none; }
+        .metric-lbl { font-size: 12px; color: var(--slate); font-weight: 500; }
+        .metric-val { font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 14px 0 20px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+            min-width: 600px;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-primary);
+            font-weight: 700;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-highlight { font-weight: 700; color: var(--primary); }
+        .td-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            margin: 16px 0;
+        }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 18px;
+            border-radius: 0 10px 10px 0;
+            margin: 16px 0;
+            font-size: 13.5px;
+            color: #064E3B;
+        }
+        .callout-title { font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            color: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            margin-top: 32px;
+            box-shadow: 0 12px 32px rgba(5,150,105,0.25);
+            border: 1px solid #10B981;
+        }
+        .signal-block-title { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700; text-align: center; margin-bottom: 18px; }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+        }
+        .sig-cell { text-align: center; }
+        .sig-label { font-size: 11px; text-transform: uppercase; color: #D1FAE5; margin-bottom: 4px; }
+        .sig-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #fff; }
+        .signal-verdict { font-size: 26px; font-weight: 900; color: #34D399; text-shadow: 0 0 12px rgba(52,211,153,0.5); }
+        .signal-score { font-size: 28px; font-weight: 900; color: #FCD34D; }
+
+        .tier-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .tier-cons { background: #DBEAFE; color: #1D4ED8; }
+        .tier-mod { background: #D1FAE5; color: #065F46; }
+        .tier-agg { background: #FEF3C7; color: #92400E; }
+
+        @media (max-width: 768px) {
+            .report-hero { padding: 32px 16px; }
+            .hero-title { font-size: 24px; }
+            .main-wrap { padding: 20px 14px; }
+            .section { padding: 20px 16px; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: VMC</span>
+            <span class="badge badge-hero-signal">看多 (BULLISH)</span>
+            <span class="badge badge-hero-cat">全美第一大骨料生产商 / IIJA联邦基建核心受益标的</span>
+            <span class="badge badge-hero-cat">报告日期: 2026-08-15</span>
+        </div>
+        <h1 class="hero-title">Vulcan Materials Company (VMC) 15模块全景深度投研与多因子量化评估报告</h1>
+        <div class="hero-sub">
+            全美出货量第一的骨料（Aggregates）绝对霸主，坐拥 156 亿吨可采储量（可供开采 70+ 年）；凭借 50 英里卡车经济运输半径与沿海/铁路专线物流网构筑不可逾越的地理护城河，骨料连年双位数复合提价，“以价补量”穿越周期，深度受益于 IIJA 联邦基建法案拨款高峰与高端制造业建厂浪潮。
+        </div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot Price)</div>
+                <div class="hero-kpi-val">$282.00</div>
+                <div class="hero-kpi-sub">52周区间: $251.38 - $329.20</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$36.54B</div>
+                <div class="hero-kpi-sub">企业价值 EV: $41.29B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Forward P/E)</div>
+                <div class="hero-kpi-val">26.1x</div>
+                <div class="hero-kpi-sub">TTM PE: 33.2x | PEG: 2.43</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 营业收入 / 净利润</div>
+                <div class="hero-kpi-val">$8.12B / $1.12B</div>
+                <div class="hero-kpi-sub">毛利率: 27.5% | 营业利润率: 21.6%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师目标价均值</div>
+                <div class="hero-kpi-val">$325.55</div>
+                <div class="hero-kpi-sub">最高目标价: $365.00 (+29.4%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">量化综合评分</div>
+                <div class="hero-kpi-val" style="color: #FCD34D;">8.4 / 10</div>
+                <div class="hero-kpi-sub">评级: 看多 (BULLISH)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+
+    <nav class="toc-bar">
+        <div class="toc-title">报告模块快速导航 (15 Comprehensive Modules)</div>
+        <div class="toc-links">
+            <a class="toc-link" href="#sec-1">1. 执行摘要与投资核心逻辑</a>
+            <a class="toc-link" href="#sec-2">2. 多因子量化评分雷达</a>
+            <a class="toc-link" href="#sec-3">3. 商业模式与波特五力护城河</a>
+            <a class="toc-link" href="#sec-4">4. 财务报表与盈利质量</a>
+            <a class="toc-link" href="#sec-5">5. 杜邦三因子拆解</a>
+            <a class="toc-link" href="#sec-6">6. 行业竞争格局与同行对标</a>
+            <a class="toc-link" href="#sec-7">7. DCF 估值与敏感性模型</a>
+            <a class="toc-link" href="#sec-8">8. 技术面量化与均线筹码</a>
+            <a class="toc-link" href="#sec-9">9. 资本配置与股息政策</a>
+            <a class="toc-link" href="#sec-10">10. 现金担保卖 Put 收益增强</a>
+            <a class="toc-link" href="#sec-11">11. 机构持仓与 13F 资金动向</a>
+            <a class="toc-link" href="#sec-12">12. 内部人交易与财报情绪</a>
+            <a class="toc-link" href="#sec-13">13. 做空比例与轧空风险</a>
+            <a class="toc-link" href="#sec-14">14. 核心风险矩阵与压力测试</a>
+            <a class="toc-link" href="#sec-15">15. 催化剂日历与增长路线图</a>
+            <a class="toc-link" href="#sec-16">16. 最终评级与信号区块</a>
+        </div>
+    </nav>
+
+    <!-- MODULE 1: 执行摘要与核心投资逻辑 -->
+    <section class="section" id="sec-1">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">01</span> 执行摘要与投资核心逻辑 (Executive Summary & Thesis)</div>
+            <span class="sec-tag">Thesis</span>
+        </div>
+        <p><strong>Vulcan Materials Company (NYSE: VMC)</strong> 总部位于阿拉巴马州伯明翰，是标普500成分股，全美最大的建筑用骨料（碎石、砂石、砾石）生产商，同时经营沥青混合料与预拌混凝土业务。公司在全美 22 个州及哥伦比亚特区、墨西哥和巴哈马拥有超过 400 处生产设施与沿海分销场站，服务全美增长最快的核心都会区。</p>
+        
+        <div class="grid-3">
+            <div class="card card-emerald">
+                <h4>核心看多逻辑 1: 156亿吨优质储量与地理垄断</h4>
+                <p style="font-size: 13px; margin: 0;">VMC 拥有全美无可匹敌的 156 亿吨探明及概略骨料储量，平均开采寿命超过 70 年。骨料运输成本极高（卡车经济半径仅 50 英里），采石场环保许可审批基本冻结，形成极宽的区域排他性护城河与不可逆提价权（连续 12 年保持单价提升）。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>核心看多逻辑 2: 公共基建与非住宅制造业大周期</h4>
+                <p style="font-size: 13px; margin: 0;">终端需求中公共基础设施（公路、桥梁、港口）占比高达 50% 左右。随着 $1.2T IIJA 资金拨付在 2025-2027 年迎来历史施工峰值，加之 CHIPS 芯片法案及 AI 数据中心对超厚重载地基的庞大需求，重型非住宅需求保持高景气。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>核心看多逻辑 3: 估值从高位消化完毕与现金流充沛</h4>
+                <p style="font-size: 13px; margin: 0;">股价从 52 周高点 $331 回落至 $282 附近，充分消化了二季度短期极端降雨导致的出货延误预期。2025 年自由现金流跨越 $1.1B，资产负债率仅 58%，净负债/EBITDA 不足 2.1x，处于历史最健康的资产负债状态。</p>
+            </div>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">💡 投资核心研判 (Verdict)</div>
+            骨料是现代工业社会最基础且不可替代的重资产必需品（每英里 4 车道州际公路需消耗约 38,000 吨骨料）。VMC 凭借无可替代的矿产储量和多式联运分销网络，具备极强的抗通胀与穿越宏观周期能力。当前 $280 附近提供了优异的中长期防御兼进攻配置窗口。
+        </div>
+    </section>
+
+    <!-- MODULE 2: 多因子量化评分雷达模型 -->
+    <section class="section" id="sec-2">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">02</span> 多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</div>
+            <span class="sec-tag">Quant Model</span>
+        </div>
+        <p>基于 InvestSkill 多因子量化评估系统，对 VMC 从护城河与储量壁垒、定价权与盈利质量、基建驱动成长性、资产负债健康度、估值性价比、技术面动量 6 大维度进行 10 分制量化建模，综合得分 <strong>8.4 / 10</strong>。</p>
+
+        <div class="grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评估维度</th>
+                                <th>得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与量化指标</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>护城河与资源储量 (Moat)</strong></td>
+                                <td class="td-highlight td-mono">9.9 / 10</td>
+                                <td>25%</td>
+                                <td>全美第一大骨料矿产储量（156亿吨/70年寿命），沿海与铁路专网垄断</td>
+                            </tr>
+                            <tr>
+                                <td><strong>定价权与盈利质量 (Pricing)</strong></td>
+                                <td class="td-highlight td-mono">9.2 / 10</td>
+                                <td>20%</td>
+                                <td>骨料 ASP 每年调升 10-12%，毛利率 27.5%，营业利润率 21.6%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>基建驱动与成长性 (Growth)</strong></td>
+                                <td class="td-highlight td-mono">8.6 / 10</td>
+                                <td>20%</td>
+                                <td>公共基础设施占 50% 需求，深度受益 IIJA 拨款峰值与 AI 重载基建</td>
+                            </tr>
+                            <tr>
+                                <td><strong>财务健康与现金流 (Financials)</strong></td>
+                                <td class="td-highlight td-mono">8.2 / 10</td>
+                                <td>15%</td>
+                                <td>投资级 BBB+，净负债/EBITDA 约 2.1x，2025 年 FCF 达 $1.14B</td>
+                            </tr>
+                            <tr>
+                                <td><strong>估值水平 (Valuation)</strong></td>
+                                <td class="td-highlight td-mono">7.0 / 10</td>
+                                <td>10%</td>
+                                <td>Forward P/E 26.1x，EV/EBITDA 17.7x，处于合理估值区间偏下沿</td>
+                            </tr>
+                            <tr>
+                                <td><strong>技术面与动量 (Technicals)</strong></td>
+                                <td class="td-highlight td-mono">6.8 / 10</td>
+                                <td>10%</td>
+                                <td>站上 20 日均线 ($280.59)，MACD 柱状图翻红，接近 50/200 均线重叠位</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权总分 (Total Score)</strong></td>
+                                <td style="color: #059669; font-size: 16px;" class="td-mono">8.4 / 10</td>
+                                <td>100%</td>
+                                <td><strong>看多 (BULLISH)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 3: 商业模式、垂直整合与波特五力护城河评级 -->
+    <section class="section" id="sec-3">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">03</span> 商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="sec-tag">Moat Analysis</span>
+        </div>
+        <p>Vulcan Materials 采用以<strong>骨料为核心（Aggregates-Led Strategy）</strong>的重型建材纵向一体化模式。公司 75% 以上的毛利来自于骨料生产销售，剩余部分由下游沥青和混凝土加工转化消化。</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>核心竞争优势与多式联运网络</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 6px;"><strong>沿海船运与铁路专网：</strong>公司开创性建立了连接墨西哥/加勒比海采石场与美西加州、墨西哥湾沿岸主要港口的自有深水船运和铁路专线分销网络，绕过卡车运距瓶颈，在沿海极度缺石料都会区形成独家供给。</li>
+                    <li style="margin-bottom: 6px;"><strong>极度分散的下游客户群：</strong>数以千计的公路总包商、市政开发商与商业承建商，单一最大客户营收占比不足 2%，公司拥有绝对的产品定价主导权。</li>
+                    <li style="margin-bottom: 6px;"><strong>长期矿山复垦与土地价值：</strong>采石场寿命耗尽后可转化为城市蓄水池、商业用地或垃圾填埋场，具备极高的期末残值。</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>波特五力模型量化评级</h4>
+                <div class="metric-item">
+                    <span class="metric-lbl">1. 供应商议价能力 (Supplier Power)</span>
+                    <span class="metric-val" style="color: #059669;">极弱 (自有矿山资源，无需外购原料)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">2. 买方议价能力 (Buyer Power)</span>
+                    <span class="metric-val" style="color: #059669;">弱 (工程材料成本占比仅 2-4%，但不可或缺)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">3. 潜在进入者威胁 (New Entrants)</span>
+                    <span class="metric-val" style="color: #059669;">极弱 (环保准入壁垒极高，新批采石场几无可能)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">4. 替代品威胁 (Substitutes)</span>
+                    <span class="metric-val" style="color: #059669;">无 (无任何其他材料可在土木工程中替代砂石)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">5. 行业内部竞争 (Industry Rivalry)</span>
+                    <span class="metric-val" style="color: #059669;">极弱 (与 MLM 形成区域默契双寡头，竞合共赢)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 4: 核心财务报表与盈利质量深度剖析 -->
+    <section class="section" id="sec-4">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">04</span> 核心财务报表与盈利质量深度剖析 (Financial Statements & Quality)</div>
+            <span class="sec-tag">Financials</span>
+        </div>
+        <p>公司过去 4 年营业收入由 $7.32B 稳步增长至 <strong>$7.94B（TTM $8.12B）</strong>，营业利润由 $1.01B 飙升至 $1.57B，营业利润率从 13.8% 持续攀升至 <strong>21.6%</strong>，呈现出典型的利润率逐年扩张特征。</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (单位: 亿美元)</th>
+                        <th>FY2022</th>
+                        <th>FY2023</th>
+                        <th>FY2024</th>
+                        <th>FY2025</th>
+                        <th>TTM (最新12个月)</th>
+                        <th>4年复合表现</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业收入 (Revenue)</strong></td>
+                        <td class="td-mono">$7.32B</td>
+                        <td class="td-mono">$7.78B</td>
+                        <td class="td-mono">$7.42B</td>
+                        <td class="td-mono td-highlight">$7.94B</td>
+                        <td class="td-mono td-highlight">$8.12B</td>
+                        <td class="td-mono" style="color: #059669;">量稳价增 (+2.7% 营收复合增速)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="td-mono">$1.56B (21.3%)</td>
+                        <td class="td-mono">$1.95B (25.0%)</td>
+                        <td class="td-mono">$2.00B (27.0%)</td>
+                        <td class="td-mono td-highlight">$2.17B (27.4%)</td>
+                        <td class="td-mono td-highlight">$2.23B (27.5%)</td>
+                        <td class="td-mono" style="color: #059669;">毛利率持续抬升 +620 bps</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="td-mono">$1.01B</td>
+                        <td class="td-mono">$1.38B</td>
+                        <td class="td-mono">$1.40B</td>
+                        <td class="td-mono td-highlight">$1.57B</td>
+                        <td class="td-mono td-highlight">$1.75B</td>
+                        <td class="td-mono" style="color: #059669;">年化复合增长 +15.8%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>调整后 EBITDA</strong></td>
+                        <td class="td-mono">$1.53B</td>
+                        <td class="td-mono">$2.04B</td>
+                        <td class="td-mono">$1.98B</td>
+                        <td class="td-mono td-highlight">$2.36B</td>
+                        <td class="td-mono td-highlight">$2.34B</td>
+                        <td class="td-mono" style="color: #059669;">EBITDA 利润率突破 29%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>稀释每股收益 (Diluted EPS)</strong></td>
+                        <td class="td-mono">$4.31</td>
+                        <td class="td-mono">$6.98</td>
+                        <td class="td-mono">$6.85</td>
+                        <td class="td-mono td-highlight">$8.11</td>
+                        <td class="td-mono td-highlight">$8.49</td>
+                        <td class="td-mono" style="color: #059669;">年化复合增长 +25.5%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营现金流 (Operating CF)</strong></td>
+                        <td class="td-mono">$1.15B</td>
+                        <td class="td-mono">$1.54B</td>
+                        <td class="td-mono">$1.41B</td>
+                        <td class="td-mono td-highlight">$1.81B</td>
+                        <td class="td-mono td-highlight">$1.80B</td>
+                        <td class="td-mono" style="color: #059669;">极度健康的造血能力</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="td-mono">$0.54B</td>
+                        <td class="td-mono">$0.66B</td>
+                        <td class="td-mono">$0.81B</td>
+                        <td class="td-mono td-highlight">$1.14B</td>
+                        <td class="td-mono td-highlight">$0.84B</td>
+                        <td class="td-mono" style="color: #059669;">首次跨越 $1.1B 大关</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <h4>骨料单吨毛利表现 (Cash Gross Margin/Ton)</h4>
+                <p style="font-size: 12.5px; margin: 0;">骨料每吨现金毛利达到创纪录的 <strong>$10.25/吨</strong>（较 2021 年的 $5.80/吨几乎翻倍），展现了无与伦比的单位通胀转嫁能力。</p>
+            </div>
+            <div class="card">
+                <h4>资本开支纪律 (Capex Discipline)</h4>
+                <p style="font-size: 12.5px; margin: 0;">维持性资本开支（Maintenance Capex）占营收比例控制在 4-5%，增长性开支聚焦于自动化智能输送皮带系统，整体资本开支稳定在 $650M-$700M。</p>
+            </div>
+            <div class="card">
+                <h4>资产负债表与偿债能力</h4>
+                <p style="font-size: 12.5px; margin: 0;">总负债约 $4.88B，净负债/EBITDA 下降至 2.1x，加权平均利息成本低于 4.3%，债务到期结构极其平滑，标普与穆迪分别给予 BBB+/Baa1 评级。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 5: 杜邦三因子拆解与资本运营效率 -->
+    <section class="section" id="sec-5">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">05</span> 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+            <span class="sec-tag">DuPont Analysis</span>
+        </div>
+        <p>通过经典杜邦分析法（$ROE = \text{净利润率} \times \text{资产周转率} \times \text{权益乘数}$），拆解 VMC 股东回报率的增长动能：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>年度</th>
+                        <th>净利润率 (Net Margin)</th>
+                        <th>资产周转率 (Asset Turnover)</th>
+                        <th>权益乘数 (Financial Leverage)</th>
+                        <th>净资产收益率 (ROE)</th>
+                        <th>归因分析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2022</strong></td>
+                        <td class="td-mono">7.87%</td>
+                        <td class="td-mono">0.51次</td>
+                        <td class="td-mono">2.05x</td>
+                        <td class="td-mono">8.31%</td>
+                        <td>燃油和劳动力通胀短期挤压利润率</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td class="td-mono">11.99%</td>
+                        <td class="td-mono">0.54次</td>
+                        <td class="td-mono">1.94x</td>
+                        <td class="td-mono">12.47%</td>
+                        <td>主动实施动态提价，净利率迅速反弹</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td class="td-mono">12.29%</td>
+                        <td class="td-mono">0.43次</td>
+                        <td class="td-mono">2.11x</td>
+                        <td class="td-mono">11.23%</td>
+                        <td>恶劣降雨天气扰动出货量周转</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025 (最新)</strong></td>
+                        <td class="td-mono td-highlight">13.56%</td>
+                        <td class="td-mono td-highlight">0.48次</td>
+                        <td class="td-mono td-highlight">1.96x</td>
+                        <td class="td-mono td-highlight" style="color: #059669; font-weight: 800;">12.63%</td>
+                        <td><strong>纯净利率扩张驱动的高质量 ROE 稳步上行</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">📌 杜邦拆解核心洞察</div>
+            VMC 的 ROE 自 2022 年以来从 8.3% 提升至近 13%，且<strong>财务杠杆（权益乘数）反而从 2.05x 降至 1.96x</strong>。这充分证明公司的资本回报提升是完全由<strong>内生净利润率扩张（从 7.9% 提升至 13.6%）</strong>驱动，具有极高的含金量与防御属性。
+        </div>
+    </section>
+
+    <!-- MODULE 6: 行业竞争格局与同行全景对标矩阵 -->
+    <section class="section" id="sec-6">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">06</span> 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="sec-tag">Peer Matrix</span>
+        </div>
+        <p>将 Vulcan Materials 与同业竞争对手（Martin Marietta、CRH plc、Eagle Materials、Cemex）进行全维度横向对标：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>证券代码</th>
+                        <th>公司名称</th>
+                        <th>当前市值</th>
+                        <th>前瞻 P/E</th>
+                        <th>EV/EBITDA</th>
+                        <th>毛利率</th>
+                        <th>营业利润率</th>
+                        <th>股息收益率</th>
+                        <th>资产负债率 (Debt/Eq)</th>
+                        <th>核心业务特色</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>VMC</strong></td>
+                        <td>Vulcan Materials</td>
+                        <td class="td-mono td-highlight">$36.54B</td>
+                        <td class="td-mono td-highlight">26.13x</td>
+                        <td class="td-mono td-highlight">17.7x</td>
+                        <td class="td-mono td-highlight">27.51%</td>
+                        <td class="td-mono td-highlight">21.61%</td>
+                        <td class="td-mono td-highlight">0.74%</td>
+                        <td class="td-mono td-highlight">57.3%</td>
+                        <td><strong>全美骨料总出货量第一，加州与东南部物流网络垄断</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>MLM</strong></td>
+                        <td>Martin Marietta</td>
+                        <td class="td-mono">$33.00B</td>
+                        <td class="td-mono">25.5x</td>
+                        <td class="td-mono">18.4x</td>
+                        <td class="td-mono">28.2%</td>
+                        <td class="td-mono">20.2%</td>
+                        <td class="td-mono">0.61%</td>
+                        <td class="td-mono">56.9%</td>
+                        <td>得州与阳光带采石场龙头，聚焦纯骨料</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CRH</strong></td>
+                        <td>CRH plc</td>
+                        <td class="td-mono">$64.63B</td>
+                        <td class="td-mono">14.7x</td>
+                        <td class="td-mono">10.5x</td>
+                        <td class="td-mono">36.3%</td>
+                        <td class="td-mono">14.8%</td>
+                        <td class="td-mono">1.61%</td>
+                        <td class="td-mono">77.6%</td>
+                        <td>全球综合建材巨头，包含欧洲重资产与道路承包</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EXP</strong></td>
+                        <td>Eagle Materials</td>
+                        <td class="td-mono">$6.40B</td>
+                        <td class="td-mono">14.5x</td>
+                        <td class="td-mono">9.8x</td>
+                        <td class="td-mono">27.0%</td>
+                        <td class="td-mono">25.1%</td>
+                        <td class="td-mono">0.48%</td>
+                        <td class="td-mono">120.7%</td>
+                        <td>美国水泥与石膏板制造龙头，偏向住宅内装</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CX</strong></td>
+                        <td>Cemex SAB</td>
+                        <td class="td-mono">$15.96B</td>
+                        <td class="td-mono">12.0x</td>
+                        <td class="td-mono">7.2x</td>
+                        <td class="td-mono">33.0%</td>
+                        <td class="td-mono">11.6%</td>
+                        <td class="td-mono">0.89%</td>
+                        <td class="td-mono">53.6%</td>
+                        <td>墨西哥及拉美水泥龙头，周期波动剧烈</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-emerald">
+                <h4>对标总结 1: 双寡头享有全行业最高定价权</h4>
+                <p style="font-size: 13px; margin: 0;">VMC 与 MLM 牢牢控制全美骨料核心供给，二者营业利润率均超 20%，远高于综合建材商（如 CRH 的 14.8%），理应享有估值溢价。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>对标总结 2: 沿海多式联运网络具备排他性</h4>
+                <p style="font-size: 13px; margin: 0;">相比 MLM 偏重于内陆得州卡车运输，VMC 在加州与墨西哥湾拥有独家船运和沿海卸货港口网络，在沿海基建项目中独占鳌头。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 7: DCF 现金流折现与内在价值三情景敏感性模型 -->
+    <section class="section" id="sec-7">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">07</span> DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+            <span class="sec-tag">DCF Model</span>
+        </div>
+        <p>基于 5 年期自由现金流折现模型（2026-2030），终值永续增长率 $g = 2.8\%$，无风险利率 $R_f = 4.25\%$，Beta $\beta = 1.06$，股权风险溢价 $ERP = 5.0\%$，测算加权平均资本成本 <strong>WACC = 7.9%</strong>。</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>情景分类</th>
+                        <th>年复合营收增速 (2026-30)</th>
+                        <th>稳态 EBITDA 利润率</th>
+                        <th>核心假设</th>
+                        <th>每股内在价值 (Fair Value)</th>
+                        <th>较现价 ($282.00) 空间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #FEE2E2;">
+                        <td><strong>悲观情景 (Bear Case)</strong></td>
+                        <td class="td-mono">3.5%</td>
+                        <td class="td-mono">26.0%</td>
+                        <td style="font-size: 12px;">降息不及预期，极端天气频繁扰动开工</td>
+                        <td class="td-mono" style="font-weight: 800; color: #DC2626;">$245.00</td>
+                        <td class="td-mono" style="color: #DC2626;">-13.1%</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>基准情景 (Base Case)</strong></td>
+                        <td class="td-mono">8.0%</td>
+                        <td class="td-mono">30.0%</td>
+                        <td style="font-size: 12px;">IIJA 基建集中施工，骨料每年提价 8-10%</td>
+                        <td class="td-mono" style="font-weight: 800; color: #059669; font-size: 15px;">$338.00</td>
+                        <td class="td-mono" style="color: #059669;">+19.9%</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><strong>乐观情景 (Bull Case)</strong></td>
+                        <td class="td-mono">12.5%</td>
+                        <td class="td-mono">33.0%</td>
+                        <td style="font-size: 12px;">住宅与公共基建双轮驱动，沿海船运放量</td>
+                        <td class="td-mono" style="font-weight: 800; color: #2563EB;">$395.00</td>
+                        <td class="td-mono" style="color: #2563EB;">+40.1%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h4>WACC 与永续增长率 (g) 敏感性矩阵 (基准情景每股价值)</h4>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ g</th>
+                        <th>2.0%</th>
+                        <th>2.5%</th>
+                        <th>2.8% (基准)</th>
+                        <th>3.2%</th>
+                        <th>3.5%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>6.9% (-100bp)</strong></td>
+                        <td class="td-mono">$362.40</td>
+                        <td class="td-mono">$388.10</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">$406.80</td>
+                        <td class="td-mono">$432.50</td>
+                        <td class="td-mono">$458.20</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>7.9% (基准 WACC)</strong></td>
+                        <td class="td-mono">$306.80</td>
+                        <td class="td-mono">$324.50</td>
+                        <td class="td-mono td-highlight" style="font-size: 14px;">$338.00</td>
+                        <td class="td-mono">$355.20</td>
+                        <td class="td-mono">$371.40</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8.9% (+100bp)</strong></td>
+                        <td class="td-mono">$264.20</td>
+                        <td class="td-mono">$277.60</td>
+                        <td class="td-mono">$286.90</td>
+                        <td class="td-mono">$298.50</td>
+                        <td class="td-mono">$309.80</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 8: 技术面量化、均线系统与关键筹码位 -->
+    <section class="section" id="sec-8">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">08</span> 技术面量化、均线系统与关键筹码位 (Technical Analysis)</div>
+            <span class="sec-tag">Technicals</span>
+        </div>
+        <p>股价在经历 4 个月的回调后，在 <strong>$270 - $280 强支撑带构筑坚实底部</strong>，目前重新站上 20 日均线 ($280.59)，MACD 指标在零轴下方形成金叉，动能柱翻红。</p>
+
+        <div class="grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>技术指标</th>
+                                <th>当前数值</th>
+                                <th>状态判定</th>
+                                <th>交易策略信号</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>现价 (Price)</strong></td>
+                                <td class="td-mono td-highlight">$282.00</td>
+                                <td>底部企稳反弹</td>
+                                <td>脱离 52 周底部区间 ($252)，呈现企稳回升态势</td>
+                            </tr>
+                            <tr>
+                                <td><strong>20日均线 (SMA20)</strong></td>
+                                <td class="td-mono">$280.59</td>
+                                <td style="color: #059669; font-weight: 700;">向上站上 (Bullish)</td>
+                                <td>短线第一道动态支撑</td>
+                            </tr>
+                            <tr>
+                                <td><strong>50日均线 (SMA50)</strong></td>
+                                <td class="td-mono">$288.06</td>
+                                <td>上方压力</td>
+                                <td>第一波反弹目标位</td>
+                            </tr>
+                            <tr>
+                                <td><strong>200日均线 (SMA200)</strong></td>
+                                <td class="td-mono">$288.54</td>
+                                <td>牛熊分水岭</td>
+                                <td>SMA50 与 SMA200 粘合于 $288，突破将确立中线上行趋势</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RSI (14日相对强弱)</strong></td>
+                                <td class="td-mono">48.5</td>
+                                <td>中性蓄势 (48.5)</td>
+                                <td>脱离超卖，具备充沛的上行扩张空间</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MACD (12, 26, 9)</strong></td>
+                                <td class="td-mono">Dif: -1.61 / Hist: +0.32</td>
+                                <td style="color: #059669; font-weight: 700;">金叉放量</td>
+                                <td>绿柱翻红，发出右侧确认信号</td>
+                            </tr>
+                            <tr>
+                                <td><strong>关键支撑与阻力</strong></td>
+                                <td colspan="3" style="font-size: 12px;">
+                                    <strong>第一支撑:</strong> $275.00 | <strong>主支撑 (强筹码底):</strong> $265.00<br>
+                                    <strong>第一阻力:</strong> $288.50 (SMA50/200 粘合处) | <strong>主阻力:</strong> $315.00
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 9: 资本配置、股息政策与股东回报披露 -->
+    <section class="section" id="sec-9">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">09</span> 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</div>
+            <span class="sec-tag">Capital Allocation</span>
+        </div>
+        <p>公司恪守严格的资本配置纪律，打造<strong>“连续增息 + 机会主义股票回购 + 矿山外延并购”</strong>的高质量股东回报机制：</p>
+
+        <div class="grid-2">
+            <div class="card card-emerald">
+                <h4>股息政策透明披露 (Mandatory Dividend Disclosure)</h4>
+                <div class="metric-item">
+                    <span class="metric-lbl">股息派发状态 (Dividend Status)</span>
+                    <span class="metric-val" style="color: #059669; font-weight: 800;">按季度持续派息 (Active Dividend Payer)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">股息收益率 (Dividend Yield)</span>
+                    <span class="metric-val">0.74%</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">年度派息金额 (Annual Payout)</span>
+                    <span class="metric-val">$2.08 / 股 ($0.52 / 季)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">派息率 (Payout Ratio)</span>
+                    <span class="metric-val">23.82% (极度安全)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">连续增息历史 (Dividend Aristocrat Potential)</span>
+                    <span class="metric-val">连续 10 年以上稳步调升</span>
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); margin-top: 10px;">
+                    <strong>股息安全性与增长确定性：</strong>派息率仅为 23.8%，年度股息总额约 $260M，仅占公司自由现金流（$1.14B）约 23%，现金流覆盖倍数达 4.4 倍，增息空间巨大。
+                </p>
+            </div>
+            <div class="card">
+                <h4>股票回购与兼并收购</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 8px;"><strong>常态化股票回购：</strong>2025 年执行 $438M 股票回购，进一步增厚每股收益 (EPS)。</li>
+                    <li style="margin-bottom: 8px;"><strong>严守 ROIC 的补强并购：</strong>公司专注于收购具有地理协同效应的独立采石场（Bolt-on Acquisitions），过去 10 年累计并购超 30 处矿山，整合后 EBITDA 利润率普遍提升 300-500 bps。</li>
+                    <li style="margin-bottom: 8px;"><strong>充沛投资级流动性：</strong>总可用流动性超过 $1.5B（含未动用信贷额度），为应对潜在行业整合提供充足弹药。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10: 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 -->
+    <section class="section" id="sec-10">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">10</span> 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="sec-tag">Options Strategy</span>
+        </div>
+        <p>鉴于 VMC 在 $270 附近具备坚实筹码支撑，且隐含波动率保持在 ~30-35% 的健康水平，采用<strong>现金担保卖出看跌期权（Cash-Secured Sell Put）</strong>能有效降低持仓成本并锁定丰厚权利金。选取到期日为 <strong>2026年9月18日（DTE 34天）</strong>的期权链设计三档策略：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>行权价 (Strike)</th>
+                        <th>Delta (估算)</th>
+                        <th>权利金报价 (Bid / Ask / Mid)</th>
+                        <th>安全边际 (较现价折价)</th>
+                        <th>保本入场价 (Breakeven)</th>
+                        <th>单期收益率 (34天)</th>
+                        <th>年化收益率 (Annualized)</th>
+                        <th>策略执行逻辑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="tier-tag tier-cons">保守型 (Conservative)</span></td>
+                        <td class="td-mono" style="font-weight: 700;">$260.00</td>
+                        <td class="td-mono">~0.18</td>
+                        <td class="td-mono">$1.05 / $3.70 (Mid $2.38)</td>
+                        <td class="td-mono" style="color: #059669;">-7.8% (强支撑下方)</td>
+                        <td class="td-mono td-highlight">$257.62</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">0.92%</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">~9.8%</td>
+                        <td>超高安全垫，在接近 52 周最低价 ($252) 处稳健收租</td>
+                    </tr>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tier-tag tier-mod">温和型 (Moderate)</span></td>
+                        <td class="td-mono" style="font-weight: 700; color: #059669;">$270.00</td>
+                        <td class="td-mono">~0.30</td>
+                        <td class="td-mono">$3.20 / $5.40 (Mid $4.30)</td>
+                        <td class="td-mono" style="color: #059669;">-4.3% (近期筹码底部)</td>
+                        <td class="td-mono td-highlight">$265.70</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">1.59%</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 800;">~17.1%</td>
+                        <td><strong>推荐首选档位：</strong>以 $265.70 极佳价格吸筹或实现 17%+ 年化权利金</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tier-tag tier-agg">激进型 (Aggressive)</span></td>
+                        <td class="td-mono" style="font-weight: 700;">$280.00</td>
+                        <td class="td-mono">~0.48</td>
+                        <td class="td-mono">$6.20 / $9.20 (Mid $7.70)</td>
+                        <td class="td-mono">-0.7% (平值 ATM 附近)</td>
+                        <td class="td-mono td-highlight">$272.30</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">2.75%</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">~29.5%</td>
+                        <td>看好即刻反弹突破，以 $272.30 成本拿筹并赚取最大时间价值</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">🎯 Sell Put 策略执行指导</div>
+            <strong>操作建议：</strong>按 1 张期权合约需准备 $27,000 现金担保。卖出 1 张 $270 Strike 的 Put（权利金约 $430）。若到期股价保持在 $270 以上，全额赚取权利金；若被行权，实际建仓成本仅为 <strong>$265.70</strong>，对应前瞻 P/E 仅 24.6x，享有极佳的安全边际。
+        </div>
+    </section>
+
+    <!-- MODULE 11: 机构持仓与主力资金动向 -->
+    <section class="section" id="sec-11">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">11</span> 机构持仓与主力资金动向 (Institutional Ownership)</div>
+            <span class="sec-tag">Smart Money</span>
+        </div>
+        <p>VMC 机构持股比例高达 <strong>88.9%</strong>，华尔街核心长线保险与公募基金底仓极度稳固：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (Top 13F Holders)</th>
+                        <th>报告持股日期</th>
+                        <th>持股比例 (pctHeld)</th>
+                        <th>持股股数 (Shares)</th>
+                        <th>最新持仓市值 (USD)</th>
+                        <th>季度仓位变动</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Blackrock Inc.</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">7.50%</td>
+                        <td class="td-mono">9,723,208</td>
+                        <td class="td-mono">$2.74B</td>
+                        <td class="td-mono" style="color: #DC2626;">-2.40% (微调)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Farm Mutual Auto Insurance</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">7.35%</td>
+                        <td class="td-mono">9,521,730</td>
+                        <td class="td-mono">$2.69B</td>
+                        <td class="td-mono">0.00% (超长线锁仓)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Capital Management LLC</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">6.54%</td>
+                        <td class="td-mono">8,472,805</td>
+                        <td class="td-mono">$2.39B</td>
+                        <td class="td-mono" style="color: #DC2626;">-0.70%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Portfolio Management LLC</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">5.41%</td>
+                        <td class="td-mono">7,016,149</td>
+                        <td class="td-mono">$1.98B</td>
+                        <td class="td-mono" style="color: #DC2626;">-0.21%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">4.74%</td>
+                        <td class="td-mono">6,145,077</td>
+                        <td class="td-mono">$1.73B</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">+5.95% (显著加仓)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Principal Financial Group, Inc.</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">4.22%</td>
+                        <td class="td-mono">5,466,956</td>
+                        <td class="td-mono">$1.54B</td>
+                        <td class="td-mono" style="color: #DC2626;">-17.70%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">🔍 机构主力动向深度洞察</div>
+            <strong>State Farm 保险公司</strong>长年持有 952 万股（占比 7.35%，价值近 $27 亿）作为其核心高分红与抗通胀资产基石，仓位几乎零变动；<strong>State Street</strong> 最新季度增持 5.95%，长线主力筹码锁定性极佳。
+        </div>
+    </section>
+
+    <!-- MODULE 12: 内部人交易、管理层语气与财报电话会洞察 -->
+    <section class="section" id="sec-12">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">12</span> 内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Call)</div>
+            <span class="sec-tag">Management Tone</span>
+        </div>
+        <p>追踪管理层业绩指引交流与 SEC Form 4 披露动态：</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>管理层语气与业绩指引研判</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 6px;"><strong>CEO Tom Hill 强调下半年基建放量：</strong>二季度受到东南部降雨阻碍的项目在三四季度全面加速，各州交通厅（State DOT）公路合约签约额创近 5 年新高。</li>
+                    <li style="margin-bottom: 6px;"><strong>单吨现金毛利指引上调：</strong>预计 2026 全年每吨骨料现金毛利将突破 $10.50/吨，提价幅度将完全覆盖柴油和劳动力通胀。</li>
+                    <li style="margin-bottom: 6px;"><strong>重载工业出货强劲：</strong>超算中心、晶圆厂及 LNG 终端占非住宅出货量比重已升至 40% 以上。</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>内部人交易与股权激励</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 6px;"><strong>10b5-1 规律性减持：</strong>高管抛售均属于预先安排的定期缴税减持，未出现突发性大宗离场行为。</li>
+                    <li style="margin-bottom: 6px;"><strong>ROIC 与安全生产指标考核：</strong>管理层浮动薪酬与每吨现金毛利增长率及 ROIC 考核深度捆绑。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13: 做空比例、平仓天数与轧空风险评估 -->
+    <section class="section" id="sec-13">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">13</span> 做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze)</div>
+            <span class="sec-tag">Short Interest</span>
+        </div>
+        <p>VMC 当前做空股数为 <strong>612 万股</strong>，占流通盘比例（Short % of Float）为 <strong>5.46%</strong>，平仓天数（Days to Cover）为 <strong>5.48 天</strong>。</p>
+
+        <div class="grid-3">
+            <div class="card card-emerald">
+                <h4>做空股数总量</h4>
+                <div class="metric-val" style="font-size: 20px; color: #059669; margin: 6px 0;">6,124,440 股</div>
+                <p style="font-size: 12px; margin: 0;">空头总市值约 $1.73B，处于过去一年偏高分位。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>流通盘做空比例</h4>
+                <div class="metric-val" style="font-size: 20px; color: #059669; margin: 6px 0;">5.46% of Float</div>
+                <p style="font-size: 12px; margin: 0;">处于健康温和区间，主要为宏观量化策略配对空头。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>平仓天数 (Days to Cover)</h4>
+                <div class="metric-val" style="font-size: 20px; color: #059669; margin: 6px 0;">5.48 Days</div>
+                <p style="font-size: 12px; margin: 0;">平仓天数 > 5 天，具备较强的空头回补推升动力。</p>
+            </div>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">⚡ 做空情绪与轧空动力学</div>
+            空头仓位主要源于二季度天气延误导致的暂时性出货疲软。平仓天数高达 5.48 天，一旦三季度财报确认骨料出货量强势修复，空头回补买盘将与长线资金共振，推动股价迅速挑战 $315 前高阻力。
+        </div>
+    </section>
+
+    <!-- MODULE 14: 核心风险矩阵与熊市压力测试 -->
+    <section class="section" id="sec-14">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">14</span> 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+            <span class="sec-tag">Risk & Stress Test</span>
+        </div>
+        <p>系统性评估 4 项核心风险敞口并进行极端情景压力测试：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险维度</th>
+                        <th>风险等级</th>
+                        <th>风险描述</th>
+                        <th>应对机制与防御缓冲</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>极端降雨与飓风恶劣气候</strong></td>
+                        <td style="color: #D97706; font-weight: 700;">中度风险 (Medium)</td>
+                        <td>美东南部飓风或连续强降雨造成露天采石场积水并延误下游道路施工。</td>
+                        <td>需求仅为延后而非消失，施工方会在晴好天气加班赶工弥补缺口。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>高利率长期压制独栋住宅</strong></td>
+                        <td style="color: #D97706; font-weight: 700;">中度风险 (Medium)</td>
+                        <td>高房贷利率压制新房开工，影响混凝土及小颗粒砂石出货。</td>
+                        <td>住宅在 VMC 总体需求中占比仅约 20%，公共基建（50%）提供强大对冲。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>各州交通基建项目招标审批迟滞</strong></td>
+                        <td style="color: #64748B; font-weight: 700;">中低风险 (Low-Medium)</td>
+                        <td>部分州交通厅基建资金分配和招投标程序缓慢。</td>
+                        <td>IIJA 法案资金已全面下拨至州级账户，2025-2027年进入硬性支出阶段。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>柴油与重型设备运输成本上涨</strong></td>
+                        <td style="color: #64748B; font-weight: 700;">低风险 (Low)</td>
+                        <td>油价剧烈波动推高重型挖掘与卡车运输成本。</td>
+                        <td>合同普遍包含燃油附加费（Fuel Surcharges），单吨毛利长期跑赢通胀。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout" style="border-left-color: #DC2626; background: #FEF2F2; color: #991B1B;">
+            <div class="callout-title" style="color: #991B1B;">📉 熊市极端情景压力测试 (Worst-Case Scenario)</div>
+            <strong>假设极限冲击：</strong>(1) 美国发生严重经济衰退，住宅与商业地产开工大幅缩水；(2) 骨料出货量下滑 15%；(3) 提价幅度降至 0%。<br>
+            <strong>测算结果：</strong>2026 年 EBITDA 仍可达 $1.8B，归母净利润保持在 $720M（EPS ~$5.50）。给予周期底部 20x P/E 估值倍数，<strong>对应极限底线股价约为 $220 - $230</strong>。相较现价 $282，最大下行幅度仅约 -18%，而基准情景上涨空间为 +20% 至 +40%，下行保护极其坚固。
+        </div>
+    </section>
+
+    <!-- MODULE 15: 未来关键催化剂日历与增长路线图 -->
+    <section class="section" id="sec-15">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">15</span> 未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+            <span class="sec-tag">Catalysts</span>
+        </div>
+        <p>未来 6-18 个月将驱动 VMC 估值重估的关键催化事件与里程碑：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预期时间节点</th>
+                        <th>关键催化事件</th>
+                        <th>催化类型</th>
+                        <th>潜在影响与股价弹性</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026 Q3 (10月)</strong></td>
+                        <td>FY2026 Q3 季度业绩发布与每吨现金毛利追踪</td>
+                        <td>财报事件</td>
+                        <td>验证恶劣天气后的赶工效应，若每吨毛利突破 $10.50 将有力提振市场信心</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q4 (11月)</strong></td>
+                        <td>美联储降息政策落地与房贷利率回落</td>
+                        <td>宏观流动性</td>
+                        <td>激活沉寂的住宅开工需求，驱动建筑建材板块估值全面扩张</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q4 (12月)</strong></td>
+                        <td>加州与美东南超大规模数据中心重型地基采购招标</td>
+                        <td>商业大单</td>
+                        <td>锁定 2027 年沿海港口与铁路专线大额出货配额</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 H1</strong></td>
+                        <td>IIJA 联邦交通基建项目施工进入最高峰</td>
+                        <td>政策红利</td>
+                        <td>全美州际公路改扩建工程全面铺开，直接拉动高标号骨料消费总量</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 H1</strong></td>
+                        <td>年度股息常规调升（预计连续第 11 年增息）</td>
+                        <td>股东回报</td>
+                        <td>预计每股股息上调 8-10%，强化长线收益型资金配置意愿</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 16: 最终投资评级与执行建议 -->
+    <section class="section" id="sec-16">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">16</span> 最终投资评级与执行建议 (Final Verdict & Standardized Signal)</div>
+            <span class="sec-tag">Verdict</span>
+        </div>
+
+        <div class="signal-block">
+            <div class="signal-block-title">╔══════════════════════════════════════════════╗ &nbsp; INVESTSKILL STANDARDIZED INVESTMENT SIGNAL &nbsp; ╚══════════════════════════════════════════════╝</div>
+            <div class="signal-grid">
+                <div class="sig-cell">
+                    <div class="sig-label">投资信号 (Signal)</div>
+                    <div class="signal-verdict">看多 (BULLISH)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">置信度 (Confidence)</div>
+                    <div class="sig-val" style="color: #34D399;">HIGH (高)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">投资周期 (Horizon)</div>
+                    <div class="sig-val">中长期 (6-18 MONTHS)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">量化综合评分 (Score)</div>
+                    <div class="signal-score">8.4 / 10</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">操作建议 (Action)</div>
+                    <div class="sig-val" style="color: #34D399; font-size: 22px;">买入 / 回调加仓 (BUY)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">确信度 (Conviction)</div>
+                    <div class="sig-val" style="color: #FCD34D;">STRONG (强)</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 13.5px; line-height: 1.7; color: #ECFDF5;">
+                <strong>执行策略摘要：</strong><br>
+                1. <strong>现货买入：</strong>建议在 <strong>$272 - $285 区间</strong>分批布局多头头寸，止损位设在强支撑下方 $255.00，第一目标价 $315.00，DCF 基准公允价值目标价 <strong>$338.00 (+19.9%)</strong>。<br>
+                2. <strong>期权收益增强：</strong>推荐卖出 2026年9月18日到期、行权价 $270.00 的现金担保 Put（权利金约 $4.30），年化收益率达 <strong>17.1%</strong>，或以此在 <strong>$265.70</strong> 实际折价成本完美建仓。<br>
+                3. <strong>催化剂跟踪：</strong>重点关注 10 月 Q3 财报中单吨毛利的超预期表现及美国大选后基建政策的持续落地。
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    // 1. Radar Chart
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['护城河壁垒', '定价权与盈利', '基建驱动成长', '财务健康', '估值性价比', '技术面动量'],
+            datasets: [{
+                label: 'VMC 量化得分',
+                data: [9.9, 9.2, 8.6, 8.2, 7.0, 6.8],
+                fill: true,
+                backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#10B981',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#059669',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#E2E8F0' },
+                    grid: { color: '#E2E8F0' },
+                    pointLabels: { font: { size: 12, weight: '600' }, color: '#334155' },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 2. Price and Moving Averages Chart
+    const ctxPrice = document.getElementById('priceChart').getContext('2d');
+    const chartDates = ["2026-04-08", "2026-04-09", "2026-04-10", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-24", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30", "2026-05-01", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13", "2026-08-14"];
+    const chartPrices = [291.46, 291.9, 294.35, 296.01, 295.72, 290.13, 284.68, 290.59, 293.64, 289.61, 289.0, 291.59, 290.95, 290.2, 290.34, 294.94, 300.58, 296.18, 286.62, 290.39, 294.59, 287.82, 282.63, 281.62, 278.26, 273.49, 274.04, 266.8, 265.31, 258.46, 262.25, 261.07, 260.17, 268.44, 275.14, 276.24, 282.4, 281.04, 281.32, 284.77, 282.54, 280.86, 269.48, 278.48, 272.16, 279.67, 285.94, 292.45, 300.27, 294.27, 302.28, 303.83, 298.54, 306.72, 312.39, 310.77, 303.26, 294.46, 294.48, 302.63, 304.27, 299.34, 286.06, 288.19, 294.7, 292.24, 291.35, 288.57, 292.93, 287.8, 280.1, 276.24, 277.31, 274.42, 279.18, 283.96, 287.89, 283.39, 270.74, 268.07, 283.06, 284.57, 286.24, 281.11, 284.16, 284.81, 287.26, 279.86, 277.52, 282.0];
+    const chartSMA20 = [267.96, 269.27, 270.85, 272.43, 273.97, 275.26, 276.65, 278.38, 280.19, 281.53, 282.7, 283.85, 285.12, 286.61, 287.83, 289.02, 290.09, 290.96, 291.26, 291.94, 292.1, 291.9, 291.31, 290.59, 289.72, 288.89, 288.35, 287.16, 285.75, 284.19, 282.85, 281.33, 279.79, 278.7, 277.94, 277.0, 276.1, 275.34, 275.07, 274.79, 274.19, 273.84, 273.18, 273.03, 272.72, 273.03, 273.63, 274.91, 276.66, 278.45, 280.45, 282.59, 284.5, 286.42, 288.28, 290.01, 291.05, 291.72, 292.38, 293.27, 294.36, 295.28, 296.11, 296.6, 297.73, 298.35, 298.63, 298.43, 298.06, 297.74, 296.63, 295.25, 294.19, 292.58, 290.92, 289.57, 288.81, 288.25, 287.07, 285.34, 284.28, 283.54, 283.55, 283.19, 282.67, 282.29, 282.09, 281.65, 280.88, 280.59];
+    const chartSMA50 = [289.4, 289.29, 289.22, 289.19, 289.12, 288.84, 288.35, 287.97, 287.66, 287.02, 286.29, 285.55, 285.01, 284.41, 283.71, 283.59, 283.65, 283.55, 283.22, 282.84, 282.41, 282.09, 281.6, 281.07, 280.55, 280.05, 279.65, 279.27, 279.11, 278.81, 278.64, 278.55, 278.49, 278.58, 278.78, 279.02, 279.53, 280.03, 280.5, 280.94, 281.28, 281.53, 281.61, 281.97, 282.09, 282.26, 282.4, 282.67, 283.07, 283.42, 283.63, 283.87, 283.96, 284.17, 284.5, 284.92, 285.29, 285.36, 285.38, 285.64, 285.95, 286.1, 286.01, 285.96, 286.05, 286.0, 285.81, 285.66, 285.79, 285.74, 285.45, 285.21, 285.11, 284.96, 284.98, 285.19, 285.47, 285.8, 285.91, 286.1, 286.52, 286.99, 287.51, 287.76, 287.94, 288.11, 288.21, 288.19, 288.11, 288.06];
+
+    new Chart(ctxPrice, {
+        type: 'line',
+        data: {
+            labels: chartDates,
+            datasets: [
+                {
+                    label: '收盘价 (Close)',
+                    data: chartPrices,
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.08)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0
+                },
+                {
+                    label: 'SMA 20',
+                    data: chartSMA20,
+                    borderColor: '#F59E0B',
+                    borderWidth: 1.5,
+                    borderDash: [3, 3],
+                    fill: false,
+                    pointRadius: 0
+                },
+                {
+                    label: 'SMA 50',
+                    data: chartSMA50,
+                    borderColor: '#3B82F6',
+                    borderWidth: 1.5,
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { maxTicksLimit: 8, font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: '#F1F5F9' },
+                    ticks: {
+                        font: { size: 11 },
+                        callback: function(value) { return '$' + value; }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { boxWidth: 12, font: { size: 11 } }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>第一太阳能 (First Solar - FSLR) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 28px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+        
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title-wrap { display: flex; align-items: center; gap: 10px; }
+        .sec-num {
+            width: 28px; height: 28px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 13px;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .sec-title { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+        
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left; }
+        th { background: #F8FAFC; color: var(--text-secondary); font-weight: 600; padding: 10px 12px; border-bottom: 2px solid var(--border); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:hover td { background: #F8FAFC; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .card-box { background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+        .card-box-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+        
+        .signal-block {
+            background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.95));
+            border: 2px solid var(--primary);
+            border-radius: 14px;
+            padding: 24px;
+            color: #fff;
+            margin-top: 16px;
+        }
+        .signal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 16px 0; }
+        .signal-item { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 12px 14px; border-radius: 8px; }
+        .sig-label { font-size: 11px; text-transform: uppercase; color: #94A3B8; font-weight: 600; }
+        .sig-val { font-size: 16px; font-weight: 700; color: #fff; margin-top: 4px; }
+        .signal-score { font-size: 26px; font-weight: 800; color: #34D399; font-family: 'JetBrains Mono', monospace; }
+        .signal-verdict { font-size: 18px; font-weight: 800; color: #6EE7B7; }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">🏛️ FSLR · First Solar, Inc.</span>
+            <span class="badge badge-hero-stock">📂 清洁能源与半导体光伏 | 碲化镉薄膜龙头</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-stock">📅 报告基准日: 2026-08-17</span>
+        </div>
+        <h1 class="hero-title">第一太阳能 (First Solar - FSLR) 15模块全景量化投研报告</h1>
+        <p class="hero-sub">全美唯一万兆瓦级公用事业光伏巨头、独家碲化镉 (CdTe) 薄膜专利免除硅料供应链卡脖子、通胀削减法案 (IRA 45X) 巨额补贴现金印钞机、排产锁单至2030年与超 12% 空头回补逼空潜能。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前市场现价</div>
+                <div class="hero-kpi-val">$218.86</div>
+                <div class="hero-kpi-sub">52周: $182.99 ~ $320.95 (RP 26.0%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">多因子综合评分</div>
+                <div class="hero-kpi-val">8.8 / 10</div>
+                <div class="hero-kpi-sub">评级: 强烈看多 (STRONG BUY)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$23.52B</div>
+                <div class="hero-kpi-sub">市盈率 P/E: 22.4x | 前瞻 P/E: 9.4x</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息收益率 (Dividend)</div>
+                <div class="hero-kpi-val">无 (0.00%)</div>
+                <div class="hero-kpi-sub">无股息派发 | 100% 利润再投资美国扩产</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报导航目录 (15大核心模块全景覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与技术护城河</a>
+            <a href="#sec-4" class="toc-link">04. 财报与盈利质量</a>
+            <a href="#sec-5" class="toc-link">05. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">06. 行业竞争与对标矩阵</a>
+            <a href="#sec-7" class="toc-link">07. DCF估值三情景模型</a>
+            <a href="#sec-8" class="toc-link">08. 技术面与筹码量化</a>
+            <a href="#sec-9" class="toc-link">09. 资本配置与股息披露</a>
+            <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与主力动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵与政策压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </div>
+
+    <!-- 模块 1: 执行摘要与投资核心逻辑 -->
+    <section id="sec-1" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">01</div>
+                <h2 class="sec-title">执行摘要与投资核心逻辑 (Executive Summary & Thesis)</h2>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="card-box">
+                <div class="card-box-title">💡 核心投资论点 (Core Investment Thesis)</div>
+                <p>1. <b>全美唯一万兆瓦级本土光伏制造巨头与政策绝对受益者</b>：作为美国本土最大的公用事业级光伏组件制造商，First Solar 独家享有《通胀削减法案》(IRA) Section 45X 高额先进制造税收抵免（每年产生超 $10亿美元 纯现金补贴，可按 95~96 美分直接货币化转让）。</p>
+                <p style="margin-top:8px;">2. <b>碲化镉 (CdTe) 薄膜专利构筑不可跨越的技术壁垒</b>：完全独立于中国主导的晶硅（c-Si）产业链，免受多晶硅价格战、东南亚转口贸易关税调查（AD/CVD）以及涉疆法案（UFLPA）通关阻碍，成为微软、谷歌、亚马逊等科技巨头 AI 数据中心绿电采购的唯一合规免责之选。</p>
+                <p style="margin-top:8px;">3. <b>积压订单锁定至2030年与前瞻 9.4x 极低估值黄金坑</b>：手握超 70 GW 长期不可撤销固定价格订单（Take-or-Pay 协议与价格上浮条款），账面拥有 $15.3亿 净现金且负债率不足 2%，前瞻市盈率回落至 9.4x，配合高达 12.5% 的空头仓位，具备极强的估值修复与轧空爆发弹性。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🎯 关键财务与运营指标速览</div>
+                <div class="table-scroll">
+                    <table>
+                        <tr><th>核心指标</th><th>最新数据</th><th>行业地位与评级</th></tr>
+                        <tr><td>毛利率 / 营业利润率</td><td><b>44.0% / 42.6%</b></td><td>全球光伏全行业最高利润厚度（中国同行多为负毛利）</td></tr>
+                        <tr><td>净利润率 (Net Margin)</td><td><b>32.5%</b></td><td>高额税收抵免与高 ASP 溢价带来极致净利率</td></tr>
+                        <tr><td>前瞻市盈率 (Forward P/E)</td><td><b>9.4x</b></td><td>产能大幅投产推动 EPS 爆发，估值严重被低估</td></tr>
+                        <tr><td>资产负债结构 (Net Cash)</td><td><b>+$15.3 亿美元 净现金</b></td><td>现金 $17.3亿 vs 总负债仅 $1.94亿，几乎无财务杠杆</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 2: 多因子量化评分雷达模型 -->
+    <section id="sec-2" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">02</div>
+                <h2 class="sec-title">多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</h2>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div style="height: 280px; position: relative;">
+                <canvas id="radarChart"></canvas>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">📊 5大核心维度综合量化评分 (Composite: 8.8 / 10)</div>
+                <div class="table-scroll">
+                    <table>
+                        <tr><th>量化维度</th><th>得分</th><th>权重</th><th>核心驱动因素</th></tr>
+                        <tr><td>商业质量 (Business Quality)</td><td><b>9.5 / 10</b></td><td>25%</td><td>CdTe 独家薄膜技术、IRA 45X 法案独享、长单锁定至2030年</td></tr>
+                        <tr><td>内在估值 (Valuation)</td><td><b>9.2 / 10</b></td><td>25%</td><td>前瞻 P/E 仅 9.4x，EV/EBITDA 9.5x，较历史中枢折价超 40%</td></tr>
+                        <tr><td>市场信号 (Market Signals)</td><td><b>8.5 / 10</b></td><td>20%</td><td>机构持股 96.75%，华尔街平均目标价 $271（空间 +24%）</td></tr>
+                        <tr><td>技术结构 (Technical Setup)</td><td><b>7.8 / 10</b></td><td>15%</td><td>自 $320 高点回踩 52 周底部支撑区间，RSI 企稳蓄势</td></tr>
+                        <tr><td>风险防御 (Risk Profile)</td><td><b>8.6 / 10</b></td><td>15%</td><td>$15.3亿 净现金，资产负债率仅 1.88%，做空比例 12.5% 蓄势逼空</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 3: 商业模式与波特五力 -->
+    <section id="sec-3" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">03</div>
+                <h2 class="sec-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">🔬 1. 独家碲化镉 (CdTe) 薄膜工艺</div>
+                <p style="font-size:13px; color:var(--text-secondary);">无需硅料提炼与切片，一片玻璃进入产线仅需几小时即可输出完整组件。具有出色的高温温度系数（在沙漠高温环境下发电衰减远低于晶硅）与弱光光谱响应能力。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">📜 2. 70+ GW 刚性锁单长约飞轮</div>
+                <p style="font-size:13px; color:var(--text-secondary);">客户主要为美国大型公用事业电力开发商（NextEra、AES、Invenergy等），合同包含定金与严格违约金条款，平均售价（ASP）锁定在 $0.28~$0.30/瓦，完全免疫现货价格战。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">⚡ 3. AI 数据中心绿电刚性需求</div>
+                <p style="font-size:13px; color:var(--text-secondary);">科技巨头（Hyperscalers）建设十万卡算力集群需要海量本土合规清洁能源，First Solar 的全美本土制造身份可为项目带来额外的 10% 国内内容（Domestic Content）投资税收抵免加成。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 4: 核心财务报表剖析 -->
+    <section id="sec-4" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">04</div>
+                <h2 class="sec-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Cash Flow)</h2>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <tr><th>财务指标</th><th>当前最新数据</th><th>行业中枢/同行</th><th>财务质量评估</th></tr>
+                <tr><td>毛利率 (Gross Margin)</td><td><b>44.0%</b></td><td>-5.0% ~ 12.0% (晶硅同行)</td><td>IRA 45X 补贴 ($0.17/瓦) 与高 ASP 溢价带来碾压级毛利</td></tr>
+                <tr><td>营业利润率 (Operating Margin)</td><td><b>42.6%</b></td><td>2.0% ~ 5.0%</td><td>全自动一体化产线运营效率极高，SG&A 占比不足 4%</td></tr>
+                <tr><td>净利润率 (Net Margin)</td><td><b>32.5%</b></td><td>-10.0% ~ 4.0%</td><td>补贴直接转化为真实净利润，单季净利持续刷新纪录</td></tr>
+                <tr><td>自由现金流 (FCF TTM)</td><td><b>$16.0 亿美元</b></td><td>行业普遍现金流失血</td><td>即便处于阿拉巴马与路易斯安那基地扩产期，造血能力依然强悍</td></tr>
+                <tr><td>现金及等价物总额</td><td><b>$17.27 亿美元</b></td><td>-</td><td>流动性极其充沛</td></tr>
+                <tr><td>总有息负债 (Total Debt)</td><td><b>$1.94 亿美元</b></td><td>同行动辄数十亿负债</td><td>资产负债率仅 1.88%，几乎实现零杠杆经营</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 5: 杜邦三因子拆解 -->
+    <section id="sec-5" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">05</div>
+                <h2 class="sec-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">1. 净利润率 (Net Margin)</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">32.5%</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">高 ASP 锁单与 IRA 45X 补贴赋能的极致盈利护城河</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">2. 资产周转率 (Asset Turnover)</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">0.52x / 年</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">随着阿拉巴马 3.5GW 及路易斯安那 3.5GW 投产，周转率将显著加速</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">3. 权益乘数 (Financial Leverage)</div>
+                <div style="font-size:22px; font-weight:800; color:var(--primary);">1.10x</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">极低杠杆率，内生高利润驱动 <b>ROE 达到 18.5%</b> 并向 25%+ 迈进</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 6: 行业同行全景对标 -->
+    <section id="sec-6" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">06</div>
+                <h2 class="sec-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</h2>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <tr><th>标的名称</th><th>代码</th><th>总市值</th><th>P/E (TTM)</th><th>前瞻 P/E</th><th>营业利润率</th><th>核心竞争优势与地缘保护评价</th></tr>
+                <tr style="background:var(--primary-light); font-weight:600;"><td>第一太阳能 (First Solar)</td><td>FSLR</td><td>$23.5B</td><td>22.4x</td><td><b>9.4x</b></td><td><b>42.6%</b></td><td><b>全美唯一本土制造龙头，享受最高关税保护与 IRA 补贴</b></td></tr>
+                <tr><td>阿特斯太阳能 (Canadian Solar)</td><td>CSIQ</td><td>$0.9B</td><td>6.5x</td><td>8.2x</td><td>2.1%</td><td>重度依赖东南亚晶硅供应链，面临高额反规避关税</td></tr>
+                <tr><td>晶科能源 (JinkoSolar)</td><td>JKS</td><td>$0.9B</td><td>3.8x</td><td>5.1x</td><td>1.5%</td><td>国内晶硅严重产能过剩与价格战内卷，毛利率趋近于零</td></tr>
+                <tr><td>Enphase Energy</td><td>ENPH</td><td>$9.2B</td><td>45.0x</td><td>24.0x</td><td>11.5%</td><td>户用微逆变器市场受高利率打击，非公用事业级竞争者</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 7: DCF 估值三情景模型 -->
+    <section id="sec-7" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">07</div>
+                <h2 class="sec-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box" style="border-left: 4px solid #EF4444;">
+                <div class="card-box-title" style="color:#DC2626;">🐻 悲观情景 (Bear Case)</div>
+                <div style="font-size:24px; font-weight:800; font-family:'JetBrains Mono';">$185.00</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">假设 IRA 部分条款受到国会削减，ASP 下滑至 $0.24/瓦，WACC 10.0%</p>
+                <div style="margin-top:6px; font-size:12px; color:#DC2626;">极限下行空间: -15.5% (对应 52周 强底)</div>
+            </div>
+            <div class="card-box" style="border-left: 4px solid var(--primary); background:var(--primary-light);">
+                <div class="card-box-title" style="color:var(--primary);">🎯 基准情景 (Base Case)</div>
+                <div style="font-size:24px; font-weight:800; font-family:'JetBrains Mono'; color:var(--primary);">$285.00</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">产能如期扩张至 25GW，IRA 45X 稳定兑现，WACC 8.5%，永续增长率 3.0%</p>
+                <div style="margin-top:6px; font-size:12px; font-weight:700; color:var(--primary);"><b>公允价值空间: +30.2%</b></div>
+            </div>
+            <div class="card-box" style="border-left: 4px solid #10B981;">
+                <div class="card-box-title" style="color:#059669;">🐂 乐观情景 (Bull Case)</div>
+                <div style="font-size:24px; font-weight:800; font-family:'JetBrains Mono';">$365.00</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">AI 数据中心绿电签署超额溢价长单，关税全面加征推升本土组件售价，WACC 7.8%</p>
+                <div style="margin-top:6px; font-size:12px; color:#059669;">上行空间: +66.8%</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 8: 技术面量化分析 -->
+    <section id="sec-8" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">08</div>
+                <h2 class="sec-title">技术面量化、均线系统与关键筹码位 (Technical Analysis)</h2>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="card-box">
+                <div class="card-box-title">📈 均线系统与动量量化</div>
+                <div class="table-scroll">
+                    <table>
+                        <tr><th>技术指标</th><th>当前数值</th><th>技术信号研判</th></tr>
+                        <tr><td>20日均线 (SMA 20)</td><td>$221.54</td><td>短期回踩企稳筑底中</td></tr>
+                        <tr><td>50日均线 (SMA 50)</td><td>$233.91</td><td>中期阻力位</td></tr>
+                        <tr><td>200日均线 (SMA 200)</td><td>$234.27</td><td>长期牛熊分水岭阻力位</td></tr>
+                        <tr><td>RSI 14 (相对强弱指标)</td><td>44.5</td><td>超卖修复区，无任何泡沫</td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🎯 关键支撑与阻力位</div>
+                <p><b>第一阻力位 (R1)</b>: $235.00 (SMA50 与 SMA200 双均线重合密集区)</p>
+                <p style="margin-top:8px;"><b>第一支撑位 (S1)</b>: $205.00 - $210.00 (前期突破平台中枢强支撑)</p>
+                <p style="margin-top:8px;"><b>极限黄金坑支撑 (S2)</b>: $183.00 (52周历史大底，对应前瞻 P/E 8.0x)</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 9: 资本配置与股息政策 (MANDATORY DIVIDEND DISCLOSURE) -->
+    <section id="sec-9" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">09</div>
+                <h2 class="sec-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</h2>
+            </div>
+        </div>
+        <div class="card-box" style="border-left: 4px solid var(--primary);">
+            <div class="card-box-title">💰 股息与股东回报核心披露 (Mandatory Dividend Disclosure)</div>
+            <p style="font-size:15px; font-weight:700; color:var(--primary); margin-bottom:6px;">股息状态：无 / 没有 (无股息派发 / Dividend: None / N/A)</p>
+            <p style="font-size:13px; color:var(--text-secondary);">First Solar 目前不派发现金股息（股息收益率 0.00%），公司将全部充沛的经营现金流与补贴收益 100% 投入于美国本土超级工厂（阿拉巴马州与路易斯安那州各 3.5 GW 产能）以及俄亥俄州全球顶级研发中心的扩建。资本再投资回报率（ROIC）远高于普通分红价值，随着 2026 年扩产完毕，管理层已在财报电话会中提示未来开启大规模股票回购与分红的可能性。</p>
+        </div>
+    </section>
+
+    <!-- 模块 10: 现金担保卖出看跌期权 (CSP) 策略 -->
+    <section id="sec-10" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">10</div>
+                <h2 class="sec-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</h2>
+            </div>
+        </div>
+        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+            鉴于 First Solar 当前股价处于 52 周底部强支撑位（$205~$218 平台中枢），且具备高达 12.45% 的空头高集中度与 9.4x 超低前瞻估值，采用 <strong>现金担保卖出看跌期权 (Cash-Secured Sell Put)</strong> 策略可以实现“在理想极端折价位建仓全球光伏制造龙头，若未被行权则全额斩获丰厚年化权利金收益”：
+        </p>
+
+        <div class="grid-3">
+            <div class="card-box" style="border: 1px solid var(--border);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="color:#0D9488; font-weight:800; font-size:14px;">🛡️ 保守型 (Conservative)</span>
+                    <span class="badge" style="background:#CCFBF1; color:#0D9488;">Delta ~0.20</span>
+                </div>
+                <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:var(--text-primary); margin:4px 0;">$190.00 Put</div>
+                <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                    <div><b>到期日：</b> 2026-09-18 (32天 DTE)</div>
+                    <div><b>预估权利金：</b> $3.80 / 股 ($380 / 张)</div>
+                    <div><b>保本买入价：</b> $186.20 (较现价折价 -14.9%)</div>
+                    <div><b>年化收益率 (APY)：</b> <b style="color:#059669; font-size:15px;">22.8%</b></div>
+                    <div style="margin-top:6px; font-size:11.5px; color:var(--text-muted);">逼近 52 周最低价 $182.99，提供深厚安全垫，适合大资金稳健收租。</div>
+                </div>
+            </div>
+
+            <div class="card-box" style="border: 2px solid var(--primary); background: #FAFDFB;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="color:var(--primary); font-weight:800; font-size:14px;">🎯 稳健型 (Moderate - 推荐)</span>
+                    <span class="badge" style="background:var(--primary-light); color:var(--primary);">Delta ~0.35</span>
+                </div>
+                <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:var(--primary); margin:4px 0;">$205.00 Put</div>
+                <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                    <div><b>到期日：</b> 2026-09-18 (32天 DTE)</div>
+                    <div><b>预估权利金：</b> $7.50 / 股 ($750 / 张)</div>
+                    <div><b>保本买入价：</b> $197.50 (较现价折价 -9.8%)</div>
+                    <div><b>年化收益率 (APY)：</b> <b style="color:var(--primary); font-size:15px;">41.6%</b></div>
+                    <div style="margin-top:6px; font-size:11.5px; color:var(--text-muted);">挂单于 $205 平台中枢强支撑位，兼顾超 40% 的年化现金流与绝佳低位接盘机会。</div>
+                </div>
+            </div>
+
+            <div class="card-box" style="border: 1px solid var(--amber);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="color:var(--amber); font-weight:800; font-size:14px;">⚡ 进取型 (Aggressive)</span>
+                    <span class="badge" style="background:var(--amber-light); color:var(--amber);">Delta ~0.48</span>
+                </div>
+                <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:#B45309; margin:4px 0;">$215.00 Put</div>
+                <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                    <div><b>到期日：</b> 2026-09-18 (32天 DTE)</div>
+                    <div><b>预估权利金：</b> $12.80 / 股 ($1280 / 张)</div>
+                    <div><b>保本买入价：</b> $202.20 (较现价折价 -7.6%)</div>
+                    <div><b>年化收益率 (APY)：</b> <b style="color:#D97706; font-size:15px;">67.9%</b></div>
+                    <div style="margin-top:6px; font-size:11.5px; color:var(--text-muted);">现价平值附近积极建仓，年化收益率近 70%，随时准备行权建仓万兆瓦级光伏底仓。</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 11: 机构持仓与主力资金 -->
+    <section id="sec-11" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">11</div>
+                <h2 class="sec-title">机构持仓与主力资金动向 (Institutional Ownership)</h2>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <tr><th>机构股东</th><th>持股比例估算</th><th>持仓市值</th><th>投资态度与动向</th></tr>
+                <tr><td>先锋领航集团 (The Vanguard Group)</td><td>~11.2%</td><td>~$26.3B</td><td>长线指数与多策略被动持有锁定</td></tr>
+                <tr><td>贝莱德集团 (BlackRock, Inc.)</td><td>~9.8%</td><td>~$23.0B</td><td>ESG 与清洁能源核心配置重仓</td></tr>
+                <tr><td>道富集团 (State Street Corp)</td><td>~4.5%</td><td>~$10.6B</td><td>长线持有</td></tr>
+                <tr><td>机构投资者总体持股比例</td><td><b>96.75%</b></td><td><b>~$22.75B</b></td><td><b>华尔街机构极度重仓锁定，散户浮筹极少</b></td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 12: 内部人交易与财报电话会洞察 -->
+    <section id="sec-12" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">12</div>
+                <h2 class="sec-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Tone)</h2>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="card-box">
+                <div class="card-box-title">📝 SEC Form 4 内部人交易信号</div>
+                <p>• <b>高管行为</b>：CEO Mark Widmar 与 CFO Alexander Bradley 仅执行基于预设 10b5-1 计划的小额薪酬行权税务交易，高管层整体持股稳固，对长期订单执行充满信心。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🎙️ 财报电话会管理层基调 (Management Tone)</div>
+                <p>• <b>订单与定价纪律</b>：管理层重申坚持“不参与非理性降价竞争”的定价策略，新签署长单平均价格依然维持在 $0.30/瓦左右；并强调 AI 数据中心带来的电力负荷激增是未来 5-10 年光伏产业最坚实的驱动力。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 13: 做空比例与轧空风险 -->
+    <section id="sec-13" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">13</div>
+                <h2 class="sec-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">空头占流通盘比例 (Short % Float)</div>
+                <div style="font-size:22px; font-weight:800; color:#DC2626;">12.45%</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">高做空比例！大量对冲基金基于大选政策担忧做空</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">平仓所需天数 (Days to Cover)</div>
+                <div style="font-size:22px; font-weight:800; color:#D97706;">5.44 天</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">平仓周期超过 5 天，具备极高轧空（Short Squeeze）烈度</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">轧空风险评级 (Squeeze Risk)</div>
+                <div style="font-size:22px; font-weight:800; color:#10B981;">高 (High Potential)</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">一旦有利好政策或财报催化，极易引发空头践踏式回补</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 14: 核心风险矩阵与压力测试 -->
+    <section id="sec-14" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">14</div>
+                <h2 class="sec-title">核心风险矩阵与政策压力测试 (Risk Matrix & Bear Case)</h2>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <tr><th>风险维度</th><th>风险等级</th><th>潜在影响分析</th><th>应对与对冲机制</th></tr>
+                <tr><td>美国大选与 IRA 45X 法案修订</td><td>中等 (Medium)</td><td>市场担忧共和党上台废除清洁能源补贴政策</td><td>FSLR 在俄亥俄、阿拉巴马、路易斯安那等红州创造数千高薪制造就业，受到两党议员一致强力支持，且特朗普主张高额关税保护本土制造业，对 FSLR 反而构成利好</td></tr>
+                <tr><td>电网并网排队（Interconnection Queue）延误</td><td>中等 (Medium)</td><td>美国部分地区电网审批迟缓导致电站推迟安装</td><td>长单具备严格违约金与延期补偿机制，整体交付节奏可平滑调整</td></tr>
+                <tr><td>中国晶硅海外建厂竞争</td><td>低至中 (Low-Med)</td><td>部分中国厂商尝试赴美设厂组装组件</td><td>FSLR 拥有 100% 本土薄膜知识产权，且具备最完整的国内内容（Domestic Content）10% 顶格认证</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 15: 未来关键催化剂日历 -->
+    <section id="sec-15" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">15</div>
+                <h2 class="sec-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar)</h2>
+            </div>
+        </div>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">🏭 阿拉巴马 & 路易斯安那基地投产</div>
+                <p style="font-size:13px; color:var(--text-secondary);">新增 7.0 GW 本土万兆瓦级产能释放，推动 2025/2026 年 EPS 跨越式增长。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">⚖️ 东南亚光伏双反（AD/CVD）终裁</div>
+                <p style="font-size:13px; color:var(--text-secondary);">美国商务部对东南亚四国光伏转口征收高额惩罚性关税，进一步推升 FSLR 本土溢价。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🤖 科技巨头 AI 数据中心直供绿电大单</div>
+                <p style="font-size:13px; color:var(--text-secondary);">与微软、亚马逊、谷歌等签署更大规模的专属清洁能源基地保供框架协议。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 16: 最终投资评级与执行建议 (Standardized Signal Block) -->
+    <section id="sec-16" class="section">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-num">16</div>
+                <h2 class="sec-title">最终投资评级与执行建议 (Final Verdict & Execution Strategy)</h2>
+            </div>
+        </div>
+        
+        <div class="grid-2" style="margin-bottom: 16px;">
+            <div class="card-box" style="border-left: 4px solid var(--primary);">
+                <div class="card-box-title">📈 正股现货配置与建仓执行方案</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
+                    <li><b>建仓区间：</b> 现价 $218.86 或回踩 $205.00 - $210.00 支撑区积极分批买入；</li>
+                    <li><b>第一目标位：</b> <strong>$285.00</strong>（公允价值修复，空间 +30.2%）；</li>
+                    <li><b>长线牛市目标：</b> <strong>$365.00</strong>（催化剂全量释放，空间 +66.8%）；</li>
+                    <li><b>止损防守位：</b> 跌破 <strong>$180.00</strong>（-17.7% / 破 52 周最低价）减仓防守。</li>
+                </ul>
+            </div>
+            <div class="card-box" style="border-left: 4px solid #10B981; background: #F0FDF4;">
+                <div class="card-box-title" style="color: #064E3B;">💎 现金担保 Sell Put 期权增强策略推荐 (首选)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><b>推荐合约：</b> 卖出 <strong>2026-09-18 到期、$205.00 行权价的 Put</strong>（稳健型）；</li>
+                    <li><b>单张权利金：</b> 约 <strong>$7.50 / 股</strong>（收取 $750 纯现金权利金）；</li>
+                    <li><b>有效接盘价：</b> <strong>$197.50</strong>（较现价折价 -9.8%，安全垫极厚）；</li>
+                    <li><b>年化收益率：</b> <strong style="font-size:15px; color:#059669;">41.6%</strong>（若未跌破 $205 则全额保留权利金）。</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="signal-block">
+            <div style="font-size:13px; letter-spacing:1px; text-transform:uppercase; color:#94A3B8; margin-bottom:4px;">INVESTMENT SIGNAL BLOCK</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div class="signal-verdict">强烈看多 (STRONG BUY)</div>
+                <div class="signal-score">8.8 / 10</div>
+            </div>
+
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="sig-label">投资信号 (Signal)</div>
+                    <div class="sig-val" style="color:#6EE7B7;">强烈看多 (STRONG BUY)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">置信度 (Confidence)</div>
+                    <div class="sig-val">HIGH (极高置信度)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">投资周期 (Horizon)</div>
+                    <div class="sig-val">中长线 (12 - 36 个月)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">多因子综合分 (Score)</div>
+                    <div class="sig-val" style="color:#34D399;">8.8 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">执行建议 (Action)</div>
+                    <div class="sig-val" style="color:#6EE7B7;">BUY (现货分批建仓 / 卖出 2026-09-18 $205 Put 收租)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">确定性等级 (Conviction)</div>
+                    <div class="sig-val">STRONG (顶级能源转型核心资产)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['商业质量', '内在估值', '市场信号', '技术动量', '风险防御'],
+            datasets: [{
+                label: 'FSLR 多因子得分',
+                data: [9.5, 9.2, 8.5, 7.8, 8.6],
+                backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#10B981',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#10B981'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(0, 0, 0, 0.08)' },
+                    grid: { color: 'rgba(0, 0, 0, 0.08)' },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, display: false }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+
+</body>
+</html>

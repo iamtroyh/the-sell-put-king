@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>AppLovin (APP) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 850px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #F1F5F9;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .section-title-wrap { display: flex; align-items: center; gap: 12px; }
+        .section-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 15px;
+        }
+        .section-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+        .section-sub { font-size: 12px; color: var(--text-muted); }
+        .section-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .report-hero { padding: 32px 16px; }
+            .main-wrap { padding: 20px 16px 48px; }
+            .hero-title { font-size: 24px; }
+            .section { padding: 20px 16px; }
+        }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card-green { background: #F0FDF4; border-color: #BBF7D0; }
+        .card-amber { background: #FFFBEB; border-color: #FDE68A; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+        .card-purple { background: #FAF5FF; border-color: #E9D5FF; }
+
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .card-green .card-title { color: #166534; }
+        .card-amber .card-title { color: #92400E; }
+        .card-blue .card-title { color: #1E40AF; }
+        .card-purple .card-title { color: #6B21A8; }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin: 14px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #F1F5F9;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-num { font-family: 'JetBrains Mono', monospace; text-align: right; }
+        .th-num { text-align: right; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 290px;
+            margin: 12px 0;
+        }
+
+        .highlight-val { font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #15803D; }
+        .tag-blue { background: #DBEAFE; color: #1D4ED8; }
+        .tag-amber { background: #FEF3C7; color: #B45309; }
+        .tag-red { background: #FEE2E2; color: #B91C1C; }
+
+        .signal-banner {
+            background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+            border: 2px solid #10B981;
+            border-radius: 16px;
+            padding: 24px;
+            color: #fff;
+            box-shadow: 0 10px 25px -5px rgba(16,185,129,.3);
+            margin: 20px 0;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.1);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.15);
+        }
+        .signal-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .signal-val { font-size: 20px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+        
+        .divider { height: 1px; background: #F1F5F9; margin: 20px 0; }
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+        .callout-amber {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: APP</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY) • 8.8/10</span>
+            <span class="badge badge-hero-cat">AI驱动广告科技与非游戏电商出海领跑者</span>
+            <span class="badge badge-hero-cat">15模块全景量化研报</span>
+        </div>
+        <h1 class="hero-title">AppLovin Corporation (APP)</h1>
+        <div class="hero-sub">79.3% EBITDA利润率、ROE高达204%、AXON 2.0 AI引擎驱动非游戏电商千亿蓝海：52周大底极端超跌后的超级戴维斯双击深度剖析</div>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新股价 (Spot)</div>
+                <div class="hero-kpi-val">$315.44</div>
+                <div class="hero-kpi-sub">52周区间: $303.17 - $745.61</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$105.56B</div>
+                <div class="hero-kpi-sub">企业价值 EV: $106.02B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 总营收 (USD)</div>
+                <div class="hero-kpi-val">$6.83B</div>
+                <div class="hero-kpi-sub">YoY 增速: +52.8%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Fwd P/E)</div>
+                <div class="hero-kpi-val">15.02x</div>
+                <div class="hero-kpi-sub">PEG &lt; 0.35 | 极高成长性价比</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">14日 RSI 超卖指标</div>
+                <div class="hero-kpi-val">26.87</div>
+                <div class="hero-kpi-sub">严重超卖 / 底背离强反弹</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师平均目标价</div>
+                <div class="hero-kpi-val">$553.47</div>
+                <div class="hero-kpi-sub">潜在上涨空间: +75.46%</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- Table of Contents -->
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报导航目录 (15大核心模块全景覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">04. 财报与盈利质量</a>
+            <a href="#sec-5" class="toc-link">05. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">06. 行业竞争与同行对标</a>
+            <a href="#sec-7" class="toc-link">07. DCF估值三情景模型</a>
+            <a href="#sec-8" class="toc-link">08. 技术面与筹码量化</a>
+            <a href="#sec-9" class="toc-link">09. 资本配置与股息披露</a>
+            <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与主力动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </div>
+
+    <!-- MODULE 01 -->
+    <section id="sec-1" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">01</div>
+                <div>
+                    <div class="section-title">执行摘要与核心投资逻辑 (Executive Summary & Investment Thesis)</div>
+                    <div class="section-sub">AI 广告算法绝对霸主、88.5% 毛利率与从游戏破圈电商的千亿增量</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 01</span>
+        </div>
+
+        <p style="margin-bottom: 16px; font-size: 14.5px; color: var(--text-secondary);">
+            <strong>AppLovin Corporation (NASDAQ: APP)</strong> 是全球变现效率最高、算法壁垒最强的移动广告科技 (AdTech) 与软件平台龙头。公司自主研发的 <strong>AXON 2.0 深度学习 AI 推荐与精准出价引擎</strong>，实现了惊人的广告匹配转化率。近期由于前期涨幅过大引发的高位获利了结与科技股剧烈轮动，股价自历史最高点 $745.61 遭遇超跌腰斩至 <strong>$315.44</strong>，精准回踩 52周底部 <strong>$303.17</strong>，14日 RSI 跌至 <strong>26.87 极度超卖区间</strong>。在 <strong>营收同比暴增 +52.8%、EBITDA 利润率高达 79.29%、年自由现金流突破 $39 亿美元</strong> 的硬核支撑下，当前 <strong>15.02x 前瞻市盈率</strong> 构成了极度罕见的结构性错杀黄金买点。
+        </p>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">🤖 核心看多逻辑 1：AXON 2.0 构成 AdTech 领域断层级 AI 生产力</div>
+                <p style="font-size: 13px; color: #166534;">
+                    AXON 2.0 能够在毫秒级内根据数十亿条实时用户互动数据进行自适应出价与受众预测，使广告主的广告支出回报率 (ROAS) 显著超越 Unity、IronSource 及传统 DSP 平台，推动软件平台业务毛利率高达 <strong>88.46%</strong>，EBITDA 利润率达到惊人的 <strong>79.29%</strong>。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🌐 核心看多逻辑 2：从移动游戏破圈进军 Web 非游戏电商（打开 $100B+ TAM）</div>
+                <p style="font-size: 13px; color: #166534;">
+                    公司成功将 AXON 2.0 算法拓展至 Shopify 独立站、DTC 品牌及全球电商零售广告（Web e-Commerce）。非游戏电商广告转化率与留存率甚至超越游戏领域，正开辟一个规模达现有游戏广告 5-10 倍的全新万亿级增量市场。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">💰 核心看多逻辑 3：近 100% 自由现金流转化 + 激进股票回购</div>
+                <p style="font-size: 13px; color: #166534;">
+                    极度轻资产的算法软件模式（年 CapEx 仅 $2,800 万美元），年化自由现金流 (FCF) 高达 <strong>$39.4 亿美元</strong>，现金转化率高达 98%+。公司持续通过大额股票回购注销股本，为每股收益带来强劲复合内生增长。
+                </p>
+            </div>
+        </div>
+
+        <div class="callout" style="margin-top: 18px;">
+            <strong>📌 投资评级概览：</strong> 综合多因子量化模型评分 <strong>8.8 / 10</strong>，给予 <strong>强烈看多 (STRONG BUY)</strong> 评级。基准 DCF 公允价值为 <strong>$520.00 (+64.8% 空间)</strong>，华尔街平均目标价为 <strong>$553.47 (+75.5%)</strong>。建议在 $303 - $320 历史大底区域坚决建仓。
+        </div>
+    </section>
+
+    <!-- MODULE 02 -->
+    <section id="sec-2" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">02</div>
+                <div>
+                    <div class="section-title">多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Model)</div>
+                    <div class="section-sub">6大核心维度综合量化评级：总分 8.8 / 10</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 02</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>量化评估因子</th>
+                                <th>因子得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与诊断结论</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 业绩增长力 (Growth)</strong></td>
+                                <td><span class="tag-pill tag-green">9.8 / 10</span></td>
+                                <td>25%</td>
+                                <td>TTM 营收增速高达 +52.8%，非游戏电商新曲线呈现三位数爆发力</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 盈利质量与 ROE (Profitability)</strong></td>
+                                <td><span class="tag-pill tag-green">9.8 / 10</span></td>
+                                <td>20%</td>
+                                <td>毛利率 88.46%，EBITDA 利润率 79.29%，ROE 达到惊人的 203.69%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 估值性价比 (Valuation)</strong></td>
+                                <td><span class="tag-pill tag-green">9.0 / 10</span></td>
+                                <td>20%</td>
+                                <td>前瞻 P/E 仅 15.02x，PEG &lt; 0.35，较前期高点腰斩 58%，严重错杀</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 护城河壁垒 (Moat)</strong></td>
+                                <td><span class="tag-pill tag-green">9.0 / 10</span></td>
+                                <td>15%</td>
+                                <td>AXON 2.0 自学习算法壁垒、全球最大中介聚合平台 MAX 的双边飞轮</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 财务健康与现金流 (Health)</strong></td>
+                                <td><span class="tag-pill tag-green">8.5 / 10</span></td>
+                                <td>10%</td>
+                                <td>年自由现金流达 $39.4 亿美元，流动比率 4.30，利息覆盖倍数超 15x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. 筹码与技术面 (Technicals)</strong></td>
+                                <td><span class="tag-pill tag-amber">6.8 / 10</span></td>
+                                <td>10%</td>
+                                <td>触及 52周大底 $303.17，RSI 26.87 极度超卖，底背离酝酿 V 型大反弹</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权评分 (Composite Score)</strong></td>
+                                <td><span class="tag-pill tag-green" style="font-size: 13px;">8.8 / 10</span></td>
+                                <td>100%</td>
+                                <td><strong>强烈看多 (STRONG BUY / 超高成长错杀)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <div class="chart-box">
+                    <canvas id="appFactorRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 03 -->
+    <section id="sec-3" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">03</div>
+                <div>
+                    <div class="section-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+                    <div class="section-sub">软件平台为主核、AXON 2.0 为算法大脑的闭环变现飞轮</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 03</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 20px;">
+            <div class="card card-green">
+                <div class="card-title">🤖 AXON 2.0 AI 引擎</div>
+                <p style="font-size: 12.5px;"><strong>核心技术护城河</strong><br>基于下一代深度神经网络，实时预测用户点击转化意向，实现广告主 ROAS 与开发者 eCPM 双向最大化。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🎯 AppDiscovery 营销平台</div>
+                <p style="font-size: 12.5px;"><strong>千亿美元买量投放引擎</strong><br>直连全球数十万广告主与开发者，支持一键精准自动化投放，广告预算留存率常年超 120%。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">⚡ MAX 应用内竞价聚合</div>
+                <p style="font-size: 12.5px;"><strong>全球最大移动竞价中枢</strong><br>通过公平公正的实时竞价（In-App Bidding）聚合全网广告源，垄断了头部移动应用 70%+ 变现流量入口。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">🛍️ Web 电商零售广告 (新)</div>
+                <p style="font-size: 12.5px;"><strong>第二增长曲线爆发点</strong><br>打破移动游戏边界，接入独立电商与品牌独立站，为 DTC 品牌带来超越 Meta 与 Google 的高转化广告表现。</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🛡️ 波特五力模型与护城河结构深度剖析</div>
+            <div class="grid-2" style="margin-top: 10px; font-size: 13px;">
+                <div>
+                    <p><strong>1. 数据网络效应与算法飞轮 (极强)：</strong> 每天处理数百亿次广告请求，数据量越大 AXON 预测越准，转化率越高，吸引更多广告主，形成不可逾越的护城河。</p>
+                    <p style="margin-top: 8px;"><strong>2. 广告主转换成本 (极高)：</strong> 广告主根据 ROAS 考核投放效果。在 AXON 2.0 带来更高投产比的情况下，广告主绝不会为了省钱转移到低效平台。</p>
+                    <p style="margin-top: 8px;"><strong>3. 潜在进入者威胁 (极低)：</strong> 研发同等精度的万亿参数级 AdTech 实时模型需要数年训练与海量真实交易数据喂养，初创企业无法复制。</p>
+                </div>
+                <div>
+                    <p><strong>4. 同行竞争格局收敛 (极强)：</strong> 主要竞争对手 Unity 遭遇战略摇摆与管理层动荡，AppLovin 持续蚕食对手市场份额，垄断地位进一步加固。</p>
+                    <p style="margin-top: 8px;"><strong>5. 替代品威胁 (低)：</strong> 隐私政策变更（如 Apple ATT）反而打击了依赖第三方 Cookies 的传统对手，凸显了 AppLovin 依靠应用内第一方行为训练的强大韧性。</p>
+                    <p style="margin-top: 8px;"><strong>💡 护城河综合评级：宽护城河 (Wide Moat / 算法壁垒+双边网络效应+数据规模)</strong>。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 04 -->
+    <section id="sec-4" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">04</div>
+                <div>
+                    <div class="section-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</div>
+                    <div class="section-sub">营收高速爆发、79.3% EBITDA 利润率与 $39.4亿+ 纯自由现金流</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 04</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (单位: 百万美元 / USD)</th>
+                        <th class="th-num">FY2022</th>
+                        <th class="th-num">FY2023</th>
+                        <th class="th-num">FY2024</th>
+                        <th class="th-num">FY2025</th>
+                        <th class="th-num">TTM (最新)</th>
+                        <th>复合增长与盈利特征</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="td-num">$2,817</td>
+                        <td class="td-num">$1,842</td>
+                        <td class="td-num">$3,224</td>
+                        <td class="td-num">$5,481</td>
+                        <td class="td-num highlight-val">$6,829</td>
+                        <td><span class="tag-pill tag-green">年复合增速超 50%，软件平台爆发</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="td-num">$1,561</td>
+                        <td class="td-num">$1,485</td>
+                        <td class="td-num">$2,703</td>
+                        <td class="td-num">$4,816</td>
+                        <td class="td-num highlight-val">$6,041</td>
+                        <td><span class="tag-pill tag-green">毛利率高达 88.46%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="td-num">-$48</td>
+                        <td class="td-num">$772</td>
+                        <td class="td-num">$1,911</td>
+                        <td class="td-num">$4,152</td>
+                        <td class="td-num highlight-val">$5,305</td>
+                        <td><span class="tag-pill tag-green">营业利润率高达 77.68%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="td-num">-$193</td>
+                        <td class="td-num">$357</td>
+                        <td class="td-num">$1,580</td>
+                        <td class="td-num">$3,334</td>
+                        <td class="td-num highlight-val">$4,410</td>
+                        <td>净利润率高达 64.58%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating Cash Flow)</strong></td>
+                        <td class="td-num">$413</td>
+                        <td class="td-num">$1,062</td>
+                        <td class="td-num">$2,099</td>
+                        <td class="td-num">$3,971</td>
+                        <td class="td-num highlight-val">$4,528</td>
+                        <td>现金造血能力惊人</td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="td-num">-$1</td>
+                        <td class="td-num">-$64</td>
+                        <td class="td-num">-$26</td>
+                        <td class="td-num">-$28</td>
+                        <td class="td-num">-$30</td>
+                        <td>几乎零硬件重资产负担</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="td-num">$412</td>
+                        <td class="td-num">$998</td>
+                        <td class="td-num">$2,073</td>
+                        <td class="td-num">$3,943</td>
+                        <td class="td-num highlight-val">$3,180</td>
+                        <td><span class="tag-pill tag-green">年产 39亿+ 纯真金白银</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="appRevenueIncomeChart"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 05 -->
+    <section id="sec-5" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">05</div>
+                <div>
+                    <div class="section-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+                    <div class="section-sub">ROE 203.69% 极高盈利模式的底层因子剖析</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 05</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-blue">
+                <div class="card-title">1. 盈利能力 (净利润率 Net Margin)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">64.58% (断层级纯利)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">得益于 88.5% 的极高软件平台毛利和极低边际运营成本，每 100 美元收入直接转化近 65 美元纯净利润。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">2. 营运效率 (资产周转率 Asset Turnover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">0.94x ~ 1.05x</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">轻资产云端架构，总资产回报率 ROA 达到惊人的 <strong>46.46%</strong>，全球科技巨头中无出其右。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">3. 财务杠杆 (权益乘数 Equity Multiplier)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">3.40x</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">公司积极使用自由现金流回购注销股票，使得净资产维持在极高效率水平，放大了股东权益复合回报。</p>
+            </div>
+        </div>
+
+        <div class="callout callout-amber" style="margin-top: 16px;">
+            <strong>💡 杜邦综合诊断：</strong> 净资产收益率 <strong>ROE 达到 203.69%</strong>，资产回报率 <strong>ROA 达到 46.46%</strong>。AppLovin 展现出近乎完美的软件 AI 规模效应，是 AdTech 赛道当之无愧的超级印钞机。
+        </div>
+    </section>
+
+    <!-- MODULE 06 -->
+    <section id="sec-6" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">06</div>
+                <div>
+                    <div class="section-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+                    <div class="section-sub">AppLovin vs The Trade Desk vs Unity vs Meta vs Snap 多维度对标</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 06</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (代码)</th>
+                        <th class="th-num">最新股价</th>
+                        <th class="th-num">市值 (Cap)</th>
+                        <th class="th-num">前瞻 P/E</th>
+                        <th class="th-num">营收增速 (YoY)</th>
+                        <th class="th-num">EBITDA 利润率</th>
+                        <th class="th-num">ROE</th>
+                        <th class="th-num">PEG</th>
+                        <th>核心赛道与定位</th>
+                        <th>投资评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>AppLovin (APP)</strong></td>
+                        <td class="td-num highlight-val">$315.44</td>
+                        <td class="td-num">$105.56B</td>
+                        <td class="td-num highlight-val">15.02x</td>
+                        <td class="td-num highlight-val">+52.8%</td>
+                        <td class="td-num highlight-val">79.29%</td>
+                        <td class="td-num highlight-val">203.69%</td>
+                        <td class="td-num highlight-val"><strong>&lt; 0.35 (极低)</strong></td>
+                        <td><span class="tag-pill tag-green">AI AdTech 绝对龙头 + 电商出海</span></td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>The Trade Desk (TTD)</strong></td>
+                        <td class="td-num">$14.14</td>
+                        <td class="td-num">$6.64B</td>
+                        <td class="td-num">14.21x</td>
+                        <td class="td-num">+3.0%</td>
+                        <td class="td-num">23.34%</td>
+                        <td class="td-num">13.60%</td>
+                        <td class="td-num">4.50+</td>
+                        <td>独立全渠道买方 DSP 平台</td>
+                        <td><span class="tag-pill tag-amber">HOLD</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Unity Software (U)</strong></td>
+                        <td class="td-num">$46.25</td>
+                        <td class="td-num">$20.35B</td>
+                        <td class="td-num">26.91x</td>
+                        <td class="td-num">+23.9%</td>
+                        <td class="td-num">7.21%</td>
+                        <td class="td-num">-</td>
+                        <td class="td-num">-</td>
+                        <td>游戏引擎开发工具 + 广告网络</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Meta Platforms (META)</strong></td>
+                        <td class="td-num">$589.85</td>
+                        <td class="td-num">$1,502.6B</td>
+                        <td class="td-num">16.91x</td>
+                        <td class="td-num">+28.0%</td>
+                        <td class="td-num">48.04%</td>
+                        <td class="td-num">29.83%</td>
+                        <td class="td-num">0.85</td>
+                        <td>全球最大社交媒体广告围墙花园</td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Snap Inc. (SNAP)</strong></td>
+                        <td class="td-num">$5.41</td>
+                        <td class="td-num">$9.15B</td>
+                        <td class="td-num">7.02x</td>
+                        <td class="td-num">+18.9%</td>
+                        <td class="td-num">-2.30%</td>
+                        <td class="td-num">-</td>
+                        <td class="td-num">-</td>
+                        <td>年轻人图片社交媒体平台</td>
+                        <td><span class="tag-pill tag-amber">HOLD</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🔍 对标核心结论</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                在所有 AdTech 与数字广告公司中，<strong>AppLovin 拥有最高的营收增速 (+52.8%)、最高的 EBITDA 利润率 (79.3%) 和最高的 ROE (203.7%)</strong>，而其前瞻市盈率仅为 <strong>15.02x</strong>（PEG 仅 0.35）。相比同行，AppLovin 展现出断层级的性价比与增长爆发力。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 07 -->
+    <section id="sec-7" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">07</div>
+                <div>
+                    <div class="section-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+                    <div class="section-sub">基准内在价值 $520.00，呈现 64.8% ~ 75.5% 坚实安全边际</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 07</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-amber">
+                <div class="card-title">🐻 悲观情景 (Bear Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">$260.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在跌幅: -17.6%</strong><br>
+                    假设: 游戏广告增速放缓至 8%，非游戏电商拓展遇阻；年化 FCF 降至 $25亿，WACC 12.0%，永续增长率 2.0%。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🎯 基准情景 (Base Case) - 核心预测</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">$520.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +64.8%</strong><br>
+                    假设: AXON 2.0 在电商领域稳步渗透；5年营收复合增速 25%；自由现金流于 2029 年达 $65亿；WACC 10.0%，永续增长率 3.0%。
+                </p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🐂 乐观情景 (Bull Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">$680.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +115.6%</strong><br>
+                    假设: Web 电商广告全面爆发，成为 Shopify 核心变现引擎；年均 FCF 突破 $85亿；WACC 9.0%，永续增长率 3.5%。
+                </p>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 20px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="th-num">2.0%</th>
+                        <th class="th-num">2.5%</th>
+                        <th class="th-num">3.0% (基准)</th>
+                        <th class="th-num">3.5%</th>
+                        <th class="th-num">4.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 9.0%</strong></td>
+                        <td class="td-num">$568.50</td>
+                        <td class="td-num">$618.20</td>
+                        <td class="td-num">$680.40</td>
+                        <td class="td-num">$759.10</td>
+                        <td class="td-num">$868.80</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 9.5%</strong></td>
+                        <td class="td-num">$502.10</td>
+                        <td class="td-num">$542.70</td>
+                        <td class="td-num">$591.50</td>
+                        <td class="td-num">$651.20</td>
+                        <td class="td-num">$728.90</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>WACC 10.0% (基准)</strong></td>
+                        <td class="td-num">$448.80</td>
+                        <td class="td-num">$481.90</td>
+                        <td class="td-num highlight-val">$520.00</td>
+                        <td class="td-num">$568.40</td>
+                        <td class="td-num">$628.60</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 10.5%</strong></td>
+                        <td class="td-num">$404.40</td>
+                        <td class="td-num">$431.80</td>
+                        <td class="td-num">$463.20</td>
+                        <td class="td-num">$501.50</td>
+                        <td class="td-num">$548.10</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 11.0%</strong></td>
+                        <td class="td-num">$366.70</td>
+                        <td class="td-num">$389.30</td>
+                        <td class="td-num">$415.50</td>
+                        <td class="td-num">$446.70</td>
+                        <td class="td-num">$483.90</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 08 -->
+    <section id="sec-8" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">08</div>
+                <div>
+                    <div class="section-title">技术面量化、均线系统与关键筹码位 (Technical Analysis & Levels)</div>
+                    <div class="section-sub">52周大底 $303.17 探底回升、RSI 26.87 严重超卖底背离</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 08</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 16px;">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">14日 RSI 动量指标</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--red);">26.87</div>
+                <div style="font-size: 11px; color: #DC2626;">处于极度超卖/强反弹区间</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">20日均线 (SMA 20)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--amber);">$380.12</div>
+                <div style="font-size: 11px; color: #B45309;">短线第一反弹阻力目标</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">50日均线 (SMA 50)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--slate);">$450.23</div>
+                <div style="font-size: 11px; color: var(--text-muted);">中期均线回归目标位</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">布林带通道 (BB 20,2)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">$292.63 - $467.61</div>
+                <div style="font-size: 11px; color: #15803D;">在布林下轨 $292 处探底企稳</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🟢 关键支撑位 (Support Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>S1 (第一支撑): $305.00 - $310.00</strong> — 近期放量探底颈线与密集成交区</li>
+                    <li><strong>S2 (历史铁底): $303.17</strong> — 52 周历史最低大底（强劲多头护盘底线）</li>
+                    <li><strong>S3 (极限支撑): $280.00</strong> — 2024 年初重大放量突破平台</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🔴 关键阻力位 (Resistance Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>R1 (初步阻力): $350.00</strong> — 整数关口与 8月上旬跳空缺口下沿</li>
+                    <li><strong>R2 (核心目标): $380.00</strong> — 20日移动平均线 (SMA 20)</li>
+                    <li><strong>R3 (中期反转): $450.00</strong> — 50日均线与前期平台高点</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 09 -->
+    <section id="sec-9" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">09</div>
+                <div>
+                    <div class="section-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</div>
+                    <div class="section-sub">严格遵循合规披露准则：公司股息政策与股东回报全景</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 09</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-amber">
+                <div class="card-title">📢 股息指标明确披露 (Mandatory Dividend Disclosure)</div>
+                <div class="table-scroll" style="margin: 8px 0;">
+                    <table>
+                        <tr>
+                            <td><strong>股息率 (Dividend Yield)</strong></td>
+                            <td class="td-num highlight-val"><strong>无 / 没有 (0.00% / Dividend: None)</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>年度派息金额 (Annual Payout)</strong></td>
+                            <td class="td-num">$0.00 / 股 (不派发常规现金股息)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>股息支付率 (Payout Ratio)</strong></td>
+                            <td class="td-num">0.00%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>资本配置策略说明</strong></td>
+                            <td class="td-num">全额自由现金流用于股票回购与 AXON AI 研发</td>
+                        </tr>
+                    </table>
+                </div>
+                <p style="font-size: 12px; color: #92400E; margin-top: 6px;">
+                    <strong>明确说明：</strong> AppLovin 目前<strong>不派发常规现金股息 (无/没有)</strong>。公司将每年产生的近 $40 亿美元自由现金流全力投入于**大规模股票回购 (Share Buybacks)** 与 AXON 2.0 AI 引擎研发，为股东创造极致的税后资本利得回报。
+                </p>
+            </div>
+
+            <div class="card card-green">
+                <div class="card-title">💰 核心股东回报：大规模股票回购注销</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>数十亿美元持续回购：</strong> 董事会连续批准多期大规模回购计划，过去两年累计回购并注销了超 15% 的流通股本。</li>
+                    <li><strong>低估值时期加速回购：</strong> 在股价腰斩至 15x 前瞻 P/E 的估值底部，管理层进一步加快回购执行节奏，大幅增厚每股 EPS。</li>
+                    <li><strong>极致资本回报率：</strong> 凭借高达 204% 的 ROE 与 46.5% 的 ROA，将资金留存复利滚存或回购是实现股东价值最大化的最优选择。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="sec-10" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">10</div>
+                <div>
+                    <div class="section-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+                    <div class="section-sub">34天 DTE (2026-09-18) 三档结构化建仓与权利金增强方案</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 10</span>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">
+            当前 APP 股价为 <strong>$315.44</strong>，隐含波动率 (IV) 达到 <strong>52.6% - 54.9%</strong>（期权权利金极厚），采用 <strong>30-45天 DTE 的 Cash-Secured Put</strong> 策略可实现极高胜率的折价建仓与超高年化权利金收益：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>行权价 (Strike)</th>
+                        <th>到期日 (DTE)</th>
+                        <th>Delta / 虚值程度</th>
+                        <th class="th-num">权利金 (Mid)</th>
+                        <th class="th-num">期间收益率</th>
+                        <th class="th-num">年化收益率 (Ann. Yield)</th>
+                        <th>实质建仓成本 / 适用投资人画像</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tag-pill tag-green">🛡️ 保守档 (Conservative)</span></td>
+                        <td><strong>$280.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.20 (11.2% OTM)</td>
+                        <td class="td-num highlight-val">$6.85</td>
+                        <td class="td-num">2.45%</td>
+                        <td class="td-num highlight-val"><strong>~26.3%</strong></td>
+                        <td><strong>$273.15</strong> (远低于 52 周大底 $303 才接货，极高安全边际)</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><span class="tag-pill tag-blue">⚖️ 稳健档 (Moderate)</span></td>
+                        <td><strong>$300.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.35 (4.9% OTM)</td>
+                        <td class="td-num highlight-val">$13.55</td>
+                        <td class="td-num">4.52%</td>
+                        <td class="td-num highlight-val"><strong>~48.5%</strong></td>
+                        <td><strong>$286.45</strong> (未平仓超 2,200 张，实质成本跌破前低，年化近 50%)</td>
+                    </tr>
+                    <tr style="background: #FAF5FF;">
+                        <td><span class="tag-pill tag-purple">🚀 进取档 (Aggressive)</span></td>
+                        <td><strong>$310.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.47 (1.7% OTM)</td>
+                        <td class="td-num highlight-val">$17.70</td>
+                        <td class="td-num">5.71%</td>
+                        <td class="td-num highlight-val"><strong>~61.3%</strong></td>
+                        <td><strong>$292.30</strong> (平值抢超高权利金，实质建仓成本仅 $292.30)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="sec-11" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">11</div>
+                <div>
+                    <div class="section-title">机构持仓与主力资金动向 (Institutional Ownership & 13F)</div>
+                    <div class="section-sub">顶级对冲基金与被动指数巨擘重仓锁定 80%+ 流通盘</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 11</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者 (Institutional Holder)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持股市值 (Value)</th>
+                        <th>占总流通股比 (pctHeld)</th>
+                        <th>报告期变动 (pctChange)</th>
+                        <th>投资性质与风格</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vanguard Group, Inc. (先锋领航)</strong></td>
+                        <td class="td-num">24,800,000</td>
+                        <td class="td-num">$7.82B</td>
+                        <td class="td-num"><strong>8.15%</strong></td>
+                        <td>+2.40% (增持)</td>
+                        <td>全球最大指数基金与被动配置机构</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BlackRock, Inc. (贝莱德)</strong></td>
+                        <td class="td-num">21,300,000</td>
+                        <td class="td-num">$6.72B</td>
+                        <td class="td-num"><strong>7.00%</strong></td>
+                        <td>+3.15% (增持)</td>
+                        <td>全球最大资产管理公司</td>
+                    </tr>
+                    <tr>
+                        <td><strong>KKR & Co. Inc.</strong></td>
+                        <td class="td-num">18,500,000</td>
+                        <td class="td-num">$5.84B</td>
+                        <td class="td-num"><strong>6.08%</strong></td>
+                        <td>0.00% (战略长线锁定)</td>
+                        <td>早期核心战略投资机构</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fidelity / FMR LLC</strong></td>
+                        <td class="td-num">14,200,000</td>
+                        <td class="td-num">$4.48B</td>
+                        <td class="td-num"><strong>4.66%</strong></td>
+                        <td>+5.80% (主动大幅加仓)</td>
+                        <td>全球顶尖科技主动成长基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tiger Global Management LLC</strong></td>
+                        <td class="td-num">8,600,000</td>
+                        <td class="td-num">$2.71B</td>
+                        <td class="td-num"><strong>2.82%</strong></td>
+                        <td>+8.20% (逆势抄底)</td>
+                        <td>全球顶级科技成长对冲基金</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
+            <strong>主力动向解析：</strong> 在股价回踩 $300-$320 期间，富达（FMR）与老虎环球（Tiger Global）等主动型顶级科技成长基金**展开大规模逆势扫货加仓**，机构筹码集中度极高，流通盘抛压已被充分承接。
+        </p>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="sec-12" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">12</div>
+                <div>
+                    <div class="section-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Tone)</div>
+                    <div class="section-sub">CEO Adam Foroughi 强调非游戏电商试点转化率超出预期</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 12</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🎙️ 财报电话会要点与管理层情绪 (Sentiment: Highly Bullish)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>Web 电商广告展现出统治级 ROAS：</strong> 管理层指出，AXON 2.0 算法在接入独立电商独立站广告后，广告主的购买转化率甚至高于传统游戏客户，商户留存率高达 130%+。</li>
+                    <li><strong>软件平台收入结构持续优化：</strong> 软件平台（Software Platform）收入占比突破 70%，且以 60%+ 速度狂飙，推动公司综合毛利率稳定在 88%+。</li>
+                    <li><strong>坚决执行百亿级回购：</strong> 自由现金流充沛且资产负债表极度健康，将继续在低估值阶段大额回购注销股本。</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📝 创始人兼 CEO 领导力与长期愿景</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>创始人 Adam Foroughi 深度绑定：</strong> 创始人拥有大量投票权与长期股权激励，带领团队在 Apple 隐私风暴中逆势破局完成 AXON 2.0 的史诗级进化。</li>
+                    <li><strong>极度务实敏锐的商业嗅觉：</strong> 果断剥离边缘自研游戏工作室资产，全面转型纯 AdTech 软件平台，使公司成为 AI 变现最成功的软件企业之一。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="sec-13" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">13</div>
+                <div>
+                    <div class="section-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</div>
+                    <div class="section-sub">做空占比 4.09%，平仓天数 1.94 天</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 13</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">做空股数 (Shares Short)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">1191万 股</div>
+                <div style="font-size: 11px; color: var(--text-muted);">流通股占比: 4.09%</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">平仓天数 (Days to Cover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">1.94 天</div>
+                <div style="font-size: 11px; color: #15803D;">流动性极佳，换手充分</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">空头压力评级</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">低-中风险 (Low-Med)</div>
+                <div style="font-size: 11px; color: #15803D;">空头主要为高位对冲盘，抛压竭尽</div>
+            </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 14px;">
+            <strong>空头分析：</strong> 做空力量在股价腰斩过程中已获利回吐大部分头寸。当前在 52周底部 $303 处，空头继续打压的收益风险比极差，一旦财报再次确认非游戏电商增速超预期，将触发强劲的空头回补买盘。
+        </p>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="sec-14" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">14</div>
+                <div>
+                    <div class="section-title">核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+                    <div class="section-sub">系统性审视隐私政策收紧、非游戏电商拓展节奏与宏观广告周期风险</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 14</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子 (Risk Factor)</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>综合风险等级</th>
+                        <th>对冲机制与缓冲垫 (Mitigation & Buffer)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 苹果或谷歌移动生态隐私政策进一步收紧</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低-中风险</span></td>
+                        <td>AXON 2.0 依靠应用内实时即时第一方行为数据进行上下文预测，不依赖跨 App 追踪，韧性极强</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 非游戏电商零售广告拓展节奏不及预期</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>中等 (Moderate)</td>
+                        <td><span class="tag-pill tag-amber">中等关注</span></td>
+                        <td>移动游戏广告基本盘已实现 50%+ 强劲内生增长，电商业务属于纯增量期权，下行托底坚固</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 全球宏观经济衰退导致广告主预算缩减</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>暂时 (Transitory)</td>
+                        <td><span class="tag-pill tag-blue">低风险</span></td>
+                        <td>按效果付费（Performance Advertising / ROAS 考核）在衰退期反而会吸纳品牌广告（Brand Ads）预算</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 股价 Beta 偏高引发的高波动风险</strong></td>
+                        <td>高 (High)</td>
+                        <td>短期波动</td>
+                        <td><span class="tag-pill tag-amber">中等关注</span></td>
+                        <td>通过卖出高安全垫的 Cash-Secured Put 策略捕获 40%-60% 年化权利金并大幅降低持仓成本</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="sec-15" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">15</div>
+                <div>
+                    <div class="section-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+                    <div class="section-sub">未来 6-18 个月核心估值催化事件序列</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 15</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">📅 催化剂 1: Web 电商零售广告平台全量商业化上线</div>
+                <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">2026年 Q3 - Q4</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">全面打通 Shopify 与主流独立站生态，非游戏电商收入占比突破 20%，打开全新百亿营收空间。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📅 催化剂 2: 下半年全球年终购物季与游戏买量峰值</div>
+                <div style="font-size: 12px; font-weight: 700; color: #1E40AF; margin-bottom: 6px;">2026年 11月 - 12月</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">黑五网一与圣诞假期广告主买量预算创历史新高，推动 Q4 业绩与指引大超华尔街预期。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">📅 催化剂 3: 估值从 15x P/E 强劲修复至 30x+ 行业合理中枢</div>
+                <div style="font-size: 12px; font-weight: 700; color: #6B21A8; margin-bottom: 6px;">持续推进</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">市场充分消化短期获利盘后，戴维斯双击将驱动股价向 $520 - $550 目标位发起有力冲击。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 16 -->
+    <section id="sec-16" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">16</div>
+                <div>
+                    <div class="section-title">最终投资评级与执行建议 (Final Verdict & Execution Plan)</div>
+                    <div class="section-sub">标准化投资决策模块与分步建仓指引</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 16</span>
+        </div>
+
+        <div class="signal-banner">
+            <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700;">INVESTMENT SIGNAL MATRIX</div>
+            <div style="font-size: 26px; font-weight: 800; margin: 4px 0 14px;">强烈看多 (STRONG BUY) • 8.8 / 10</div>
+            
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-lbl">核心信号 (Signal)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">STRONG BUY (强烈看多)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">置信度 (Confidence)</div>
+                    <div class="signal-val">HIGH (极高)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">投资期限 (Horizon)</div>
+                    <div class="signal-val">12 - 36 个月</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">综合评分 (Score)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">8.8 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">建议操作 (Action)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">BUY (52周大底坚决超配)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">目标价 (Target Price)</div>
+                    <div class="signal-val">$520.00 (+64.8%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">🎯 具体交易执行指引 (Actionable Strategy)</div>
+            <ol style="padding-left: 20px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.8;">
+                <li><strong>正股分批建仓区间：</strong> 建议在 <strong>$305.00 - $320.00</strong> 52周底部区间建立 50%-60% 重仓底仓。当前处于严重超卖 (RSI 26.87) 阶段，下行空间已被 15x P/E 与 $39亿 自由现金流牢固托底。</li>
+                <li><strong>期权收益增强执行：</strong> 推荐卖出 2026-09-18 到期、行权价 <strong>$300.00 Put</strong>（权利金 ~$13.55，年化收益率 ~48.5%）或 <strong>$280.00 Put</strong>（权利金 ~$6.85，年化收益率 ~26.3%），以大幅跌破前低的实质成本抢筹。</li>
+                <li><strong>持股目标与止盈规划：</strong> 第一目标位 <strong>$380.00</strong>（20日均线处分批止盈 25%），核心 DCF 公允目标位 <strong>$520.00 (+64.8%)</strong>，长期可持有至华尔街平均目标价 <strong>$553.47 (+75.5%)</strong>。</li>
+            </ol>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+            <strong>免责声明 (Disclaimer)：</strong> 本研报基于公开市场数据、公司官方财务披露及行业量化模型生成，仅供投资研究与学术交流参考，不构成任何具体的投资建议或买卖要约。股票及金融衍生品交易存在本金损失风险，投资者应根据自身风险承受能力独立决策。
+        </div>
+    </section>
+
+</div>
+
+<!-- JAVASCRIPT FOR CHARTS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Radar Chart
+        const radarCtx = document.getElementById('appFactorRadarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['业绩增长力 (9.8)', '盈利质量/ROE (9.8)', '估值性价比 (9.0)', '护城河壁垒 (9.0)', '财务健康/现金流 (8.5)', '筹码技术面 (6.8)'],
+                datasets: [{
+                    label: 'AppLovin (APP) 因子得分',
+                    data: [9.8, 9.8, 9.0, 9.0, 8.5, 6.8],
+                    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                    borderColor: '#10B981',
+                    pointBackgroundColor: '#059669',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#059669',
+                    borderWidth: 2
+                }, {
+                    label: '全球广告科技与软件板块均值 (Benchmark)',
+                    data: [6.5, 6.0, 6.0, 6.5, 6.0, 5.5],
+                    backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                    borderColor: '#94A3B8',
+                    pointBackgroundColor: '#94A3B8',
+                    pointBorderColor: '#fff',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#E2E8F0' },
+                        grid: { color: '#F1F5F9' },
+                        pointLabels: {
+                            font: { size: 11, weight: '600', family: 'Inter' },
+                            color: '#475569'
+                        },
+                        ticks: { min: 0, max: 10, stepSize: 2, display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+
+        // 2. Revenue & Free Cash Flow Bar/Line Chart
+        const revCtx = document.getElementById('appRevenueIncomeChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024', '2025', 'TTM (最新)'],
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: '营业总收入 Revenue ($M)',
+                        data: [2817, 1842, 3224, 5481, 6829],
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#059669',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: '自由现金流 FCF ($M)',
+                        data: [412, 998, 2073, 3943, 3180],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#D97706',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '总营收 ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { color: '#F1F5F9' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: '自由现金流 FCF ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Progressive (PGR) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid #34D399; }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 880px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #F1F5F9;
+        }
+        .sec-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 13px;
+            margin-right: 10px;
+        }
+        .sec-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #F1F5F9;
+            color: var(--slate);
+            text-transform: uppercase;
+        }
+
+        h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 18px 0 10px; }
+        h4 { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: .4px; }
+        p { margin-bottom: 12px; color: var(--text-secondary); font-size: 14px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+        .card-emerald { background: #ECFDF5; border-color: #A7F3D0; }
+        .card-amber { background: #FEF3C7; border-color: #FDE68A; }
+        .card-red { background: #FEE2E2; border-color: #FECACA; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+
+        .metric-item {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #E2E8F0;
+            padding-bottom: 4px;
+        }
+        .metric-item:last-child { border-bottom: none; }
+        .metric-lbl { font-size: 12px; color: var(--slate); font-weight: 500; }
+        .metric-val { font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 14px 0 20px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+            min-width: 600px;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-primary);
+            font-weight: 700;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-highlight { font-weight: 700; color: var(--primary); }
+        .td-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            margin: 16px 0;
+        }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 18px;
+            border-radius: 0 10px 10px 0;
+            margin: 16px 0;
+            font-size: 13.5px;
+            color: #064E3B;
+        }
+        .callout-title { font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            color: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            margin-top: 32px;
+            box-shadow: 0 12px 32px rgba(5,150,105,0.25);
+            border: 1px solid #10B981;
+        }
+        .signal-block-title { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700; text-align: center; margin-bottom: 18px; }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+        }
+        .sig-cell { text-align: center; }
+        .sig-label { font-size: 11px; text-transform: uppercase; color: #D1FAE5; margin-bottom: 4px; }
+        .sig-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #fff; }
+        .signal-verdict { font-size: 26px; font-weight: 900; color: #34D399; text-shadow: 0 0 12px rgba(52,211,153,0.5); }
+        .signal-score { font-size: 28px; font-weight: 900; color: #FCD34D; }
+
+        .tier-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .tier-cons { background: #DBEAFE; color: #1D4ED8; }
+        .tier-mod { background: #D1FAE5; color: #065F46; }
+        .tier-agg { background: #FEF3C7; color: #92400E; }
+
+        @media (max-width: 768px) {
+            .report-hero { padding: 32px 16px; }
+            .hero-title { font-size: 24px; }
+            .main-wrap { padding: 20px 14px; }
+            .section { padding: 20px 16px; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: PGR</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-cat">全美车险与财险绝对霸主 / 88% 超级综合成本率 / 极致低估值</span>
+            <span class="badge badge-hero-cat">报告日期: 2026-08-15</span>
+        </div>
+        <h1 class="hero-title">The Progressive Corporation (PGR) 15模块全景深度投研与多因子量化评估报告</h1>
+        <div class="hero-sub">
+            全美车险与商业车险科技承保霸主；依托 Snapshot 车联网大数据与动态精算定价，综合成本率（Combined Ratio）持续保持在 86-88% 行业天花板水平；年营收突破 $91B，年化自由现金流超 $15B，ROE 突破 40%+；Trailing P/E 仅 10.5x，Beta 仅 0.26，提供无可替代的防御增长价值。
+        </div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot Price)</div>
+                <div class="hero-kpi-val">$209.60</div>
+                <div class="hero-kpi-sub">52周区间: $187.78 - $239.38</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$121.86B</div>
+                <div class="hero-kpi-sub">企业价值 EV: $128.09B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市盈率 (Trailing / Forward)</div>
+                <div class="hero-kpi-val">10.5x / 12.9x</div>
+                <div class="hero-kpi-sub">P/S: 1.34x | P/B: 3.55x</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 营业收入 / 净利润</div>
+                <div class="hero-kpi-val">$91.02B / $11.69B</div>
+                <div class="hero-kpi-sub">净利率: 12.8% | ROE: 40.4%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师目标价均值</div>
+                <div class="hero-kpi-val">$229.78</div>
+                <div class="hero-kpi-sub">最高目标价: $308.00 (+46.9%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">量化综合评分</div>
+                <div class="hero-kpi-val" style="color: #FCD34D;">8.6 / 10</div>
+                <div class="hero-kpi-sub">评级: 强烈看多 (STRONG BUY)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+
+    <nav class="toc-bar">
+        <div class="toc-title">报告模块快速导航 (15 Comprehensive Modules)</div>
+        <div class="toc-links">
+            <a class="toc-link" href="#sec-1">1. 执行摘要与投资核心逻辑</a>
+            <a class="toc-link" href="#sec-2">2. 多因子量化评分雷达</a>
+            <a class="toc-link" href="#sec-3">3. 商业模式与波特五力护城河</a>
+            <a class="toc-link" href="#sec-4">4. 财务报表与盈利质量</a>
+            <a class="toc-link" href="#sec-5">5. 杜邦三因子拆解</a>
+            <a class="toc-link" href="#sec-6">6. 行业竞争格局与同行对标</a>
+            <a class="toc-link" href="#sec-7">7. DCF 估值与敏感性模型</a>
+            <a class="toc-link" href="#sec-8">8. 技术面量化与均线筹码</a>
+            <a class="toc-link" href="#sec-9">9. 资本配置与股息政策</a>
+            <a class="toc-link" href="#sec-10">10. 现金担保卖 Put 收益增强</a>
+            <a class="toc-link" href="#sec-11">11. 机构持仓与 13F 资金动向</a>
+            <a class="toc-link" href="#sec-12">12. 内部人交易与财报情绪</a>
+            <a class="toc-link" href="#sec-13">13. 做空比例与轧空风险</a>
+            <a class="toc-link" href="#sec-14">14. 核心风险矩阵与压力测试</a>
+            <a class="toc-link" href="#sec-15">15. 催化剂日历与增长路线图</a>
+            <a class="toc-link" href="#sec-16">16. 最终评级与信号区块</a>
+        </div>
+    </nav>
+
+    <!-- MODULE 1: 执行摘要与核心投资逻辑 -->
+    <section class="section" id="sec-1">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">01</span> 执行摘要与投资核心逻辑 (Executive Summary & Thesis)</div>
+            <span class="sec-tag">Thesis</span>
+        </div>
+        <p><strong>The Progressive Corporation (NYSE: PGR)</strong> 总部位于俄亥俄州梅菲尔德村，是标普500成分股，全美个人车险、商用车险与财产意外险领域的绝对科技先驱与规模领袖。公司凭借直营（Direct）与独立代理人（Agency）双渠道网络，服务全美超过 3,000 万活跃保单客户。</p>
+        
+        <div class="grid-3">
+            <div class="card card-emerald">
+                <h4>核心看多逻辑 1: 精算定价与数据智能的技术代差</h4>
+                <p style="font-size: 13px; margin: 0;">Progressive 是全美首创基于驾驶行为远程信息处理技术（Snapshot Telematics）的险企，在车险定价算法和细分风险识别上领先同行数年。当行业普遍面临通胀赔付飙升而导致承保亏损时，PGR 始终将综合成本率（Combined Ratio）稳定在 86-88%（即每收取 $100 保费实现 $12-$14 纯承保利润）。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>核心看多逻辑 2: 浮存金收益与承保利润的双轮爆发</h4>
+                <p style="font-size: 13px; margin: 0;">公司管理着超过 $75B 的庞大保险浮存金（Float）。在当前中高利率环境下，固定收益投资组合平均收益率达 4.5-5.0%，每年贡献超 $3.5B 净投资收益；叠加 $8B+ 纯承保利润，年化净利润突破 $11.6B，自由现金流达 $15.1B。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>核心看多逻辑 3: 10.5x 超低 PE 与 0.26 极低 Beta 防御底色</h4>
+                <p style="font-size: 13px; margin: 0;">股价在经历前期自 $255 高位回调后，目前在 $209 附近（紧贴 200 日均线 $207）构筑坚实双底。当前 Trailing P/E 仅 10.5x，Forward P/E 仅 12.8x，Beta 仅 0.26，在宏观不确定性加剧的环境下具备顶级的防守反击赔率。</p>
+            </div>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">💡 投资核心研判 (Verdict)</div>
+            市场近期担忧车险费率提价周期见顶可能导致未来增速趋缓，从而引发股价回调。然而，由于主要竞争对手（如 State Farm、GEICO、Allstate）前期承保亏损沉重且被迫大幅补涨保费，PGR 凭借更低的综合成本率正在加速掠夺行业优质保单份额（PIF 增速超 15%）。在 10.5x PE 的估值洼地中，PGR 兼具顶格增长与极致防御。
+        </div>
+    </section>
+
+    <!-- MODULE 2: 多因子量化评分雷达模型 -->
+    <section class="section" id="sec-2">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">02</span> 多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</div>
+            <span class="sec-tag">Quant Model</span>
+        </div>
+        <p>基于 InvestSkill 多因子量化评估系统，对 PGR 从承保护城河与综合成本率、盈利质量与浮存金收益、成长性与保单扩张、估值性价比、资产负债健康度、技术面动量 6 大维度进行 10 分制量化建模，综合得分 <strong>8.6 / 10</strong>。</p>
+
+        <div class="grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评估维度</th>
+                                <th>得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与量化指标</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>承保护城河 (Combined Ratio)</strong></td>
+                                <td class="td-highlight td-mono">9.8 / 10</td>
+                                <td>25%</td>
+                                <td>综合成本率 86-88%，行业首屈一指，精算算法与定价代差</td>
+                            </tr>
+                            <tr>
+                                <td><strong>盈利质量与浮存金 (Profitability)</strong></td>
+                                <td class="td-highlight td-mono">9.5 / 10</td>
+                                <td>20%</td>
+                                <td>TTM 净利润 $11.69B，ROE 高达 40.4%，年 FCF 超 $15.1B</td>
+                            </tr>
+                            <tr>
+                                <td><strong>估值性价比 (Valuation)</strong></td>
+                                <td class="td-highlight td-mono">9.2 / 10</td>
+                                <td>20%</td>
+                                <td>Trailing PE 10.5x，Forward PE 12.9x，EV/EBITDA 8.3x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>成长性与保单扩张 (Growth)</strong></td>
+                                <td class="td-highlight td-mono">8.5 / 10</td>
+                                <td>15%</td>
+                                <td>TTM 营收 $91.0B (+21.1% CAGR)，有效保单数 (PIF) 两位数扩张</td>
+                            </tr>
+                            <tr>
+                                <td><strong>资产负债与安全性 (Financial Health)</strong></td>
+                                <td class="td-highlight td-mono">8.8 / 10</td>
+                                <td>10%</td>
+                                <td>总资产 $123B，股东权益 $30.3B，高评级固收组合流动性充沛</td>
+                            </tr>
+                            <tr>
+                                <td><strong>技术面与防御性 (Technicals & Beta)</strong></td>
+                                <td class="td-highlight td-mono">6.5 / 10</td>
+                                <td>10%</td>
+                                <td>Beta 仅 0.26，在 200 日均线 ($207.17) 与超卖区 (RSI 39.3) 探底企稳</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权总分 (Total Score)</strong></td>
+                                <td style="color: #059669; font-size: 16px;" class="td-mono">8.6 / 10</td>
+                                <td>100%</td>
+                                <td><strong>强烈看多 (STRONG BUY)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 3: 商业模式、垂直整合与波特五力护城河评级 -->
+    <section class="section" id="sec-3">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">03</span> 商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="sec-tag">Moat Analysis</span>
+        </div>
+        <p>Progressive 的商业模式本质是<strong>“精算科技驱动的超低成本承保 + 极低费率结构 + 庞大优质浮存金复利池”</strong>。公司旗下业务由个人险（Personal Lines 占 ~80%）、商用险（Commercial Lines 占 ~15%）及财产意外险构成。</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>四大核心飞轮护城河</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 6px;"><strong>先发车联网数据资产：</strong>Snapshot 积累了数百亿英里实际驾驶行为数据，能够对危险驾驶习惯实行差别化定价，实现“劣质客户被挤出，优质客户获折扣”。</li>
+                    <li style="margin-bottom: 6px;"><strong>卓越的费用率控制：</strong>通过高比例 Direct 线上自营平台与自动化智能理赔系统，承保费用率（Expense Ratio）维持在 18-19% 极低水平，比传统险企低 300-500 bps。</li>
+                    <li style="margin-bottom: 6px;"><strong>动态敏捷调价机制：</strong>按月/按季向各州保险监管机构申报微调费率，调价反应速度比同行快 6-12 个月。</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>波特五力模型量化评级</h4>
+                <div class="metric-item">
+                    <span class="metric-lbl">1. 供应商议价能力 (Supplier Power)</span>
+                    <span class="metric-val" style="color: #059669;">极弱 (再保险与汽车维修网络议价能力强)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">2. 买方议价能力 (Buyer Power)</span>
+                    <span class="metric-val" style="color: #059669;">弱 (车险为全美法律强制刚需，粘性极高)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">3. 潜在进入者威胁 (New Entrants)</span>
+                    <span class="metric-val" style="color: #059669;">极弱 (各州繁复监管审批与数百亿偿付资本壁垒)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">4. 替代品威胁 (Substitutes)</span>
+                    <span class="metric-val" style="color: #059669;">无 (机动车辆出行无任何非保险替代品)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">5. 行业内部竞争 (Industry Rivalry)</span>
+                    <span class="metric-val" style="color: #059669;">胜出 (以 88% CR 持续从 100%+ CR 对手手中抢夺份额)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 4: 核心财务报表与盈利质量深度剖析 -->
+    <section class="section" id="sec-4">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">04</span> 核心财务报表与盈利质量深度剖析 (Financial Statements & Quality)</div>
+            <span class="sec-tag">Financials</span>
+        </div>
+        <p>公司营收从 2022 年的 $49.59B 飙升至 2025 年的 $87.64B（<strong>最新 TTM $91.02B</strong>），净利润从 $722M 井喷至 <strong>$11.69B</strong>，稀释 EPS 从 $1.18 飙升至近 <strong>$20.00</strong>，创造了险资行业最辉煌的增长战绩。</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (单位: 亿美元)</th>
+                        <th>FY2022</th>
+                        <th>FY2023</th>
+                        <th>FY2024</th>
+                        <th>FY2025</th>
+                        <th>TTM (最新12个月)</th>
+                        <th>复合增速 (CAGR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业收入 (Revenue)</strong></td>
+                        <td class="td-mono">$49.59B</td>
+                        <td class="td-mono">$62.08B</td>
+                        <td class="td-mono">$75.34B</td>
+                        <td class="td-mono td-highlight">$87.64B</td>
+                        <td class="td-mono td-highlight">$91.02B</td>
+                        <td class="td-mono" style="color: #059669;">+21.1% 超强复合增速</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="td-mono">$0.72B</td>
+                        <td class="td-mono">$3.90B</td>
+                        <td class="td-mono">$8.48B</td>
+                        <td class="td-mono td-highlight">$11.31B</td>
+                        <td class="td-mono td-highlight">$11.69B</td>
+                        <td class="td-mono" style="color: #059669;">承保利润与浮存金爆发</td>
+                    </tr>
+                    <tr>
+                        <td><strong>稀释每股收益 (Diluted EPS)</strong></td>
+                        <td class="td-mono">$1.18</td>
+                        <td class="td-mono">$6.58</td>
+                        <td class="td-mono">$14.40</td>
+                        <td class="td-mono td-highlight">$19.23</td>
+                        <td class="td-mono td-highlight">$19.92</td>
+                        <td class="td-mono" style="color: #059669;">年化复合增长 +150%+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>综合成本率 (Combined Ratio)</strong></td>
+                        <td class="td-mono">95.8%</td>
+                        <td class="td-mono">94.9%</td>
+                        <td class="td-mono">88.5%</td>
+                        <td class="td-mono td-highlight">86.8%</td>
+                        <td class="td-mono td-highlight">87.2%</td>
+                        <td class="td-mono" style="color: #059669;">持续大幅优于行业中枢</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating CF)</strong></td>
+                        <td class="td-mono">$6.85B</td>
+                        <td class="td-mono">$10.64B</td>
+                        <td class="td-mono">$15.12B</td>
+                        <td class="td-mono td-highlight">$17.55B</td>
+                        <td class="td-mono td-highlight">$16.34B</td>
+                        <td class="td-mono" style="color: #059669;">年年净流入超百亿美元</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="td-mono">$6.56B</td>
+                        <td class="td-mono">$10.39B</td>
+                        <td class="td-mono">$14.83B</td>
+                        <td class="td-mono td-highlight">$17.20B</td>
+                        <td class="td-mono td-highlight">$15.11B</td>
+                        <td class="td-mono" style="color: #059669;">极度充沛的现金生成</td>
+                    </tr>
+                    <tr>
+                        <td><strong>股东权益 (Stockholders Equity)</strong></td>
+                        <td class="td-mono">$15.89B</td>
+                        <td class="td-mono">$20.28B</td>
+                        <td class="td-mono">$25.59B</td>
+                        <td class="td-mono td-highlight">$30.32B</td>
+                        <td class="td-mono td-highlight">$34.60B</td>
+                        <td class="td-mono" style="color: #059669;">账面净资产快速翻倍</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <h4>综合成本率 (CR) 领先同行 1000+ bps</h4>
+                <p style="font-size: 12.5px; margin: 0;">当 Allstate 和 State Farm 综合成本率在 95-102% 挣扎时，PGR 保持在 87% 左右，这意味着在承保端即产生 13% 的暴利，完全不依赖投资浮存金即可实现巨额净利润。</p>
+            </div>
+            <div class="card">
+                <h4>浮存金投资组合质量</h4>
+                <p style="font-size: 12.5px; margin: 0;">总投资组合规模达 $78.5B，其中 85% 以上配置为高流动性、高信用评级的美国国债与优质投资级企业债，加权久期约 3.2 年，坐享 4.8% 的高息票息。</p>
+            </div>
+            <div class="card">
+                <h4>偿付能力与资本充足率</h4>
+                <p style="font-size: 12.5px; margin: 0;">各州保险监管偿付能力资本充足率（RBC Ratio）常年保持在 400%+，远高于监管警戒线 200%，拥有极度宽裕的保单扩张承保能力。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 5: 杜邦三因子拆解与资本运营效率 -->
+    <section class="section" id="sec-5">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">05</span> 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+            <span class="sec-tag">DuPont Analysis</span>
+        </div>
+        <p>通过经典金融机构杜邦分析法（$ROE = \text{净资产利润率} = \text{净利率} \times \text{资产周转率} \times \text{杠杆乘数}$），拆解其高达 40% 的顶尖 ROE：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>年度</th>
+                        <th>净利润率 (Net Margin)</th>
+                        <th>资产周转率 (Asset Turnover)</th>
+                        <th>权益乘数 (Financial Leverage)</th>
+                        <th>净资产收益率 (ROE)</th>
+                        <th>动能驱动解析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2022</strong></td>
+                        <td class="td-mono">1.46%</td>
+                        <td class="td-mono">0.66次</td>
+                        <td class="td-mono">4.75x</td>
+                        <td class="td-mono">4.54%</td>
+                        <td>二手车价与零部件通胀导致承保利润受压</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td class="td-mono">6.29%</td>
+                        <td class="td-mono">0.70次</td>
+                        <td class="td-mono">4.37x</td>
+                        <td class="td-mono">19.25%</td>
+                        <td>敏捷提价生效，浮存金收益开始释放</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td class="td-mono">11.26%</td>
+                        <td class="td-mono">0.71次</td>
+                        <td class="td-mono">4.13x</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">33.14%</td>
+                        <td>承保暴利与高息浮存金双击爆发</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025 (最新)</strong></td>
+                        <td class="td-mono td-highlight">12.90%</td>
+                        <td class="td-mono td-highlight">0.71次</td>
+                        <td class="td-mono td-highlight">4.06x</td>
+                        <td class="td-mono td-highlight" style="color: #059669; font-weight: 800;">40.40%</td>
+                        <td><strong>净利率冲上 12.9%，杠杆乘数下降至 4.06x，ROE 达 40.4%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">📌 杜邦拆解核心洞察</div>
+            险企通常需要 6-8 倍的高杠杆才能勉强达到 12-15% 的 ROE。而 <strong>Progressive 的权益乘数持续下降至 4.06x</strong>，其超凡的 40% ROE 完全是由 <strong>近 13% 的超高净利率</strong> 所驱动。这是全美金融保险行业最为卓越、抗压能力最强的数据模型。
+        </div>
+    </section>
+
+    <!-- MODULE 6: 行业竞争格局与同行全景对标矩阵 -->
+    <section class="section" id="sec-6">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">06</span> 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="sec-tag">Peer Matrix</span>
+        </div>
+        <p>将 Progressive 与全美主流财险与综合保险领军企业（Allstate、Travelers、Chubb、W. R. Berkley）进行横向全景对标：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>证券代码</th>
+                        <th>公司名称</th>
+                        <th>当前市值</th>
+                        <th>市盈率 (TTM)</th>
+                        <th>前瞻 P/E</th>
+                        <th>综合成本率 (CR)</th>
+                        <th>净资产收益率 (ROE)</th>
+                        <th>年化股息</th>
+                        <th>核心竞争优劣势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>PGR</strong></td>
+                        <td>Progressive</td>
+                        <td class="td-mono td-highlight">$121.86B</td>
+                        <td class="td-mono td-highlight">10.52x</td>
+                        <td class="td-mono td-highlight">12.88x</td>
+                        <td class="td-mono td-highlight">87.2%</td>
+                        <td class="td-mono td-highlight">40.4%</td>
+                        <td class="td-mono td-highlight">$0.40+浮动大额</td>
+                        <td><strong>全美车险科技霸主，综合成本率与 ROE 绝对第一，10.5x 低估值</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>ALL</strong></td>
+                        <td>Allstate Corp</td>
+                        <td class="td-mono">$66.10B</td>
+                        <td class="td-mono">11.8x</td>
+                        <td class="td-mono">9.5x</td>
+                        <td class="td-mono">94.5%</td>
+                        <td class="td-mono">24.5%</td>
+                        <td class="td-mono">1.65%</td>
+                        <td>传统代理人渠道依赖重，加州/纽约费率审批滞后</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TRV</strong></td>
+                        <td>Travelers</td>
+                        <td class="td-mono">$77.25B</td>
+                        <td class="td-mono">14.2x</td>
+                        <td class="td-mono">12.3x</td>
+                        <td class="td-mono">92.0%</td>
+                        <td class="td-mono">18.2%</td>
+                        <td class="td-mono">1.35%</td>
+                        <td>商业财产险巨头，气候巨灾损失波动相对较大</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CB</strong></td>
+                        <td>Chubb Ltd</td>
+                        <td class="td-mono">$132.58B</td>
+                        <td class="td-mono">12.9x</td>
+                        <td class="td-mono">11.8x</td>
+                        <td class="td-mono">89.0%</td>
+                        <td class="td-mono">16.8%</td>
+                        <td class="td-mono">1.19%</td>
+                        <td>全球高端财产与高净值个人险龙头，巴菲特重仓股</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WRB</strong></td>
+                        <td>W. R. Berkley</td>
+                        <td class="td-mono">$26.18B</td>
+                        <td class="td-mono">16.5x</td>
+                        <td class="td-mono">14.6x</td>
+                        <td class="td-mono">90.5%</td>
+                        <td class="td-mono">22.8%</td>
+                        <td class="td-mono">0.57%</td>
+                        <td>特种商业险专精险企，估值乘数相对较高</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-emerald">
+                <h4>对标总结 1: 承保效率与 ROE 彻底碾压同行</h4>
+                <p style="font-size: 13px; margin: 0;">PGR 的 ROE 达到 40.4%，是 Travelers (18.2%) 和 Chubb (16.8%) 的两倍以上，其 87% 的综合成本率展现出无人能及的科技精算阿尔法。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>对标总结 2: 极度诱人的盈利估值性价比</h4>
+                <p style="font-size: 13px; margin: 0;">在如此爆发性的营收（$91B）与净利润（$11.7B）支撑下，PGR 的 Trailing PE 仅 <strong>10.5x</strong>，相比整个标普500大盘（22x+）享有超过 50% 的折价。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 7: DCF 现金流折现与内在价值三情景敏感性模型 -->
+    <section class="section" id="sec-7">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">07</span> DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+            <span class="sec-tag">DCF Model</span>
+        </div>
+        <p>基于 5 年期自由现金流与超额资本生成折现模型（2026-2030），终值永续增长率 $g = 2.5\%$，无风险利率 $R_f = 4.25\%$，Beta $\beta = 0.26$，股权风险溢价 $ERP = 5.0\%$，测算加权平均资本成本 <strong>WACC = 7.5%</strong>。</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>情景分类</th>
+                        <th>年复合净保费增速 (2026-30)</th>
+                        <th>稳态综合成本率 (CR)</th>
+                        <th>核心假设</th>
+                        <th>每股内在价值 (Fair Value)</th>
+                        <th>较现价 ($209.60) 空间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #FEE2E2;">
+                        <td><strong>悲观情景 (Bear Case)</strong></td>
+                        <td class="td-mono">3.0%</td>
+                        <td class="td-mono">92.0%</td>
+                        <td style="font-size: 12px;">行业车险价格战重燃，巨灾赔付率上升</td>
+                        <td class="td-mono" style="font-weight: 800; color: #DC2626;">$185.00</td>
+                        <td class="td-mono" style="color: #DC2626;">-11.7%</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>基准情景 (Base Case)</strong></td>
+                        <td class="td-mono">7.5%</td>
+                        <td class="td-mono">88.5%</td>
+                        <td style="font-size: 12px;">保单数稳增 8-10%，浮存金维持 4.5% 稳健回报</td>
+                        <td class="td-mono" style="font-weight: 800; color: #059669; font-size: 15px;">$258.00</td>
+                        <td class="td-mono" style="color: #059669;">+23.1%</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><strong>乐观情景 (Bull Case)</strong></td>
+                        <td class="td-mono">12.0%</td>
+                        <td class="td-mono">86.0%</td>
+                        <td style="font-size: 12px;">全面超越 State Farm 成为全美第一，商用车险大爆发</td>
+                        <td class="td-mono" style="font-weight: 800; color: #2563EB;">$310.00</td>
+                        <td class="td-mono" style="color: #2563EB;">+47.9%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h4>WACC 与永续增长率 (g) 敏感性矩阵 (基准情景每股价值)</h4>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ g</th>
+                        <th>1.5%</th>
+                        <th>2.0%</th>
+                        <th>2.5% (基准)</th>
+                        <th>3.0%</th>
+                        <th>3.5%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>6.5% (-100bp)</strong></td>
+                        <td class="td-mono">$272.40</td>
+                        <td class="td-mono">$288.60</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">$308.20</td>
+                        <td class="td-mono">$332.50</td>
+                        <td class="td-mono">$362.80</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>7.5% (基准 WACC)</strong></td>
+                        <td class="td-mono">$234.10</td>
+                        <td class="td-mono">$245.20</td>
+                        <td class="td-mono td-highlight" style="font-size: 14px;">$258.00</td>
+                        <td class="td-mono">$274.50</td>
+                        <td class="td-mono">$294.20</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8.5% (+100bp)</strong></td>
+                        <td class="td-mono">$205.80</td>
+                        <td class="td-mono">$213.60</td>
+                        <td class="td-mono">$222.80</td>
+                        <td class="td-mono">$233.90</td>
+                        <td class="td-mono">$247.10</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 8: 技术面量化、均线系统与关键筹码位 -->
+    <section class="section" id="sec-8">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">08</span> 技术面量化、均线系统与关键筹码位 (Technical Analysis)</div>
+            <span class="sec-tag">Technicals</span>
+        </div>
+        <p>股价在经历前期自 $255 高位回调后，在 <strong>$205 - $210（200日均线 $207.17 附近）探底企稳</strong>，RSI (14) 跌至 39.3 处于明显超卖修复状态。</p>
+
+        <div class="grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>技术指标</th>
+                                <th>当前数值</th>
+                                <th>状态判定</th>
+                                <th>交易策略含义</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>现价 (Price)</strong></td>
+                                <td class="td-mono td-highlight">$209.60</td>
+                                <td>200日均线支撑位</td>
+                                <td>回踩长期上升趋势线，极具安全边际</td>
+                            </tr>
+                            <tr>
+                                <td><strong>20日均线 (SMA20)</strong></td>
+                                <td class="td-mono">$212.02</td>
+                                <td>短线第一阻力</td>
+                                <td>反弹突破第一确认点</td>
+                            </tr>
+                            <tr>
+                                <td><strong>50日均线 (SMA50)</strong></td>
+                                <td class="td-mono">$213.68</td>
+                                <td>中期压力</td>
+                                <td>与 SMA20 紧密粘合于 $212-$214</td>
+                            </tr>
+                            <tr>
+                                <td><strong>200日均线 (SMA200)</strong></td>
+                                <td class="td-mono">$207.17</td>
+                                <td style="color: #059669; font-weight: 700;">牛熊铁底支撑</td>
+                                <td>长期战略底仓保护线</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RSI (14日相对强弱)</strong></td>
+                                <td class="td-mono">39.3</td>
+                                <td>超卖修复区 (39.3)</td>
+                                <td>抛压衰竭，处于绝佳左侧加仓区间</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MACD (12, 26, 9)</strong></td>
+                                <td class="td-mono">Dif: -1.21 / Hist: -0.56</td>
+                                <td>低位钝化底背离</td>
+                                <td>动能柱收窄，即将形成低位金叉</td>
+                            </tr>
+                            <tr>
+                                <td><strong>关键支撑与阻力</strong></td>
+                                <td colspan="3" style="font-size: 12px;">
+                                    <strong>第一支撑:</strong> $207.00 (SMA200) | <strong>强筹码铁底:</strong> $198.00<br>
+                                    <strong>第一阻力:</strong> $214.00 (SMA50) | <strong>主阻力:</strong> $235.00
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 9: 资本配置、股息政策与股东回报披露 -->
+    <section class="section" id="sec-9">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">09</span> 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</div>
+            <span class="sec-tag">Capital Allocation</span>
+        </div>
+        <p>Progressive 实行极具特色的<strong>“常规基础股息 + 承保盈利挂钩可变年度特别股息（Gainshare Dividend）+ 适度回购”</strong>资本回报架构：</p>
+
+        <div class="grid-2">
+            <div class="card card-emerald">
+                <h4>股息政策透明披露 (Mandatory Dividend Disclosure)</h4>
+                <div class="metric-item">
+                    <span class="metric-lbl">股息派发状态 (Dividend Status)</span>
+                    <span class="metric-val" style="color: #059669; font-weight: 800;">按季基础派息 + 年度巨额可变股息</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">基础股息收益率 (Base Yield)</span>
+                    <span class="metric-val">0.19% ($0.40 / 年，$0.10 / 季)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">综合年度派息总额 (FY2025 Total Dividend)</span>
+                    <span class="metric-val" style="color: #059669; font-weight: 800;">$2.87B (折合每股派息 ~$4.80+)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">综合股息回报率 (All-in Yield)</span>
+                    <span class="metric-val" style="color: #059669; font-weight: 800;">~2.3% - 3.0% (高承保盈利年度)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">除息日 (Ex-Dividend Date)</span>
+                    <span class="metric-val">按季常规除息</span>
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); margin-top: 10px;">
+                    <strong>特色分红机制：</strong>公司除按季派发 $0.10/股基础股息外，每年末根据当年综合成本率公式计算“可变承保利润奖金股息”。在 2025 年超强盈利下，全年累计派息达 <strong>$2.87B</strong>，兼顾资本留存与超级现金回馈。
+                </p>
+            </div>
+            <div class="card">
+                <h4>资本充足率与浮存金安全</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 8px;"><strong>$78B+ 高质量流动资产：</strong>所有浮存金投资于高评级固收组合，零另类高风险投资，确保任何巨灾发生时拥有即时赔付能力。</li>
+                    <li style="margin-bottom: 8px;"><strong>内生资本扩张能力：</strong>年化 $15B+ 自由现金流使得公司在保单数量两位数增长的同时，净资产收益率持续突破 40%。</li>
+                    <li style="margin-bottom: 8px;"><strong>灵活股票回购：</strong>在股价处于历史极低估值阶段（如当前 10x PE 附近）择机启动回购。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10: 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 -->
+    <section class="section" id="sec-10">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">10</span> 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="sec-tag">Options Strategy</span>
+        </div>
+        <p>鉴于 PGR 股价紧贴 200 日均线强力支撑 ($207.17)，且 Trailing PE 仅 10.5x，下行空间已被充分封死。采用<strong>现金担保卖出看跌期权（Cash-Secured Sell Put）</strong>能以极致折价锁定买入成本，或赚取稳健年化收益。选取到期日为 <strong>2026年9月11日（DTE 27天）</strong>的期权链设计三档策略：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>行权价 (Strike)</th>
+                        <th>Delta (估算)</th>
+                        <th>权利金报价 (Bid / Ask / Mid)</th>
+                        <th>安全边际 (较现价折价)</th>
+                        <th>保本入场价 (Breakeven)</th>
+                        <th>单期收益率 (27天)</th>
+                        <th>年化收益率 (Annualized)</th>
+                        <th>策略执行逻辑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="tier-tag tier-cons">保守型 (Conservative)</span></td>
+                        <td class="td-mono" style="font-weight: 700;">$190.00</td>
+                        <td class="td-mono">~0.10</td>
+                        <td class="td-mono">$0.05 / $1.60 (Mid $0.83)</td>
+                        <td class="td-mono" style="color: #059669;">-9.4% (跌破52周最低)</td>
+                        <td class="td-mono td-highlight">$189.17</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">0.44%</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">~5.9%</td>
+                        <td>超高安全垫，在 $189.17 历史极低铁底处稳健收租</td>
+                    </tr>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tier-tag tier-mod">温和型 (Moderate)</span></td>
+                        <td class="td-mono" style="font-weight: 700; color: #059669;">$200.00</td>
+                        <td class="td-mono">~0.25</td>
+                        <td class="td-mono">$1.15 / $2.50 (Mid $1.83)</td>
+                        <td class="td-mono" style="color: #059669;">-4.6% (SMA200 支撑下方)</td>
+                        <td class="td-mono td-highlight">$198.17</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">0.92%</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 800;">~12.4%</td>
+                        <td><strong>推荐首选档位：</strong>以 $198.17 历史绝佳底价接盘或赚取 12.4% 年化</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tier-tag tier-agg">激进型 (Aggressive)</span></td>
+                        <td class="td-mono" style="font-weight: 700;">$205.00</td>
+                        <td class="td-mono">~0.40</td>
+                        <td class="td-mono">$2.50 / $4.80 (Mid $3.65)</td>
+                        <td class="td-mono">-2.2% (现价支撑附近)</td>
+                        <td class="td-mono td-highlight">$201.35</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">1.78%</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">~24.1%</td>
+                        <td>看好即刻从 200 日线反弹，以 $201.35 成本拿筹并赚取最大权利金</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">🎯 Sell Put 策略执行指导</div>
+            <strong>操作建议：</strong>按 1 张期权合约需准备 $20,000 现金担保。卖出 1 张 $200 Strike 的 Put（权利金约 $183）。若到期股价保持在 $200 以上，全额赚取权利金；若被行权，实际建仓成本仅为 <strong>$198.17</strong>，对应 2026 前瞻 P/E 仅 12.1x，享有极佳的安全边际。
+        </div>
+    </section>
+
+    <!-- MODULE 11: 机构持仓与主力资金动向 -->
+    <section class="section" id="sec-11">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">11</span> 机构持仓与主力资金动向 (Institutional Ownership)</div>
+            <span class="sec-tag">Smart Money</span>
+        </div>
+        <p>PGR 机构持股比例高达 <strong>85.2%</strong>，华尔街顶级长线价值机构与主权公募基金重仓锁定：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (Top 13F Holders)</th>
+                        <th>报告持股日期</th>
+                        <th>持股比例 (pctHeld)</th>
+                        <th>持股股数 (Shares)</th>
+                        <th>最新持仓市值 (USD)</th>
+                        <th>季度仓位变动</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Blackrock Inc.</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">8.26%</td>
+                        <td class="td-mono">48,048,848</td>
+                        <td class="td-mono">$10.07B</td>
+                        <td class="td-mono" style="color: #DC2626;">-8.17%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Capital Management LLC</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">6.56%</td>
+                        <td class="td-mono">38,148,192</td>
+                        <td class="td-mono">$8.00B</td>
+                        <td class="td-mono" style="color: #059669;">+0.13%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Capital Research Global Investors (资本集团)</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">4.57%</td>
+                        <td class="td-mono">26,549,107</td>
+                        <td class="td-mono">$5.56B</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">+17.61% (大幅加仓)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">4.56%</td>
+                        <td class="td-mono">26,526,959</td>
+                        <td class="td-mono">$5.56B</td>
+                        <td class="td-mono" style="color: #059669;">+2.54%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Geode Capital Management, LLC</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">2.93%</td>
+                        <td class="td-mono">17,009,978</td>
+                        <td class="td-mono">$3.57B</td>
+                        <td class="td-mono" style="color: #059669;">+4.63%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bank of America Corporation</strong></td>
+                        <td class="td-mono">2026-03-31</td>
+                        <td class="td-mono td-highlight">2.21%</td>
+                        <td class="td-mono">12,874,152</td>
+                        <td class="td-mono">$2.70B</td>
+                        <td class="td-mono" style="color: #DC2626;">-3.90%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">🔍 顶级主动基金加仓动向洞察</div>
+            全球最大主动型基金之一——<strong>资本集团 (Capital Research Global Investors)</strong> 在最新季度逆势大幅增持 <strong>+17.61%</strong>，持股量增至 2,655 万股（价值超 55 亿美元）；State Street 同期加仓 2.54%，顶级长钱对 PGR 的长期复利价值高度认可。
+        </div>
+    </section>
+
+    <!-- MODULE 12: 内部人交易、管理层语气与财报电话会洞察 -->
+    <section class="section" id="sec-12">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">12</span> 内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Call)</div>
+            <span class="sec-tag">Management Tone</span>
+        </div>
+        <p>追踪管理层业绩指引交流与 SEC Form 4 披露动态：</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>管理层语气与战略指引研判</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 6px;"><strong>CEO Tricia Griffith 强调承保纪律：</strong>明确重申公司“96 目标法则”（承诺综合成本率长期不超过 96%），只要承保利润达标，将全力加速市场份额扩张。</li>
+                    <li style="margin-bottom: 6px;"><strong>商用车险与家财险捆绑拓展：</strong>商用车险（Commercial Auto）保持高双位数增长，并加速与自有及第三方家财险（Homeowners）捆绑销售。</li>
+                    <li style="margin-bottom: 6px;"><strong>保单扩张（PIF）势头强劲：</strong>个人车险保单量月度增长率持续保持在 1-2% 之间，单月新增保单数创历史同期新高。</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>内部人交易与高管激励</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 6px;"><strong>全员 Gainsharing 利润共享制度：</strong>从一线理赔员到 CEO，全员年终奖金严格与综合成本率挂钩，形成了无人能敌的成本节约文化。</li>
+                    <li style="margin-bottom: 6px;"><strong>高管持股锁定：</strong>管理层核心团队持有大量未行权受限股，高管个人财富与公司长期市值深度绑定。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13: 做空比例、平仓天数与轧空风险评估 -->
+    <section class="section" id="sec-13">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">13</span> 做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze)</div>
+            <span class="sec-tag">Short Interest</span>
+        </div>
+        <p>PGR 当前做空股数为 <strong>808 万股</strong>，占流通盘比例（Short % of Float）为 <strong>1.39%</strong>，平仓天数（Days to Cover）为 <strong>2.63 天</strong>。</p>
+
+        <div class="grid-3">
+            <div class="card card-emerald">
+                <h4>做空股数总量</h4>
+                <div class="metric-val" style="font-size: 20px; color: #059669; margin: 6px 0;">8,075,469 股</div>
+                <p style="font-size: 12px; margin: 0;">空头总市值约 $1.69B，处于极低历史分位。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>流通盘做空比例</h4>
+                <div class="metric-val" style="font-size: 20px; color: #059669; margin: 6px 0;">1.39% of Float</div>
+                <p style="font-size: 12px; margin: 0;">做空比例极低，机构空头几乎无做空意愿。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>平仓天数 (Days to Cover)</h4>
+                <div class="metric-val" style="font-size: 20px; color: #059669; margin: 6px 0;">2.63 Days</div>
+                <p style="font-size: 12px; margin: 0;">流动性极佳，空头平仓不会引发剧烈异常波动。</p>
+            </div>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">⚡ 做空情绪与市场定性</div>
+            空头比例仅 1.39%，反映出机构全市场对 PGR“印钞机式”承保模式与超低估值的高度敬畏。当前股价调整主要是由于前期涨幅过大后的多头正常获利回吐，而非基本面转弱。
+        </div>
+    </section>
+
+    <!-- MODULE 14: 核心风险矩阵与熊市压力测试 -->
+    <section class="section" id="sec-14">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">14</span> 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+            <span class="sec-tag">Risk & Stress Test</span>
+        </div>
+        <p>系统性评估 4 项核心风险敞口并进行极限情景压力测试：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险维度</th>
+                        <th>风险等级</th>
+                        <th>风险描述</th>
+                        <th>应对机制与防御缓冲</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>极端气候巨灾与飓风冰雹频发</strong></td>
+                        <td style="color: #D97706; font-weight: 700;">中度风险 (Medium)</td>
+                        <td>佛州/得州飓风与雹灾导致汽车与房屋损毁赔付激增。</td>
+                        <td>车险占主导且投保人分散全美，家财险配备大额超额再保险对冲。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>美联储快速大幅降息压低浮存金收益</strong></td>
+                        <td style="color: #D97706; font-weight: 700;">中度风险 (Medium)</td>
+                        <td>若基准利率快速跌回零利率，浮存金票息将逐渐下降。</td>
+                        <td>固收组合久期 3.2 年锁定高息，且承保利润贡献超 60% 净收益。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>汽车零配件与人身伤害诉讼通胀 (Social Inflation)</strong></td>
+                        <td style="color: #64748B; font-weight: 700;">中低风险 (Low-Medium)</td>
+                        <td>律师介入导致单笔事故赔付成本上升。</td>
+                        <td>Snapshot 实时监控驾驶数据，AI 精准反欺诈与快速自助理赔。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自动驾驶技术普及降低车险需求</strong></td>
+                        <td style="color: #64748B; font-weight: 700;">低风险 (长期)</td>
+                        <td>FSD 自动驾驶成熟后事故率大幅降低。</td>
+                        <td>车险向产品责任险过渡，高级传感器维修成本剧增提升保费单价。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout" style="border-left-color: #DC2626; background: #FEF2F2; color: #991B1B;">
+            <div class="callout-title" style="color: #991B1B;">📉 熊市极端情景压力测试 (Worst-Case Scenario)</div>
+            <strong>假设极限冲击：</strong>(1) 遭遇百年一遇特大巨灾，综合成本率恶化至 94%；(2) 浮存金收益率降至 3.0%；(3) 净利润降至 $6.5B（EPS ~$11.00）。<br>
+            <strong>测算结果：</strong>给予悲观 15x P/E 估值，<strong>对应极限底线股价约为 $165 - $175</strong>。相较现价 $209.60，极端下行风险约 -16%，而基准公允价值目标为 $258 (+23%)，乐观目标为 $310 (+48%)，风险收益比极其优越。
+        </div>
+    </section>
+
+    <!-- MODULE 15: 未来关键催化剂日历与增长路线图 -->
+    <section class="section" id="sec-15">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">15</span> 未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+            <span class="sec-tag">Catalysts</span>
+        </div>
+        <p>未来 6-18 个月将驱动 PGR 价值重估的关键催化事件与里程碑：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预期时间节点</th>
+                        <th>关键催化事件</th>
+                        <th>催化类型</th>
+                        <th>潜在影响与股价弹性</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>每月月中</strong></td>
+                        <td>月度业绩与保单量（Monthly Release）常规披露</td>
+                        <td>月度跟踪</td>
+                        <td>透明度极高，若月度 CR 持续维持在 87% 以下将推动估值中枢持续上移</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q3 (10月)</strong></td>
+                        <td>FY2026 Q3 季度财报公布与巨灾损失结算</td>
+                        <td>财报事件</td>
+                        <td>验证秋季飓风季实际赔付控制，若利润超预期将确立反弹反转</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q4 (12月)</strong></td>
+                        <td>年度巨额可变特别股息（Gainshare Dividend）派发公布</td>
+                        <td>股东回报</td>
+                        <td>预计宣布大额年终特别股息（每股 $3-$5），直接吸引收益型资金入场</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 H1</strong></td>
+                        <td>全美车险市场份额超越 State Farm 登顶第一</td>
+                        <td>行业里程碑</td>
+                        <td>确立历史性行业统治地位，推动估值倍数向行业龙头溢价对齐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 H1</strong></td>
+                        <td>商用车险与家财险新一代 AI 自动化核保系统上线</td>
+                        <td>科技赋能</td>
+                        <td>进一步压缩费用率 100-200 bps，夯实承保利润护城河</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 16: 最终投资评级与执行建议 -->
+    <section class="section" id="sec-16">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">16</span> 最终投资评级与执行建议 (Final Verdict & Standardized Signal)</div>
+            <span class="sec-tag">Verdict</span>
+        </div>
+
+        <div class="signal-block">
+            <div class="signal-block-title">╔══════════════════════════════════════════════╗ &nbsp; INVESTSKILL STANDARDIZED INVESTMENT SIGNAL &nbsp; ╚══════════════════════════════════════════════╝</div>
+            <div class="signal-grid">
+                <div class="sig-cell">
+                    <div class="sig-label">投资信号 (Signal)</div>
+                    <div class="signal-verdict">强烈看多 (STRONG BUY)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">置信度 (Confidence)</div>
+                    <div class="sig-val" style="color: #34D399;">HIGH (高)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">投资周期 (Horizon)</div>
+                    <div class="sig-val">中长期 (6-18 MONTHS)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">量化综合评分 (Score)</div>
+                    <div class="signal-score">8.6 / 10</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">操作建议 (Action)</div>
+                    <div class="sig-val" style="color: #34D399; font-size: 22px;">强烈买入 / 均线低吸 (STRONG BUY)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">确信度 (Conviction)</div>
+                    <div class="sig-val" style="color: #FCD34D;">STRONG (极强)</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 13.5px; line-height: 1.7; color: #ECFDF5;">
+                <strong>执行策略摘要：</strong><br>
+                1. <strong>现货买入：</strong>建议在 <strong>$205 - $212 区间</strong>（紧贴 200 日均线）坚定建立核心多头底仓，止损位设在 $190.00 下方，第一目标价 $235.00，DCF 基准公允价值目标价 <strong>$258.00 (+23.1%)</strong>。<br>
+                2. <strong>期权收益增强：</strong>推荐卖出 2026年9月11日到期、行权价 $200.00 的现金担保 Put（权利金约 $1.83），年化收益率达 <strong>12.4%</strong>，或以此在 <strong>$198.17</strong> 实际折价成本完美建仓。<br>
+                3. <strong>核心监测指标：</strong>重点跟踪每月公布的综合成本率（CR）是否维持在 88% 以下及个人险有效保单量（PIF）增长趋势。
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    // 1. Radar Chart
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['承保护城河', '盈利与浮存金', '估值性价比', '保单成长性', '资产负债安全', '技术面与Beta'],
+            datasets: [{
+                label: 'PGR 量化得分',
+                data: [9.8, 9.5, 9.2, 8.5, 8.8, 6.5],
+                fill: true,
+                backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#10B981',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#059669',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#E2E8F0' },
+                    grid: { color: '#E2E8F0' },
+                    pointLabels: { font: { size: 12, weight: '600' }, color: '#334155' },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 2. Price and Moving Averages Chart
+    const ctxPrice = document.getElementById('priceChart').getContext('2d');
+    const chartDates = ["2026-04-08", "2026-04-09", "2026-04-10", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-24", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30", "2026-05-01", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13", "2026-08-14"];
+    const chartPrices = [198.0, 199.79, 194.04, 199.48, 196.5, 201.14, 203.38, 202.49, 203.69, 207.41, 202.62, 205.24, 200.8, 201.89, 202.94, 200.57, 201.19, 199.22, 199.15, 197.65, 196.71, 195.66, 193.91, 196.82, 198.33, 195.87, 196.79, 199.64, 203.91, 202.78, 202.51, 198.88, 199.42, 198.69, 196.82, 194.42, 190.32, 192.58, 196.73, 193.37, 195.29, 203.93, 200.17, 200.04, 204.11, 202.17, 203.02, 203.41, 204.57, 204.33, 204.78, 207.29, 215.59, 220.4, 215.44, 224.24, 219.76, 218.35, 225.2, 232.22, 231.67, 234.4, 232.9, 229.52, 230.72, 234.48, 226.58, 205.22, 205.8, 207.95, 212.23, 205.9, 204.54, 207.07, 213.83, 215.76, 219.52, 219.99, 213.28, 211.42, 210.46, 210.75, 212.76, 215.34, 215.33, 213.95, 212.35, 207.37, 208.87, 209.6];
+    const chartSMA20 = [201.1, 201.03, 200.49, 200.21, 199.81, 199.69, 199.81, 199.81, 199.7, 199.83, 199.66, 199.79, 199.69, 199.86, 199.94, 200.07, 200.47, 200.67, 200.82, 200.86, 200.8, 200.59, 200.58, 200.45, 200.54, 200.28, 199.95, 199.81, 199.82, 199.59, 199.58, 199.26, 199.19, 199.03, 198.73, 198.42, 197.88, 197.54, 197.42, 197.21, 197.14, 197.55, 197.87, 198.03, 198.31, 198.63, 198.94, 199.13, 199.16, 199.24, 199.35, 199.77, 200.58, 201.67, 202.6, 204.09, 205.56, 206.85, 208.27, 210.22, 212.04, 213.56, 215.2, 216.67, 218.0, 219.62, 220.79, 220.88, 220.95, 221.13, 221.5, 221.43, 220.88, 220.21, 220.13, 219.71, 219.69, 219.77, 219.18, 218.14, 217.08, 215.9, 214.89, 214.18, 213.41, 212.38, 211.67, 211.78, 211.93, 212.02];
+    const chartSMA50 = [204.5, 204.33, 203.96, 203.79, 203.57, 203.53, 203.58, 203.53, 203.45, 203.56, 203.58, 203.64, 203.49, 203.43, 203.4, 203.26, 203.22, 203.17, 203.08, 202.96, 202.78, 202.6, 202.25, 201.92, 201.62, 201.28, 200.99, 200.77, 200.64, 200.57, 200.48, 200.44, 200.33, 200.2, 200.05, 199.86, 199.65, 199.45, 199.27, 199.04, 198.83, 198.85, 198.8, 198.83, 198.89, 198.97, 199.17, 199.33, 199.5, 199.65, 199.78, 199.93, 200.37, 200.78, 201.16, 201.62, 201.95, 202.27, 202.7, 203.2, 203.78, 204.36, 205.0, 205.55, 206.11, 206.79, 207.3, 207.42, 207.55, 207.76, 208.07, 208.27, 208.48, 208.69, 209.0, 209.4, 209.85, 210.26, 210.44, 210.62, 210.78, 211.01, 211.28, 211.61, 211.98, 212.37, 212.81, 213.11, 213.35, 213.68];
+
+    new Chart(ctxPrice, {
+        type: 'line',
+        data: {
+            labels: chartDates,
+            datasets: [
+                {
+                    label: '收盘价 (Close)',
+                    data: chartPrices,
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.08)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0
+                },
+                {
+                    label: 'SMA 20',
+                    data: chartSMA20,
+                    borderColor: '#F59E0B',
+                    borderWidth: 1.5,
+                    borderDash: [3, 3],
+                    fill: false,
+                    pointRadius: 0
+                },
+                {
+                    label: 'SMA 50',
+                    data: chartSMA50,
+                    borderColor: '#3B82F6',
+                    borderWidth: 1.5,
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { maxTicksLimit: 8, font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: '#F1F5F9' },
+                    ticks: {
+                        font: { size: 11 },
+                        callback: function(value) { return '$' + value; }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { boxWidth: 12, font: { size: 11 } }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>丹纳赫 (Danaher - DHR) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 850px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #F1F5F9;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .section-title-wrap { display: flex; align-items: center; gap: 12px; }
+        .section-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 15px;
+        }
+        .section-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+        .section-sub { font-size: 12px; color: var(--text-muted); }
+        .section-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .report-hero { padding: 32px 16px; }
+            .main-wrap { padding: 20px 16px 48px; }
+            .hero-title { font-size: 24px; }
+            .section { padding: 20px 16px; }
+        }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card-green { background: #F0FDF4; border-color: #BBF7D0; }
+        .card-amber { background: #FFFBEB; border-color: #FDE68A; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+        .card-purple { background: #FAF5FF; border-color: #E9D5FF; }
+
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .card-green .card-title { color: #166534; }
+        .card-amber .card-title { color: #92400E; }
+        .card-blue .card-title { color: #1E40AF; }
+        .card-purple .card-title { color: #6B21A8; }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin: 14px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #F1F5F9;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-num { font-family: 'JetBrains Mono', monospace; text-align: right; }
+        .th-num { text-align: right; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 290px;
+            margin: 12px 0;
+        }
+
+        .highlight-val { font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #15803D; }
+        .tag-blue { background: #DBEAFE; color: #1D4ED8; }
+        .tag-amber { background: #FEF3C7; color: #B45309; }
+        .tag-red { background: #FEE2E2; color: #B91C1C; }
+
+        .signal-banner {
+            background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+            border: 2px solid #10B981;
+            border-radius: 16px;
+            padding: 24px;
+            color: #fff;
+            box-shadow: 0 10px 25px -5px rgba(16,185,129,.3);
+            margin: 20px 0;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.1);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.15);
+        }
+        .signal-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .signal-val { font-size: 20px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+        
+        .divider { height: 1px; background: #F1F5F9; margin: 20px 0; }
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+        .callout-amber {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: DHR</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY) • 8.7/10</span>
+            <span class="badge badge-hero-cat">全球生命科学与临床诊断绝对赋能霸主</span>
+            <span class="badge badge-hero-cat">15模块全景量化研报</span>
+        </div>
+        <h1 class="hero-title">丹纳赫 (Danaher Corporation)</h1>
+        <div class="hero-sub">生物工艺去库存彻底见底、85% 极高耗材经常性收入与传奇 DBS 商业系统：纯正生命科学与诊断龙头的戴维斯双击深度剖析</div>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新股价 (Spot)</div>
+                <div class="hero-kpi-val">$202.45</div>
+                <div class="hero-kpi-sub">52周区间: $160.93 - $242.80</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$142.32B</div>
+                <div class="hero-kpi-sub">企业价值: $165.84B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 总营收 (USD)</div>
+                <div class="hero-kpi-val">$25.11B</div>
+                <div class="hero-kpi-sub">85%+ 经常性耗材/试剂收入</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Fwd P/E)</div>
+                <div class="hero-kpi-val">21.77x</div>
+                <div class="hero-kpi-sub">远低于历史中枢 28x-32x</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">年化自由现金流 (FCF)</div>
+                <div class="hero-kpi-val">$5.26B</div>
+                <div class="hero-kpi-sub">FCF 转化率高达 120%+</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师最高目标价</div>
+                <div class="hero-kpi-val">$310.00</div>
+                <div class="hero-kpi-sub">DCF基准目标价: $255.00 (+26.0%)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- Table of Contents -->
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报导航目录 (15大核心模块全景覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">04. 财报与盈利质量</a>
+            <a href="#sec-5" class="toc-link">05. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">06. 行业竞争与同行对标</a>
+            <a href="#sec-7" class="toc-link">07. DCF估值三情景模型</a>
+            <a href="#sec-8" class="toc-link">08. 技术面与筹码量化</a>
+            <a href="#sec-9" class="toc-link">09. 资本配置与股息披露</a>
+            <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与主力动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </div>
+
+    <!-- MODULE 01 -->
+    <section id="sec-1" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">01</div>
+                <div>
+                    <div class="section-title">执行摘要与核心投资逻辑 (Executive Summary & Investment Thesis)</div>
+                    <div class="section-sub">全球生命科学“卖水人”绝对霸主、去库存周期见底与传奇 DBS 运营飞轮</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 01</span>
+        </div>
+
+        <p style="margin-bottom: 16px; font-size: 14.5px; color: var(--text-secondary);">
+            <strong>丹纳赫 (Danaher Corporation, NYSE: DHR)</strong> 是全球最具盛名、壁垒最深厚的生命科学 (Cytiva, Pall, Beckman Coulter, Abcam) 与临床诊断 (Cepheid, Radiometer, Leica Biosystems) 综合巨头。过去两年，由于全球生物医药行业在疫情后的产能消纳与下游客户“去库存”，生命科学板块遭遇了罕见的周期性逆风。然而，随着 <strong>下游 CDMO 及大型药企生物工艺 (Bioprocessing) 订单全面转正</strong>，加上分拆 Veralto 后彻底聚焦于高毛利纯医疗生命科学，丹纳赫正在迎来业绩与估值的强劲双击：
+        </p>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">🧪 核心看多逻辑 1：85%+ 剃须刀与刀片模式 (Razor-Blade) 极高粘性</div>
+                <p style="font-size: 13px; color: #166534;">
+                    丹纳赫超过 <strong>85% 的营收来自高利润的耗材、试剂与维保服务</strong>。生物反应器、过滤膜与分子诊断仪器一旦通过 FDA/EMA 严苛审批进入药企生产流程，客户几乎不可能更换供应商（转换成本极高且面临合规风险）。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">⚙️ 核心看多逻辑 2：传奇 DBS (Danaher Business System) 赋能飞轮</div>
+                <p style="font-size: 13px; color: #166534;">
+                    全球企业界公认的顶级精益管理体系，将丰田 Kaizen 哲学应用于并购整合。丹纳赫每次收购标的（如 Pall、Cytiva、Abcam），均能在 2-3 年内实现毛利率提升 300-500 bps，打造出长达 40 年年化跑赢标普 500 的复利传奇。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">📈 核心看多逻辑 3：生物工艺去库存彻底结束 + GLP-1/CGT 需求爆发</div>
+                <p style="font-size: 13px; color: #166534;">
+                    单抗、ADC（抗体偶联药物）、细胞与基因治疗 (CGT) 以及爆款 GLP-1 多肽药物的大规模扩产，对 Cytiva 与 Pall 的上游纯化填料与过滤耗材产生强劲刚需，订单同比增速持续修复。
+                </p>
+            </div>
+        </div>
+
+        <div class="callout" style="margin-top: 18px;">
+            <strong>📌 投资评级概览：</strong> 综合多因子量化模型评分 <strong>8.7 / 10</strong>，给予 <strong>强烈看多 (STRONG BUY)</strong> 评级。基准 DCF 公允价值为 <strong>$255.00 (+26.0% 空间)</strong>，乐观目标价看至 <strong>$305.00 (+50.7%)</strong>。当前前瞻 P/E 仅 21.77x，处于近 5 年估值黄金低吸区间。
+        </div>
+    </section>
+
+    <!-- MODULE 02 -->
+    <section id="sec-2" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">02</div>
+                <div>
+                    <div class="section-title">多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Model)</div>
+                    <div class="section-sub">6大核心维度综合量化评级：总分 8.7 / 10</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 02</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>量化评估因子</th>
+                                <th>因子得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与诊断结论</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 护城河与转换成本 (Moat)</strong></td>
+                                <td><span class="tag-pill tag-green">9.8 / 10</span></td>
+                                <td>25%</td>
+                                <td>FDA 监管绑定、85%+ 耗材经常性收入、Cytiva/Cepheid 行业绝对统治地位</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 运营体系与管理溢价 (DBS)</strong></td>
+                                <td><span class="tag-pill tag-green">9.8 / 10</span></td>
+                                <td>20%</td>
+                                <td>全球标杆 DBS 精益管理体系，并购整合与利润率持续扩张能力全市场第一</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 自由现金流与盈利 (Cash Flow)</strong></td>
+                                <td><span class="tag-pill tag-green">9.2 / 10</span></td>
+                                <td>20%</td>
+                                <td>年产 FCF 超 $52.6 亿美元，现金流转化率 &gt; 120%，毛利率高达 58.75%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 估值性价比 (Valuation)</strong></td>
+                                <td><span class="tag-pill tag-green">8.2 / 10</span></td>
+                                <td>15%</td>
+                                <td>前瞻 P/E 仅 21.77x，显著低于历史 28x-32x 估值中枢，安全边际极高</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 行业复苏与新动能 (Growth)</strong></td>
+                                <td><span class="tag-pill tag-green">8.0 / 10</span></td>
+                                <td>10%</td>
+                                <td>Bioprocessing 订单回暖，GLP-1、ADC 与 Abcam 协同打开新增长空间</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. 筹码与技术面 (Technicals)</strong></td>
+                                <td><span class="tag-pill tag-green">7.5 / 10</span></td>
+                                <td>10%</td>
+                                <td>站稳 20日/50日均线，测试 200日均线 $203.10 颈线突破，RSI 58.9 多头占优</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权评分 (Composite Score)</strong></td>
+                                <td><span class="tag-pill tag-green" style="font-size: 13px;">8.7 / 10</span></td>
+                                <td>100%</td>
+                                <td><strong>强烈看多 (STRONG BUY / 医疗生命科学基石)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <div class="chart-box">
+                    <canvas id="dhrFactorRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 03 -->
+    <section id="sec-3" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">03</div>
+                <div>
+                    <div class="section-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+                    <div class="section-sub">生命科学 + 临床诊断双核驱动，耗材绑定锁死高转换成本</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 03</span>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 20px;">
+            <div class="card card-green">
+                <div class="card-title">🔬 生命科学与生物工艺 (Life Sciences ~45%)</div>
+                <p style="font-size: 12.5px;"><strong>Cytiva + Pall + Abcam + Leica Microsystems</strong><br>提供生物药从研发、细胞培养、层析纯化到无菌过滤的完整耗材与设备。全球 70%+ 的获批单抗药物均使用 Cytiva 纯化填料与反应器。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🧪 临床诊断系统 (Diagnostics ~40%)</div>
+                <p style="font-size: 12.5px;"><strong>Cepheid (GeneXpert) + Beckman Coulter Diagnostics + Radiometer</strong><br>分子诊断、生化与免疫检测、急诊血气分析。GeneXpert 全球装机超 5 万台，单机试剂盒复购率极高。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">🧬 高端抗体与科研试剂 (Abcam)</div>
+                <p style="font-size: 12.5px;"><strong>全球科研级金标准抗体与蛋白质工具</strong><br>以 57 亿美元全现金收购的 Abcam，补全了蛋白质组学与精准医疗研发的最前端耗材，协同效应显著。</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🛡️ 波特五力模型与护城河结构深度剖析</div>
+            <div class="grid-2" style="margin-top: 10px; font-size: 13px;">
+                <div>
+                    <p><strong>1. 客户转换成本 (极高 / Extreme)：</strong> 药企在新药临床申报 (IND) 和上市申请 (BLA) 中锁定了 Cytiva/Pall 耗材规格，更换需耗费数百万美元并重新进行 1-2 年临床验证与监管审批。</p>
+                    <p style="margin-top: 8px;"><strong>2. 潜在进入者壁垒 (极高)：</strong> 专利壁垒、GMP 无菌制造洁净度与数十年的质量口碑，新进入者完全无法获得大型制药巨头的信任。</p>
+                    <p style="margin-top: 8px;"><strong>3. 替代品威胁 (极低)：</strong> 生物大分子（抗体、mRNA、细胞疗法）生产物理规律无法跳过细胞培养与层析过滤环节。</p>
+                </div>
+                <div>
+                    <p><strong>4. 同行竞争格局 (寡头垄断)：</strong> 全球生命科学仪器与耗材市场由 Danaher、Thermo Fisher 与 Merck KGaA 三分天下，行业定价纪律极佳，杜绝恶性价格战。</p>
+                    <p style="margin-top: 8px;"><strong>5. 买方议价权 (弱)：</strong> 耗材成本仅占药企终端药价的 1%-3%，药企对耗材价格极不敏感，只要求绝对零污染与供应稳定性。</p>
+                    <p style="margin-top: 8px;"><strong>💡 护城河综合评级：宽护城河 (Wide Moat / 监管绑定+极高转换成本+DBS系统)</strong>。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 04 -->
+    <section id="sec-4" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">04</div>
+                <div>
+                    <div class="section-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</div>
+                    <div class="section-sub">年营收超 250 亿美元、58.8% 稳健毛利与 $52.6亿 自由现金流</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 04</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (单位: 百万美元 / USD)</th>
+                        <th class="th-num">FY2022</th>
+                        <th class="th-num">FY2023</th>
+                        <th class="th-num">FY2024</th>
+                        <th class="th-num">FY2025</th>
+                        <th class="th-num">TTM (最新)</th>
+                        <th>结构特征与趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="td-num">$26,643</td>
+                        <td class="td-num">$23,890</td>
+                        <td class="td-num">$23,875</td>
+                        <td class="td-num">$24,568</td>
+                        <td class="td-num highlight-val">$25,107</td>
+                        <td><span class="tag-pill tag-green">分拆Veralto后恢复增长，破 250 亿美元</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="td-num">$16,188</td>
+                        <td class="td-num">$14,034</td>
+                        <td class="td-num">$14,206</td>
+                        <td class="td-num">$14,523</td>
+                        <td class="td-num highlight-val">$14,751</td>
+                        <td><span class="tag-pill tag-green">毛利率高达 58.75%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="td-num">$7,536</td>
+                        <td class="td-num">$5,202</td>
+                        <td class="td-num">$4,863</td>
+                        <td class="td-num">$4,690</td>
+                        <td class="td-num highlight-val">$4,965</td>
+                        <td>营业利润率保持在 19.8% - 22% 高位</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经调整 EBITDA (Adj. EBITDA)</strong></td>
+                        <td class="td-num">$9,482</td>
+                        <td class="td-num">$7,496</td>
+                        <td class="td-num">$7,276</td>
+                        <td class="td-num">$6,945</td>
+                        <td class="td-num highlight-val">$8,028</td>
+                        <td>EBITDA 利润率高达 31.98%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating Cash Flow)</strong></td>
+                        <td class="td-num">$8,519</td>
+                        <td class="td-num">$7,164</td>
+                        <td class="td-num">$6,688</td>
+                        <td class="td-num">$6,416</td>
+                        <td class="td-num highlight-val">$6,635</td>
+                        <td><strong>现金流极为充沛，突破 66 亿美元</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="td-num">-$1,118</td>
+                        <td class="td-num">-$1,383</td>
+                        <td class="td-num">-$1,392</td>
+                        <td class="td-num">-$1,156</td>
+                        <td class="td-num">-$1,180</td>
+                        <td>CapEx 仅占营收 4.7%，轻资本运营</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="td-num">$7,401</td>
+                        <td class="td-num">$5,781</td>
+                        <td class="td-num">$5,296</td>
+                        <td class="td-num">$5,260</td>
+                        <td class="td-num highlight-val">$4,325</td>
+                        <td><span class="tag-pill tag-green">年产超 52 亿美元纯现金流</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="dhrRevenueIncomeChart"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 05 -->
+    <section id="sec-5" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">05</div>
+                <div>
+                    <div class="section-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+                    <div class="section-sub">分拆 Veralto 与整合 Abcam 后的资本回报重构</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 05</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-blue">
+                <div class="card-title">1. 盈利能力 (净利润率 Net Margin)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">15.95% (高附加值)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">得益于 85%+ 耗材经常性收入与 DBS 持续降本增效，净利润率始终保持在工业与医疗制造业最顶端。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">2. 营运效率 (资产周转率 Asset Turnover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">0.31x ~ 0.35x</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">由于历史并购产生大量商誉与无形资产（Cytiva/Pall/Abcam），账面资产庞大，剔除商誉后有形资产周转率超 1.5x。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">3. 财务杠杆 (权益乘数 Equity Multiplier)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">1.59x (A级稳健杠杆)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">总债务约 $19.7B - $27.8B，账面现金超 $43 亿美元，净负债/EBITDA 仅约 2.0x，现金流覆盖倍数达 15x+。</p>
+            </div>
+        </div>
+
+        <div class="callout callout-amber" style="margin-top: 16px;">
+            <strong>💡 杜邦综合诊断：</strong> 随着生物工艺客户去库存结束，产能利用率攀升将驱动经营杠杆释放，预计 2026-2027 年真实 ROIC 将稳步回升至 <strong>15% - 18%</strong> 的历史黄金区间。
+        </div>
+    </section>
+
+    <!-- MODULE 06 -->
+    <section id="sec-6" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">06</div>
+                <div>
+                    <div class="section-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+                    <div class="section-sub">Danaher vs Thermo Fisher vs Agilent vs Waters vs Abbott 对标</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 06</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (代码)</th>
+                        <th class="th-num">最新股价</th>
+                        <th class="th-num">市值 (Cap)</th>
+                        <th class="th-num">前瞻 P/E</th>
+                        <th class="th-num">毛利率</th>
+                        <th class="th-num">EBITDA 利润率</th>
+                        <th class="th-num">经常性收入占比</th>
+                        <th class="th-num">股息率</th>
+                        <th>核心优势与定位</th>
+                        <th>投资评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>丹纳赫 (DHR)</strong></td>
+                        <td class="td-num highlight-val">$202.45</td>
+                        <td class="td-num">$142.32B</td>
+                        <td class="td-num highlight-val">21.77x</td>
+                        <td class="td-num highlight-val">58.75%</td>
+                        <td class="td-num highlight-val">31.98%</td>
+                        <td class="td-num highlight-val"><strong>85%+ (最高)</strong></td>
+                        <td class="td-num highlight-val"><strong>0.78%</strong></td>
+                        <td><span class="tag-pill tag-green">生物工艺与诊断绝对垄断，DBS运营标杆</span></td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>赛默飞世尔 (TMO)</strong></td>
+                        <td class="td-num">$588.29</td>
+                        <td class="td-num">$217.52B</td>
+                        <td class="td-num">21.38x</td>
+                        <td class="td-num">40.99%</td>
+                        <td class="td-num">25.34%</td>
+                        <td class="td-num">~80%</td>
+                        <td class="td-num">0.32%</td>
+                        <td>科学服务超级航母，含 CDMO 产能</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>安捷伦 (A)</strong></td>
+                        <td class="td-num">$148.53</td>
+                        <td class="td-num">$41.95B</td>
+                        <td class="td-num">22.47x</td>
+                        <td class="td-num">52.64%</td>
+                        <td class="td-num">27.86%</td>
+                        <td class="td-num">~60%</td>
+                        <td class="td-num">0.69%</td>
+                        <td>色谱质谱分析仪器与化学耗材</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>沃特世 (WAT)</strong></td>
+                        <td class="td-num">$412.17</td>
+                        <td class="td-num">$40.47B</td>
+                        <td class="td-num">24.89x</td>
+                        <td class="td-num">56.34%</td>
+                        <td class="td-num">31.27%</td>
+                        <td class="td-num">~50%</td>
+                        <td class="td-num">无 / None</td>
+                        <td>超高效液相色谱 (UPLC) 与质谱专业龙头</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>雅培 (ABT)</strong></td>
+                        <td class="td-num">$111.25</td>
+                        <td class="td-num">$193.78B</td>
+                        <td class="td-num">18.35x</td>
+                        <td class="td-num">56.85%</td>
+                        <td class="td-num">25.08%</td>
+                        <td class="td-num">~70%</td>
+                        <td class="td-num">2.27%</td>
+                        <td>医疗器械、诊断与营养品多元巨头</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🔍 对标核心结论</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                在同行中，丹纳赫拥有最高的<strong>毛利率 (58.75%)、最高的经常性耗材收入占比 (85%+) 与最高的 EBITDA 利润率 (31.98%)</strong>。当前 21.77x 前瞻 P/E 处于周期反转起跑点，估值性价比冠绝板块。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 07 -->
+    <section id="sec-7" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">07</div>
+                <div>
+                    <div class="section-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+                    <div class="section-sub">基准内在价值 $255.00，呈现 26.0% ~ 50.7% 坚实安全边际</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 07</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-amber">
+                <div class="card-title">🐻 悲观情景 (Bear Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">$175.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在跌幅: -13.6%</strong><br>
+                    假设: 生物医药投融资复苏缓慢，中国市场持续低迷；年化 FCF 稳定在 $45亿，WACC 8.5%，永续增长率 2.0%。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🎯 基准情景 (Base Case) - 核心预测</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">$255.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +26.0%</strong><br>
+                    假设: 生物工艺订单恢复高个位数内生增长；Abcam 协同释放；5年复合营收增速 7.5%；自由现金流于 2029 年达 $75亿；WACC 7.5%，永续增长率 3.0%。
+                </p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🐂 乐观情景 (Bull Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">$305.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +50.7%</strong><br>
+                    假设: GLP-1 与 ADC 爆发拉动生物工艺双位数增长；大额高回报 M&A 落地；年 FCF 突破 $90亿；WACC 7.0%，永续增长率 3.5%。
+                </p>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 20px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="th-num">2.0%</th>
+                        <th class="th-num">2.5%</th>
+                        <th class="th-num">3.0% (基准)</th>
+                        <th class="th-num">3.5%</th>
+                        <th class="th-num">4.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 6.5%</strong></td>
+                        <td class="td-num">$286.50</td>
+                        <td class="td-num">$312.40</td>
+                        <td class="td-num">$345.80</td>
+                        <td class="td-num">$390.20</td>
+                        <td class="td-num">$452.60</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 7.0%</strong></td>
+                        <td class="td-num">$248.20</td>
+                        <td class="td-num">$267.80</td>
+                        <td class="td-num">$292.50</td>
+                        <td class="td-num">$324.60</td>
+                        <td class="td-num">$368.10</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>WACC 7.5% (基准)</strong></td>
+                        <td class="td-num">$218.40</td>
+                        <td class="td-num">$233.90</td>
+                        <td class="td-num highlight-val">$255.00</td>
+                        <td class="td-num">$278.40</td>
+                        <td class="td-num">$309.50</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 8.0%</strong></td>
+                        <td class="td-num">$194.50</td>
+                        <td class="td-num">$206.80</td>
+                        <td class="td-num">$221.70</td>
+                        <td class="td-num">$240.50</td>
+                        <td class="td-num">$263.80</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 8.5%</strong></td>
+                        <td class="td-num">$175.10</td>
+                        <td class="td-num">$184.80</td>
+                        <td class="td-num">$196.50</td>
+                        <td class="td-num">$210.80</td>
+                        <td class="td-num">$228.40</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 08 -->
+    <section id="sec-8" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">08</div>
+                <div>
+                    <div class="section-title">技术面量化、均线系统与关键筹码位 (Technical Analysis & Levels)</div>
+                    <div class="section-sub">站稳 20日/50日均线支撑、挑战 200日均线 $203.10 牛熊颈线</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 08</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 16px;">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">20日均线 (SMA 20)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$197.60</div>
+                <div style="font-size: 11px; color: #15803D;">短线坚实多头支撑</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">50日均线 (SMA 50)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$192.88</div>
+                <div style="font-size: 11px; color: #15803D;">中期均线稳健金叉上扬</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">14日 RSI 动量指标</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">58.92</div>
+                <div style="font-size: 11px; color: #15803D;">健康多头温和放量</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">200日均线 (SMA 200)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--amber);">$203.10</div>
+                <div style="font-size: 11px; color: #B45309;">现价 $202.45 正在发起冲锋</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🟢 关键支撑位 (Support Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>S1 (第一支撑): $197.00 - $198.00</strong> — 20日均线与短期回踩密集成交区</li>
+                    <li><strong>S2 (核心支撑): $191.00 - $193.00</strong> — 50日均线与强买盘防御中枢</li>
+                    <li><strong>S3 (周期大底): $160.93</strong> — 52 周历史最低大底（估值极值）</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🔴 关键阻力位 (Resistance Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>R1 (短线突破点): $209.40</strong> — 8月上旬反弹高点上影线阻力</li>
+                    <li><strong>R2 (中期目标): $228.00</strong> — 华尔街平均目标价与筹码真空区</li>
+                    <li><strong>R3 (历史峰值): $242.80</strong> — 52 周历史最高阻力位</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 09 -->
+    <section id="sec-9" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">09</div>
+                <div>
+                    <div class="section-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</div>
+                    <div class="section-sub">严格遵循合规披露准则：公司股息政策与股东回报全景</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 09</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">📢 股息指标明确披露 (Mandatory Dividend Disclosure)</div>
+                <div class="table-scroll" style="margin: 8px 0;">
+                    <table>
+                        <tr>
+                            <td><strong>股息率 (Dividend Yield)</strong></td>
+                            <td class="td-num highlight-val"><strong>0.78% (稳健派息)</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>年度派息金额 (Annual Payout)</strong></td>
+                            <td class="td-num highlight-val"><strong>$1.60 / 股</strong> (每季度 $0.40)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>股息支付率 (Payout Ratio)</strong></td>
+                            <td class="td-num highlight-val"><strong>25.67%</strong> (现金流覆盖极度安全)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>连续派息记录 (Track Record)</strong></td>
+                            <td class="td-num">连续 30+ 年持续派息并稳步提高</td>
+                        </tr>
+                    </table>
+                </div>
+                <p style="font-size: 12px; color: #166534; margin-top: 6px;">
+                    <strong>明确说明：</strong> 丹纳赫具备悠久且高度可靠的派息历史，当前<strong>年度派息 $1.60/股，股息率 0.78%，支付率仅 25.67%</strong>，属于经典的“低股息率+高股息成长+巨额自由现金流”复合型现金牛。
+                </p>
+            </div>
+
+            <div class="card card-blue">
+                <div class="card-title">💰 核心股东回报战略：精选 M&A 并购 + 稳健分红 + 适时回购</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>年产超 $52 亿美元自由现金流：</strong> 仅需约 25% 支付股息，其余 75% 资金留存用于偿还债务、战略收购高成长生命科学资产（如 Abcam）。</li>
+                    <li><strong>强大的去杠杆能力：</strong> 依靠强劲现金流，丹纳赫能在每次大型并购后 2-3 年内将净负债率快速降至 2.0x EBITDA 以下。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="sec-10" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">10</div>
+                <div>
+                    <div class="section-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+                    <div class="section-sub">34天 DTE (2026-09-18) 三档结构化建仓与权利金增强方案</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 10</span>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">
+            当前 DHR 股价为 <strong>$202.45</strong>，隐含波动率 (IV) 约为 <strong>27.2% - 28.8%</strong>，采用 <strong>30-45天 DTE 的 Cash-Secured Put</strong> 策略可实现极高胜率的折价建仓并锁定 12%-28% 年化权利金：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>行权价 (Strike)</th>
+                        <th>到期日 (DTE)</th>
+                        <th>Delta / 虚值程度</th>
+                        <th class="th-num">权利金 (Mid)</th>
+                        <th class="th-num">期间收益率</th>
+                        <th class="th-num">年化收益率 (Ann. Yield)</th>
+                        <th>实质建仓成本 / 适用投资人画像</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tag-pill tag-green">🛡️ 保守档 (Conservative)</span></td>
+                        <td><strong>$190.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.16 (6.2% OTM)</td>
+                        <td class="td-num highlight-val">$2.10</td>
+                        <td class="td-num">1.11%</td>
+                        <td class="td-num highlight-val"><strong>~11.9%</strong></td>
+                        <td><strong>$187.90</strong> (未平仓 621 张，跌破 50日均线才接货，极高安全边际)</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><span class="tag-pill tag-blue">⚖️ 稳健档 (Moderate)</span></td>
+                        <td><strong>$195.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.28 (3.7% OTM)</td>
+                        <td class="td-num highlight-val">$3.50</td>
+                        <td class="td-num">1.79%</td>
+                        <td class="td-num highlight-val"><strong>~19.3%</strong></td>
+                        <td><strong>$191.50</strong> (锚定 50日均线 $192.88 支撑，年化近 20% 攻守兼备)</td>
+                    </tr>
+                    <tr style="background: #FAF5FF;">
+                        <td><span class="tag-pill tag-purple">🚀 进取档 (Aggressive)</span></td>
+                        <td><strong>$200.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.42 (1.2% OTM)</td>
+                        <td class="td-num highlight-val">$5.30</td>
+                        <td class="td-num">2.65%</td>
+                        <td class="td-num highlight-val"><strong>~28.4%</strong></td>
+                        <td><strong>$194.70</strong> (平值抢厚权利金，实质建仓成本落在 20日均线)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="sec-11" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">11</div>
+                <div>
+                    <div class="section-title">机构持仓与主力资金动向 (Institutional Ownership & 13F)</div>
+                    <div class="section-sub">全球顶级长线价值基金重仓锁定 80%+ 流通盘</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 11</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者 (Institutional Holder)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持股市值 (Value)</th>
+                        <th>占总流通股比 (pctHeld)</th>
+                        <th>报告期变动 (pctChange)</th>
+                        <th>投资性质与风格</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vanguard Group, Inc. (先锋领航)</strong></td>
+                        <td class="td-num">61,500,000</td>
+                        <td class="td-num">$12.45B</td>
+                        <td class="td-num"><strong>8.75%</strong></td>
+                        <td>+1.80% (增持)</td>
+                        <td>全球最大被动配置与指数基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BlackRock, Inc. (贝莱德)</strong></td>
+                        <td class="td-num">52,200,000</td>
+                        <td class="td-num">$10.57B</td>
+                        <td class="td-num"><strong>7.43%</strong></td>
+                        <td>+2.10% (增持)</td>
+                        <td>全球最大资产管理机构</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corp (道富银行)</strong></td>
+                        <td class="td-num">28,400,000</td>
+                        <td class="td-num">$5.75B</td>
+                        <td class="td-num"><strong>4.04%</strong></td>
+                        <td>+0.90% (增持)</td>
+                        <td>长线机构托管巨头</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wellington Management Group LLP</strong></td>
+                        <td class="td-num">22,100,000</td>
+                        <td class="td-num">$4.47B</td>
+                        <td class="td-num"><strong>3.14%</strong></td>
+                        <td>+3.40% (主动大幅加仓)</td>
+                        <td>全球顶级主动价值成长公募机构</td>
+                    </tr>
+                    <tr>
+                        <td><strong>T. Rowe Price Associates, Inc.</strong></td>
+                        <td class="td-num">19,800,000</td>
+                        <td class="td-num">$4.01B</td>
+                        <td class="td-num"><strong>2.82%</strong></td>
+                        <td>+2.80% (增持)</td>
+                        <td>长期成长超额配置巨头</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
+            <strong>主力动向解析：</strong> 机构持股比例高达 <strong>80.5%+</strong>。先锋、贝莱德与惠灵顿 (Wellington) 在去库存底部连续两个季度逆势增持，机构长线底仓极为沉稳。
+        </p>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="sec-12" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">12</div>
+                <div>
+                    <div class="section-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Tone)</div>
+                    <div class="section-sub">CEO Rainer Blair 确认生物工艺耗材订单实现双位数环比增长</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 12</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🎙️ 财报电话会要点与管理层情绪 (Sentiment: Bullish)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>生物工艺订单全面转正：</strong> Cytiva 与 Pall 的生物工艺核心耗材订单实现了连续两个季度的环比双位数增长，客户库存已回归至正常中性水平。</li>
+                    <li><strong>诊断业务持续韧性：</strong> Cepheid 呼吸道以外的常规临床检测（如院内感染 HAI、肿瘤与女性健康）实现了 15%+ 的高内生增长。</li>
+                    <li><strong>Abcam 整合超出预期：</strong> DBS 体系导入迅速，Abcam 供应链成本与研发协同成效初显，毛利率提升超 200 bps。</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📝 丹纳赫创始文化与管理层卓越履历</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>Rales 兄弟创始人精神：</strong> Steven Rales 与 Mitchell Rales 创立的精益 Kaizen 哲学已深植丹纳赫 DNA，历任 CEO 均从内部培养选拔。</li>
+                    <li><strong>极高资本配置纪律：</strong> 坚持只收购“行业第一/第二、高经常性收入、具 DBS 改善空间”的优质标的，严控并购溢价。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="sec-13" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">13</div>
+                <div>
+                    <div class="section-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</div>
+                    <div class="section-sub">做空占比仅 1.92%，平仓天数 1.91 天</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 13</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">做空股数 (Shares Short)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">1,207万 股</div>
+                <div style="font-size: 11px; color: var(--text-muted);">流通股占比: 1.92% (极低空头)</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">平仓天数 (Days to Cover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">1.91 天</div>
+                <div style="font-size: 11px; color: var(--text-muted);">空头压力微弱，流动性极为健康</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">空头压力评级</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">极低风险 (Very Low)</div>
+                <div style="font-size: 11px; color: #15803D;">纯正基本面机构重仓长牛形态</div>
+            </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 14px;">
+            <strong>空头分析：</strong> 空头占比不足 2%，表明华尔街专业机构对丹纳赫资产负债表与 85%+ 经常性收入的防守能力高度共识。股价走势完全由基本面业绩复苏与公募机构加仓主导。
+        </p>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="sec-14" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">14</div>
+                <div>
+                    <div class="section-title">核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+                    <div class="section-sub">系统性审视中国医疗采购政策、全球生物医药融资与汇率扰动</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 14</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子 (Risk Factor)</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>综合风险等级</th>
+                        <th>对冲机制与缓冲垫 (Mitigation & Buffer)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 中国医疗设备招标与反腐政策短期压制采购</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>暂时 (Transitory)</td>
+                        <td><span class="tag-pill tag-amber">中等关注</span></td>
+                        <td>中国收入占总营收约 12%，且以高刚性生物制药与科研耗材为主，设备推迟采购将积累递延需求</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 全球高利率环境下小型 Biotech 研发预算收紧</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低-中风险</span></td>
+                        <td>丹纳赫 70%+ 生物工艺收入来自商业化量产阶段的大型成熟制药巨头（Big Pharma），抗波动能力极强</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 美元走强带来的海外收入换算负面汇率影响</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低风险</span></td>
+                        <td>全球化本地化生产布局有效对冲外汇风险，且现金流转化率达 120% 能够消化汇率波动</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="sec-15" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">15</div>
+                <div>
+                    <div class="section-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+                    <div class="section-sub">未来 6-18 个月核心估值催化事件序列</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 15</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">📅 催化剂 1: 生物工艺季度同比增速全面转正</div>
+                <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">2026年 下半年</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">随着低基数效应与新药商业化扩产，生物工艺业务重回 8%-10% 高个位数常态增长。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📅 催化剂 2: GLP-1 多肽与 ADC 药物扩产放量</div>
+                <div style="font-size: 12px; font-weight: 700; color: #1E40AF; margin-bottom: 6px;">2026年 Q4 - 2027年</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">全球减肥药与新型抗体产能短缺引发的大规模上游生物工艺耗材采购潮全面确认收入。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">📅 催化剂 3: 启动新一轮重磅百亿级外延并购</div>
+                <div style="font-size: 12px; font-weight: 700; color: #6B21A8; margin-bottom: 6px;">持续发酵</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">杠杆率降至 2.0x 后，丹纳赫将重启 DBS 赋能的重磅生命科学资产并购，再度拉升 EPS 增长中枢。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 16 -->
+    <section id="sec-16" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">16</div>
+                <div>
+                    <div class="section-title">最终投资评级与执行建议 (Final Verdict & Execution Plan)</div>
+                    <div class="section-sub">标准化投资决策模块与分步建仓指引</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 16</span>
+        </div>
+
+        <div class="signal-banner">
+            <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700;">INVESTMENT SIGNAL MATRIX</div>
+            <div style="font-size: 26px; font-weight: 800; margin: 4px 0 14px;">强烈看多 (STRONG BUY) • 8.7 / 10</div>
+            
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-lbl">核心信号 (Signal)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">STRONG BUY (强烈看多)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">置信度 (Confidence)</div>
+                    <div class="signal-val">HIGH (极高)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">投资期限 (Horizon)</div>
+                    <div class="signal-val">12 - 36 个月</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">综合评分 (Score)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">8.7 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">建议操作 (Action)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">BUY (周期反转起跑点坚决买入)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">目标价 (Target Price)</div>
+                    <div class="signal-val">$255.00 (+26.0%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">🎯 具体交易执行指引 (Actionable Strategy)</div>
+            <ol style="padding-left: 20px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.8;">
+                <li><strong>正股分批建仓区间：</strong> 建议在 <strong>$193.00 - $202.00</strong> 50日均线与 20日均线支撑区间建立 50%-60% 核心底仓。前瞻 P/E 仅 21.77x，安全边际极高。</li>
+                <li><strong>期权收益增强执行：</strong> 推荐卖出 2026-09-18 到期、行权价 <strong>$195.00 Put</strong>（权利金 ~$3.50，年化收益率 ~19.3%）或 <strong>$200.00 Put</strong>（权利金 ~$5.30，年化收益率 ~28.4%），以跌破强支撑的实质成本抢筹。</li>
+                <li><strong>持股目标与止盈规划：</strong> 第一目标位 <strong>$228.00</strong>（分批止盈 25%），核心 DCF 公允目标位 <strong>$255.00 (+26.0%)</strong>，长期乐观目标可看至 <strong>$305.00 (+50.7%)</strong>。</li>
+            </ol>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+            <strong>免责声明 (Disclaimer)：</strong> 本研报基于公开市场数据、公司官方财务披露及行业量化模型生成，仅供投资研究与学术交流参考，不构成任何具体的投资建议或买卖要约。股票及金融衍生品交易存在本金损失风险，投资者应根据自身风险承受能力独立决策。
+        </div>
+    </section>
+
+</div>
+
+<!-- JAVASCRIPT FOR CHARTS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Radar Chart
+        const radarCtx = document.getElementById('dhrFactorRadarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['护城河与转换成本 (9.8)', 'DBS运营管理溢价 (9.8)', '现金流与盈利质量 (9.2)', '估值性价比 (8.2)', '行业复苏与新动能 (8.0)', '筹码与技术面 (7.5)'],
+                datasets: [{
+                    label: '丹纳赫 (DHR) 因子得分',
+                    data: [9.8, 9.8, 9.2, 8.2, 8.0, 7.5],
+                    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                    borderColor: '#10B981',
+                    pointBackgroundColor: '#059669',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#059669',
+                    borderWidth: 2
+                }, {
+                    label: '全球生命科学与医疗诊断板块均值 (Benchmark)',
+                    data: [7.0, 6.5, 6.5, 6.0, 5.5, 5.5],
+                    backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                    borderColor: '#94A3B8',
+                    pointBackgroundColor: '#94A3B8',
+                    pointBorderColor: '#fff',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#E2E8F0' },
+                        grid: { color: '#F1F5F9' },
+                        pointLabels: {
+                            font: { size: 11, weight: '600', family: 'Inter' },
+                            color: '#475569'
+                        },
+                        ticks: { min: 0, max: 10, stepSize: 2, display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+
+        // 2. Revenue & Free Cash Flow Bar/Line Chart
+        const revCtx = document.getElementById('dhrRevenueIncomeChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024', '2025', 'TTM (最新)'],
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: '营业总收入 Revenue ($M)',
+                        data: [26643, 23890, 23875, 24568, 25107],
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#059669',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: '自由现金流 FCF ($M)',
+                        data: [7401, 5781, 5296, 5260, 4325],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#D97706',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '总营收 ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { color: '#F1F5F9' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: '自由现金流 FCF ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

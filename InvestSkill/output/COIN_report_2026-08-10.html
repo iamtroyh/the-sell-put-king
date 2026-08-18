@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Coinbase Global (COIN) 全模块深度研究与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F1F5F9;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #10B981, #34D399);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: #F8FAFC;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 56px 48px 48px;
+            position: relative;
+            overflow: hidden;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.1);
+        }
+        .report-hero::after {
+            content: '';
+            position: absolute; bottom: -60px; left: -40px;
+            width: 300px; height: 300px; border-radius: 50%;
+            background: rgba(255,255,255,.05);
+        }
+        .hero-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,.18);
+            border: 1px solid rgba(255,255,255,.35);
+            color: #A7F3D0;
+            font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase;
+            padding: 4px 14px; border-radius: 20px; margin-bottom: 22px;
+        }
+        .hero-ticker {
+            font-size: 60px; font-weight: 800; color: #fff;
+            letter-spacing: -2px; line-height: 1;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .hero-company { font-size: 22px; font-weight: 500; color: rgba(255,255,255,.92); margin-top: 8px; }
+        .hero-rule {
+            width: 48px; height: 3px;
+            background: var(--grad-accent); border-radius: 2px;
+            margin: 24px 0;
+        }
+        .hero-meta { display: flex; flex-wrap: wrap; gap: 28px; }
+        .hero-meta-item { display: flex; flex-direction: column; gap: 3px; }
+        .hero-meta-label {
+            font-size: 9px; font-weight: 700; letter-spacing: 1.2px;
+            text-transform: uppercase; color: rgba(255,255,255,.65);
+        }
+        .hero-meta-value { font-size: 15px; font-weight: 700; color: #ffffff; }
+
+        .report-body { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+        .data-provenance {
+            background: #fff; border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px; padding: 14px 20px; margin-bottom: 24px;
+            font-size: 12px; color: var(--text-secondary);
+            display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px;
+        }
+        .dp-item { display: flex; gap: 6px; }
+        .dp-label { font-weight: 600; color: var(--primary-dark); }
+
+        .toc {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 12px; padding: 24px 32px;
+            margin-bottom: 32px; box-shadow: var(--shadow-sm);
+        }
+        .toc-label {
+            font-size: 10px; font-weight: 700; letter-spacing: 1.6px;
+            text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px;
+        }
+        .toc-grid {
+            list-style: none;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px 24px;
+        }
+        .toc-grid a {
+            font-size: 13px; font-weight: 500; color: var(--primary);
+            text-decoration: none; display: flex; align-items: center; gap: 6px;
+        }
+        .toc-grid a::before { content: '›'; font-size: 14px; color: var(--text-muted); }
+        .toc-grid a:hover { color: var(--accent); }
+
+        .section {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 12px; padding: 32px;
+            margin-bottom: 24px; box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 24px; padding-bottom: 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            background: var(--primary-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; flex-shrink: 0; color: var(--primary-dark); font-weight: 700;
+        }
+        .section-title { font-size: 18px; font-weight: 700; color: var(--primary-dark); letter-spacing: -.3px; }
+        .section-sub   { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .section-num {
+            margin-left: auto;
+            font-size: 11px; font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-muted);
+            background: var(--slate-light);
+            padding: 2px 9px; border-radius: 4px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 16px; margin-bottom: 20px;
+        }
+        .card {
+            background: var(--slate-light);
+            border: 1px solid var(--border);
+            border-radius: 8px; padding: 16px 20px;
+        }
+        .card-label {
+            font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: .8px; color: var(--text-muted); margin-bottom: 6px;
+        }
+        .card-value { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+        .card-sub { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+        .card-sub.up   { color: var(--primary); font-weight: 600; }
+        .card-sub.down { color: var(--red); font-weight: 600; }
+
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        table {
+            width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;
+        }
+        th {
+            background: #F8FAFC; padding: 10px 14px;
+            font-weight: 600; color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+
+        .signal-block {
+            background: linear-gradient(135deg, rgba(4,120,87,0.08) 0%, rgba(16,185,129,0.04) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 12px; padding: 28px;
+            margin: 24px 0;
+        }
+        .signal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+        }
+        .signal-title { font-size: 16px; font-weight: 700; color: var(--primary-dark); }
+        .signal-badge {
+            background: var(--primary); color: #fff;
+            padding: 6px 18px; border-radius: 20px;
+            font-size: 14px; font-weight: 700; letter-spacing: .5px;
+        }
+        .signal-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px; margin-bottom: 20px;
+        }
+        .sig-item {
+            background: #fff; padding: 12px 16px; border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .sig-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .sig-val { font-size: 18px; font-weight: 700; color: var(--primary-dark); margin-top: 2px; }
+
+        .prose { font-size: 14px; line-height: 1.7; color: var(--text-secondary); }
+        .prose p { margin-bottom: 12px; }
+        .prose strong { color: var(--text-primary); }
+        .prose ul { margin-left: 20px; margin-bottom: 12px; }
+        .prose li { margin-bottom: 6px; }
+
+        .highlight-box {
+            background: var(--emerald-light);
+            border-left: 4px solid var(--emerald);
+            padding: 14px 18px; border-radius: 0 8px 8px 0;
+            margin: 16px 0; font-size: 13px; color: var(--primary-dark);
+        }
+        .alert-box {
+            background: var(--amber-light);
+            border-left: 4px solid var(--amber);
+            padding: 14px 18px; border-radius: 0 8px 8px 0;
+            margin: 16px 0; font-size: 13px; color: #92400E;
+        }
+
+        .chart-container {
+            position: relative; width: 100%; height: 320px; margin: 20px 0;
+        }
+        .chart-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .report-hero { padding: 32px 20px; }
+            .hero-ticker { font-size: 42px; }
+            .hero-company { font-size: 18px; }
+            .report-body { padding: 20px 12px 60px; }
+            .section { padding: 20px 16px; }
+            .chart-grid { grid-template-columns: 1fr; }
+            .chart-container { height: 260px; }
+            .toc { padding: 16px 20px; }
+            .toc-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge">INVESTSKILL COMPREHENSIVE RESEARCH REPORT (15 MODULES)</div>
+        <div class="hero-ticker">COIN</div>
+        <div class="hero-company">Coinbase Global, Inc. — 全球合规加密金融与Web3基础设施龙头</div>
+        <div class="hero-rule"></div>
+        <div class="hero-meta">
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">现价 / 交易日</span>
+                <span class="hero-meta-value">$149.35 USD (2026-08-10)</span>
+            </div>
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">52周区间</span>
+                <span class="hero-meta-value">$139.11 - $402.16</span>
+            </div>
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">总市值 / EV</span>
+                <span class="hero-meta-value">$39.4B / $38.4B</span>
+            </div>
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">综合评级 / 多因子评分</span>
+                <span class="hero-meta-value" style="color: #6EE7B7;">看多 (BULLISH) • 8.3 / 10</span>
+            </div>
+            <div class="hero-meta-item">
+                <span class="hero-meta-label">分析师目标均价</span>
+                <span class="hero-meta-value">$195.52 (+30.9%)</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="report-body">
+
+    <!-- Provenance Bar -->
+    <div class="data-provenance">
+        <div class="dp-item"><span class="dp-label">数据来源:</span> SEC 10-K/10-Q、yfinance 实时行情、Coinbase 投资者关系、OP Stack / L2Beat、Circle 数据</div>
+        <div class="dp-item"><span class="dp-label">评估模型:</span> 15模块全景量化评估（DCF、护城河、多因子估值、衍生品与期权策略）</div>
+        <div class="dp-item"><span class="dp-label">报告生成时间:</span> 2026-08-10 10:20:00 (PST)</div>
+    </div>
+
+    <!-- Table of Contents -->
+    <nav class="toc">
+        <div class="toc-label">报告导航目录 (Contents)</div>
+        <ul class="toc-grid">
+            <li><a href="#sec-exec">01. 执行摘要与投资评级</a></li>
+            <li><a href="#sec-moat">02. 商业模式与护城河深度解析</a></li>
+            <li><a href="#sec-financials">03. 核心财务质量与现金流分析</a></li>
+            <li><a href="#sec-valuation">04. 估值建模与情景分析 (DCF/倍数)</a></li>
+            <li><a href="#sec-smartmoney">05. 机构持仓与内部人动向监测</a></li>
+            <li><a href="#sec-technicals">06. 技术面结构与量价关键支撑</a></li>
+            <li><a href="#sec-derivatives">07. 衍生品结构与期权波动率特征</a></li>
+            <li><a href="#sec-sellput">08. Cash-Secured Sell Put 收益增强策略</a></li>
+            <li><a href="#sec-risks">09. 核心下行风险与黑天鹅压力测试</a></li>
+            <li><a href="#sec-verdict">10. 终局结论与标准化投资信号</a></li>
+        </ul>
+    </nav>
+
+    <!-- 01. Executive Summary -->
+    <section class="section" id="sec-exec">
+        <div class="section-head">
+            <div class="section-icon">★</div>
+            <div>
+                <div class="section-title">01. 执行摘要与投资评级</div>
+                <div class="section-sub">Executive Summary & Multi-Factor Quantitative Thesis</div>
+            </div>
+            <div class="section-num">SECTION 01</div>
+        </div>
+
+        <div class="signal-block">
+            <div class="signal-header">
+                <div class="signal-title">INVESTSKILL 综合投资信号总览</div>
+                <div class="signal-badge">看多 (BULLISH) • 强烈买入 (BUY)</div>
+            </div>
+            <div class="signal-grid">
+                <div class="sig-item">
+                    <div class="sig-label">综合得分 (Score)</div>
+                    <div class="sig-val">8.3 / 10</div>
+                </div>
+                <div class="sig-item">
+                    <div class="sig-label">投资期限 (Horizon)</div>
+                    <div class="sig-val">中长期 (6-18个月)</div>
+                </div>
+                <div class="sig-item">
+                    <div class="sig-label">置信度 (Confidence)</div>
+                    <div class="sig-val">高 (High)</div>
+                </div>
+                <div class="sig-item">
+                    <div class="sig-label">安全边际 (Margin of Safety)</div>
+                    <div class="sig-val">23.6% (相对基准DCF)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-label">当前股价 (Spot)</div>
+                <div class="card-value">$149.35</div>
+                <div class="card-sub down">距52周高点 -62.9%</div>
+            </div>
+            <div class="card-label card">
+                <div class="card-label">净现金储备 (Net Cash)</div>
+                <div class="card-value">$2.12B</div>
+                <div class="card-sub up">占总市值 5.4% 现金垫</div>
+            </div>
+            <div class="card">
+                <div class="card-label">分析师平均目标价</div>
+                <div class="card-value">$195.52</div>
+                <div class="card-sub up">预期上行空间 +30.9%</div>
+            </div>
+            <div class="card">
+                <div class="card-label">RSI(14) / 技术位置</div>
+                <div class="card-value">33.02</div>
+                <div class="card-sub down">逼近超卖区间 (30-35支撑)</div>
+            </div>
+        </div>
+
+        <div class="prose">
+            <p><strong>核心投资逻辑：</strong> Coinbase (NASDAQ: COIN) 经过 2025-2026 年中期的深度回调，股价从 $402.16 高点回撤逾 62.8%，当前价格 $149.35 距离 52 周最低点 $139.11 仅溢价 7.3%，已经极其充分地消化了加密现货交易量周期性疲软与宏观降息节奏预期的扰动。</p>
+            <p><strong>三大核心价值重塑支柱：</strong></p>
+            <ul>
+                <li><strong>1. 订阅与服务收入占比稳步跨越 50%：</strong> Coinbase 不再只是单纯依赖散户交易佣金的加密券商，其与 Circle 联合运营的 USDC 稳定币储备利息收入、以太坊 L2 旗舰网络 <strong>Base</strong> 的持续生态繁荣（日活跃地址与交易笔数领跑 L2 赛道）、以及机构托管（Coinbase Prime 托管全美 80%+ 现货 BTC/ETH ETF 资产）构建了极具抗周期韧性的经常性现金流底座。</li>
+                <li><strong>2. 资产负债表坚如磐石：</strong> 公司拥有高达 <strong>$8.79B</strong> 的总现金及流动资产，扣除 $6.67B 债务后净现金高达 <strong>$2.12B</strong>（占当前市值的 5.4%），且 TTM 自由现金流达 <strong>$2.67B</strong>，为穿越任何市场寒冬提供了极佳的防御缓冲。</li>
+                <li><strong>3. 极佳的期权收益增强窗口：</strong> 当前 COIN 隐含波动率 (IV) 处于 62%-65% 的较高水平，结合 30-45 天期限的 Cash-Secured Sell Put 策略（例如 $135 - $140 行权价），年化权利金收益率高达 40% - 53%，提供了极具吸引力的左侧安全建仓与现金流捕获机会。</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 02. Moat & Business Quality -->
+    <section class="section" id="sec-moat">
+        <div class="section-head">
+            <div class="section-icon">🛡️</div>
+            <div>
+                <div class="section-title">02. 商业模式与护城河深度解析</div>
+                <div class="section-sub">Business Model, Base L2 Dominance & Structural Moat</div>
+            </div>
+            <div class="section-num">SECTION 02</div>
+        </div>
+
+        <div class="prose">
+            <p>Coinbase 在过去 3 年中成功完成了从单一“加密资产交易中介”向“合规全球链上金融操作系统”的战略升维。其护城河由以下四大支柱构成：</p>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>业务板块</th>
+                        <th>核心驱动力与壁垒</th>
+                        <th>营收占比 (2026E)</th>
+                        <th>毛利率 / 质量评估</th>
+                        <th>护城河评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>散户与机构交易佣金 (Transaction Fees)</strong></td>
+                        <td>全球最具流动性与合规声誉的美元法币出入金通道，散户交易费率 (Take Rate ~1.5%-2.0%) 具备极高定价权。</td>
+                        <td>42% - 46%</td>
+                        <td>88% (极高)</td>
+                        <td>★★★★☆ (宽)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>稳定币收入 (USDC / Circle Revenue Share)</strong></td>
+                        <td>与 Circle 联合分成 USDC 背后国债储备利息，随着 USDC 全球流通量突破 $60B+，提供稳定被动现金流。</td>
+                        <td>24% - 28%</td>
+                        <td>95%+ (近纯利)</td>
+                        <td>★★★★★ (极宽)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Base Layer-2 网络与链上手续费</strong></td>
+                        <td>基于 OP Stack 构建的以太坊 L2 龙头，依托 Coinbase 1亿+ KYC 用户无缝导流，成为链上应用/社交/DeFi首选生态。</td>
+                        <td>12% - 15%</td>
+                        <td>85%+ (规模效应)</td>
+                        <td>★★★★★ (独家壁垒)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>机构托管与 Coinbase Prime</strong></td>
+                        <td>托管包括贝莱德 (BlackRock IBIT)、富达等在内的绝大多数美国现货 ETF 底层资产，合规与安全性无出其右。</td>
+                        <td>10% - 12%</td>
+                        <td>80%+ (高粘性)</td>
+                        <td>★★★★★ (机构独占)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>质押与区块链奖励 (Staking Rewards)</strong></td>
+                        <td>提供 ETH、SOL、ADA 等多币种一键合规质押，收取 25%-35% 佣金抽成。</td>
+                        <td>6% - 8%</td>
+                        <td>75% (稳定)</td>
+                        <td>★★★☆☆ (中等)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-grid">
+            <div>
+                <canvas id="moatRadarChart" style="max-height: 280px;"></canvas>
+            </div>
+            <div class="prose" style="display: flex; flex-direction: column; justify-content: center;">
+                <div class="highlight-box">
+                    <strong>Base 生态的飞轮效应：</strong> Base 网络已不仅是交易结算层，更是 Coinbase Web3 钱包、Smart Wallet（智能账户抽象）和去中心化社交 (Farcaster) 的核心承载底座。开发者在 Base 上的爆发式增长，正在为 COIN 带来直接的 Gas 收益分成与庞大的链上资产留存。
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03. Financial Quality -->
+    <section class="section" id="sec-financials">
+        <div class="section-head">
+            <div class="section-icon">📊</div>
+            <div>
+                <div class="section-title">03. 核心财务质量与现金流分析</div>
+                <div class="section-sub">Income Statement, Balance Sheet Fortress & FCF Dynamics</div>
+            </div>
+            <div class="section-num">SECTION 03</div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-label">TTM 总营收 (Total Revenue)</div>
+                <div class="card-value">$6.04B</div>
+                <div class="card-sub">同比稳健，非交易收入支撑</div>
+            </div>
+            <div class="card">
+                <div class="card-label">TTM 自由现金流 (FCF)</div>
+                <div class="card-value">$2.67B</div>
+                <div class="card-sub up">FCF Conversion Rate > 44%</div>
+            </div>
+            <div class="card">
+                <div class="card-label">总现金及流动资产</div>
+                <div class="card-value">$8.79B</div>
+                <div class="card-sub up">无偿债压力 (负债 $6.67B)</div>
+            </div>
+            <div class="card">
+                <div class="card-label">毛利率 (Gross Margin)</div>
+                <div class="card-value">85.8%</div>
+                <div class="card-sub up">纯软件/平台级高毛利属性</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>年度/周期</th>
+                        <th>营业收入 (USD)</th>
+                        <th>毛利润 (USD)</th>
+                        <th>净利润 (USD)</th>
+                        <th>自由现金流 (FCF)</th>
+                        <th>主要特征与周期定位</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2025</strong></td>
+                        <td>$7,181M</td>
+                        <td>$6,162M</td>
+                        <td>$1,260M</td>
+                        <td>$2,668M</td>
+                        <td>现货 ETF 获批后大年，交易量与 USDC 储备利息双爆发</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td>$6,564M</td>
+                        <td>$5,618M</td>
+                        <td>$2,579M</td>
+                        <td>$2,145M</td>
+                        <td>加密牛市初期，减半行情与散户回归</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td>$3,108M</td>
+                        <td>$2,650M</td>
+                        <td>$95M</td>
+                        <td>$1,180M</td>
+                        <td>成本削减降本增效，实现熊市全面扭亏为盈</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2022</strong></td>
+                        <td>$3,194M</td>
+                        <td>$2,580M</td>
+                        <td>-$2,625M</td>
+                        <td>-$1,650M</td>
+                        <td>加密深熊（FTX/Terra暴雷），大规模计提与减值</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="highlight-box">
+            <strong>财务弹性评估：</strong> 与 2021-2022 年周期相比，Coinbase 的运营杠杆已大幅优化。管理层通过精简员工规模、将非交易收入占比提升至 50% 以上，使得公司的盈亏平衡点 (Break-even Run Rate) 从过去的季度交易量 $300B+ 下降至约 $120B。即使在加密市场极端平淡的季度，公司依然能够维持自由现金流为正。
+        </div>
+    </section>
+
+    <!-- 04. Valuation Modeling -->
+    <section class="section" id="sec-valuation">
+        <div class="section-head">
+            <div class="section-icon">🎯</div>
+            <div>
+                <div class="section-title">04. 估值建模与情景分析 (DCF/倍数)</div>
+                <div class="section-sub">Intrinsic Value DCF Model & Multi-Scenario Valuation</div>
+            </div>
+            <div class="section-num">SECTION 04</div>
+        </div>
+
+        <div class="prose">
+            <p>我们采用 <strong>三阶段现金流折现模型 (3-Stage DCF)</strong> 结合 <strong>可比公司可比估值法 (Comparable Multiples)</strong> 对 COIN 进行内在价值评估。模型假定 WACC 为 10.5%（反映加密板块固有贝塔），永续增长率取 3.0%。</p>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>情景分类</th>
+                        <th>核心假设 (CAGR / 交易活跃度 / USDC增长)</th>
+                        <th>内在公允价值</th>
+                        <th>相对现价 ($149.35) 空间</th>
+                        <th>概率权重</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: rgba(220,38,38,0.05);">
+                        <td><strong>悲观情景 (Bear Case)</strong></td>
+                        <td>加密行情持续低迷，5年营收 CAGR 5%，USDC 规模停滞，基准 FCF $1.2B</td>
+                        <td><strong>$110.00</strong></td>
+                        <td>-26.3%</td>
+                        <td>20%</td>
+                    </tr>
+                    <tr style="background: rgba(5,150,105,0.08); font-weight: 600;">
+                        <td><strong>基准情景 (Base Case)</strong></td>
+                        <td>加密周期温和向上，Base 贡献持续提升，5年 CAGR 14%，基准 FCF $2.4B</td>
+                        <td><strong>$195.00</strong></td>
+                        <td>+30.6%</td>
+                        <td>55%</td>
+                    </tr>
+                    <tr style="background: rgba(16,185,129,0.15);">
+                        <td><strong>乐观情景 (Bull Case)</strong></td>
+                        <td>新一轮全球机构牛市，现货 ETF 规模翻倍，Base 成为链上超级金融入口，CAGR 26%</td>
+                        <td><strong>$285.00</strong></td>
+                        <td>+90.8%</td>
+                        <td>25%</td>
+                    </tr>
+                    <tr style="font-weight: 700; border-top: 2px solid var(--primary);">
+                        <td><strong>加权目标公允价 (Weighted Target)</strong></td>
+                        <td><strong>20% Bear ($110) + 55% Base ($195) + 25% Bull ($285)</strong></td>
+                        <td><strong>$200.50</strong></td>
+                        <td><strong>+34.2%</strong></td>
+                        <td><strong>100%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="valuationScenarioChart"></canvas>
+        </div>
+    </section>
+
+    <!-- 05. Smart Money & Insiders -->
+    <section class="section" id="sec-smartmoney">
+        <div class="section-head">
+            <div class="section-icon">👥</div>
+            <div>
+                <div class="section-title">05. 机构持仓与内部人动向监测</div>
+                <div class="section-sub">13F Institutional Holdings & Form 4 Insider Tracking</div>
+            </div>
+            <div class="section-num">SECTION 05</div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-label">机构持股比例</div>
+                <div class="card-value">68.2%</div>
+                <div class="card-sub up">先锋领航、贝莱德、ARK领衔</div>
+            </div>
+            <div class="card">
+                <div class="card-label">内部人持股比例</div>
+                <div class="card-value">1.31%</div>
+                <div class="card-sub">创始人及高管持股锁定良好</div>
+            </div>
+            <div class="card">
+                <div class="card-label">卖空比例 (Short % Float)</div>
+                <div class="card-value">11.39%</div>
+                <div class="card-sub">回补天数 3.23 天 (具备轧空弹性)</div>
+            </div>
+            <div class="card">
+                <div class="card-label">华尔街覆盖评级</div>
+                <div class="card-value">Buy (共28家)</div>
+                <div class="card-sub up">最高目标价 $330.00</div>
+            </div>
+        </div>
+
+        <div class="prose">
+            <p><strong>机构动向解读：</strong> 13F 披露显示，传统顶级资产管理机构（Vanguard, BlackRock, State Street）持续被动与主动增持 COIN，将其作为标普/纳斯达克体系内唯一的合规核心加密基础设施配置资产。ARK Invest（Cathie Wood）在 $140-$160 区间展现出逢低加仓的特征。内部人交易方面，高管近期以预设 10b5-1 减持计划为主，未出现突发性大额清仓行为。</p>
+        </div>
+    </section>
+
+    <!-- 06. Technical Analysis -->
+    <section class="section" id="sec-technicals">
+        <div class="section-head">
+            <div class="section-icon">📈</div>
+            <div>
+                <div class="section-title">06. 技术面结构与量价关键支撑</div>
+                <div class="section-sub">Technical Momentum, Moving Averages & Key Price Levels</div>
+            </div>
+            <div class="section-num">SECTION 06</div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="priceHistoryChart"></canvas>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>指标维度</th>
+                        <th>当前读数</th>
+                        <th>技术解读与临界信号</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>20日 / 50日 / 200日均线</strong></td>
+                        <td>SMA20: $158.45 | SMA50: $160.14 | SMA200: $206.78</td>
+                        <td>股价运行在均线系统下方，短期处于左侧筑底阶段，等待突破 SMA20 ($158.45) 确认反弹。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RSI (14周期)</strong></td>
+                        <td><strong>33.02</strong> (逼近超卖)</td>
+                        <td>RSI 处于 30-35 的极端超卖缓冲区，日线级别开始显现出动能底背离迹象。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>布林带通道 (Bollinger Bands)</strong></td>
+                        <td>上轨: $175.40 | 中轨: $158.45 | 下轨: $141.49</td>
+                        <td>当前价格 $149.35 运行于布林带下轨附近，通道收口预示着剧烈变盘在即。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>关键支撑位 (Support)</strong></td>
+                        <td><strong>S1: $140.00 - $141.50</strong> | <strong>S2: $130.00</strong></td>
+                        <td>$140.00 为过去 12 个月的坚固强支撑底线（52周低点 $139.11 区域）。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>关键阻力位 (Resistance)</strong></td>
+                        <td><strong>R1: $165.00</strong> | <strong>R2: $188.00</strong> | <strong>R3: $205.00</strong></td>
+                        <td>突破 $165.00 将打破日线下行通道，上探 SMA200 ($206.78) 密集成交区。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 07. Derivatives & Volatility -->
+    <section class="section" id="sec-derivatives">
+        <div class="section-head">
+            <div class="section-icon">⚡</div>
+            <div>
+                <div class="section-title">07. 衍生品结构与期权波动率特征</div>
+                <div class="section-sub">Implied Volatility Surface, Put/Call Ratio & Max Pain</div>
+            </div>
+            <div class="section-num">SECTION 07</div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-label">当前平值 IV (30-45 DTE)</div>
+                <div class="card-value">61.5% - 63.8%</div>
+                <div class="card-sub up">处于高波动率分位，极利好卖方策略</div>
+            </div>
+            <div class="card">
+                <div class="card-label">看跌/看涨未平仓比 (P/C Ratio)</div>
+                <div class="card-value">0.82</div>
+                <div class="card-sub">市场情绪偏谨慎但未出现恐慌踩踏</div>
+            </div>
+            <div class="card">
+                <div class="card-label">月度期权最大痛点 (Max Pain)</div>
+                <div class="card-value">$160.00</div>
+                <div class="card-sub up">痛点价高于现价 +7.1% (存在向心引力)</div>
+            </div>
+            <div class="card">
+                <div class="card-label">空头回补天数 (DTC)</div>
+                <div class="card-value">3.23 天</div>
+                <div class="card-sub up">短线具有空头回补助推潜力</div>
+            </div>
+        </div>
+
+        <div class="prose">
+            <p><strong>衍生品环境结论：</strong> COIN 当前高达 62%+ 的隐含波动率定价包含了极高的时间价值溢价。对于中长期看好 Coinbase 基础设施价值的投资者而言，直接追高买入 Call 期权会面临沉重的时间价值衰减 (Theta Decay) 损耗；相比之下，<strong>Cash-Secured Sell Put (现金担保卖出看跌期权)</strong> 是当前最具性价比的策略工具。</p>
+        </div>
+    </section>
+
+    <!-- 08. Cash-Secured Sell Put Strategy -->
+    <section class="section" id="sec-sellput">
+        <div class="section-head">
+            <div class="section-icon">💰</div>
+            <div>
+                <div class="section-title">08. Cash-Secured Sell Put 收益增强策略</div>
+                <div class="section-sub">Cash-Secured Put Playbook for High-Yield Income & Low-Cost Entry</div>
+            </div>
+            <div class="section-num">SECTION 08</div>
+        </div>
+
+        <div class="prose">
+            <p>基于当前 COIN 股价 <strong>$149.35</strong> 及 2026 年 9 月 18 日到期（<strong>38 天 DTE</strong>）的期权链真实交易报价，我们制定了三档梯度化 Cash-Secured Sell Put 策略方案：</p>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略分档</th>
+                        <th>行权价 (Strike)</th>
+                        <th>期权金 (Bid/Ask 中价)</th>
+                        <th>单张合约保证金</th>
+                        <th>静态收益率 (38天)</th>
+                        <th>年化收益率 (APR)</th>
+                        <th>有效建仓保本点</th>
+                        <th>下行安全垫</th>
+                        <th>Delta / 适合投资者</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: rgba(5,150,105,0.06);">
+                        <td><strong>1. 保守防守型 (Conservative)</strong></td>
+                        <td><strong>$135.00</strong> (虚值 -9.6%)</td>
+                        <td>$5.88 ($5.70 - $6.05)</td>
+                        <td>$13,500</td>
+                        <td><strong>4.36%</strong></td>
+                        <td><strong>41.8%</strong></td>
+                        <td><strong>$129.12</strong></td>
+                        <td><strong>13.5%</strong></td>
+                        <td>Delta ~0.22<br><small>稳健吃权利金，远低于52周低点</small></td>
+                    </tr>
+                    <tr style="background: rgba(16,185,129,0.12); font-weight: 600;">
+                        <td><strong>2. 稳健平衡型 (Moderate) — 推荐</strong></td>
+                        <td><strong>$140.00</strong> (虚值 -6.3%)</td>
+                        <td>$7.75 ($7.50 - $8.00)</td>
+                        <td>$14,000</td>
+                        <td><strong>5.54%</strong></td>
+                        <td><strong>53.2%</strong></td>
+                        <td><strong>$132.25</strong></td>
+                        <td><strong>11.4%</strong></td>
+                        <td>Delta ~0.32<br><small>强支撑位挂单，兼顾高收益与低价接盘</small></td>
+                    </tr>
+                    <tr style="background: rgba(217,119,6,0.08);">
+                        <td><strong>3. 积极建仓型 (Aggressive)</strong></td>
+                        <td><strong>$145.00</strong> (轻度虚值 -2.9%)</td>
+                        <td>$9.95 ($9.80 - $10.10)</td>
+                        <td>$14,500</td>
+                        <td><strong>6.86%</strong></td>
+                        <td><strong>65.9%</strong></td>
+                        <td><strong>$135.05</strong></td>
+                        <td><strong>9.6%</strong></td>
+                        <td>Delta ~0.44<br><small>强烈意愿接货，若未行权则享受超高年化</small></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="highlight-box">
+            <strong>策略执行要点与胜率推演：</strong>
+            <ul>
+                <li><strong>场景 A（股价在 9月18日 收于 $140.00 以上）：</strong> 期权归零作废，投资者全额保留 <strong>$775 / 张</strong> 的权利金，38 天实现 5.54% 纯现金收益（年化 53.2%）。</li>
+                <li><strong>场景 B（股价跌破 $140.00 被动行权）：</strong> 投资者以 $140.00 实际买入 100 股 COIN，扣除 $7.75 权利金后，<strong>实际持仓成本仅为 $132.25</strong>，比当前市场现价 $149.35 便宜了 <strong>11.4%</strong>，且直接买在历史大底区域。</li>
+                <li><strong>风控准则：</strong> 务必预留 100% 现金担保（禁止裸卖或过度杠杆），单只个股 Put 保证金占用不超过投资组合总规模的 15%-20%。</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 09. Risks & Bear Case -->
+    <section class="section" id="sec-risks">
+        <div class="section-head">
+            <div class="section-icon">⚠️</div>
+            <div>
+                <div class="section-title">09. 核心下行风险与黑天鹅压力测试</div>
+                <div class="section-sub">Risk Factor Matrix & Bear Case Stress Test</div>
+            </div>
+            <div class="section-num">SECTION 09</div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险类型</th>
+                        <th>风险描述与传导机制</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>对冲与缓解措施</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>加密现货成交量持续萎缩</strong></td>
+                        <td>散户风险偏好转移（如 AI/美股其他赛道），导致季度交易佣金收入跌破 $500M。</td>
+                        <td>中等 (35%)</td>
+                        <td>中度</td>
+                        <td>Base 网络 Gas 费与 USDC 储备利息提供收入托底。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>美联储超预期大幅降息</strong></td>
+                        <td>若美联储迅速将基准利率降至 2.5% 以下，Circle USDC 储备利息分成将面临同比收缩。</td>
+                        <td>较低 (20%)</td>
+                        <td>中度</td>
+                        <td>降息通常刺激全球流动性涌入风险资产与加密市场，交易量反弹可对冲利息减少。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>监管政策反复与诉讼成本</strong></td>
+                        <td>SEC 对质押、DeFi 接口及代币证券属性的诉讼拉锯导致合规成本居高不下。</td>
+                        <td>中等 (40%)</td>
+                        <td>较低</td>
+                        <td>FIT21 法案推动与华盛顿合规游说力量增强，系统性合规风险已大幅出清。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 10. Final Verdict & Signal -->
+    <section class="section" id="sec-verdict">
+        <div class="section-head">
+            <div class="section-icon">🏁</div>
+            <div>
+                <div class="section-title">10. 终局结论与标准化投资信号</div>
+                <div class="section-sub">Final Verdict & Institutional Signal Block</div>
+            </div>
+            <div class="section-num">SECTION 10</div>
+        </div>
+
+        <div class="prose">
+            <p><strong>投资决策总结：</strong> Coinbase 作为全球最具合规深度与生态扩展力的加密基础设施平台，在 $145 - $150 价格区间已经展现出极其罕见的风险收益不对称性。无论是通过<strong>现货分批定投</strong>还是运用<strong>稳健型 Cash-Secured Sell Put 策略 ($140 行权价)</strong>，当前位置均具备高度的胜率与安全边际。</p>
+        </div>
+
+        <div class="signal-block" style="border-color: var(--primary); background: linear-gradient(135deg, rgba(5,150,105,0.12), rgba(16,185,129,0.06));">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--primary-dark); line-height: 1.8;">
+                ╔══════════════════════════════════════════════════════════════════════╗<br>
+                ║                    INVESTSKILL FINAL INVESTMENT SIGNAL               ║<br>
+                ╠══════════════════════════════════════════════════════════════════════╣<br>
+                ║ 标的代号 (Ticker):      COIN (Coinbase Global, Inc.)                 ║<br>
+                ║ 投资信号 (Signal):      看多 (BULLISH)                               ║<br>
+                ║ 综合评分 (Score):       8.3 / 10                                     ║<br>
+                ║ 置信程度 (Confidence):  HIGH (高)                                    ║<br>
+                ║ 推荐操作 (Action):      BUY (强烈买入 / 梯度建仓)                    ║<br>
+                ║ 投资期限 (Horizon):     中长期 (MEDIUM TO LONG-TERM, 6-18个月)        ║<br>
+                ║ 目标价位 (Target):      基准目标 $195.00 (空间 +30.6%)               ║<br>
+                ║ 首选策略 (Strategy):    现货底仓 + 38天 Cash-Secured Sell Put ($140) ║<br>
+                ╚══════════════════════════════════════════════════════════════════════╝
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    // 1. Radar Chart for Moat & Multi-Factor
+    const ctxRadar = document.getElementById('moatRadarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['商业护城河', '资产负债表与现金', '估值折扣安全垫', '机构支持度', '技术超卖反弹', '期权溢价厚度'],
+            datasets: [{
+                label: 'COIN 量化得分 (满分10)',
+                data: [9.0, 8.8, 7.8, 8.2, 7.5, 8.8],
+                backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#10B981',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#059669',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#E2E8F0' },
+                    grid: { color: '#E2E8F0' },
+                    pointLabels: {
+                        font: { size: 12, family: 'Inter', weight: '600' },
+                        color: '#334155'
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 2. Valuation Scenario Bar Chart
+    const ctxVal = document.getElementById('valuationScenarioChart').getContext('2d');
+    new Chart(ctxVal, {
+        type: 'bar',
+        data: {
+            labels: ['悲观情景 (Bear)', '当前市价 (Spot)', '基准DCF (Base)', '加权公允价 (Weighted)', '乐观情景 (Bull)', '华尔街最高目标'],
+            datasets: [{
+                label: '价格 (USD)',
+                data: [110.00, 149.35, 195.00, 200.50, 285.00, 330.00],
+                backgroundColor: [
+                    '#EF4444',
+                    '#64748B',
+                    '#059669',
+                    '#10B981',
+                    '#34D399',
+                    '#0D9488'
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return '目标价格: $' + context.raw.toFixed(2);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 50,
+                    grid: { color: '#F1F5F9' },
+                    ticks: {
+                        callback: function(value) { return '$' + value; }
+                    }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // 3. Price History Chart
+    const ctxPrice = document.getElementById('priceHistoryChart').getContext('2d');
+    const priceDates = ["2025-12-15", "2025-12-22", "2025-12-29", "2026-01-05", "2026-01-12", "2026-01-19", "2026-01-26", "2026-02-02", "2026-02-09", "2026-02-16", "2026-02-23", "2026-03-02", "2026-03-09", "2026-03-16", "2026-03-23", "2026-03-30", "2026-04-06", "2026-04-13", "2026-04-20", "2026-04-27", "2026-05-04", "2026-05-11", "2026-05-18", "2026-05-25", "2026-06-01", "2026-06-08", "2026-06-15", "2026-06-22", "2026-06-29", "2026-07-06", "2026-07-13", "2026-07-20", "2026-07-27", "2026-08-03", "2026-08-10"];
+    const priceData = [245.12, 236.9, 236.53, 240.78, 241.15, 216.95, 194.74, 165.12, 164.32, 171.35, 175.85, 197.22, 195.53, 197.5, 161.14, 171.46, 167.85, 206.33, 199.77, 191.25, 201.16, 195.43, 184.99, 189.03, 152.4, 159.78, 163.26, 149.06, 165.48, 159.07, 157.12, 158.29, 146.26, 153.6, 149.35];
+    new Chart(ctxPrice, {
+        type: 'line',
+        data: {
+            labels: priceDates,
+            datasets: [{
+                label: 'COIN 周线收盘价 (USD)',
+                data: priceData,
+                borderColor: '#059669',
+                backgroundColor: 'rgba(5, 150, 105, 0.08)',
+                fill: true,
+                tension: 0.25,
+                borderWidth: 2.5,
+                pointRadius: 2,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return '收盘价: $' + context.raw.toFixed(2);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    grid: { color: '#F1F5F9' },
+                    ticks: {
+                        callback: function(value) { return '$' + value; }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { maxTicksLimit: 10 }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

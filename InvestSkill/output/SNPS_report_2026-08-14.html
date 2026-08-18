@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>新思科技 (Synopsys - SNPS) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 850px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #F1F5F9;
+        }
+        .section-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 13px;
+            margin-right: 10px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+        .section-tag {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #F1F5F9;
+            color: var(--text-secondary);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+        }
+        .card-emerald {
+            background: var(--primary-light);
+            border-color: #A7F3D0;
+        }
+        .card-amber {
+            background: var(--amber-light);
+            border-color: #FDE68A;
+        }
+        .card-red {
+            background: var(--red-light);
+            border-color: #FECACA;
+        }
+        .card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        p {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        p:last-child { margin-bottom: 0; }
+
+        strong { color: var(--text-primary); font-weight: 700; }
+
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #F1F5F9;
+            color: var(--text-primary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; font-weight: 600; text-align: right; }
+        th.num-cell { text-align: right; }
+
+        .score-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .score-high { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+        .score-mid { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+        .score-low { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            margin: 16px 0;
+        }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+        }
+        .callout-title { font-weight: 700; color: var(--primary-dark); font-size: 13px; margin-bottom: 4px; }
+        .callout-amber {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+        }
+        .callout-amber .callout-title { color: #92400E; }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            border-radius: 16px;
+            padding: 32px;
+            color: #FFFFFF;
+            margin-top: 32px;
+            box-shadow: 0 12px 30px rgba(5,150,105,0.25);
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,0.12);
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .signal-item-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 700; }
+        .signal-item-val { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0; color: #fff; }
+
+        @media (max-width: 768px) {
+            .report-hero { padding: 32px 16px 28px; }
+            .hero-title { font-size: 24px; }
+            .main-wrap { padding: 16px 12px 48px; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; gap: 14px; }
+            .section { padding: 18px 14px; }
+            .hero-kpis { grid-template-columns: 1fr 1fr; }
+            .signal-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: SNPS</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-cat">EDA 软件与半导体物理仿真巨头</span>
+            <span class="badge badge-hero-cat">15模块全景全量研报</span>
+        </div>
+        <h1 class="hero-title">新思科技 (Synopsys - SNPS) 投资价值与多因子全景深度研报</h1>
+        <div class="hero-sub">
+            深度解构“EDA垄断护城河 + Ansys物理多物理场仿真整合 + AI芯片3D-IC爆发 + 估值深度错杀”的核心投资逻辑
+        </div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">现价 / 当前市值</div>
+                <div class="hero-kpi-val">$421.46</div>
+                <div class="hero-kpi-sub">市值: $80.70B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">多因子综合评分</div>
+                <div class="hero-kpi-val" style="color: #34D399;">8.4 / 10</div>
+                <div class="hero-kpi-sub">加权评级: 强烈看多</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">动态市盈率 (Forward P/E)</div>
+                <div class="hero-kpi-val">24.4x</div>
+                <div class="hero-kpi-sub">同行CDNS: 34.2x (折价~29%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">华尔街共识目标价</div>
+                <div class="hero-kpi-val">$564.43</div>
+                <div class="hero-kpi-sub">潜在上行空间: +33.9%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息派发与股息率</div>
+                <div class="hero-kpi-val" style="font-size: 18px;">无 (None)</div>
+                <div class="hero-kpi-sub">全额留存用于研发与债务偿还</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-wrap">
+
+    <div class="toc-bar">
+        <div class="toc-title">研报导航目录 (15 模块全景全量深度)</div>
+        <div class="toc-links">
+            <a href="#m1" class="toc-link">1. 执行摘要</a>
+            <a href="#m2" class="toc-link">2. 多因子雷达</a>
+            <a href="#m3" class="toc-link">3. 商业模式与护城河</a>
+            <a href="#m4" class="toc-link">4. 财务与盈利质量</a>
+            <a href="#m5" class="toc-link">5. 杜邦三因子拆解</a>
+            <a href="#m6" class="toc-link">6. 行业竞争与同行矩阵</a>
+            <a href="#m7" class="toc-link">7. DCF 现金流估值</a>
+            <a href="#m8" class="toc-link">8. 技术面与筹码分布</a>
+            <a href="#m9" class="toc-link">9. 资本配置与股息政策</a>
+            <a href="#m10" class="toc-link">10. 现金担保 Sell Put 策略</a>
+            <a href="#m11" class="toc-link">11. 机构主力持仓</a>
+            <a href="#m12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#m13" class="toc-link">13. 做空与轧空评估</a>
+            <a href="#m14" class="toc-link">14. 核心风险与压力测试</a>
+            <a href="#m15" class="toc-link">15. 关键催化剂日历</a>
+            <a href="#m16" class="toc-link">16. 最终评级与执行建议</a>
+        </div>
+    </div>
+
+    <!-- MODULE 1: 执行摘要与投资核心逻辑 -->
+    <div class="section" id="m1">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">1</span>执行摘要与核心投资逻辑 (Executive Summary & Thesis)</div>
+            <span class="section-tag">核心逻辑</span>
+        </div>
+        <p><strong>投资核心论点 (Investment Thesis):</strong></p>
+        <p>新思科技 (Synopsys, NASDAQ: SNPS) 是全球无可争议的电子设计自动化 (EDA) 软件与半导体物理仿真垄断巨头。随着斥资约 350 亿美元完成对工程仿真领导者 <strong>Ansys (ANSS)</strong> 的战略并购，Synopsys 完成了从“芯片逻辑设计 (Silicon)”到“系统级物理场仿真 (Systems)”的终极垂直整合闭环，构筑起半导体与高端工业领域最深的护城河。</p>
+        
+        <div class="grid-3" style="margin: 18px 0;">
+            <div class="card card-emerald">
+                <div class="card-title">① 3D-IC 与 AI 算力芯片刚需</div>
+                <p style="font-size: 13px;">AI 大模型驱动芯片进入先进封装 (2.5D/3D-IC, CoWoS) 与埃米级时代 (A16/2nm)。传统单纯 EDA 无法解决热功耗与电磁耦合问题，Synopsys + Ansys 是全球唯一能提供全流程多物理场仿真方案的厂商。</p>
+            </div>
+            <div class="card card-emerald">
+                <div class="card-title">② 85%+ 高粘性循环订阅收入</div>
+                <p style="font-size: 13px;">EDA 软件采用 3 年期不可撤销的周期性软件许可 (TTLs)。半导体客户研发支出具有极强刚性，不受短期宏观晶圆产能波动的直接冲击，毛利率长期高达 82%–85%。</p>
+            </div>
+            <div class="card card-emerald">
+                <div class="card-title">③ 估值深度错杀提供安全边际</div>
+                <p style="font-size: 13px;">因市场消化 Ansys 并购短期承接的债务以及前期财报的保守指引，SNPS 股价自高点回撤 ~33%，Forward P/E 压缩至 <strong>24.4x</strong>，相较 Cadence (34.2x) 折价近 30%，具备极高赔率。</p>
+            </div>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">核心结论</div>
+            SNPS 当前股价 <strong>$421.46</strong> 处于近 18 个月估值洼地，基本面兼具垄断定价权与 AI 算力基础设施爆发红利。综合多因子量化模型给予 <strong>8.4 / 10</strong> 分，评级为 <strong>强烈看多 (STRONG BUY)</strong>，12个月基准目标价 <strong>$540.00</strong> (+28.1%)，华尔街共识目标价 <strong>$564.43</strong> (+33.9%)。
+        </div>
+    </div>
+
+    <!-- MODULE 2: 多因子量化评分雷达模型 -->
+    <div class="section" id="m2">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">2</span>多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</div>
+            <span class="section-tag">量化模型</span>
+        </div>
+        <div class="grid-2">
+            <div>
+                <div class="table-scroll" style="margin: 0;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评价维度 (Factor)</th>
+                                <th class="num-cell">权重</th>
+                                <th class="num-cell">得分 (0-10)</th>
+                                <th>简要评价</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>商业护城河 (Moat)</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="score-pill score-high">9.5</span></td>
+                                <td>EDA 双寡头垄断 + Ansys 仿真协同，迁移成本极高</td>
+                            </tr>
+                            <tr>
+                                <td><strong>财务与盈利质量 (Financials)</strong></td>
+                                <td class="num-cell">20%</td>
+                                <td class="num-cell"><span class="score-pill score-high">8.5</span></td>
+                                <td>毛利率 82.6%，FCF 强劲，订阅制高确定性</td>
+                            </tr>
+                            <tr>
+                                <td><strong>行业与AI成长性 (Growth)</strong></td>
+                                <td class="num-cell">20%</td>
+                                <td class="num-cell"><span class="score-pill score-high">9.0</span></td>
+                                <td>3D-IC、定制 ASIC、DSO.ai 与系统级仿真驱动</td>
+                            </tr>
+                            <tr>
+                                <td><strong>估值吸引力 (Valuation)</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="score-pill score-high">7.8</span></td>
+                                <td>Forward PE 24.4x，显著低于同行 CDNS 与历史中枢</td>
+                            </tr>
+                            <tr>
+                                <td><strong>市场与技术动能 (Momentum)</strong></td>
+                                <td class="num-cell">10%</td>
+                                <td class="num-cell"><span class="score-pill score-mid">7.5</span></td>
+                                <td>日线底部反弹突破 SMA20，MACD 金叉放量</td>
+                            </tr>
+                            <tr>
+                                <td><strong>风险与财务结构 (Risk Profile)</strong></td>
+                                <td class="num-cell">10%</td>
+                                <td class="num-cell"><span class="score-pill score-mid">7.2</span></td>
+                                <td>并购后短期杠杆率上升，但现金流去杠杆能力充裕</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 800;">
+                                <td><strong>综合多因子总分</strong></td>
+                                <td class="num-cell"><strong>100%</strong></td>
+                                <td class="num-cell"><strong style="color: #059669; font-size: 15px;">8.4 / 10</strong></td>
+                                <td><span class="score-pill score-high">强烈看多 (STRONG BUY)</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="chart-container" style="height: 280px;">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODULE 3: 商业模式、垂直整合与波特五力护城河评级 -->
+    <div class="section" id="m3">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">3</span>商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="section-tag">商业模式</span>
+        </div>
+        <p><strong>三大支柱业务协同体系：</strong></p>
+        <div class="grid-3" style="margin-bottom: 16px;">
+            <div class="card">
+                <div class="card-title" style="color: #059669;">① EDA 软件与系统 (EDA Core)</div>
+                <p style="font-size: 13px;">提供数字与定制 IC 设计工具（Fusion Compiler、Design Compiler、PrimeTime、VCS 等）。全球数字逻辑综合市占率超过 65%，拥有工业级 AI 工具 DSO.ai 加速芯片流片周期。</p>
+            </div>
+            <div class="card">
+                <div class="card-title" style="color: #059669;">② 半导体 IP 库 (Semiconductor IP)</div>
+                <p style="font-size: 13px;">全球第二大半导体 IP 供应商（仅次于 ARM）。提供接口 IP（PCIe 6.0/7.0、USB、DDR5/LPDDR5、CXL、UCIe 晶圆级互联）与安全 IP，客户流片必须集成。</p>
+            </div>
+            <div class="card">
+                <div class="card-title" style="color: #059669;">③ 系统多物理场仿真 (Ansys Integration)</div>
+                <p style="font-size: 13px;">合并 Ansys 后获得全球顶级的电磁 (HFSS)、流体 (Fluent)、热力与结构仿真技术，为 3D-IC 芯片堆叠与大型 AI 服务器集群散热/电磁完整性提供不可替代的工具。</p>
+            </div>
+        </div>
+
+        <p><strong>波特五力模型量化评级：</strong></p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>五力维度</th>
+                        <th>威胁程度</th>
+                        <th>评级依据与核心壁垒分析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>供应商议价能力</strong></td>
+                        <td><span class="score-pill score-high">极低 (Low)</span></td>
+                        <td>核心资产为全球顶级软件与物理算法研发人才及数十年积累的代码库，无大宗原材料或关键硬件依赖。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>买方议价能力</strong></td>
+                        <td><span class="score-pill score-high">极低 (Low)</span></td>
+                        <td>台积电、英伟达、苹果、高通、AMD 等无替代方案。若更换 EDA 平台，芯片流片失败风险高达数亿美元，客户黏性接近 100%。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>潜在进入者威胁</strong></td>
+                        <td><span class="score-pill score-high">极低 (Low)</span></td>
+                        <td>EDA 需要与台积电/三星/Intel 晶圆厂 PDK 深度绑定验证超 30 年，新进入者几乎不可能突破技术与生态壁垒。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品威胁</strong></td>
+                        <td><span class="score-pill score-high">无 (None)</span></td>
+                        <td>没有物理芯片和物理仿真工具，人类现代信息社会无法制造任何先进制程芯片或工业系统。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>同业竞争强度</strong></td>
+                        <td><span class="score-pill score-mid">中等 (Moderate)</span></td>
+                        <td>全球 EDA 呈现 Synopsys 与 Cadence (CDNS) 双寡头垄断，格局高度理性稳定，双方在不同子领域享有定价权。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODULE 4: 核心财务报表与盈利质量深度剖析 -->
+    <div class="section" id="m4">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">4</span>核心财务报表与盈利质量深度剖析 (Financial Statements & Quality)</div>
+            <span class="section-tag">财务报表</span>
+        </div>
+        <p><strong>近四年核心财务业绩轨迹与结构演变：</strong></p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (单位: 百万美元)</th>
+                        <th class="num-cell">FY2022</th>
+                        <th class="num-cell">FY2023</th>
+                        <th class="num-cell">FY2024</th>
+                        <th class="num-cell">FY2025 (合并年)</th>
+                        <th>YoY 增长 / 复合趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="num-cell">$4,615.7M</td>
+                        <td class="num-cell">$5,318.0M</td>
+                        <td class="num-cell">$6,127.4M</td>
+                        <td class="num-cell">$7,054.2M</td>
+                        <td><span style="color: #059669; font-weight: 700;">+15.1% YoY (4年CAGR ~15.2%)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="num-cell">$3,717.7M</td>
+                        <td class="num-cell">$4,287.2M</td>
+                        <td class="num-cell">$4,882.1M</td>
+                        <td class="num-cell">$5,430.6M</td>
+                        <td><span style="color: #059669; font-weight: 700;">+11.2% YoY (毛利率 77.0%–82.6%)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="num-cell">$1,159.9M</td>
+                        <td class="num-cell">$1,326.3M</td>
+                        <td class="num-cell">$1,355.7M</td>
+                        <td class="num-cell">$914.9M*</td>
+                        <td>*受 Ansys 并购相关摊销与交易费用一次性影响</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="num-cell">$984.6M</td>
+                        <td class="num-cell">$1,229.9M</td>
+                        <td class="num-cell">$2,263.4M</td>
+                        <td class="num-cell">$1,332.2M</td>
+                        <td>GAAP 净利受并购会计与剥离 SIG 业务调整</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营现金流 (Operating Cash Flow)</strong></td>
+                        <td class="num-cell">$1,737.0M</td>
+                        <td class="num-cell">$1,703.3M</td>
+                        <td class="num-cell">$1,407.0M</td>
+                        <td class="num-cell">$1,518.6M</td>
+                        <td><span style="color: #059669; font-weight: 700;">+7.9% YoY 持续造血强劲</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="num-cell">$1,570.0M</td>
+                        <td class="num-cell">$1,511.5M</td>
+                        <td class="num-cell">$1,267.5M</td>
+                        <td class="num-cell">$1,349.2M</td>
+                        <td>轻资产运营，CapEx 仅占营收 2.4%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>现金及等价物总额</strong></td>
+                        <td class="num-cell">$1,535.1M</td>
+                        <td class="num-cell">$1,419.8M</td>
+                        <td class="num-cell">$3,896.5M</td>
+                        <td class="num-cell">$2,888.0M</td>
+                        <td>维持近 29 亿美元流动性储备</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted);">注：FY2025 因完成对 Ansys 的全面收购，产生无形资产摊销和一次性整合费用，压低了 GAAP 营业利润，但 Non-GAAP 盈利能力与现金流造血依然强韧。</p>
+    </div>
+
+    <!-- MODULE 5: 杜邦三因子拆解与资本运营效率 -->
+    <div class="section" id="m5">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">5</span>杜邦三因子拆解与资本运营效率 (DuPont Analysis & Capital Efficiency)</div>
+            <span class="section-tag">杜邦分析</span>
+        </div>
+        <div class="grid-3">
+            <div class="card">
+                <div class="card-title">① 销售净利率 (Net Margin)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #059669; margin: 6px 0;">18.9% – 28.5%</div>
+                <p style="font-size: 12px;">受软件高毛利与轻交付驱动。剔除并购费用后 Non-GAAP 净利率长期维持在 28% 以上。</p>
+            </div>
+            <div class="card">
+                <div class="card-title">② 资产周转率 (Asset Turnover)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #059669; margin: 6px 0;">0.15x – 0.47x</div>
+                <p style="font-size: 12px;">FY2025 并购 Ansys 带来商誉与无形资产，总资产扩大至 $48.2B，周转率短期下行，未来将稳步回升。</p>
+            </div>
+            <div class="card">
+                <div class="card-title">③ 权益乘数 (Financial Leverage)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #D97706; margin: 6px 0;">1.70x</div>
+                <p style="font-size: 12px;">总资产 $48.22B / 股东权益 $28.33B = 1.70x。有息负债 $14.29B，杠杆处于健康可控区间。</p>
+            </div>
+        </div>
+        <div class="callout" style="margin-top: 16px;">
+            <div class="callout-title">杜邦综合拆解结论</div>
+            Synopsys 的核心回报驱动力在于<strong>极高的产品毛利与定价权（净利率引擎）</strong>。尽管并购 Ansys 导致资产基础短期膨胀与折摊增加，但随着双方在 3D-IC、AI 算力集群多物理场仿真交叉销售的兑现，ROE 预计在未来 3 年重返 20%+ 轨道。
+        </div>
+    </div>
+
+    <!-- MODULE 6: 行业竞争格局与同行全景对标矩阵 -->
+    <div class="section" id="m6">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">6</span>行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="section-tag">同行对标</span>
+        </div>
+        <p><strong>EDA 与半导体工业软件核心标的横向对比：</strong></p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (Ticker)</th>
+                        <th>市值</th>
+                        <th class="num-cell">TTM 营收</th>
+                        <th class="num-cell">毛利率</th>
+                        <th class="num-cell">Forward P/E</th>
+                        <th class="num-cell">P/S (TTM)</th>
+                        <th class="num-cell">EV/EBITDA</th>
+                        <th>核心竞争壁垒与优势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><strong>新思科技 (SNPS)</strong></td>
+                        <td><strong>$80.70B</strong></td>
+                        <td class="num-cell"><strong>$7.05B</strong></td>
+                        <td class="num-cell"><strong>82.6%</strong></td>
+                        <td class="num-cell"><strong style="color: #059669;">24.4x</strong></td>
+                        <td class="num-cell"><strong>9.30x</strong></td>
+                        <td class="num-cell"><strong>51.4x</strong></td>
+                        <td><strong>EDA 逻辑综合绝对龙头 + Ansys 多物理场仿真完整生态闭环</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>楷登电子 (CDNS)</strong></td>
+                        <td>$89.86B</td>
+                        <td class="num-cell">$4.34B</td>
+                        <td class="num-cell">85.9%</td>
+                        <td class="num-cell">34.2x</td>
+                        <td class="num-cell">15.4x</td>
+                        <td class="num-cell">41.9x</td>
+                        <td>模拟/混合信号、PCB 与后端实现强劲，估值处于高位溢价</td>
+                    </tr>
+                    <tr>
+                        <td><strong>西门子 EDA (Siemens)</strong></td>
+                        <td>母公司 >$150B</td>
+                        <td class="num-cell">~$2.2B (EDA)</td>
+                        <td class="num-cell">~78.0%</td>
+                        <td class="num-cell">N/A (非独立)</td>
+                        <td class="num-cell">N/A</td>
+                        <td class="num-cell">N/A</td>
+                        <td>Calibre 物理验证垄断，但在全流程综合上弱于 SNPS</td>
+                    </tr>
+                    <tr>
+                        <td><strong>安谋控股 (ARM)</strong></td>
+                        <td>~$145B</td>
+                        <td class="num-cell">$3.85B</td>
+                        <td class="num-cell">95.0%</td>
+                        <td class="num-cell">75.5x</td>
+                        <td class="num-cell">37.6x</td>
+                        <td class="num-cell">88.0x</td>
+                        <td>处理器架构与指令集 IP 垄断，估值极高</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px;"><strong>对标洞察：</strong>SNPS 与 CDNS 共同主导 EDA 行业 70%+ 份额。目前 SNPS 的 Forward P/E (24.4x) 相比 CDNS (34.2x) 存在 <strong>~29% 的显著估值折价</strong>，主要由于市场对 Ansys 并购消化期的短期谨慎，提供了极佳的配对交易与多头低吸机会。</p>
+    </div>
+
+    <!-- MODULE 7: DCF 现金流折现与内在价值三情景敏感性模型 -->
+    <div class="section" id="m7">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">7</span>DCF 现金流折现与内在价值三情景模型 (DCF Valuation & Sensitivity)</div>
+            <span class="section-tag">DCF 估值</span>
+        </div>
+        <div class="grid-3" style="margin-bottom: 18px;">
+            <div class="card card-red">
+                <div class="card-title" style="color: #DC2626;">悲观情景 (Bear Case)</div>
+                <div style="font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono'; color: #DC2626; margin: 4px 0;">$395.00</div>
+                <p style="font-size: 12px;">假设营收 CAGR 8%，FCF 利润率 22%，WACC 10.0%，终值增长率 2.5%。潜在下行 -6.3%。</p>
+            </div>
+            <div class="card card-emerald">
+                <div class="card-title" style="color: #059669;">基准情景 (Base Case) ★</div>
+                <div style="font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono'; color: #059669; margin: 4px 0;">$540.00</div>
+                <p style="font-size: 12px;">假设营收 CAGR 14%，FCF 利润率 26%，WACC 9.0%，终值增长率 3.0%。潜在上行 <strong>+28.1%</strong>。</p>
+            </div>
+            <div class="card card-emerald">
+                <div class="card-title" style="color: #059669;">乐观情景 (Bull Case)</div>
+                <div style="font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono'; color: #059669; margin: 4px 0;">$675.00</div>
+                <p style="font-size: 12px;">假设营收 CAGR 18%，Ansys 协同爆发 FCF 利润率 30%，WACC 8.5%，终值增长率 3.5%。潜在上行 <strong>+60.2%</strong>。</p>
+            </div>
+        </div>
+
+        <p><strong>WACC 折现率 vs 终值永续增长率 (g) 敏感性分析矩阵 (每股内在价值):</strong></p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="num-cell">2.0%</th>
+                        <th class="num-cell">2.5%</th>
+                        <th class="num-cell">3.0% (基准)</th>
+                        <th class="num-cell">3.5%</th>
+                        <th class="num-cell">4.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>8.0% (低利率)</strong></td>
+                        <td class="num-cell">$565.20</td>
+                        <td class="num-cell">$608.40</td>
+                        <td class="num-cell">$662.10</td>
+                        <td class="num-cell">$731.50</td>
+                        <td class="num-cell">$824.00</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8.5%</strong></td>
+                        <td class="num-cell">$512.80</td>
+                        <td class="num-cell">$547.60</td>
+                        <td class="num-cell">$590.50</td>
+                        <td class="num-cell">$644.80</td>
+                        <td class="num-cell">$715.20</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>9.0% (基准 WACC)</strong></td>
+                        <td class="num-cell">$472.50</td>
+                        <td class="num-cell">$502.10</td>
+                        <td class="num-cell" style="color: #059669; font-size: 15px;">$540.00</td>
+                        <td class="num-cell">$583.70</td>
+                        <td class="num-cell">$639.20</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9.5%</strong></td>
+                        <td class="num-cell">$438.90</td>
+                        <td class="num-cell">$463.80</td>
+                        <td class="num-cell">$494.50</td>
+                        <td class="num-cell">$532.00</td>
+                        <td class="num-cell">$578.40</td>
+                    </tr>
+                    <tr>
+                        <td><strong>10.0% (高贴现)</strong></td>
+                        <td class="num-cell">$410.20</td>
+                        <td class="num-cell">$431.50</td>
+                        <td class="num-cell">$457.80</td>
+                        <td class="num-cell">$489.60</td>
+                        <td class="num-cell">$528.30</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODULE 8: 技术面量化、均线系统与关键筹码位 -->
+    <div class="section" id="m8">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">8</span>技术面量化、均线系统与关键筹码位 (Technical & Momentum Analysis)</div>
+            <span class="section-tag">技术分析</span>
+        </div>
+        <div class="grid-4" style="margin-bottom: 16px;">
+            <div class="card">
+                <div class="card-title">当前价格</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">$421.46</div>
+                <div style="font-size: 11px; color: var(--text-muted);">52周区间: $366.00 - $626.24</div>
+            </div>
+            <div class="card">
+                <div class="card-title">均线系统 (MA)</div>
+                <div style="font-size: 13px; font-family: 'JetBrains Mono';">
+                    SMA20: $394.33<br>
+                    SMA50: $426.97<br>
+                    SMA200: $447.31
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">动量指标 (RSI 14)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #059669;">69.52</div>
+                <div style="font-size: 11px; color: #059669;">多头强势区，无顶背离</div>
+            </div>
+            <div class="card">
+                <div class="card-title">MACD 柱状体</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #059669;">+5.72</div>
+                <div style="font-size: 11px; color: #059669;">底部金叉，动能强劲放大</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+        </div>
+
+        <div class="grid-2" style="margin-top: 16px;">
+            <div class="card">
+                <div class="card-title" style="color: #059669;">关键支撑位 (Support Levels)</div>
+                <ul style="font-size: 13px; padding-left: 18px; line-height: 1.8;">
+                    <li><strong>S1 (第一支撑 / SMA20):</strong> <strong>$395.00 – $400.00</strong> (整数关口与短期均线共振)</li>
+                    <li><strong>S2 (中期筹码底):</strong> <strong>$380.00</strong> (前期双底形态颈线)</li>
+                    <li><strong>S3 (强支撑 / 52周底):</strong> <strong>$366.00</strong> (年内最低点，估值绝对底)</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-title" style="color: #DC2626;">关键阻力位 (Resistance Levels)</div>
+                <ul style="font-size: 13px; padding-left: 18px; line-height: 1.8;">
+                    <li><strong>R1 (第一阻力 / SMA50):</strong> <strong>$427.00 – $430.00</strong> (50日均线压制)</li>
+                    <li><strong>R2 (牛熊分界 / SMA200):</strong> <strong>$447.30 – $450.00</strong> (200日长期均线)</li>
+                    <li><strong>R3 (多头主目标):</strong> <strong>$485.00 – $520.00</strong> (缺口回补与前高密集区)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODULE 9: 资本配置、股息政策与股东回报披露 (Mandatory Dividend Disclosure) -->
+    <div class="section" id="m9">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">9</span>资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend Disclosure)</div>
+            <span class="section-tag">股东回报</span>
+        </div>
+        <div class="card card-emerald" style="margin-bottom: 16px;">
+            <div class="card-title" style="font-size: 15px; color: #064E3B;">股息政策与派息状态披露 (Mandatory Disclosure)</div>
+            <p><strong>股息派发状态：<span style="color: #DC2626; font-size: 16px; font-weight: 800;">无 / 没有 (无股息派发 / Dividend: None / N/A)</span></strong></p>
+            <p style="font-size: 13px; margin-top: 6px;">
+                新思科技 (Synopsys) 自上市以来<strong>从未派发普通股现金股息 (Dividend Yield: 0.00%, Annual Payout: $0.00, Payout Ratio: 0.00%)</strong>。作为典型的高成长、高研发壁垒的科技垄断企业，公司将全部自由现金流优先配置于前沿研发、战略收购（如 Ansys 并购）以及机会性股票回购。
+            </p>
+        </div>
+
+        <p><strong>历史资本配置与股东回报优先级分解：</strong></p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>资本配置方向</th>
+                        <th>历史执行规模 / 占比</th>
+                        <th>战略目的与回报机制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>核心 R&D 研发投入</strong></td>
+                        <td>占年营收 <strong>30%–35%</strong> (FY2025 超过 $2.3B)</td>
+                        <td>持续投入 DSO.ai、先进节点 EDA 工具研发与 IP 库扩张，保持领先 Cadence 至少 18 个月的技术代差。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>战略并购 (M&A)</strong></td>
+                        <td>~$350 亿收购 Ansys (现金+股票)</td>
+                        <td>打造 EDA + 物理仿真全球垄断平台，拓展 3D-IC、汽车、航空航天多物理场仿真千亿美元 TAM。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>股票回购 (Share Buybacks)</strong></td>
+                        <td>FY2023 回购 $1.16B，FY2024–FY2025 暂缓回购</td>
+                        <td>此前每年持续回购抵消员工股权激励稀释；近期现金流优先用于偿还 Ansys 并购形成的 $14.29B 债务。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODULE 10: 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 -->
+    <div class="section" id="m10">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">10</span>现金担保卖出看跌期权策略 (Cash-Secured Sell Put Strategy)</div>
+            <span class="section-tag">期权策略</span>
+        </div>
+        <p>针对长线看好 Synopsys 护城河但希望在安全折扣位建仓或获取稳健现金流的投资者，推荐执行 <strong>30–45 天到期 (DTE: 35天，2026-09-18 到期)</strong> 的现金担保卖出看跌期权策略：</p>
+        
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th class="num-cell">行权价 (Strike)</th>
+                        <th class="num-cell">期权金 (Bid/Ask)</th>
+                        <th class="num-cell">隐含波动率 (IV)</th>
+                        <th class="num-cell">Delta</th>
+                        <th class="num-cell">盈亏平衡点 (BEP)</th>
+                        <th class="num-cell">折价安全边际</th>
+                        <th class="num-cell">单期回报率 (年化)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>保守型 (Conservative)</strong><br><span style="font-size: 11px; color: var(--text-muted);">深度价外，稳健收租</span></td>
+                        <td class="num-cell"><strong>$380.00</strong></td>
+                        <td class="num-cell">$8.70 – $10.00<br>(Mid: <strong>$9.35</strong>)</td>
+                        <td class="num-cell">50.9%</td>
+                        <td class="num-cell">-0.22</td>
+                        <td class="num-cell"><strong>$370.65</strong></td>
+                        <td class="num-cell"><span style="color: #059669; font-weight: 700;">-12.1%</span></td>
+                        <td class="num-cell"><strong>2.46% (年化 25.6%)</strong></td>
+                    </tr>
+                    <tr style="background: #F0FDF4;">
+                        <td><strong>稳健型 (Moderate) ★</strong><br><span style="font-size: 11px; color: #059669; font-weight: 700;">最推荐，大持仓流动性区</span></td>
+                        <td class="num-cell"><strong style="color: #059669; font-size: 14px;">$400.00</strong></td>
+                        <td class="num-cell">$15.10 – $16.40<br>(Mid: <strong>$15.75</strong>)</td>
+                        <td class="num-cell">49.9%</td>
+                        <td class="num-cell">-0.34</td>
+                        <td class="num-cell"><strong>$384.25</strong></td>
+                        <td class="num-cell"><span style="color: #059669; font-weight: 700;">-8.8%</span></td>
+                        <td class="num-cell"><strong style="color: #059669;">3.94% (年化 41.0%)</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>激进型 (Aggressive)</strong><br><span style="font-size: 11px; color: var(--text-muted);">平价附近，主动建仓</span></td>
+                        <td class="num-cell"><strong>$420.00</strong></td>
+                        <td class="num-cell">$24.00 – $24.80<br>(Mid: <strong>$24.40</strong>)</td>
+                        <td class="num-cell">48.4%</td>
+                        <td class="num-cell">-0.48</td>
+                        <td class="num-cell"><strong>$395.60</strong></td>
+                        <td class="num-cell"><span style="color: #059669; font-weight: 700;">-6.1%</span></td>
+                        <td class="num-cell"><strong>5.81% (年化 60.5%)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout">
+            <div class="callout-title">期权实操执行要点</div>
+            首选 <strong>$400.00 Strike Put (2026-09-18)</strong>，该行权价有超 7,300 张未平仓合约 (Open Interest)，流动性极佳。若到期股价保持在 $400 以上，可直接收取 $1,575 / 张期权金（年化回报率 41.0%）；若被行权，实际以 $384.25 折扣价接盘，相较现价享受 8.8% 的安全垫。
+        </div>
+    </div>
+
+    <!-- MODULE 11: 机构主力持仓与资金动向 -->
+    <div class="section" id="m11">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">11</span>机构主力持仓与资金动向 (Institutional Ownership & 13F Flows)</div>
+            <span class="section-tag">机构持仓</span>
+        </div>
+        <p>Synopsys 机构持股比例高达 <strong>88.4%</strong>，前五大长线主权基金与被动指数基金合计持仓超 32%：</p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (Top Holders)</th>
+                        <th class="num-cell">持股数量 (Shares)</th>
+                        <th class="num-cell">持仓总市值 (最新)</th>
+                        <th class="num-cell">占流通股比例</th>
+                        <th>投资策略与持股变动倾向</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BlackRock Inc. (贝莱德)</strong></td>
+                        <td class="num-cell">16,203,958</td>
+                        <td class="num-cell">$6.83B</td>
+                        <td class="num-cell">10.6%</td>
+                        <td>长线被动核心底仓，逢低稳步加仓</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Group Inc. (先锋领航)</strong></td>
+                        <td class="num-cell">12,442,898</td>
+                        <td class="num-cell">$5.24B</td>
+                        <td class="num-cell">8.1%</td>
+                        <td>标普500与科技旗舰ETF长期锁定</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corp (道富银行)</strong></td>
+                        <td class="num-cell">9,073,873</td>
+                        <td class="num-cell">$3.82B</td>
+                        <td class="num-cell">5.9%</td>
+                        <td>稳定持仓，持股比例微幅提升</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FMR, LLC (富达基金)</strong></td>
+                        <td class="num-cell">8,365,655</td>
+                        <td class="num-cell">$3.53B</td>
+                        <td class="num-cell">5.5%</td>
+                        <td>主动成长型基金主力重仓</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Invesco Ltd. (景顺)</strong></td>
+                        <td class="num-cell">5,912,305</td>
+                        <td class="num-cell">$2.49B</td>
+                        <td class="num-cell">3.9%</td>
+                        <td>包含 QQQ 纳斯达克100 跟踪头寸</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODULE 12: 内部人交易、管理层语气与财报电话会洞察 -->
+    <div class="section" id="m12">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">12</span>内部人交易与财报电话会洞察 (Insider Activity & Earnings Tone)</div>
+            <span class="section-tag">内部人与电话会</span>
+        </div>
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">内部人交易 (SEC Form 4)</div>
+                <p style="font-size: 13px;">
+                    近 6 个月内部人以 10b5-1 预定计划少量行权减持为主，未出现非预期的突发性抛售。创始人兼执行董事长 <strong>Aart de Geus</strong> 与现任 CEO <strong>Sassine Ghazi</strong> 保持高额持股，利益与长线股东高度一致。
+                </p>
+            </div>
+            <div class="card">
+                <div class="card-title">管理层电话会基调 (Tone: 坚定乐观)</div>
+                <p style="font-size: 13px;">
+                    CEO Sassine Ghazi 强调：“AI 正在彻底重构芯片设计与系统工程。客户从单一芯片转向 3D-IC 和跨域多物理场仿真，这正是我们与 Ansys 结合的战略初衷。DSO.ai 在客户流片中的渗透率正在呈指数级增长。”
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODULE 13: 做空比例、平仓天数与轧空风险评估 -->
+    <div class="section" id="m13">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">13</span>做空比例与流动性评估 (Short Interest & Squeeze Risk)</div>
+            <span class="section-tag">做空数据</span>
+        </div>
+        <div class="grid-3">
+            <div class="card">
+                <div class="card-title">做空比例 (% of Float)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #059669; margin: 4px 0;">2.75%</div>
+                <p style="font-size: 12px;">做空股数约 524 万股，空头规模极低，无恶意机构做空聚集。</p>
+            </div>
+            <div class="card">
+                <div class="card-title">平仓天数 (Days to Cover)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #059669; margin: 4px 0;">2.71 天</div>
+                <p style="font-size: 12px;">流动性极佳，机构平仓或调仓可在 3 个交易日内迅速完成。</p>
+            </div>
+            <div class="card">
+                <div class="card-title">轧空爆发潜力 (Squeeze Risk)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #64748B; margin: 4px 0;">低 (Low)</div>
+                <p style="font-size: 12px;">股价主要受长线基本面与估值均值回归驱动，非散户轧空标的。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODULE 14: 核心风险矩阵与熊市压力测试 -->
+    <div class="section" id="m14">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">14</span>核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+            <span class="section-tag">风险与压力测试</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>风险缓释与应对机制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Ansys 并购整合与商誉减值</strong></td>
+                        <td><span class="score-pill score-mid">中等 (Medium)</span></td>
+                        <td><span class="score-pill score-high">高 (High)</span></td>
+                        <td>双方已有超过 7 年深度技术合作基础，软件交叉销售进展迅速，协同效益显著。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>半导体出口管制与地缘政治</strong></td>
+                        <td><span class="score-pill score-high">较高 (High)</span></td>
+                        <td><span class="score-pill score-mid">中等 (Medium)</span></td>
+                        <td>中国区收入占比约 15%–18%。主要限制先进制程工具，成熟制程与 IP 许可依然合规稳固。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>宏观高利率与债务利息负担</strong></td>
+                        <td><span class="score-pill score-low">低 (Low)</span></td>
+                        <td><span class="score-pill score-mid">中等 (Medium)</span></td>
+                        <td>年自由现金流超 $13B–$15B，利息覆盖倍数超 10x，去杠杆能力极其充裕。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout callout-amber" style="margin-top: 14px;">
+            <div class="callout-title">极端熊市情景压力测试 (Downside Stress Test)</div>
+            若出现全球半导体资本开支腰斩 + 出口限制进一步升级：预计营收增速放缓至 3%–5%，Forward P/E 压缩至 18x，极端压力测试价格下限为 <strong>$330.00 – $360.00</strong>（距现价最大回撤 ~15%–21%），下行风险高度可控。
+        </div>
+    </div>
+
+    <!-- MODULE 15: 未来关键催化剂日历与增长路线图 -->
+    <div class="section" id="m15">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">15</span>关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+            <span class="section-tag">催化剂</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预计时间</th>
+                        <th>关键事件 / 催化剂</th>
+                        <th>对股价与基本面的潜在正面刺激</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026 Q3 末</strong></td>
+                        <td>FY2026 Q3 季度财报披露</td>
+                        <td>展示 Ansys 合并后首个完整季度财务协同与营收超预期指引。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q4</strong></td>
+                        <td>TSMC OIP 开放创新平台全球峰会</td>
+                        <td>发布针对台积电 A16 / 2nm 节点及 3D-IC CoWoS 认证的全新 EDA+仿真工具链。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 H2</strong></td>
+                        <td>Nvidia Blackwell / Rubin 系列量产加速</td>
+                        <td>AI 算力集群物理仿真与定制 ASIC (如 Broadcom, Google TPU) 需求大增。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026–2027</strong></td>
+                        <td>债务加速偿还与评级上调</td>
+                        <td>杠杆率降至 1.5x 以下，重启大规模股票回购计划。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODULE 16: 最终投资评级与执行建议 (Standardized Signal Block) -->
+    <div class="section" id="m16">
+        <div class="section-head">
+            <div class="section-title"><span class="section-num">16</span>最终投资评级与执行建议 (Final Verdict & Execution Plan)</div>
+            <span class="section-tag">投资评级</span>
+        </div>
+        
+        <div class="signal-block">
+            <div style="font-size: 14px; font-weight: 700; letter-spacing: 1px; color: #A7F3D0; text-transform: uppercase;">InvestSkill 最终投资决议与综合信号</div>
+            <div style="font-size: 34px; font-weight: 900; margin: 8px 0; color: #FFFFFF; font-family: 'JetBrains Mono', monospace;">
+                强烈看多 (STRONG BUY) • 8.4 / 10
+            </div>
+            <div style="font-size: 15px; color: #D1FAE5; max-width: 800px;">
+                行业超级壁垒 + 3D-IC 物理仿真协同 + 估值显著折价 + 技术面放量筑底反弹，当前位置提供极具吸引力的长线不对称赔率。
+            </div>
+
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-item-lbl">投资信号 (Signal)</div>
+                    <div class="signal-item-val" style="color: #34D399;">强烈看多 (BUY)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-item-lbl">置信度 (Confidence)</div>
+                    <div class="signal-item-val">极高 (HIGH)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-item-lbl">投资周期 (Horizon)</div>
+                    <div class="signal-item-val">中长期 (6-18M)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-item-lbl">基准目标价 (Target)</div>
+                    <div class="signal-item-val" style="color: #FBBF24;">$540.00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 24px;">
+            <div class="card">
+                <div class="card-title" style="color: #059669;">分批建仓与执行指引 (Spot Execution)</div>
+                <ul style="font-size: 13px; padding-left: 18px; line-height: 1.8;">
+                    <li><strong>第一笔建仓 (40% 仓位):</strong> 现价 <strong>$421.46</strong> 直接入场。</li>
+                    <li><strong>第二笔加仓 (30% 仓位):</strong> 回踩 <strong>$395 – $400</strong> (SMA20 支撑) 逢低吸筹。</li>
+                    <li><strong>第三笔加仓 (30% 仓位):</strong> 突破 <strong>$448</strong> (SMA200 牛熊线) 顺势加仓。</li>
+                    <li><strong>硬止损位 (Stop Loss):</strong> 跌破 <strong>$360.00</strong> (破年内新低离场)。</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-title" style="color: #059669;">期权收益增强策略 (Options Overlay)</div>
+                <p style="font-size: 13px;">
+                    建议以现金担保卖出 <strong>SNPS 2026-09-18 $400.00 Put</strong>，收取每张约 <strong>$1,575</strong> 期权金（年化回报率 <strong>41.0%</strong>）。若被行权，实际以 <strong>$384.25</strong> 的深度安全边际接盘建仓，攻守兼备。
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // 1. Multi-Factor Radar Chart
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['商业护城河', '盈利质量', '行业与AI成长', '估值吸引力', '技术动能', '风险结构'],
+            datasets: [{
+                label: 'SNPS 量化评分',
+                data: [9.5, 8.5, 9.0, 7.8, 7.5, 7.2],
+                backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#059669',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#059669'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#E2E8F0' },
+                    grid: { color: '#E2E8F0' },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 2. Price History & Moving Averages Chart
+    const ctxPrice = document.getElementById('priceChart').getContext('2d');
+    const chartDates = ["2026-02-24", "2026-02-25", "2026-02-26", "2026-02-27", "2026-03-02", "2026-03-03", "2026-03-04", "2026-03-05", "2026-03-06", "2026-03-09", "2026-03-10", "2026-03-11", "2026-03-12", "2026-03-13", "2026-03-16", "2026-03-17", "2026-03-18", "2026-03-19", "2026-03-20", "2026-03-23", "2026-03-24", "2026-03-25", "2026-03-26", "2026-03-27", "2026-03-30", "2026-03-31", "2026-04-01", "2026-04-02", "2026-04-06", "2026-04-07", "2026-04-08", "2026-04-09", "2026-04-10", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-24", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30", "2026-05-01", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13", "2026-08-14"];
+    const chartPrices = [440.72, 449.17, 426.0, 414.0, 424.66, 424.32, 430.98, 442.3, 437.41, 437.22, 432.65, 432.98, 418.72, 412.63, 425.88, 429.29, 428.67, 428.25, 420.32, 432.48, 415.62, 410.13, 401.95, 380.47, 383.14, 396.48, 396.74, 395.95, 397.07, 397.9, 410.16, 404.92, 392.24, 417.77, 418.8, 438.45, 441.15, 449.58, 460.95, 467.58, 477.26, 456.85, 500.82, 498.54, 483.89, 481.22, 482.6, 489.02, 497.5, 502.51, 504.42, 505.19, 516.48, 516.19, 513.21, 509.28, 510.02, 502.42, 498.43, 493.87, 498.93, 503.98, 524.74, 534.56, 525.92, 480.64, 475.62, 492.29, 508.35, 498.02, 494.48, 464.85, 473.48, 465.27, 460.54, 456.29, 453.89, 454.38, 448.38, 461.74, 455.51, 464.58, 461.5, 463.93, 455.02, 454.34, 447.26, 446.07, 454.53, 437.16, 442.27, 436.63, 434.5, 443.37, 445.5, 433.82, 425.9, 425.28, 417.03, 384.28, 378.46, 389.07, 377.61, 373.52, 373.47, 388.99, 383.82, 373.69, 372.33, 388.76, 392.07, 403.86, 400.82, 405.98, 415.99, 411.68, 410.91, 412.32, 411.75, 421.46];
+    const chartSma20 = [443.78, 441.11, 436.84, 433.54, 431.52, 429.84, 430.43, 431.6, 432.95, 433.46, 433.15, 432.93, 431.95, 431.42, 430.86, 431.22, 430.54, 429.83, 428.85, 429.43, 428.18, 426.23, 425.02, 423.35, 421.27, 419.88, 418.17, 415.85, 413.83, 411.87, 410.74, 409.34, 408.01, 408.27, 407.92, 408.38, 409.0, 410.07, 412.1, 413.85, 416.93, 419.27, 424.21, 430.12, 435.16, 439.39, 443.69, 448.34, 453.36, 458.59, 463.3, 468.32, 474.53, 479.45, 484.17, 487.71, 491.16, 493.8, 495.67, 496.99, 498.07, 500.43, 501.62, 503.42, 505.52, 505.5, 505.15, 505.31, 505.85, 505.63, 505.13, 503.11, 500.96, 498.42, 495.78, 493.14, 490.33, 487.93, 485.42, 483.82, 481.65, 479.68, 476.51, 472.98, 469.44, 468.12, 466.71, 464.39, 461.7, 458.66, 456.05, 454.64, 452.69, 451.59, 450.84, 449.72, 448.32, 446.86, 445.3, 441.42, 437.57, 433.8, 429.6, 425.08, 421.0, 417.74, 414.56, 410.94, 406.83, 404.41, 401.9, 400.27, 398.58, 396.71, 395.24, 394.13, 393.38, 392.73, 392.47, 394.33];
+    const chartSma50 = [471.92, 471.36, 470.82, 470.01, 469.24, 468.66, 468.12, 467.69, 466.81, 466.05, 465.19, 464.3, 463.1, 461.86, 460.98, 459.96, 458.65, 457.04, 455.05, 453.41, 451.22, 448.76, 446.56, 444.06, 441.56, 439.16, 436.88, 434.36, 432.11, 430.04, 428.18, 426.23, 423.85, 422.6, 421.68, 421.29, 421.73, 422.34, 423.35, 424.16, 424.93, 425.32, 426.57, 428.07, 429.01, 430.2, 431.0, 431.93, 433.08, 434.72, 435.99, 437.11, 438.92, 440.97, 442.74, 444.44, 446.02, 447.22, 448.44, 449.57, 450.9, 452.32, 454.44, 456.88, 458.88, 459.91, 460.84, 462.13, 463.89, 465.2, 466.77, 467.87, 469.3, 470.99, 472.54, 473.74, 474.88, 476.05, 477.08, 478.35, 479.26, 480.45, 481.84, 482.76, 483.49, 483.8, 483.93, 483.86, 483.73, 483.12, 482.42, 482.02, 480.69, 479.59, 478.82, 477.87, 476.74, 475.46, 473.85, 471.49, 468.97, 466.65, 463.87, 461.01, 458.22, 455.81, 453.29, 450.72, 448.19, 446.09, 443.95, 441.95, 439.47, 436.9, 434.7, 433.32, 432.03, 430.43, 428.5, 426.97];
+    const chartSma200 = [496.55, 496.37, 496.09, 495.63, 495.17, 494.71, 494.29, 493.93, 493.53, 493.14, 492.8, 492.45, 492.05, 491.55, 491.37, 491.24, 491.06, 490.87, 490.64, 490.44, 490.11, 489.73, 489.26, 488.64, 488.05, 487.56, 487.15, 486.73, 486.34, 485.96, 485.66, 485.33, 484.89, 484.55, 484.16, 483.84, 483.48, 483.12, 482.81, 482.41, 482.11, 481.64, 481.38, 481.05, 480.67, 480.33, 479.9, 479.48, 479.03, 478.62, 478.18, 477.63, 477.14, 476.67, 476.23, 475.82, 475.19, 474.47, 473.8, 473.17, 472.49, 471.86, 471.36, 470.93, 470.46, 469.79, 469.03, 468.4, 467.86, 467.26, 466.61, 465.87, 465.23, 464.57, 463.84, 463.13, 462.42, 461.68, 460.86, 460.15, 459.47, 458.83, 458.13, 457.46, 456.69, 455.94, 456.23, 456.27, 456.42, 456.51, 456.59, 456.65, 456.42, 456.16, 455.81, 455.53, 455.32, 455.01, 454.66, 454.17, 453.59, 453.1, 452.63, 452.15, 451.63, 451.18, 450.65, 450.1, 449.77, 449.47, 449.21, 449.05, 448.86, 448.65, 448.46, 448.22, 448.01, 447.79, 447.53, 447.31];
+
+    new Chart(ctxPrice, {
+        type: 'line',
+        data: {
+            labels: chartDates,
+            datasets: [
+                {
+                    label: '收盘价 (Close)',
+                    data: chartPrices,
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.08)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0
+                },
+                {
+                    label: 'SMA 20 (20日均线)',
+                    data: chartSma20,
+                    borderColor: '#3B82F6',
+                    borderWidth: 1.5,
+                    borderDash: [3, 3],
+                    pointRadius: 0,
+                    fill: false
+                },
+                {
+                    label: 'SMA 50 (50日均线)',
+                    data: chartSma50,
+                    borderColor: '#F59E0B',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    fill: false
+                },
+                {
+                    label: 'SMA 200 (200日牛熊线)',
+                    data: chartSma200,
+                    borderColor: '#DC2626',
+                    borderWidth: 1.8,
+                    pointRadius: 0,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { maxTicksLimit: 8, color: '#64748B' }
+                },
+                y: {
+                    grid: { color: '#F1F5F9' },
+                    ticks: {
+                        color: '#64748B',
+                        callback: function(value) { return '$' + value; }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { boxWidth: 12, font: { size: 11 } }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

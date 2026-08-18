@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Adobe (ADBE) 15模块全景深度投研与多因子量化评估报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 12px rgba(16,185,129,.5); }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 850px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #F1F5F9;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .section-title-wrap { display: flex; align-items: center; gap: 12px; }
+        .section-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 15px;
+        }
+        .section-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+        .section-sub { font-size: 12px; color: var(--text-muted); }
+        .section-num {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .report-hero { padding: 32px 16px; }
+            .main-wrap { padding: 20px 16px 48px; }
+            .hero-title { font-size: 24px; }
+            .section { padding: 20px 16px; }
+        }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card-green { background: #F0FDF4; border-color: #BBF7D0; }
+        .card-amber { background: #FFFBEB; border-color: #FDE68A; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+        .card-purple { background: #FAF5FF; border-color: #E9D5FF; }
+
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .card-green .card-title { color: #166534; }
+        .card-amber .card-title { color: #92400E; }
+        .card-blue .card-title { color: #1E40AF; }
+        .card-purple .card-title { color: #6B21A8; }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin: 14px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #F1F5F9;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-num { font-family: 'JetBrains Mono', monospace; text-align: right; }
+        .th-num { text-align: right; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 290px;
+            margin: 12px 0;
+        }
+
+        .highlight-val { font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #15803D; }
+        .tag-blue { background: #DBEAFE; color: #1D4ED8; }
+        .tag-amber { background: #FEF3C7; color: #B45309; }
+        .tag-red { background: #FEE2E2; color: #B91C1C; }
+
+        .signal-banner {
+            background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+            border: 2px solid #10B981;
+            border-radius: 16px;
+            padding: 24px;
+            color: #fff;
+            box-shadow: 0 10px 25px -5px rgba(16,185,129,.3);
+            margin: 20px 0;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.1);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.15);
+        }
+        .signal-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .signal-val { font-size: 20px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+        
+        .divider { height: 1px; background: #F1F5F9; margin: 20px 0; }
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+        .callout-amber {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: ADBE</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY) • 8.6/10</span>
+            <span class="badge badge-hero-cat">全球数字创意与企业工作流绝对垄断寡头</span>
+            <span class="badge badge-hero-cat">15模块全景量化研报</span>
+        </div>
+        <h1 class="hero-title">Adobe Inc. (ADBE)</h1>
+        <div class="hero-sub">89.4% 超高毛利率、前瞻P/E仅9.60x、年产近百亿自由现金流：从“AI被颠覆者”到“企业级AI生产力总入口”的价值重估深度剖析</div>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新股价 (Spot)</div>
+                <div class="hero-kpi-val">$264.02</div>
+                <div class="hero-kpi-sub">52周区间: $190.12 - $370.86</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$104.95B</div>
+                <div class="hero-kpi-sub">企业价值 EV: $106.40B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 总营收 (USD)</div>
+                <div class="hero-kpi-val">$25.20B</div>
+                <div class="hero-kpi-sub">YoY 增速: +12.7%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Fwd P/E)</div>
+                <div class="hero-kpi-val">9.60x</div>
+                <div class="hero-kpi-sub">历史中枢 30x-45x | 极端低估</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">自由现金流回报率 (FCF Yield)</div>
+                <div class="hero-kpi-val">8.78%</div>
+                <div class="hero-kpi-sub">TTM FCF: $9.22B+ (年产百亿)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师最高目标价</div>
+                <div class="hero-kpi-val">$380.00</div>
+                <div class="hero-kpi-sub">潜在上涨空间: +43.93%</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- Table of Contents -->
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报导航目录 (15大核心模块全景覆盖)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">04. 财报与盈利质量</a>
+            <a href="#sec-5" class="toc-link">05. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">06. 行业竞争与同行对标</a>
+            <a href="#sec-7" class="toc-link">07. DCF估值三情景模型</a>
+            <a href="#sec-8" class="toc-link">08. 技术面与筹码量化</a>
+            <a href="#sec-9" class="toc-link">09. 资本配置与股息披露</a>
+            <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓与主力动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会洞察</a>
+            <a href="#sec-13" class="toc-link">13. 做空比例与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </div>
+
+    <!-- MODULE 01 -->
+    <section id="sec-1" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">01</div>
+                <div>
+                    <div class="section-title">执行摘要与核心投资逻辑 (Executive Summary & Investment Thesis)</div>
+                    <div class="section-sub">89.4% 毛利造血印钞机、9.6x 前瞻市盈率与企业级生成式 AI 商业化领跑者</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 01</span>
+        </div>
+
+        <p style="margin-bottom: 16px; font-size: 14.5px; color: var(--text-secondary);">
+            <strong>Adobe Inc. (NASDAQ: ADBE)</strong> 是全球数字创意软件、文档标准与企业数字营销体验的无可争议的绝对霸主。旗下拥有 Photoshop、Illustrator、Premiere Pro、After Effects、InDesign、Acrobat PDF 及 Firefly 生成式 AI 引擎。此前市场过度担忧初创 AI 生成工具（如 Midjourney、Sora 等）会颠覆传统创意工作流，导致股价遭遇极端情绪化杀估值，前瞻 P/E 从历史常态的 30x-45x 暴跌至 <strong>9.60x</strong>。然而，实际业务数据证明，Adobe 凭借 <strong>专有文件格式标准、企业级版权免责保护（Commercial-Safe IP Indemnity）与端到端协同工作流</strong>，成功将 Firefly 深度植入全球数千万专业创作者日常操作中，反而成为企业 AI 生产力落地的最大赢家。
+        </p>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">💎 核心看多逻辑 1：SaaS 软件界绝无仅有的“89.4% 毛利+百亿现金流”</div>
+                <p style="font-size: 13px; color: #166534;">
+                    Adobe 拥有软件行业最顶级的盈利能力：<strong>毛利率高达 89.40%，净利率 28.69%</strong>，年化产生超过 <strong>$98.5 亿美元自由现金流 (FCF)</strong>，现金流转化率超 138%。自由现金流收益率高达 <strong>8.78%</strong>，构筑了近乎无懈可击的基本面底座。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🤖 核心看多逻辑 2：Firefly 生成式 AI 成为变现加速器而非威胁</div>
+                <p style="font-size: 13px; color: #166534;">
+                    Firefly 累计生成图片/矢量/视频资产超 <strong>120 亿次</strong>。其最大杀手锏是**训练数据集 100% 合规**，为财富 500 强企业提供商业版权侵权全额赔付保障（IP Indemnification），这是开源模型完全无法比拟的企业级绝对护城河。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🚀 核心看多逻辑 3：9.60x 前瞻 P/E 处于历史极端 1% 估值洼地</div>
+                <p style="font-size: 13px; color: #166534;">
+                    作为一家年营收超 $250 亿美元、保持 12.7% 双位数复合增长的垄断型科技巨头，当前 <strong>9.60x 的前瞻市盈率</strong> 甚至低于传统公用事业或周期性制造业，严重背离了其极高确定性的 SaaS 订阅复购与 ROE (62.95%)。
+                </p>
+            </div>
+        </div>
+
+        <div class="callout" style="margin-top: 18px;">
+            <strong>📌 投资评级概览：</strong> 综合多因子量化模型评分 <strong>8.6 / 10</strong>，给予 <strong>强烈看多 (STRONG BUY)</strong> 评级。基准 DCF 公允价值为 <strong>$340.00 (+28.8% 空间)</strong>，乐观目标价看至 <strong>$380.00 (+43.9%)</strong>。
+        </div>
+    </section>
+
+    <!-- MODULE 02 -->
+    <section id="sec-2" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">02</div>
+                <div>
+                    <div class="section-title">多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Model)</div>
+                    <div class="section-sub">6大核心维度综合量化评级：总分 8.6 / 10</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 02</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>量化评估因子</th>
+                                <th>因子得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与诊断结论</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 估值性价比 (Valuation)</strong></td>
+                                <td><span class="tag-pill tag-green">9.5 / 10</span></td>
+                                <td>25%</td>
+                                <td>前瞻 P/E 仅 9.60x，FCF Yield 达到 8.78%，处于历史十年最低分位</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 护城河壁垒 (Moat)</strong></td>
+                                <td><span class="tag-pill tag-green">9.5 / 10</span></td>
+                                <td>20%</td>
+                                <td>PDF/PSD 行业格式标准垄断、全球高校教育与企业创作者生态锁定</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 盈利质量与 ROE (Profitability)</strong></td>
+                                <td><span class="tag-pill tag-green">9.0 / 10</span></td>
+                                <td>20%</td>
+                                <td>毛利率 89.40%，营业利润率 35.33%，ROE 高达 62.95%，现金造血极强</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 财务健康度 (Health)</strong></td>
+                                <td><span class="tag-pill tag-green">8.5 / 10</span></td>
+                                <td>15%</td>
+                                <td>账面现金超 $56 亿美元，年现金流入超百亿美元，无流动性与偿债压力</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 业绩增长与 AI 变现 (Growth)</strong></td>
+                                <td><span class="tag-pill tag-amber">7.5 / 10</span></td>
+                                <td>10%</td>
+                                <td>TTM 营收增速 +12.7%，Firefly 驱动企业版 GenStudio 与 ARR 稳步扩张</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. 筹码与技术面 (Technicals)</strong></td>
+                                <td><span class="tag-pill tag-green">7.5 / 10</span></td>
+                                <td>10%</td>
+                                <td>自 $190 大底反弹站上 20日/50日均线，多头排列挑战 200日均线阻力</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权评分 (Composite Score)</strong></td>
+                                <td><span class="tag-pill tag-green" style="font-size: 13px;">8.6 / 10</span></td>
+                                <td>100%</td>
+                                <td><strong>强烈看多 (STRONG BUY / 科技蓝筹严重低估)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <div class="chart-box">
+                    <canvas id="adbeFactorRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 03 -->
+    <section id="sec-3" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">03</div>
+                <div>
+                    <div class="section-title">商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+                    <div class="section-sub">Creative Cloud + Document Cloud + Experience Cloud 三大飞轮</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 03</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 20px;">
+            <div class="card card-green">
+                <div class="card-title">🎨 创意云 (Creative Cloud)</div>
+                <p style="font-size: 12.5px;"><strong>核心创收基本盘 (~73% 营收)</strong><br>Photoshop, Illustrator, Premiere Pro, After Effects, InDesign 与 Firefly AI，覆盖全球数千万专业设计与视频创作者。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📄 文档云 (Document Cloud)</div>
+                <p style="font-size: 12.5px;"><strong>高利润高增长引擎 (~16% 营收)</strong><br>Acrobat, Adobe Sign, PDF 格式行业标准，全球数十亿台设备与企业电子签名/文档协同刚需。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">📊 体验云 (Experience Cloud)</div>
+                <p style="font-size: 12.5px;"><strong>B2B 企业级营销中枢 (~11% 营收)</strong><br>Adobe Experience Platform, Marketo, GenStudio，为全球大企业提供端到端内容供应链与客户数据分析。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">⚡ 生成式 AI (Adobe Firefly)</div>
+                <p style="font-size: 12.5px;"><strong>企业商业安全 AI 新底座</strong><br>已集成至 Photoshop/Premiere 等全线工具，具备商业免责赔付与合规版权，生成量已突破 120 亿次。</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🛡️ 波特五力模型与护城河结构深度剖析</div>
+            <div class="grid-2" style="margin-top: 10px; font-size: 13px;">
+                <div>
+                    <p><strong>1. 专有文件格式标准垄断 (极强)：</strong> PSD、AI、PRPROJ、PDF 等格式已成为全球设计、印刷、影视特效制作的通用工业语言，切换成本极高。</p>
+                    <p style="margin-top: 8px;"><strong>2. 创作者心智与肌肉记忆 (极强)：</strong> 全球艺术设计院校的教学标准全部基于 Adobe 工具链，数千万设计师数十年的快捷键与工作流惯性无法被取代。</p>
+                    <p style="margin-top: 8px;"><strong>3. 商业级 AI 合规与侵权免责 (独门秘籍)：</strong> 企业绝不敢使用未获授权版权训练的开源 AI 生成商业广告；Adobe Firefly 100% 授权训练并提供企业法律赔偿保障。</p>
+                </div>
+                <div>
+                    <p><strong>4. 买方议价权与企业订阅高粘性 (强)：</strong> 95%+ 收入来自 SaaS 订阅（ARR 模式），年留存率常年保持在 90% 以上。</p>
+                    <p style="margin-top: 8px;"><strong>5. 替代品威胁评估 (低-中)：</strong> 独立轻量级 AI 工具只能生成零散碎片素材，最终仍需导入 Adobe 全家桶进行分层图层精修、排版与视频合成交付。</p>
+                    <p style="margin-top: 8px;"><strong>💡 护城河综合评级：宽护城河 (Wide Moat / 格式标准+企业级AI合规+工作流生态)</strong>。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 04 -->
+    <section id="sec-4" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">04</div>
+                <div>
+                    <div class="section-title">核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</div>
+                    <div class="section-sub">年营收突破 $250 亿美元、89.4% 超高毛利与近百亿自由现金流</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 04</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (单位: 百万美元 / USD)</th>
+                        <th class="th-num">FY2022</th>
+                        <th class="th-num">FY2023</th>
+                        <th class="th-num">FY2024</th>
+                        <th class="th-num">FY2025</th>
+                        <th class="th-num">TTM (最新)</th>
+                        <th>结构特征与趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="td-num">$17,606</td>
+                        <td class="td-num">$19,409</td>
+                        <td class="td-num">$21,505</td>
+                        <td class="td-num">$23,769</td>
+                        <td class="td-num highlight-val">$25,198</td>
+                        <td><span class="tag-pill tag-green">年稳健增长，突破 250 亿美元</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="td-num">$15,441</td>
+                        <td class="td-num">$17,055</td>
+                        <td class="td-num">$19,147</td>
+                        <td class="td-num">$21,218</td>
+                        <td class="td-num highlight-val">$22,528</td>
+                        <td><span class="tag-pill tag-green">毛利率高达惊人的 89.40%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="td-num">$6,098</td>
+                        <td class="td-num">$6,650</td>
+                        <td class="td-num">$7,741</td>
+                        <td class="td-num">$8,706</td>
+                        <td class="td-num highlight-val">$8,902</td>
+                        <td><span class="tag-pill tag-green">营业利润率高达 35.33%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="td-num">$4,756</td>
+                        <td class="td-num">$5,428</td>
+                        <td class="td-num">$5,560</td>
+                        <td class="td-num">$7,130</td>
+                        <td class="td-num highlight-val">$7,229</td>
+                        <td>纯净利润率高达 28.69%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating Cash Flow)</strong></td>
+                        <td class="td-num">$7,838</td>
+                        <td class="td-num">$7,302</td>
+                        <td class="td-num">$8,056</td>
+                        <td class="td-num">$10,031</td>
+                        <td class="td-num highlight-val">$10,481</td>
+                        <td><strong>经营现金流突破 100 亿美元大关</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="td-num">-$442</td>
+                        <td class="td-num">-$360</td>
+                        <td class="td-num">-$183</td>
+                        <td class="td-num">-$179</td>
+                        <td class="td-num">-$180</td>
+                        <td>极致轻资产软件架构，CapEx 不足 1%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="td-num">$7,396</td>
+                        <td class="td-num">$6,942</td>
+                        <td class="td-num">$7,873</td>
+                        <td class="td-num">$9,852</td>
+                        <td class="td-num highlight-val">$9,218</td>
+                        <td><span class="tag-pill tag-green">FCF 转化率超 138%，年产百亿现金</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="adbeRevenueIncomeChart"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 05 -->
+    <section id="sec-5" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">05</div>
+                <div>
+                    <div class="section-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+                    <div class="section-sub">ROE 62.95% 极高盈利模式的底层因子剖析</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 05</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-blue">
+                <div class="card-title">1. 盈利能力 (净利润率 Net Margin)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">28.69% (极高纯利)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">近 90% 的毛利率与成熟的自营销售渠道，使得 Adobe 即使扣除大量的 R&D (研发) 投入后，每 100 美元收入依然净赚近 29 美元。</p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">2. 营运效率 (资产周转率 Asset Turnover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">0.85x ~ 0.88x</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">资产负债表极其精简，总资产回报率 ROA 达到惊人的 <strong>19.93%</strong>，在大型科技公司中位列前茅。</p>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">3. 财务杠杆 (权益乘数 Equity Multiplier)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">2.54x</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">公司积极使用自由现金流回购注销股票，使得净资产维持在健康紧凑水平，大幅推升了股东权益复利效应。</p>
+            </div>
+        </div>
+
+        <div class="callout callout-amber" style="margin-top: 16px;">
+            <strong>💡 杜邦综合诊断：</strong> 净资产收益率 <strong>ROE 达到 62.95%</strong>，资产回报率 <strong>ROA 达到 19.93%</strong>。Adobe 完美契合高质量复利增长模型，展现出典型的软件垄断印钞机特征。
+        </div>
+    </section>
+
+    <!-- MODULE 06 -->
+    <section id="sec-6" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">06</div>
+                <div>
+                    <div class="section-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+                    <div class="section-sub">Adobe vs 微软 vs Salesforce vs 欧特克 vs 甲骨文多维度对标</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 06</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (代码)</th>
+                        <th class="th-num">最新股价</th>
+                        <th class="th-num">市值 (Cap)</th>
+                        <th class="th-num">前瞻 P/E</th>
+                        <th class="th-num">P/S (市销率)</th>
+                        <th class="th-num">毛利率</th>
+                        <th class="th-num">ROE</th>
+                        <th class="th-num">FCF Yield</th>
+                        <th>核心赛道与定位</th>
+                        <th>投资评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>Adobe (ADBE)</strong></td>
+                        <td class="td-num highlight-val">$264.02</td>
+                        <td class="td-num">$104.95B</td>
+                        <td class="td-num highlight-val">9.60x</td>
+                        <td class="td-num highlight-val">4.16x</td>
+                        <td class="td-num highlight-val">89.40%</td>
+                        <td class="td-num highlight-val">62.95%</td>
+                        <td class="td-num highlight-val"><strong>8.78% (极高)</strong></td>
+                        <td><span class="tag-pill tag-green">数字创意与文档标准绝对霸主</span></td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>微软 (MSFT)</strong></td>
+                        <td class="td-num">$495.40</td>
+                        <td class="td-num">$3,678.6B</td>
+                        <td class="td-num">21.02x</td>
+                        <td class="td-num">11.09x</td>
+                        <td class="td-num">67.94%</td>
+                        <td class="td-num">38.50%</td>
+                        <td class="td-num">2.45%</td>
+                        <td>操作系统 + Azure 云 + Office 365</td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Salesforce (CRM)</strong></td>
+                        <td class="td-num">$196.21</td>
+                        <td class="td-num">$160.70B</td>
+                        <td class="td-num">12.64x</td>
+                        <td class="td-num">3.75x</td>
+                        <td class="td-num">77.64%</td>
+                        <td class="td-num">18.73%</td>
+                        <td class="td-num">6.50%</td>
+                        <td>企业客户关系管理 (CRM) 与云平台</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>欧特克 (ADSK)</strong></td>
+                        <td class="td-num">$251.66</td>
+                        <td class="td-num">$53.14B</td>
+                        <td class="td-num">17.69x</td>
+                        <td class="td-num">7.08x</td>
+                        <td class="td-num">92.43%</td>
+                        <td class="td-num">42.10%</td>
+                        <td class="td-num">3.80%</td>
+                        <td>工业建筑 CAD/CAM 工业设计软件</td>
+                        <td><span class="tag-pill tag-green">STRONG BUY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>甲骨文 (ORCL)</strong></td>
+                        <td class="td-num">$150.52</td>
+                        <td class="td-num">$433.57B</td>
+                        <td class="td-num">13.79x</td>
+                        <td class="td-num">6.44x</td>
+                        <td class="td-num">65.82%</td>
+                        <td class="td-num">58.20%</td>
+                        <td class="td-num">3.10%</td>
+                        <td>企业数据库与 OCI 云计算基础设施</td>
+                        <td><span class="tag-pill tag-blue">BUY</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="margin-top: 14px;">
+            <div class="card-title">🔍 对标核心结论</div>
+            <p style="font-size: 13px; color: var(--text-secondary);">
+                在所有大型软件巨头中，<strong>Adobe 拥有最高的毛利率 (89.4%)、最高的自由现金流收益率 (8.78%)，却交易在最低的前瞻市盈率 (9.60x)</strong>。相比于微软 21x P/E 和欧特克 17.7x P/E，Adobe 被严重低估，估值修复潜力居 SaaS 板块之首。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 07 -->
+    <section id="sec-7" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">07</div>
+                <div>
+                    <div class="section-title">DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+                    <div class="section-sub">基准内在价值 $340.00，呈现 28.8% ~ 43.9% 坚实安全边际</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 07</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-amber">
+                <div class="card-title">🐻 悲观情景 (Bear Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #B45309; margin: 6px 0;">$220.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在跌幅: -16.7%</strong><br>
+                    假设: 独立 AI 生成工具竞争加剧，创意云增速降至 5%，年化 FCF 维持在 $85亿，WACC 10.5%，永续增长率 2.0%。
+                </p>
+            </div>
+            <div class="card card-green">
+                <div class="card-title">🎯 基准情景 (Base Case) - 核心预测</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #15803D; margin: 6px 0;">$340.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +28.8%</strong><br>
+                    假设: Firefly 企业版持续放量；Document Cloud 保持 15% 增速；5年营收复合增速 10.5%；FCF 于 2029 年达 $145亿；WACC 9.0%，永续增长率 3.0%。
+                </p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🐂 乐观情景 (Bull Case)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #1E40AF; margin: 6px 0;">$410.00</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">
+                    <strong>潜在涨幅: +55.3%</strong><br>
+                    假设: GenStudio 与企业 AI 订阅大超预期；大额回购注销 15% 股本；年化自由现金流突破 $170亿；WACC 8.5%，永续增长率 3.5%。
+                </p>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 20px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="th-num">2.0%</th>
+                        <th class="th-num">2.5%</th>
+                        <th class="th-num">3.0% (基准)</th>
+                        <th class="th-num">3.5%</th>
+                        <th class="th-num">4.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 8.0%</strong></td>
+                        <td class="td-num">$378.50</td>
+                        <td class="td-num">$408.20</td>
+                        <td class="td-num">$446.40</td>
+                        <td class="td-num">$497.10</td>
+                        <td class="td-num">$567.80</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 8.5%</strong></td>
+                        <td class="td-num">$332.10</td>
+                        <td class="td-num">$354.70</td>
+                        <td class="td-num">$383.50</td>
+                        <td class="td-num">$421.20</td>
+                        <td class="td-num">$471.90</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>WACC 9.0% (基准)</strong></td>
+                        <td class="td-num">$296.80</td>
+                        <td class="td-num">$314.90</td>
+                        <td class="td-num highlight-val">$340.00</td>
+                        <td class="td-num">$367.40</td>
+                        <td class="td-num">$405.60</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 9.5%</strong></td>
+                        <td class="td-num">$268.40</td>
+                        <td class="td-num">$282.80</td>
+                        <td class="td-num">$300.20</td>
+                        <td class="td-num">$323.50</td>
+                        <td class="td-num">$352.10</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 10.0%</strong></td>
+                        <td class="td-num">$244.70</td>
+                        <td class="td-num">$256.30</td>
+                        <td class="td-num">$270.50</td>
+                        <td class="td-num">$288.70</td>
+                        <td class="td-num">$310.90</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 08 -->
+    <section id="sec-8" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">08</div>
+                <div>
+                    <div class="section-title">技术面量化、均线系统与关键筹码位 (Technical Analysis & Levels)</div>
+                    <div class="section-sub">站稳 20日与 50日均线、RSI 63.3 呈现底部强势突破形态</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 08</span>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 16px;">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">20日均线 (SMA 20)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$249.49</div>
+                <div style="font-size: 11px; color: #15803D;">形成强力多头支撑</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">50日均线 (SMA 50)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">$230.53</div>
+                <div style="font-size: 11px; color: #15803D;">中期向上发散上行</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">14日 RSI 动量指标</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">63.31</div>
+                <div style="font-size: 11px; color: #15803D;">多头动能强劲且未超买</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">200日均线 (SMA 200)</div>
+                <div style="font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--amber);">$272.32</div>
+                <div style="font-size: 11px; color: #B45309;">即将挑战牛熊分界线</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🟢 关键支撑位 (Support Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>S1 (第一支撑): $255.00 - $260.00</strong> — 8月中旬突破平台顶与整数关口</li>
+                    <li><strong>S2 (核心支撑): $249.50</strong> — 20日均线与前期放量突破颈线</li>
+                    <li><strong>S3 (极限铁底): $190.12</strong> — 52 周历史最低大底（估值极限安全垫）</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">🔴 关键阻力位 (Resistance Levels)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>R1 (短线突破点): $272.30 - $275.00</strong> — 200日均线与近期反弹高点</li>
+                    <li><strong>R2 (中期阻力): $310.00</strong> — 前期大型筹码密集套牢区下沿</li>
+                    <li><strong>R3 (目标高位): $370.86</strong> — 52 周历史最高阻力位</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 09 -->
+    <section id="sec-9" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">09</div>
+                <div>
+                    <div class="section-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</div>
+                    <div class="section-sub">严格遵循合规披露准则：公司股息政策与股东回报全景</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 09</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-amber">
+                <div class="card-title">📢 股息指标明确披露 (Mandatory Dividend Disclosure)</div>
+                <div class="table-scroll" style="margin: 8px 0;">
+                    <table>
+                        <tr>
+                            <td><strong>股息率 (Dividend Yield)</strong></td>
+                            <td class="td-num highlight-val"><strong>无 / 没有 (0.00% / Dividend: None)</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>年度派息金额 (Annual Payout)</strong></td>
+                            <td class="td-num">$0.00 / 股 (不派发常规现金股息)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>股息支付率 (Payout Ratio)</strong></td>
+                            <td class="td-num">0.00%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>资本配置策略说明</strong></td>
+                            <td class="td-num">全部现金流用于股票回购与 AI 研发</td>
+                        </tr>
+                    </table>
+                </div>
+                <p style="font-size: 12px; color: #92400E; margin-top: 6px;">
+                    <strong>明确说明：</strong> Adobe 自创立以来<strong>不派发常规现金股息 (无/没有)</strong>。公司坚定执行以**大规模股票回购 (Share Buybacks)** 为核心的股东回报战略，将年产近百亿美元的自由现金流全额返还股东并用于 AI 基础设施再投资。
+                </p>
+            </div>
+
+            <div class="card card-green">
+                <div class="card-title">💰 核心股东回报：$250 亿美元 巨额股票回购</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>$250 亿美元回购授权：</strong> 董事会批准了高达 $250 亿美元的新回购计划，回购规模占当前总市值的近 <strong>24%</strong>。</li>
+                    <li><strong>年均回购超 $70 亿美元：</strong> 仅在过去 12 个月即动用超 $75 亿美元回购注销股本，在 10x P/E 低位大幅注销股本，极其显著地增厚了每股 EPS。</li>
+                    <li><strong>极高 ROIC 资本配置：</strong> 相比盲目高溢价并购，在低估值阶段大额回购是创造股东价值的最优路径。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="sec-10" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">10</div>
+                <div>
+                    <div class="section-title">现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+                    <div class="section-sub">34天 DTE (2026-09-18) 三档结构化建仓与权利金增强方案</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 10</span>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">
+            当前 ADBE 股价为 <strong>$264.02</strong>，隐含波动率 (IV) 约为 <strong>50.2% - 52.1%</strong>（期权权利金极具吸引力），采用 <strong>30-45天 DTE 的 Cash-Secured Put</strong> 策略可锁定极高的年化收益并折价吸筹：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>行权价 (Strike)</th>
+                        <th>到期日 (DTE)</th>
+                        <th>Delta / 虚值程度</th>
+                        <th class="th-num">权利金 (Mid)</th>
+                        <th class="th-num">期间收益率</th>
+                        <th class="th-num">年化收益率 (Ann. Yield)</th>
+                        <th>实质建仓成本 / 适用投资人画像</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tag-pill tag-green">🛡️ 保守档 (Conservative)</span></td>
+                        <td><strong>$240.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.22 (9.1% OTM)</td>
+                        <td class="td-num highlight-val">$6.45</td>
+                        <td class="td-num">2.69%</td>
+                        <td class="td-num highlight-val"><strong>~28.8%</strong></td>
+                        <td><strong>$233.55</strong> (跌破 20日均线至 $233 才接货，极高安全边际)</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><span class="tag-pill tag-blue">⚖️ 稳健档 (Moderate)</span></td>
+                        <td><strong>$250.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.34 (5.3% OTM)</td>
+                        <td class="td-num highlight-val">$9.575</td>
+                        <td class="td-num">3.83%</td>
+                        <td class="td-num highlight-val"><strong>~41.1%</strong></td>
+                        <td><strong>$240.425</strong> (锚定 20日均线 $249.5 强支撑，年化 41% 权利金极佳)</td>
+                    </tr>
+                    <tr style="background: #FAF5FF;">
+                        <td><span class="tag-pill tag-purple">🚀 进取档 (Aggressive)</span></td>
+                        <td><strong>$260.00</strong></td>
+                        <td>2026-09-18 (34天)</td>
+                        <td>Delta ~0.46 (1.5% OTM)</td>
+                        <td class="td-num highlight-val">$13.75</td>
+                        <td class="td-num">5.29%</td>
+                        <td class="td-num highlight-val"><strong>~56.7%</strong></td>
+                        <td><strong>$246.25</strong> (近平值抢高权利金，实质建仓成本仅 $246.25)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="sec-11" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">11</div>
+                <div>
+                    <div class="section-title">机构持仓与主力资金动向 (Institutional Ownership & 13F)</div>
+                    <div class="section-sub">先锋领航、贝莱德、道富与富达等顶级长线机构重仓锁定 85%+ 流通筹码</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 11</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者 (Institutional Holder)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持股市值 (Value)</th>
+                        <th>占总流通股比 (pctHeld)</th>
+                        <th>报告期变动 (pctChange)</th>
+                        <th>投资性质与风格</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vanguard Group, Inc. (先锋领航)</strong></td>
+                        <td class="td-num">36,800,000</td>
+                        <td class="td-num">$9.72B</td>
+                        <td class="td-num"><strong>9.26%</strong></td>
+                        <td>+1.45% (增持)</td>
+                        <td>全球最大指数基金与被动配置机构</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BlackRock, Inc. (贝莱德)</strong></td>
+                        <td class="td-num">32,100,000</td>
+                        <td class="td-num">$8.47B</td>
+                        <td class="td-num"><strong>8.08%</strong></td>
+                        <td>+2.20% (增持)</td>
+                        <td>全球最大资产管理公司</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation (道富)</strong></td>
+                        <td class="td-num">17,400,000</td>
+                        <td class="td-num">$4.59B</td>
+                        <td class="td-num"><strong>4.38%</strong></td>
+                        <td>+0.80% (增持)</td>
+                        <td>全球顶级机构托管与主权资产管理</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FMR LLC (富达基金)</strong></td>
+                        <td class="td-num">15,800,000</td>
+                        <td class="td-num">$4.17B</td>
+                        <td class="td-num"><strong>3.97%</strong></td>
+                        <td>+4.10% (主动加仓)</td>
+                        <td>全球顶尖科技主动成长基金</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Geode Capital Management, LLC</strong></td>
+                        <td class="td-num">8,900,000</td>
+                        <td class="td-num">$2.35B</td>
+                        <td class="td-num"><strong>2.24%</strong></td>
+                        <td>+1.90% (增持)</td>
+                        <td>量化与被动多因子配置巨头</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
+            <strong>主力动向解析：</strong> 机构持股比例高达 <strong>85%+</strong>。在股价跌至 $200 附近时，富达（FMR）与贝莱德（BlackRock）等主动型科技基金**展开大规模逆势扫货加仓**，筹码锁定度极高，做空力量难以持续打压。
+        </p>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="sec-12" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">12</div>
+                <div>
+                    <div class="section-title">内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Tone)</div>
+                    <div class="section-sub">CEO Shantanu Narayen 强调 Firefly 驱动企业 ARR 持续大超预期</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 12</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-green">
+                <div class="card-title">🎙️ 财报电话会要点与管理层情绪 (Sentiment: Bullish)</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #166534; line-height: 1.8;">
+                    <li><strong>GenStudio 企业级需求爆发：</strong> 财富 100 强企业中已有数十家签署了价值数百万美元的 GenStudio AI 商业合同，加速营销物料从生产到发布全流程。</li>
+                    <li><strong>Document Cloud 成为新增长极：</strong> Acrobat 深度集成 AI 助手（AI Assistant），推动文档云 ARR 维持 15%+ 高增长，提价顺利落地。</li>
+                    <li><strong>现金流全面倾斜股东回购：</strong> 自由现金流充沛，将以历史最高速度推进 $250 亿美元回购，直接增厚每股收益。</li>
+                </ul>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📝 治理结构与管理团队执行力</div>
+                <ul style="padding-left: 18px; font-size: 13px; color: #1E40AF; line-height: 1.8;">
+                    <li><strong>传奇 CEO 掌舵：</strong> Shantanu Narayen 执掌 Adobe 超过 16 年，曾成功主导了 Adobe 从传统买断制向 SaaS 云订阅的世纪大转型，战略定力极强。</li>
+                    <li><strong>研发聚焦核心 AI：</strong> 在终止收购 Figma 后迅速将数十亿美元资金投入自研 Firefly Video、3D 建模及下一代设计架构。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="sec-13" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">13</div>
+                <div>
+                    <div class="section-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</div>
+                    <div class="section-sub">做空占比 5.45%，平仓天数 3.33 天</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 13</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">做空股数 (Shares Short)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--text-primary);">1935万 股</div>
+                <div style="font-size: 11px; color: var(--text-muted);">流通股占比: 5.45%</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">平仓天数 (Days to Cover)</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--amber);">3.33 天</div>
+                <div style="font-size: 11px; color: #B45309;">具备良好的轧空反弹弹性</div>
+            </div>
+            <div class="card">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">轧空风险评级</div>
+                <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">中等 (Moderate)</div>
+                <div style="font-size: 11px; color: #15803D;">利好财报将引发空头集中踩踏回补</div>
+            </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 14px;">
+            <strong>空头逻辑与反转催化：</strong> 空头前期主要押注 AI 初创公司会侵蚀 Adobe 市场份额。随着 Adobe 财报连续确认营收加速与百亿现金流，<strong>近 2000 万股做空头寸</strong> 将在股价突破 200日均线 ($272.32) 时形成强大的空头回补推升力。
+        </p>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="sec-14" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">14</div>
+                <div>
+                    <div class="section-title">核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+                    <div class="section-sub">系统性审视初创 AI 竞争、宏观 IT 支出与 Figma 竞争风险</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 14</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子 (Risk Factor)</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>综合风险等级</th>
+                        <th>对冲机制与缓冲垫 (Mitigation & Buffer)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 开源与初创 AI 生成工具 (如 Midjourney, Canva) 侵蚀初级用户</strong></td>
+                        <td>高 (High)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低-中风险</span></td>
+                        <td>初级工具无法满足专业影视/广告分层交付标准；Adobe 拥有完整的工业格式标准与端到端工作流闭环</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 企业级 IT 软件支出缩紧与采购周期拉长</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>暂时 (Transitory)</td>
+                        <td><span class="tag-pill tag-amber">中等关注</span></td>
+                        <td>Adobe 工具链属于企业营销生产力的“水和电”，且 Document Cloud 具备降本增效刚性</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 终止收购 Figma 后的 UI/UX 设计竞争</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>轻微 (Low)</td>
+                        <td><span class="tag-pill tag-blue">低风险</span></td>
+                        <td>Adobe 节约了 $200 亿美元收购资金并全部用于股票回购与 AI 视频/3D 核心研发</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. GPU 算力成本对毛利率的潜在压制</strong></td>
+                        <td>中等 (Moderate)</td>
+                        <td>极低 (Minimal)</td>
+                        <td><span class="tag-pill tag-blue">低风险</span></td>
+                        <td>89.4% 毛利率具备极厚缓冲空间，且引入 Generative Credits 额度收费模式有效覆盖算力成本</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="sec-15" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">15</div>
+                <div>
+                    <div class="section-title">未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+                    <div class="section-sub">未来 6-18 个月核心估值催化事件序列</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 15</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card card-green">
+                <div class="card-title">📅 催化剂 1: Adobe MAX 2026 年度创新盛会</div>
+                <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">2026年 10月</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">全量发布 Firefly Video 视频生成大模型与 Premiere Pro 深度集成，树立专业视频 AI 新标杆。</p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">📅 催化剂 2: 企业级 GenStudio 商业化签约放量</div>
+                <div style="font-size: 12px; font-weight: 700; color: #1E40AF; margin-bottom: 6px;">2026年 下半年</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">财富 500 强企业营销内容供应链合同集中落地，推动 Experience Cloud 与 Creative Cloud ARR 大超预期。</p>
+            </div>
+            <div class="card card-purple">
+                <div class="card-title">📅 催化剂 3: $250亿 股票回购加速与估值均值回归</div>
+                <div style="font-size: 12px; font-weight: 700; color: #6B21A8; margin-bottom: 6px;">持续推进</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">公司低位加速注销 5%-8% 股本，推动前瞻 P/E 从 9.6x 向 20x+ 历史合理中枢强劲修复。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 16 -->
+    <section id="sec-16" class="section">
+        <div class="section-head">
+            <div class="section-title-wrap">
+                <div class="section-icon">16</div>
+                <div>
+                    <div class="section-title">最终投资评级与执行建议 (Final Verdict & Execution Plan)</div>
+                    <div class="section-sub">标准化投资决策模块与分步建仓指引</div>
+                </div>
+            </div>
+            <span class="section-num">MODULE 16</span>
+        </div>
+
+        <div class="signal-banner">
+            <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700;">INVESTMENT SIGNAL MATRIX</div>
+            <div style="font-size: 26px; font-weight: 800; margin: 4px 0 14px;">强烈看多 (STRONG BUY) • 8.6 / 10</div>
+            
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-lbl">核心信号 (Signal)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">STRONG BUY (强烈看多)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">置信度 (Confidence)</div>
+                    <div class="signal-val">HIGH (极高)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">投资期限 (Horizon)</div>
+                    <div class="signal-val">12 - 36 个月</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">综合评分 (Score)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">8.6 / 10</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">建议操作 (Action)</div>
+                    <div class="signal-val" style="color: #6EE7B7;">BUY (严重低估坚决超配)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-lbl">目标价 (Target Price)</div>
+                    <div class="signal-val">$340.00 (+28.8%)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">🎯 具体交易执行指引 (Actionable Strategy)</div>
+            <ol style="padding-left: 20px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.8;">
+                <li><strong>正股分批建仓区间：</strong> 建议在 <strong>$250.00 - $265.00</strong> 区间建立 50%-60% 重仓底仓。当前股价刚从 $190 筑底反弹，站稳 20日/50日均线，下行风险极低。</li>
+                <li><strong>期权收益增强执行：</strong> 推荐卖出 2026-09-18 到期、行权价 <strong>$250.00 Put</strong>（权利金 ~$9.58，年化收益率 ~41.1%）或 <strong>$240.00 Put</strong>（权利金 ~$6.45，年化收益率 ~28.8%），以跌至强支撑的实质成本抢筹。</li>
+                <li><strong>持股目标与止盈规划：</strong> 第一目标位 <strong>$300.00</strong>（分批止盈 30%），核心 DCF 基准目标位 <strong>$340.00 (+28.8%)</strong>，乐观目标价看至 <strong>$380.00 (+43.9%)</strong>。</li>
+            </ol>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+            <strong>免责声明 (Disclaimer)：</strong> 本研报基于公开市场数据、公司官方财务披露及行业量化模型生成，仅供投资研究与学术交流参考，不构成任何具体的投资建议或买卖要约。股票及金融衍生品交易存在本金损失风险，投资者应根据自身风险承受能力独立决策。
+        </div>
+    </section>
+
+</div>
+
+<!-- JAVASCRIPT FOR CHARTS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Radar Chart
+        const radarCtx = document.getElementById('adbeFactorRadarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['估值性价比 (9.5)', '护城河壁垒 (9.5)', '盈利质量/ROE (9.0)', '财务健康度 (8.5)', '业绩增长/AI (7.5)', '筹码技术面 (7.5)'],
+                datasets: [{
+                    label: 'Adobe (ADBE) 因子得分',
+                    data: [9.5, 9.5, 9.0, 8.5, 7.5, 7.5],
+                    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                    borderColor: '#10B981',
+                    pointBackgroundColor: '#059669',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#059669',
+                    borderWidth: 2
+                }, {
+                    label: '全球软件与 SaaS 板块均值 (Benchmark)',
+                    data: [6.0, 6.5, 6.0, 6.5, 6.0, 5.5],
+                    backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                    borderColor: '#94A3B8',
+                    pointBackgroundColor: '#94A3B8',
+                    pointBorderColor: '#fff',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#E2E8F0' },
+                        grid: { color: '#F1F5F9' },
+                        pointLabels: {
+                            font: { size: 11, weight: '600', family: 'Inter' },
+                            color: '#475569'
+                        },
+                        ticks: { min: 0, max: 10, stepSize: 2, display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+
+        // 2. Revenue & Free Cash Flow Bar/Line Chart
+        const revCtx = document.getElementById('adbeRevenueIncomeChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024', '2025', 'TTM (最新)'],
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: '营业总收入 Revenue ($M)',
+                        data: [17606, 19409, 21505, 23769, 25198],
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#059669',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: '自由现金流 FCF ($M)',
+                        data: [7396, 6942, 7873, 9852, 9218],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#D97706',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '总营收 ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { color: '#F1F5F9' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: '自由现金流 FCF ($M)', font: { size: 11, family: 'Inter' } },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
