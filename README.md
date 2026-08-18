@@ -276,53 +276,56 @@ flowchart TD
 ## Quantitative Multi-Factor Scoring Models & Risk Controls
 
 ### 1. Sell Put Three-Pillar Multi-Factor Scoring Model (40 / 30 / 30)
-$$\text{Total Score} = \max\left(0, 0.40 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.30 \times S_{\text{OptionAlpha}} - \text{Penalties} + \text{Bonuses}\right)$$
+
+```
+Total Score = max(0, 0.40 * S_Price + 0.30 * S_Safety + 0.30 * S_OptionAlpha - Penalties + Bonuses)
+```
 
 | Factor Pillar | Weight | Underlying Quantitative Drivers & Formulations | Strategic & Risk Objectives |
 | :--- | :---: | :--- | :--- |
-| **Pillar 1: Dual-Anchor Max-Discount Valuation Floor ($S_{\text{Price}}$)** | 40% | **Dual-Anchor Engine**: Concurrently evaluates 200 SMA Deviation ($S_{\text{Price-SMA}}$) and 52-Week High-Low Relative Position ($S_{\text{Price-RP}}$) with 50-baseline symmetric normalization, taking the maximum advantage discount: $S_{\text{Price}} = \max(S_{\text{Price-SMA}}, S_{\text{Price-RP}})$.<br>• **Long-Bull Anchor**: $Dev_{\text{basis}} = \frac{\text{Net Basis} - \text{SMA}_{200}}{\text{SMA}_{200}}$ (floor at -15.0%). If $Dev \le 0.0$, $S_{\text{Price-SMA}} = 50.0 + \min(50.0, \frac{\text{abs}(Dev)}{35.0\%} \times 50.0)$; else $S_{\text{Price-SMA}} = \max(0, 50.0 - \frac{Dev}{30.0\%} \times 50.0)$.<br>• **High-Vol Anchor**: $RP_{\text{basis}} = \frac{\text{Net Basis} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. If $RP \le 0.50$, $S_{\text{Price-RP}} = 50.0 + \min(50.0, \frac{0.50 - RP}{0.60} \times 50.0)$; else $S_{\text{Price-RP}} = \max(0, 50.0 - \frac{RP - 0.50}{0.50} \times 50.0)$. | Rewards deep OTM strike discounts on net acquisition basis $\text{Net Basis} = \min(\text{Spot}, K - P_{\text{market}})$; eliminates single-anchor classification bias. |
-| **Pillar 2: Safety Cushion & Gravitational Barrier ($S_{\text{Safety}}$)** | 30% | **Contract Safety Cushion**: $S_{\text{Safety}} = \text{clip}\left((1 - \vert\text{Delta}\vert) \times 100 + \max(\text{Bonus}_{\text{SMA}}, \text{Bonus}_{\text{RP}}) + \Delta_{\text{Pain}}, 0, 100\right)$.<br>• **Continuous Valuation Safety Bonus**: $\text{Bonus}_{\text{SMA}} = \min(10.0, \text{abs}(Dev_{\text{spot}}) \times 50.0)$, $\text{Bonus}_{\text{RP}} = \min(10.0, (0.20 - RP_{\text{spot}}) \times 50.0)$.<br>• **Max Pain Pinning Barrier ($\Delta_{\text{Pain}}$)**: Continuous smooth linear ramp $\Delta_{\text{Pain}} = \text{clip}\left(\frac{d_{\text{pain}}}{5.0\%} \times 4.0, -4.0, +4.0\right)$. | Prevents model bias from selecting dangerous ATM strikes; rewards deep safety cushions and structural option magnet pinning defenses. |
-| **Pillar 3: Mathematical Expectation & Option Alpha ($S_{\text{OptionAlpha}}$)** | 30% | **Unified Option Alpha Engine**: $S_{\text{OptionAlpha}} = 0.70 \times S_{\text{EV-APY}} + 0.30 \times S_{\text{Vol}}$.<br>• **Square-Root Saturation EV ($S_{\text{EV-APY}}$)**: $S_{\text{EV-APY}} = \min\left(100, 100 \times \sqrt{\frac{\text{EV-APY}}{20.0\%}}\right)$, driven by closed-form lognormal Black-Scholes expectation $\text{EV} = 100 \times [P_{\text{exec}} - \text{BS-Put}(\text{HV}_{\text{effective}})]$.<br>• **Forward-Looking Sigma Damping**: Dampens $\sigma = \min(\text{raw\_sigma}, 1.15 \times \text{IV})$ when IV cools post-drop, eliminating backward-looking jump distortion.<br>• **4-Tier Action Taxonomy**: `💰 Premium Harvesting` ($\text{EV} > +10\text{ USD}, \text{IVP} \ge 35\%$), `🟢 Steady Harvesting` ($-150 \le \text{EV} \le +10\text{ USD}$), `💎 Discount Assignment` ($\text{EV} < -150\text{ USD}$ on fortress assets / ETFs), and `⚠️ Thin Yield` ($\text{EV} < -150\text{ USD}$ on non-quality assets).<br>• **Tri-Factor Volatility Surface ($S_{\text{Vol}}$)**: $S_{\text{Vol}} = 0.50 \times \text{IVP} + 0.20 \times \text{IVR} + 0.30 \times S_{\text{Skew}}$ utilizing true 252d implied volatility percentiles and 25-Delta panic put skew. | Balances pure Theta harvesting and volatility mispricing while protecting fortress equity accumulation during volatility troughs. |
+| **Pillar 1: Dual-Anchor Max-Discount Valuation Floor (`S_Price`)** | 40% | **Dual-Anchor Engine**: Concurrently evaluates 200 SMA Deviation (`S_Price_SMA`) and 52-Week High-Low Relative Position (`S_Price_RP`) with 50-baseline symmetric normalization, taking the maximum advantage discount: `S_Price = max(S_Price_SMA, S_Price_RP)`.<br>• **Long-Bull Anchor**: `Dev_basis = (Net Basis - SMA_200) / SMA_200` (floor at -15.0%). If `Dev <= 0.0`: `S_Price_SMA = 50.0 + min(50.0, (abs(Dev) / 35.0%) * 50.0)`; else: `S_Price_SMA = max(0, 50.0 - (Dev / 30.0%) * 50.0)`.<br>• **High-Vol Anchor**: `RP_basis = (Net Basis - Low_52w) / (High_52w - Low_52w)`. If `RP <= 0.50`: `S_Price_RP = 50.0 + min(50.0, ((0.50 - RP) / 0.60) * 50.0)`; else: `S_Price_RP = max(0, 50.0 - ((RP - 0.50) / 0.50) * 50.0)`. | Rewards deep OTM strike discounts on net acquisition basis (`Net Basis = min(Spot, Strike - Premium)`); eliminates single-anchor classification bias. |
+| **Pillar 2: Safety Cushion & Gravitational Barrier (`S_Safety`)** | 30% | **Contract Safety Cushion**: `S_Safety = clip((1 - abs(Delta)) * 100 + max(Bonus_SMA, Bonus_RP) + Delta_Pain, 0, 100)`.<br>• **Continuous Valuation Safety Bonus**: `Bonus_SMA = min(10.0, abs(Dev_spot) * 50.0)`, `Bonus_RP = min(10.0, (0.20 - RP_spot) * 50.0)`.<br>• **Max Pain Pinning Barrier (`Delta_Pain`)**: Continuous smooth linear ramp `Delta_Pain = clip((d_pain / 5.0%) * 4.0, -4.0, +4.0)`. | Prevents model bias from selecting dangerous ATM strikes; rewards deep safety cushions and structural option magnet pinning defenses. |
+| **Pillar 3: Mathematical Expectation & Option Alpha (`S_OptionAlpha`)** | 30% | **Unified Option Alpha Engine**: `S_OptionAlpha = 0.70 * S_EV_APY + 0.30 * S_Vol`.<br>• **Square-Root Saturation EV (`S_EV_APY`)**: `S_EV_APY = min(100, 100 * sqrt(EV_APY / 20.0%))`, driven by closed-form lognormal Black-Scholes expectation `EV = 100 * [Price_exec - BS_Put(HV_effective)]`.<br>• **Forward-Looking Sigma Damping**: Dampens `sigma = min(raw_sigma, 1.15 * IV)` when IV cools post-drop, eliminating backward-looking jump distortion.<br>• **4-Tier Action Taxonomy**: `💰 Premium Harvesting` (`EV > +$10, IVP >= 35%`), `🟢 Steady Harvesting` (`-$150 <= EV <= +$10`), `💎 Discount Assignment` (`EV < -$150` on fortress assets / ETFs), and `⚠️ Thin Yield` (`EV < -$150` on non-quality assets).<br>• **Tri-Factor Volatility Surface (`S_Vol`)**: `S_Vol = 0.50 * IVP + 0.20 * IVR + 0.30 * S_Skew` utilizing true 252-day implied volatility percentiles and 25-Delta panic put skew. | Balances pure Theta harvesting and volatility mispricing while protecting fortress equity accumulation during volatility troughs. |
 
-#### Calibrated Risk Penalties & Fortress Bonuses ($\text{Penalties}$ & $\text{Bonuses}$)
+#### Calibrated Risk Penalties & Fortress Bonuses (`Penalties` & `Bonuses`)
 - **Smart Drop Classifier**:
-  * 🟢 **Contrarian Golden Pit**: 10%~30% drop on fortress assets ($F \ge 7$ & $\text{FCF} > 0$, or ETF, or Insider Net Buying $\ge 500\text{K USD}$) is 100% exempt from knife penalty + awards continuous smooth golden pit bonus up to **+4.0 pts** ($\min(4.0, \frac{\text{drop} - 10\%}{15\%} \times 4.0)$).
-  * 🟡 **Technical Pullback**: Continuous smooth quadratic ramp starting from 10% drop ($\min(15.0, (\frac{\text{drop} - 10\%}{25\%})^{1.2} \times 15.0)$), eliminating step cliffs.
-  * 🔴 **Toxic Falling Knife / Structural Collapse**: Steep non-linear penalty on fundamentally deteriorating assets ($\min(30.0, (\frac{\text{drop} - 10\%}{25\%})^{1.3} \times 30.0 \times 1.3)$).
+  * 🟢 **Contrarian Golden Pit**: 10%~30% drop on fortress assets (`F >= 7` & `FCF > 0`, or ETF, or Insider Net Buying `>= $500K`) is 100% exempt from knife penalty + awards continuous smooth golden pit bonus up to **+4.0 pts** (`min(4.0, ((drop - 10%) / 15%) * 4.0)`).
+  * 🟡 **Technical Pullback**: Continuous smooth quadratic ramp starting from 10% drop (`min(15.0, ((drop - 10%) / 25%)^1.2 * 15.0)`), eliminating step cliffs.
+  * 🔴 **Toxic Falling Knife / Structural Collapse**: Steep non-linear penalty on fundamentally deteriorating assets (`min(30.0, ((drop - 10%) / 25%)^1.3 * 30.0 * 1.3)`).
   * ⛔ **Black Swan Halt**: 30-day drop > 35% on individual stocks or > 22% on ETFs triggers hard 50 pt veto.
-- **Panic-Cleared Volatility Compression Bottoming Bonus**: Underlying pullback ($\text{drop} \ge 8\%$ or spot $Dev \le -6.0\%$) with calm IV ($\text{IVP} \le 30\%$ or $\text{IV} < \text{HV}$) on fortress assets ($F \ge 7$ & $\text{FCF} > 0$, or broad ETF) awards **+1.5 ~ +3.5 pts** bottoming consolidation bonus and displays `[🕊️ Panic Cleared · Bottoming Signal]`.
-- **DTE 30~45d Sweet Spot Efficiency Curve**: 28~45 DTE is 1.00x full efficiency. Ultra-short ($<28$ DTE) applies smooth convex yield reduction (down to 0.82x at 15 DTE) and Gamma spike penalty (up to 3.0 pts for DTE < 20). Long lockup ($>45$ DTE) applies capital velocity reduction (down to 0.90x at 60 DTE).
+- **Panic-Cleared Volatility Compression Bottoming Bonus**: Underlying pullback (`drop >= 8%` or spot `Dev <= -6.0%`) with calm IV (`IVP <= 30%` or `IV < HV`) on fortress assets (`F >= 7` & `FCF > 0`, or broad ETF) awards **+1.5 ~ +3.5 pts** bottoming consolidation bonus and displays `[🕊️ Panic Cleared · Bottoming Signal]`.
+- **DTE 30~45d Sweet Spot Efficiency Curve**: 28~45 DTE is 1.00x full efficiency. Ultra-short (`< 28 DTE`) applies smooth convex yield reduction (down to 0.82x at 15 DTE) and Gamma spike penalty (up to 3.0 pts for `DTE < 20`). Long lockup (`> 45 DTE`) applies capital velocity reduction (down to 0.90x at 60 DTE).
 - **Wash Sale Tax Loss Disallowance Penalty**: Tickers with realized loss within 30 days automatically receive **-10.0 pts** tax avoidance penalty and display `[🚨 Wash Sale Tax Disallowance Warning (-10 pts)]`.
-- **Piotroski F-Score Multi-Tier Smooth Health Ladder**: $F \le 2$ deducts 100 pts (severe collapse veto); $F = 3$ deducts 20 pts; $F = 4$ deducts 5 pts; $F = 5$ neutral (0 pts); $F = 6$ rewards +2.5 pts; $F = 7$ rewards +5.0 pts; $F \ge 8$ rewards +7.0 pts.
-- **Structural Negative Free Cash Flow**: Continuous smooth linear penalty based on FCF margin ($\min(15.0, \frac{\text{abs}(\text{Margin})}{20\%} \times 15.0)$ from 0% down to -20% margin).
-- **Extreme Debt Leverage**: Sector-adapted continuous ramp (Standard 180%~320% D/E; Utilities & Real Estate 300%~550% D/E; halved if positive FCF and $F \ge 6$) up to 15 pts penalty.
-- **SEC Form 4 Insider Sentiment**: Heavy selling (net selling $\ge \$10\text{M}$) deducts 5 pts; Net buying (net buying $\ge \$500\text{K}$) rewards +5 pts.
-- **Earnings Expected Move Gatekeeper**: Continuous smooth ramp (5~15 pts when $0.60 \le m_{\text{earnings}} < 1.0$; 20 pts when $m_{\text{earnings}} < 0.60$; rewards +3 pts if cushion $\ge 1.5 \times \sigma_{\text{earnings}}$).
-- **Contrarian Market Fear (PCR)**: Continuous smooth ramp ($\ge 0.95$ rewards up to +3.0 pts; $\le 0.70$ deducts up to -3.0 pts).
+- **Piotroski F-Score Multi-Tier Smooth Health Ladder**: `F <= 2` deducts 100 pts (severe collapse veto); `F = 3` deducts 20 pts; `F = 4` deducts 5 pts; `F = 5` neutral (0 pts); `F = 6` rewards +2.5 pts; `F = 7` rewards +5.0 pts; `F >= 8` rewards +7.0 pts.
+- **Structural Negative Free Cash Flow**: Continuous smooth linear penalty based on FCF margin (`min(15.0, (abs(Margin) / 20%) * 15.0)` from 0% down to -20% margin).
+- **Extreme Debt Leverage**: Sector-adapted continuous ramp (Standard 180%~320% D/E; Utilities & Real Estate 300%~550% D/E; halved if positive FCF and `F >= 6`) up to 15 pts penalty.
+- **SEC Form 4 Insider Sentiment**: Heavy selling (net selling `>= $10M`) deducts 5 pts; Net buying (net buying `>= $500K`) rewards +5 pts.
+- **Earnings Expected Move Gatekeeper**: Continuous smooth ramp (5~15 pts when `0.60 <= m_earnings < 1.0`; 20 pts when `m_earnings < 0.60`; rewards +3 pts if cushion `>= 1.5 * sigma_earnings`).
+- **Contrarian Market Fear (PCR)**: Continuous smooth ramp (`PCR >= 0.95` rewards up to +3.0 pts; `PCR <= 0.70` deducts up to -3.0 pts).
 
 ---
 
 ### 2. Earnings-DTE Smart Buffer
-When earnings are scheduled within 30 days ($0 \le \text{DTE}_{\text{earnings}} \le 30$) and the option contract crosses the earnings announcement ($\text{DTE} > \text{DTE}_{\text{earnings}}$):
-- **Mandatory Buffer**: Total contract duration must satisfy $\text{DTE} \ge \max(35, \text{DTE}_{\text{earnings}} + 14)$ to provide at least 14 days post-earnings stabilization.
-- **Tighter Delta & Cushion**: Bounds Delta to `[-0.20, -0.10]` and mandates minimum safety cushion $\ge 10.0\%$.
+When earnings are scheduled within 30 days (`0 <= DTE_earnings <= 30`) and the option contract crosses the earnings announcement (`DTE > DTE_earnings`):
+- **Mandatory Buffer**: Total contract duration must satisfy `DTE >= max(35, DTE_earnings + 14)` to provide at least 14 days post-earnings stabilization.
+- **Tighter Delta & Cushion**: Bounds Delta to `[-0.20, -0.10]` and mandates minimum safety cushion `>= 10.0%`.
 
 ---
 
 ### 3. Macro Circuit Breaker & VIX Rules
-- **Yellow Defense (VIX $\ge 25$ or 30-day Index Drop $\ge 8\%$)**: Tightens Delta upper bound to `[-0.25, -0.10]`.
-- **Red Deep OTM Defense (VIX $\ge 30$ or 30-day Index Drop $\ge 12\%$)**: Locks Delta to `[-0.15, -0.08]` with safety cushion $\ge 12.0\%$.
-- **Black Swan Halt (VIX $\ge 40$)**: Halts all new CSP openings across the market.
+- **Yellow Defense (VIX >= 25 or 30-day Index Drop >= 8%)**: Tightens Delta upper bound to `[-0.25, -0.10]`.
+- **Red Deep OTM Defense (VIX >= 30 or 30-day Index Drop >= 12%)**: Locks Delta to `[-0.15, -0.08]` with safety cushion `>= 12.0%`.
+- **Black Swan Halt (VIX >= 40)**: Halts all new CSP openings across the market.
 
 ---
 
 ### 4. InvestSkill Position Management Matrix
 Portfolio positions are systematically evaluated across 6 disciplined action decisions:
-1. **BTC (Profit Take / Inefficient Yield)**: Close when remaining APY falls below volatility baseline or PnL $\ge 80.0\%$.
-2. **Hold (Greedy Hold / High-Yield Tail Exception)**: When PnL $\ge 50.0\%$, remaining APY $\ge$ Greedy threshold, and cushion $\ge 6.0\%$, hold to capture residual theta.
-3. **BTC (Dynamic Take Profit)**: When PnL $\ge 50.0\%$ but remaining APY fails to justify residual tail risk, close to lock in profits.
-4. **Roll / Assign (Expiring Boundary Defense)**: When DTE $\le 15$ and cushion $< 3.0\%$, roll down & out for net credit if quality is intact, or prepare cash for assignment. Stop-loss BTC is reserved only for thesis invalidation.
-5. **Deep ITM (Early Assignment Readiness)**: When cushion $< -5.0\%$ (or Delta $< -0.60$) and DTE $> 15$, verify cash availability for wheel CC or await technical rebounds to roll.
+1. **BTC (Profit Take / Inefficient Yield)**: Close when remaining APY falls below volatility baseline or PnL >= 80.0%.
+2. **Hold (Greedy Hold / High-Yield Tail Exception)**: When PnL >= 50.0%, remaining APY >= Greedy threshold, and cushion >= 6.0%, hold to capture residual theta.
+3. **BTC (Dynamic Take Profit)**: When PnL >= 50.0% but remaining APY fails to justify residual tail risk, close to lock in profits.
+4. **Roll / Assign (Expiring Boundary Defense)**: When DTE <= 15 and cushion < 3.0%, roll down & out for net credit if quality is intact, or prepare cash for assignment. Stop-loss BTC is reserved only for thesis invalidation.
+5. **Deep ITM (Early Assignment Readiness)**: When cushion < -5.0% (or Delta < -0.60) and DTE > 15, verify cash availability for wheel CC or await technical rebounds to roll.
 6. **Hold (Standard Hold)**: Routine theta harvesting for healthy positions.
 
 ---
@@ -351,14 +354,14 @@ pip3 install -e .
 Provides automated account synchronization, options trading data ingestion, and Watchlist management:
 - **Account Binding**: Targets Joint Tenancy account ID from `config/credentials.json`.
 - **Buying Power**: Mandatorily extracts `unleveraged_buying_power` from `get_portfolio`.
-- **Batch Slicing**: Slices instrument quote requests into batches of $\le 40$ IDs to eliminate packet dropping.
+- **Batch Slicing**: Slices instrument quote requests into batches of <= 40 IDs to eliminate packet dropping.
 - **LIFO Watchlist Insertion**: Automatically reverses sorted lists prior to calling `add_to_watchlist` so the mobile App displays descending rankings.
 
 ---
 
 ### 2. yfinance Market Data & Fundamentals
 Integrates [**`yfinance`**](https://github.com/ranaroussi/yfinance) as the high-speed market data backbone:
-- Multi-threaded parallel fetching of historical price series (200-SMA, 52w range, $\text{HV}_{30}$, Williams VixFix).
+- Multi-threaded parallel fetching of historical price series (200-SMA, 52w range, HV_30, Williams VixFix).
 - Real-time options chain quotes and implied volatility tracking.
 - Fundamental ratios: Piotroski F-Score metrics, Free Cash Flow, Debt-to-Equity, and forward P/E.
 - SEC Form 4 insider transactions over 90-day windows.
