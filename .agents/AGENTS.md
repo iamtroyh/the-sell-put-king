@@ -213,3 +213,11 @@ For equity holdings >= 100 shares:
    - The ONLY files placed in the project directory are final HTML reports in `InvestSkill/output/` (and their `InvestSkill/output/index.html` entry) and `report.html`.
    - ALL ad-hoc fetch scripts, scratch cache files, and intermediate temporary data **MUST strictly be written to the scratch directory** (`<appDataDir>/brain/<conversation-id>/scratch/` or `/tmp/`).
 
+9. **Report Title Conciseness & Minimalist Professional Style Rule (报告标题精炼与极简专业语言风格规范)**:
+   - **Zero Boilerplate Titles (标题严禁冗长模板化废话)**: 严禁使用“`15模块全景深度投研与多因子量化评估`”、“`全模块深度研究与多因子量化评估报告`”、“`深度投资研究与多因子评估报告`”等冗长陈词滥调。
+   - **Standardized Concise Title Format (标准精炼标题格式)**: 
+     - `<title>` 格式固定为 `{公司名/标的} ({TICKER}) 深度投研报告 - InvestSkill`
+     - `<h1>` 格式固定为 `{公司名/标的} ({TICKER}) 深度投研报告`
+   - **Concise & Direct Institutional Tone (极简、专业、客观、零废话风格)**: 语言风格力求极简、克制、专业、高信息密度，坚决剔除任何口水话、套话与冗余形容词。
+
+

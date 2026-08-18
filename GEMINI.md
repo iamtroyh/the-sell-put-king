@@ -117,3 +117,8 @@ Whenever executing `research <TICKER>` or `@InvestSkill/prompts/full-report.md`,
    - **Bearish (看空 / SELL / STRONG SELL)**: Red / Crimson (`#DC2626`, `#EF4444`)
 5. **Dividend Disclosure**: Must explicitly state dividend status. If zero dividend, write `"无 / 没有 (无股息派发 / Dividend: None / N/A)"`.
 6. **Mobile Layout**: Enclose tables in `.table-scroll`, set viewport meta, and ensure responsive fluid charts.
+7. **Title Conciseness & Minimalist Professional Language Style (报告标题精炼与极简专业语言风格规范)**:
+   - **Zero Boilerplate Titles (严禁模板化废话标题)**: Strictly prohibit long, redundant boilerplate in `<title>` and `<h1>` (e.g. NEVER use "15模块全景深度投研与多因子量化评估", "全模块深度研究与多因子量化评估报告", "深度投资研究与多因子评估报告").
+   - **Standardized Concise Title Format**: Use `{Company} ({TICKER}) 深度投研报告 - InvestSkill` for `<title>` and `{Company} ({TICKER}) 深度投研报告` for `<h1>`.
+   - **Concise & Direct Institutional Tone (极简、专业、客观、零废话风格)**: Language style must be clean, rigorous, data-dense, and professional. Eliminate conversational filler, redundant padding, and verbose rhetorical phrases.
+
