@@ -12,6 +12,7 @@ This workspace combines **The Sell Put King** (Quantitative Options Strategy & R
 | `<TICKER>` or `research <TICKER>` | **Single-Ticker Deep Research**: Generate 15-module institutional report for `<TICKER>` (e.g., `NVDA`, `AAPL`, `分析 TSLA`, `MSFT 研报`) | `InvestSkill/output/{TICKER}_report_{DATE}.html` + embedded into `report.html` Tab 2 |
 | `research` | **Full Master Pipeline**: Fetch Robinhood positions, scan targets, score Sell Put & Covered Call candidates, batch verify/generate 15-module reports, sync watchlist | `report.html` & Mobile Watchlist |
 | `sync` | Synchronize InvestSkill reports and re-render dashboard | `python3 scripts/sync_investskill.py` |
+| `commit` | **Precision Commit & Push**: Explicitly stage modified/new files, commit with semantic message, and immediately execute `git push` | GitHub Remote Sync |
 
 ### 🔍 InvestSkill Prompt Frameworks (25 Frameworks + 1 Output Tool)
 You can directly invoke any prompt framework using `@InvestSkill/prompts/<name>.md` or `@prompts/<name>.md`:
