@@ -61,46 +61,49 @@ Conduct multi-factor quantitative screening across the market:
 9. **Collateral & Budget Calculation**: Calculate Cash Secured Put collateral requirements for top 5 and top 10 positions against available unleveraged cash, highlighting purchasing power surplus or shortfall.
 
 ### 4-Tier Smooth Liquidity & Conservative Pricing Gatekeeper
-1. **Tier 1 (🟢 极佳流动性 - Spread $\le 20\%$ & OI $\ge 50$)**: 0 penalty, executed at 100% Mark.
-2. **Tier 2 (🟡 标准流动性 - Spread $\le 35\%$ 或 绝对点差 $\le \$0.15$，且 OI $\ge 20$)**: 0 penalty, conservatively priced as $\text{Price}_{\text{exec}} = \min(\text{Mark}, \text{Bid} \times 1.15)$.
-3. **Tier 3 (🟠 中度宽点差 - $35\% < \text{Spread} \le 50\%$ 或 $10 \le \text{OI} < 20$)**: Conservatively priced as $\min(\text{Mark}, \text{Bid} \times 1.10)$, **0 pt penalty** (slippage already absorbed by price discount) with `[⚠️ 中度点差 (建议限价单)]` badge.
-4. **Tier 4 (🔴 宽幅点差 - Spread $> 50\%$ 或 $\text{OI} < 10$，且 $\text{Bid} > 0$)**: Conservatively priced as $\min(\text{Mark}, \text{Bid} \times 1.05)$, modest **-4.0 pt penalty** (execution difficulty warning, non-punitive) with `[⚠️ 宽点差 (建议限价单)]` badge.
-5. **Tier 5 (⛔ 零买盘 - $\text{Bid} = 0$)**: 0 price, **-15.0 pt penalty** with `[🚫 零买盘匮乏]` warning flag.
+1. **Tier 1 (🟢 Prime Liquidity - Spread $\le 20\%$ & OI $\ge 50$)**: 0 penalty, executed at 100% Mark.
+2. **Tier 2 (🟡 Standard Liquidity - Spread $\le 35\%$ or Absolute Spread $\le \$0.15$, and OI $\ge 20$)**: 0 penalty, conservatively priced as $\text{Price}_{\text{exec}} = \min(\text{Mark}, \text{Bid} \times 1.15)$.
+3. **Tier 3 (🟠 Moderate Spread - $35\% < \text{Spread} \le 50\%$ or $10 \le \text{OI} < 20$)**: Conservatively priced as $\min(\text{Mark}, \text{Bid} \times 1.10)$, **0 pt penalty** (slippage already absorbed by price discount) with `[⚠️ Moderate Spread (Limit Order Recommended)]` badge.
+4. **Tier 4 (🔴 Wide Spread - Spread $> 50\%$ or $\text{OI} < 10$, and $\text{Bid} > 0$)**: Conservatively priced as $\min(\text{Mark}, \text{Bid} \times 1.05)$, modest **-4.0 pt penalty** (execution difficulty warning, non-punitive) with `[⚠️ Wide Spread (Limit Order Recommended)]` badge.
+5. **Tier 5 (⛔ Zero Bid Illiquidity - $\text{Bid} = 0$)**: 0 price, **-15.0 pt penalty** with `[🚫 Zero Bid Illiquid]` warning flag.
 
-### Sell Put Three-Pillar Multi-Factor Scoring Model (50 / 30 / 20)
-$$\text{Total Score} = \max\left(0, 0.50 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.20 \times S_{\text{OptionAlpha}} - \text{Penalties} + \text{Bonuses}\right)$$
+### Sell Put Three-Pillar Multi-Factor Scoring Model (40 / 30 / 30)
+$$\text{Total Score} = \max\left(0, 0.40 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.30 \times S_{\text{OptionAlpha}} - \text{Penalties} + \text{Bonuses}\right)$$
 
-- **Pillar 1: Net Basis Valuation Floor ($S_{\text{Price}}$ - 50%)**:
+- **Pillar 1: Dual-Anchor Max-Discount Valuation Floor ($S_{\text{Price}}$ - 40%)**:
   * Evaluated on net acquisition cost $\text{Net Basis} = \min(\text{Spot}, K - P_{\text{market}})$ to reward deep OTM strike discounts.
-  * Long-bull: $Dev_{\text{basis}} = \frac{\text{Net Basis} - \text{SMA}_{200}}{\text{SMA}_{200}}$ (capped at -15.0%). If $Dev \le 0.0$, $S_{\text{Price}} = \min(100, 70 - Dev \times 600)$; else $S_{\text{Price}} = \max(0, 70 - Dev \times 700)$.
-  * High-vol: $RP_{\text{basis}} = \frac{\text{Net Basis} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. If $RP \le 0.20$, $S_{\text{Price}} = \min(100, 70 + (0.20 - RP) \times 200)$; else $S_{\text{Price}} = \max(0, 70 - (RP - 0.20) \times 87.5)$.
+  * **Dual-Anchor Engine**: Simultaneously computes 200 SMA Deviation ($S_{\text{Price\_SMA}}$) and 52-Week High-Low Relative Position ($S_{\text{Price\_RP}}$) with 50-baseline symmetric normalization, taking the maximum advantage discount: $S_{\text{Price}} = \max(S_{\text{Price\_SMA}}, S_{\text{Price\_RP}})$.
+  * Long-bull Anchor: $Dev_{\text{basis}} = \frac{\text{Net Basis} - \text{SMA}_{200}}{\text{SMA}_{200}}$. if $Dev \le 0.0$, $S_{\text{Price\_SMA}} = 50.0 + \min(50.0, \frac{|Dev|}{35.0\%} \times 50.0)$; else $S_{\text{Price\_SMA}} = \max(0, 50.0 - \frac{Dev}{30.0\%} \times 50.0)$.
+  * High-vol Anchor: $RP_{\text{basis}} = \frac{\text{Net Basis} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. if $RP \le 0.50$, $S_{\text{Price\_RP}} = 50.0 + \min(50.0, \frac{0.50 - RP}{0.60} \times 50.0)$; else $S_{\text{Price\_RP}} = \max(0, 50.0 - \frac{RP - 0.50}{0.50} \times 50.0)$.
 - **Pillar 2: Safety Cushion & Gravitational Barrier ($S_{\text{Safety}}$ - 30%)**:
-- **Pillar 2: Safety Cushion & Gravitational Barrier ($S_{\text{Safety}}$ - 30%)**:
-  * Standard: $S_{\text{Safety}} = (1 - \vert\text{Delta}\vert) \times 100 + \Delta_{\text{Pain}}$ (Max Pain pinning barrier smooth linear ramp $\Delta_{\text{Pain}} = \text{clip}\left(\frac{d_{\text{pain}}}{5.0\%} \times 4.0, -4.0, +4.0\right)$).
-  * Trough smooth transition: Smooth scaling toward 100 when spot is in deep value territory.
-- **Pillar 3: Mathematical Expectation & Option Alpha ($S_{\text{OptionAlpha}}$ - 20%)**:
+  * $S_{\text{Safety}} = \text{clip}\left((1 - \vert\text{Delta}\vert) \times 100 + \max(\text{Valuation\_Bonus}_{\text{SMA}}, \text{Valuation\_Bonus}_{\text{RP}}) + \Delta_{\text{Pain}}, 0, 100\right)$.
+  * Continuous valuation safety bonus: $\text{Valuation\_Bonus}_{\text{SMA}} = \min(10.0, |Dev_{\text{spot}}| \times 50.0)$, $\text{Valuation\_Bonus}_{\text{RP}} = \min(10.0, (0.20 - RP_{\text{spot}}) \times 50.0)$.
+  * Max Pain pinning barrier smooth linear ramp $\Delta_{\text{Pain}} = \text{clip}\left(\frac{d_{\text{pain}}}{5.0\%} \times 4.0, -4.0, +4.0\right)$.
+- **Pillar 3: Mathematical Expectation & Option Alpha ($S_{\text{OptionAlpha}}$ - 30%)**:
   * $S_{\text{OptionAlpha}} = 0.70 \times S_{\text{EV\_APY}} + 0.30 \times S_{\text{Vol}}$.
   * Realized Volatility: **Multi-Horizon Weighted Blend** $\text{HV}_{\text{blend}} = 0.50 \times \text{HV}_{30} + 0.30 \times \text{HV}_{60} + 0.20 \times \text{HV}_{90}$, anchored by $\text{HV}_{\text{effective}} = \min(\text{HV}_{\text{blend}}, \text{HV}_{252})$.
   * $S_{\text{EV\_APY}} = \min\left(100, 100 \times \sqrt{\frac{\mathbf{EV\ APY}}{20.0\%}}\right)$ driven by closed-form lognormal Black-Scholes expectation $\text{EV} = 100 \times [P_{\text{exec}} - \text{BS\_Put}(\text{HV}_{\text{effective}})]$.
   * **Quality-Aware EV Protection & 4-Character Action Taxonomy**:
-    - **`💰 溢价收租 (Premium Focus)`** ($\text{EV} > +\$10$ and $\text{IVP} \ge 35\%$): Elevated implied volatility providing rich premium buffer.
-    - **`🟢 稳健收租 (Theta Focus)`** ($-\$150 \le \text{EV} \le +\$10$, or $\text{EV} > +\$10$ with low $\text{IVP} < 35\%$): Quiet market volatility steady-state with fair premium decay.
-    - **`💎 折扣建仓 (Assignment Focus)`** ($\text{EV} < -\$150$ on broad ETFs or fortress assets $F \ge 7$ & $\text{FCF} > 0$): Deep implied volatility compression with 100% exemption from the -15 pt penalty, prioritizing assignment at discounted valuation floor.
-    - **`⚠️ 收益偏薄 (Thin Reward)`** ($\text{EV} < -\$150$ on non-quality assets): Compressed premium failing to justify downside tail risk ($S_{\text{EV}} = 0$ and -15 pt penalty).
+    - **`💰 Premium Harvesting (Premium Focus)`** ($\text{EV} > +\$10$ and $\text{IVP} \ge 35\%$): Elevated implied volatility providing rich premium buffer.
+    - **`🟢 Steady Harvesting (Theta Focus)`** ($-\$150 \le \text{EV} \le +\$10$, or $\text{EV} > +\$10$ with low $\text{IVP} < 35\%$): Quiet market volatility steady-state with fair premium decay.
+    - **`💎 Discount Assignment (Assignment Focus)`** ($\text{EV} < -\$150$ on broad ETFs or fortress assets $F \ge 7$ & $\text{FCF} > 0$): Deep implied volatility compression with 100% exemption from the -15 pt penalty, prioritizing assignment at discounted valuation floor.
+    - **`⚠️ Thin Yield (Thin Reward)`** ($\text{EV} < -\$150$ on non-quality assets): Compressed premium failing to justify downside tail risk ($S_{\text{EV}} = 0$, natural Option Alpha compression without external double penalty).
   * $S_{\text{Vol}} = 0.50 \times \text{IVP} + 0.20 \times \text{IVR} + 0.30 \times S_{\text{Skew}}$ (authentic 252d implied volatility percentiles and 25-Delta panic put skew).
 - **Penalties & Bonuses ($\text{Penalties}$ & $\text{Bonuses}$)**:
-  * **Smart Drop Classifier (智能急跌分类器)**:
-    - 🟢 **Contrarian Golden Pit (黄金坑错杀)**: Drop 15%~30% on fortress assets ($F \ge 7$ & $\text{FCF} > 0$, or ETF, or Insider Net Buying $\ge \$500\text{K}$) $\implies$ 100% exempt from knife penalty + rewards **$+4$ pts** contrarian entry bonus.
-    - 🟡 **Pure Technical Drop (常态技术回调)**: Drop 15%~25% on normal quality assets $\implies$ Moderate penalty (-7.5 pts stock / -5.0 pts ETF for level 1; -15.0 pts stock / -12.5 pts ETF for level 2).
-    - 🔴 **Toxic Falling Knife / Collapse (财务恶化暴雷)**: Drop with $F \le 3$, negative FCF, heavy insider selling $\implies$ Full trend penalty (-15 / -30 pts) + fundamental veto.
+  * **Smart Drop Classifier**:
+    - 🟢 **Contrarian Golden Pit**: Drop 10%~30% on fortress assets ($F \ge 7$ & positive FCF, or ETF, or Insider Net Buying $\ge \$500\text{K}$) $\implies$ 100% exempt from knife penalty + continuous smooth golden pit reward up to **$+4.0$ pts** ($\min(4.0, \frac{\text{drop} - 10\%}{15\%} \times 4.0)$).
+    - 🟡 **Technical Pullback**: Continuous smooth quadratic ramp starting from 10% drop ($\min(15.0, (\frac{\text{drop} - 10\%}{25\%})^{1.2} \times 15.0)$), eliminating all step cliffs.
+    - 🔴 **Toxic Falling Knife / Structural Collapse**: Steep non-linear penalty on fundamentally deteriorating assets ($\min(30.0, (\frac{\text{drop} - 10\%}{25\%})^{1.3} \times 30.0 \times 1.3)$).
     - ⛔ **Black Swan Halt**: Drop > 35% on individual stocks or > 22% on ETFs triggers hard 50 pt veto.
-  * Structural Negative FCF: Deducts 10 pts (equities only).
-  * Piotroski F-Score Multi-Tier Smooth Health Ladder: $F \le 2$ deducts 50 pts (severe veto); $F = 3$ deducts 20 pts; $F = 4$ deducts 5 pts; $F = 5$ neutral (0 pts); $F = 6$ rewards +2.5 pts; $F = 7$ rewards +5.0 pts; $F \ge 8$ rewards +7.0 pts.
+  * Structural Negative FCF: Continuous smooth linear penalty based on $\text{FCF Margin} = \frac{\text{FCF}}{\text{Revenue}}$ ($\min(15.0, \frac{|\text{Margin}|}{20\%} \times 15.0)$ from 0% down to -20% margin, replacing binary switch).
+  * Piotroski F-Score Multi-Tier Smooth Health Ladder: $F \le 2$ deducts 100 pts (severe collapse veto); $F = 3$ deducts 20 pts; $F = 4$ deducts 5 pts; $F = 5$ neutral (0 pts); $F = 6$ rewards +2.5 pts; $F = 7$ rewards +5.0 pts; $F \ge 8$ rewards +7.0 pts.
   * SEC Form 4 Insider Sentiment: Heavy selling (>= $10M net selling) deducts 5 pts; Net buying (>= $500K) rewards +5 pts.
-  * Extreme Debt: Continuous smooth ramp between 180% and 320% D/E up to 15 pts penalty.
+  * Extreme Debt: Continuous smooth ramp with **Sector Adaptation** (Standard 180%~320% D/E; Utilities & Real Estate 300%~550% D/E; halved if positive FCF and $F \ge 6$) up to 15 pts penalty.
   * Earnings Expected Move: Continuous smooth ramp (5~15 pts when $0.60 \le m_{\text{earnings}} < 1.0$; 20 pts when $m_{\text{earnings}} < 0.60$; rewards $+3$ pts if cushion $\ge 1.5 \times \sigma_{\text{earnings}}$).
   * Contrarian Sentiment (PCR): Continuous smooth ramp ($\ge 0.95$ rewards up to $+3.0$ pts; $\le 0.70$ deducts up to $-3.0$ pts).
-  * High POP Bonus: Continuous smooth win-rate ramp in $75\% \sim 90\%$ rewarding up to $+3.0$ pts.
+  * **Panic-Cleared Volatility Compression Bottoming Bonus**: When underlying has pulled back (drop $\ge 8\%$ or spot $Dev \le -6.0\%$) and IV has calmed ($\text{IVP} \le 30\%$ or $\text{IV} < \text{HV}$) on fortress assets ($F \ge 7$ & $\text{FCF} > 0$, or broad ETF), awards **$+1.5 \sim +3.5$ pts** bottoming consolidation bonus and displays `[🕊️ Panic Cleared · Bottoming Signal]`.
+  * **DTE 30~45d Sweet Spot Efficiency Curve**: 28~45 DTE is 1.00x full efficiency. Ultra-short ($<28$ DTE) applies smooth convex yield reduction (down to 0.82x at 15 DTE) and Gamma spike penalty (up to 3.0 pts for DTE < 20). Long lockup ($>45$ DTE) applies capital velocity reduction (down to 0.90x at 60 DTE).
+  * **Wash Sale Tax Loss Disallowance Penalty**: Tickers with realized loss within 30 days automatically receive **-10.0 pts** tax avoidance penalty and display `[🚨 Wash Sale Tax Disallowance Warning (-10 pts)]`.
 
 # Task 3: Sell Covered Call (Wheel Strategy Step 2)
 For equity holdings >= 100 shares:
@@ -126,7 +129,7 @@ For equity holdings >= 100 shares:
    e. **Filter Contracts**: Run `filter_instruments.py` to bound strikes and Deltas.
    f. **Batched Quote Fetching**: Slice instrument IDs into batches of <= 40 to prevent API packet dropping.
    g. **Compile Cache**: Run `build_options_cache.py` to generate `robinhood_options_cache.json`.
-   h. **Generate Report**: Run `python3 scripts/generate_report.py` to score contracts with the 50/30/20 Three-Pillar multi-factor engine, compute Wash Sale risks, and render `report.html`.
+   h. **Generate Report**: Run `python3 scripts/generate_report.py` to score contracts with the 40/30/30 Three-Pillar multi-factor engine, compute Wash Sale risks, and render `report.html`.
    i. **Sync Watchlist**: Run `sync_watchlist_mcp.py` to synchronize `Sell Put Candidate` Watchlist.
 
 2. **Single-Ticker Deep Research (`research <TICKER>`)**:
@@ -140,11 +143,11 @@ For equity holdings >= 100 shares:
 4. **TradingView Exchange Precision & Dynamic Auto-Discovery**: Mandatory official exchange prefix resolution (`format_tradingview_ticker`). When encountering any new ticker, dynamically query authentic exchanges via yfinance fast_info (`NMS/NGM/NCM` -> `NASDAQ`, `NYQ/NYSE` -> `NYSE`, `PCX/ASE/BATS/ARCA` -> `AMEX`) and automatically persist into `config/ticker_metadata.json` to permanently eliminate invalid symbol lookups.
 5. **InvestSkill 15-Module Institutional Standard & Universe Batch Research Rule (`research`)**:
    * **Full 15-Module Standard**: All generated InvestSkill research reports must strictly adhere to the 15-module / 5-phase / 9-chapter architecture (Executive KPI Cards, 5-Phase Scorecard, Segment Revenue Breakdown, 5-Year DCF Multi-Scenario Valuation, 13F & Short Interest Analysis, Key Technical Levels, Bear Case Red-Team Stress Test, 3-Tier Sell Put Gradients, and Normalized Signal Cards, accompanied by Radar/DCF/Technical interactive charts).
-   * **Universe Batch Research Trigger (`research`)**: When the user issues `research`, automatically scan all underlying tickers in `report.html` (via `TradingView 一键复制自选股` or `标的池全景扫描与期权建仓研判` Table 2).
-   * **Three Research Trigger Conditions (满足任一即进行 15 模块深度研报)**:
-     1. **无 7 天内有效研报**: `output/` 目录下不存在该标的报告，或最新研报已超过 7 天。
-     2. **7 天内发布过最新财报**: 公司在最近 7 天内发布过财报。
-     3. **7 天内股价波动超过 5%**: 7 天内股价变动幅度超过 5% ($|\Delta P_{7\text{d}}| / P_{7\text{d}} > 5\%$)。
+   * **Universe Batch Research Trigger (`research`)**: When the user issues `research`, automatically scan all underlying tickers in `report.html` (via `TradingView One-Click Copy Tickers` or `Universe Master Scan & Options Staging` Table 2).
+   * **Three Research Trigger Conditions (Execute 15-module deep dive if ANY condition is met)**:
+     1. **No Valid Report within 7 Days**: No report exists in `output/` directory or the latest report is older than 7 days.
+     2. **Fresh Earnings Released within 7 Days**: Company reported earnings in the past 7 days.
+     3. **7-Day Price Movement Exceeds 5%**: Underlying price changed by more than 5% ($|\Delta P_{7\text{d}}| / P_{7\text{d}} > 5\%$) within the past 7 days.
    * **Zero Stale Data Iron Rule**: Strictly prohibit recycling old cached data or stale estimates. Always pull fresh live data.
    * **Three-Tab Workbench**: Main dashboard (`report.html`) Table 2 embeds `[Option Contracts]`, `[InvestSkill Institutional Report]`, and `[Fundamental & Valuation Dashboard]`.
    * **Sticky Freeze Header**: Clicking any row locks the ticker summary to the top (`position: sticky; top: 0; z-index: 45`) for seamless multi-thousand-pixel scrolling.

@@ -216,19 +216,38 @@ def to_rh_symbol(symbol: Optional[str]) -> str:
     return norm
 
 
+# Non-equity, cyclical, fixed-income, commodity, and crypto ETFs that follow macro/52w RP cycles rather than compounding long bull SMA200
+CYCLICAL_MACRO_ETF_TICKERS: Set[str] = {
+    'TLT', 'IBIT', 'SLV', 'GLD', 'ASHR', 'KWEB', 'URA', 'GDX', 'GDXJ', 'XLE', 'VNQ', 'XLRE', 'CTA'
+}
+
+
 def is_long_bull(symbol: Optional[str], hv: Optional[float] = None, beta: Optional[float] = None) -> bool:
     """
-    Check if symbol is classified as a steady long bull or core index.
-    Combines whitelist override with dynamic statistical volatility & beta profiling.
+    Check if symbol is classified as a steady long bull or core compounding equity index (SMA200 model).
+    Combines explicit whitelists with dynamic statistical volatility & beta profiling.
     """
     if not symbol:
         return False
     norm = normalize_symbol(symbol)
-    if norm in LONG_BULL_TICKERS or str(symbol).upper() in LONG_BULL_TICKERS or is_etf_symbol(symbol):
-        return True
+    
+    # 1. Cyclical, macro interest-rate, commodity, and crypto ETFs explicitly route to 52w RP model
+    if norm in CYCLICAL_MACRO_ETF_TICKERS or str(symbol).upper() in CYCLICAL_MACRO_ETF_TICKERS:
+        return False
+
+    # 2. Explicit high volatility growth tickers route to 52w RP model
     if norm in HIGH_VOL_GROWTH_TICKERS or str(symbol).upper() in HIGH_VOL_GROWTH_TICKERS:
         return False
-    # Dynamic Statistical Profiling: Steady asset with HV <= 35%
+
+    # 3. Explicit long bull equities & broad equity compounding ETFs
+    if norm in LONG_BULL_TICKERS or str(symbol).upper() in LONG_BULL_TICKERS:
+        return True
+
+    # 4. Standard equity index ETFs (e.g. SPY, QQQ, VTV, XLK, XLP, XLV)
+    if is_etf_symbol(symbol):
+        return True
+
+    # 5. Dynamic Statistical Profiling for new/unlisted equities: Steady asset with HV <= 35% & Beta <= 1.25
     if hv is not None:
         try:
             val_hv = float(hv)
@@ -312,9 +331,9 @@ def get_ticker_exchange(symbol: Optional[str]) -> str:
     except Exception:
         # Static fallback
         if clean_sym in ETF_TICKERS or clean_sym in [
-            'SPY', 'IWM', 'DIA', 'GLD', 'SLV', 'USO', 'GDX', 'ASHR', 'SPYM', 'VTV',
+            'SPY', 'IWM', 'DIA', 'GLD', 'SLV', 'USO', 'GDX', 'GDXJ', 'ASHR', 'SPYM', 'VTV',
             'XLK', 'XLF', 'XLV', 'XLE', 'XLI', 'XLY', 'XLP', 'XLRE', 'XLU', 'XLB',
-            'XBI', 'KWEB', 'URA', 'CTA'
+            'XBI', 'KWEB', 'URA', 'CTA', 'VNQ'
         ]:
             return 'AMEX'
         return 'NASDAQ' if clean_sym in [
@@ -323,8 +342,9 @@ def get_ticker_exchange(symbol: Optional[str]) -> str:
             'TCOM', 'UPST', 'VEEV', 'LULU', 'AAPL', 'NVDA', 'AVGO', 'AMD', 'QCOM',
             'ASML', 'AMAT', 'LRCX', 'KLAC', 'MRVL', 'TXN', 'ADI', 'CDNS', 'COST',
             'SBUX', 'PEP', 'ADBE', 'ABNB', 'CME', 'MU', 'ANET', 'CEG', 'PYPL',
-            'ULTA', 'SKHY', 'CRWD', 'PANW', 'FTNT', 'DDOG', 'ZS', 'COIN', 'WMT',
-            'MARA', 'DKNG', 'FSLR', 'IDXX', 'HON', 'LIN', 'DUOL', 'GOOGL', 'BTDR'
+            'ULTA', 'SKHY', 'CRWD', 'PANW', 'FTNT', 'DDOG', 'ZS', 'COIN',
+            'MARA', 'DKNG', 'FSLR', 'IDXX', 'HON', 'LIN', 'DUOL', 'GOOGL', 'BTDR',
+            'MSTR', 'CLSK', 'APP', 'MELI', 'PODD', 'SPCX'
         ] else 'NYSE'
 
 

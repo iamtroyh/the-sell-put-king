@@ -647,31 +647,58 @@ def sync_watchlist(client: Optional[RobinhoodMCPClient] = None) -> bool:
 def run_pipeline(skip_mcp: bool = False, skip_sync: bool = False) -> None:
     """
     Execute the complete end-to-end quant options research and synchronization workflow.
+    Ensures 100% fresh live market data, option chains, account balances, and scores.
     """
     print("\n============================================================")
     print(" 🚀 OPTION QUANT STRATEGY RESEARCH & AUTOMATION PIPELINE")
     print("============================================================\n")
     start_time = time.time()
 
-    # Step 1: Sync InvestSkill reports
+    # Step 1: Live Robinhood Account & Position Synchronization
+    if not skip_mcp:
+        print("📥 [1/6] Syncing live Robinhood account, cash, and option positions...")
+        try:
+            sync_account_data()
+            # Sync 30-day PnL history for wash sale detection
+            pnl_history_file = os.path.join(DATA_DIR, "trade_pnl_history.json")
+            with RobinhoodMCPClient() as c:
+                trades = c.get_pnl_trade_history(span="month")
+                atomic_write_json(pnl_history_file, {"trades": trades})
+        except Exception as e:
+            logger.warning(f"Account sync encountered non-fatal error: {e}")
+
+    # Step 2: Live Market Target Scanning
+    print("🎯 [2/6] Scanning active market targets and valid expiration horizons...")
+    get_scan_targets()
+
+    # Step 3: High-Speed Live Option Chains Scanner
+    print("⚡ [3/6] Fetching live option chains and quotes for all scan targets...")
+    try:
+        fast_scan_script = os.path.join(BASE_DIR, "scripts", "fast_option_scan.py")
+        if os.path.exists(fast_scan_script):
+            subprocess.run(["python3", "-u", fast_scan_script], check=False)
+    except Exception as e:
+        logger.warning(f"Fast option scan encountered non-fatal error: {e}")
+
+    # Step 4: Sync InvestSkill reports
     investskill_script = os.path.join(INVESTSKILL_DIR, "scripts", "generate-output-index.js")
     if os.path.exists(investskill_script):
-        print("📑 [1/4] Syncing InvestSkill institutional reports index...")
+        print("📑 [4/6] Syncing InvestSkill institutional reports index...")
         subprocess.run(["node", investskill_script], check=False)
 
-    # Step 2: Generate Report & Scoring
-    print("📈 [2/4] Executing multi-factor scoring and generating report.html...")
+    # Step 5: Multi-Factor Scoring & Report Generation
+    print("📈 [5/6] Executing multi-factor scoring engine and generating report.html...")
     generate_report()
 
-    # Step 3: Watchlist Sync
+    # Step 6: Watchlist Sync
     if not skip_sync and not skip_mcp:
-        print("🔄 [3/4] Syncing Sell Put Candidate watchlist to Robinhood...")
+        print("🔄 [6/6] Syncing Sell Put Candidate watchlist to Robinhood...")
         try:
             sync_watchlist()
         except Exception as e:
             logger.warning(f"Watchlist sync encountered non-fatal error: {e}")
 
-    # Step 4: Summary
+    # Summary
     elapsed = time.time() - start_time
-    print(f"\n🎉 [4/4] Pipeline completed successfully in {elapsed:.2f}s!")
+    print(f"\n🎉 Complete research pipeline finished in {elapsed:.2f}s!")
     print(f"👉 View interactive dashboard: file://{os.path.join(BASE_DIR, 'report.html')}\n")

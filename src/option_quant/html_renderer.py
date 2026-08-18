@@ -38,15 +38,17 @@ def build_tradingview_card(ordered_watchlist: List[str], ticker_exchange_map: Op
     """
     tv_map = ticker_exchange_map or TICKER_EXCHANGE_MAP
     tv_items: List[str] = []
+    tv_plain_items: List[str] = []
 
     for t in ordered_watchlist:
         clean_t = to_rh_symbol(t)
+        tv_plain_items.append(clean_t)
         exch = tv_map.get(t.upper().strip()) or tv_map.get(clean_t)
         if not exch:
             if clean_t in [
-                'SPY', 'IWM', 'DIA', 'GLD', 'SLV', 'USO', 'GDX', 'ASHR', 'SPYM', 'VTV',
+                'SPY', 'IWM', 'DIA', 'GLD', 'SLV', 'USO', 'GDX', 'GDXJ', 'ASHR', 'SPYM', 'VTV',
                 'XLK', 'XLF', 'XLV', 'XLE', 'XLI', 'XLY', 'XLP', 'XLRE', 'XLU', 'XLB',
-                'XBI', 'KWEB', 'URA', 'CTA'
+                'XBI', 'KWEB', 'URA', 'CTA', 'VNQ'
             ]:
                 exch = 'AMEX'
             elif clean_t in [
@@ -55,7 +57,9 @@ def build_tradingview_card(ordered_watchlist: List[str], ticker_exchange_map: Op
                 'TCOM', 'UPST', 'VEEV', 'LULU', 'AAPL', 'NVDA', 'AVGO', 'AMD', 'QCOM',
                 'ASML', 'AMAT', 'LRCX', 'KLAC', 'MRVL', 'TXN', 'ADI', 'CDNS', 'COST',
                 'SBUX', 'PEP', 'ADBE', 'ABNB', 'CME', 'MU', 'ANET', 'CEG', 'PYPL',
-                'ULTA', 'SKHY', 'CRWD', 'PANW', 'FTNT', 'DDOG', 'ZS', 'COIN'
+                'ULTA', 'SKHY', 'CRWD', 'PANW', 'FTNT', 'DDOG', 'ZS', 'COIN',
+                'MARA', 'DKNG', 'FSLR', 'IDXX', 'HON', 'LIN', 'DUOL', 'GOOGL', 'BTDR',
+                'MSTR', 'CLSK', 'APP', 'MELI', 'PODD', 'SPCX'
             ]:
                 exch = 'NASDAQ'
             else:
@@ -63,24 +67,41 @@ def build_tradingview_card(ordered_watchlist: List[str], ticker_exchange_map: Op
         tv_items.append(f"{exch}:{clean_t}")
 
     tv_copy_str = ", ".join(tv_items)
+    tv_plain_copy_str = ", ".join(tv_plain_items)
 
     card_html = f"""
-    <div style="background: linear-gradient(135deg, #18181b 0%, #1c1917 100%); border: 1px solid #3f3f46; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <span style="font-size: 16px;">📊</span>
           <span style="font-weight: 700; color: #ffffff; font-size: 13.5px;">TradingView Watchlist 一键导入文本</span>
           <span style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); font-size: 11px; padding: 1px 6px; border-radius: 4px; font-weight: 600;">精确降序同步 ({len(tv_items)} 只)</span>
         </div>
-        <button onclick="navigator.clipboard.writeText('{tv_copy_str}').then(() => {{ this.innerText = '✅ 已成功复制到剪贴板！'; setTimeout(() => this.innerText = '📋 点击一键复制 TradingView 文本', 2500); }})" style="background: #2563eb; color: #ffffff; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(37,99,235,0.4);">
-          📋 点击一键复制 TradingView 文本
-        </button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button onclick="navigator.clipboard.writeText('{tv_plain_copy_str}').then(() => {{ this.innerText = '✅ 纯代码已复制！'; setTimeout(() => this.innerText = '📋 一键复制纯代码 (推荐)', 2500); }})" style="background: rgba(52, 211, 153, 0.2); border: 1px solid rgba(52, 211, 153, 0.5); color: #34d399; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+            📋 一键复制纯代码 (推荐·零前缀错误)
+          </button>
+          <button onclick="navigator.clipboard.writeText('{tv_copy_str}').then(() => {{ this.innerText = '✅ 带前缀已复制！'; setTimeout(() => this.innerText = '📋 复制带交易所前缀', 2500); }})" style="background: rgba(96, 165, 250, 0.15); border: 1px solid rgba(96, 165, 250, 0.4); color: #60a5fa; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+            📋 复制带交易所前缀
+          </button>
+        </div>
       </div>
-      <div style="background: #09090b; border: 1px solid #27272a; border-radius: 6px; padding: 10px 12px; font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace; font-size: 12px; color: #34d399; word-break: break-all; max-height: 75px; overflow-y: auto; line-height: 1.5; user-select: all;">
-        {tv_copy_str}
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
+        <div>
+          <div style="font-size: 11px; font-weight: 600; color: #34d399; margin-bottom: 4px;">🟢 纯代码模式 (TradingView 官方自动匹配交易所，100% 成功率):</div>
+          <div style="background: #09090b; border: 1px solid #27272a; border-radius: 6px; padding: 8px 10px; font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace; font-size: 11.5px; color: #34d399; word-break: break-all; max-height: 65px; overflow-y: auto; line-height: 1.4; user-select: all;">
+            {tv_plain_copy_str}
+          </div>
+        </div>
+        <div>
+          <div style="font-size: 11px; font-weight: 600; color: #60a5fa; margin-bottom: 4px;">🔵 带交易所前缀 (官方主板映射):</div>
+          <div style="background: #09090b; border: 1px solid #27272a; border-radius: 6px; padding: 8px 10px; font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace; font-size: 11.5px; color: #60a5fa; word-break: break-all; max-height: 65px; overflow-y: auto; line-height: 1.4; user-select: all;">
+            {tv_copy_str}
+          </div>
+        </div>
       </div>
-      <div style="font-size: 11px; color: #a1a1aa; margin-top: 8px;">
-        💡 <strong>使用指引</strong>：在 TradingView 面板按 <code>Cmd+A</code> ➔ <code>Delete</code> 清空旧列表，或点击右上角 <strong><code>...</code> ➔ Import Watchlist</strong> 选文件；也可在添加代码 <code>+</code> 框中直接粘贴上框代码一键导入！
+      <div style="font-size: 11px; color: #a1a1aa; margin-top: 10px; line-height: 1.4;">
+        💡 <strong>使用指引</strong>：在 TradingView 面板按 <code>Cmd+A</code> ➔ <code>Delete</code> 清空旧列表，或点击右上角 <strong><code>...</code> ➔ Import Watchlist</strong> 选文件；也可直接点击 <code>+</code> 添加代码并在输入框直接粘贴上面任一框的代码！
       </div>
     </div>
     """

@@ -91,22 +91,22 @@ def run_fast_scan(symbols: List[str] = None) -> Dict[str, Any]:
                     if exp not in existing_cache[sym]:
                         existing_cache[sym][exp] = {"puts": [], "calls": []}
 
-                    # Check if strike already exists in puts
-                    existing_strikes = [p["strike"] for p in existing_cache[sym][exp].get("puts", [])]
-                    if c["strike"] not in existing_strikes:
-                        existing_cache[sym][exp]["puts"].append({
-                            "strike": c["strike"],
-                            "bid": c["bid"],
-                            "ask": c["ask"],
-                            "openInterest": c["open_interest"],
-                            "impliedVolatility": c["iv"] / 100.0,
-                            "delta": c["delta"],
-                            "gamma": c.get("gamma", 0.0),
-                            "theta": c.get("theta", 0.0),
-                            "vega": c.get("vega", 0.0),
-                            "instrument_id": f"md_{sym}_{exp}_{c['strike']}_p",
-                        })
-                        total_contracts_found += 1
+                    # Upsert strike into puts (always overwrite with fresh live market data)
+                    updated_puts = [p for p in existing_cache[sym][exp].get("puts", []) if p["strike"] != c["strike"]]
+                    updated_puts.append({
+                        "strike": c["strike"],
+                        "bid": c["bid"],
+                        "ask": c["ask"],
+                        "openInterest": c["open_interest"],
+                        "impliedVolatility": c["iv"] / 100.0,
+                        "delta": c["delta"],
+                        "gamma": c.get("gamma", 0.0),
+                        "theta": c.get("theta", 0.0),
+                        "vega": c.get("vega", 0.0),
+                        "instrument_id": f"md_{sym}_{exp}_{c['strike']}_p",
+                    })
+                    existing_cache[sym][exp]["puts"] = updated_puts
+                    total_contracts_found += 1
 
                 for exp in existing_cache[sym]:
                     existing_cache[sym][exp]["puts"].sort(key=lambda x: x["strike"])

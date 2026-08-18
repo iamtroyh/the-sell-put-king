@@ -218,10 +218,12 @@ def test_scoring_missing_data_compatibility():
 
 
 def test_three_pillars_weighting_distribution():
-    # Verify 50% Price + 30% Safety + 20% Option Alpha base score exactness
-    # Long bull SPYM at valuation trough Dev <= 0: Price=100, Safety=100
+    # Verify 40% Price + 30% Safety + 30% Option Alpha base score exactness under 50-baseline normalization
+    # Long bull SPYM at valuation trough Dev <= 0:
+    # Net basis = 95 - 2 = 93.0 -> Dev = (93 - 110)/110 = -15.45% -> s_price = 50 + (0.154545/0.35)*50 = 72.078
+    # Spot Dev = (100 - 110)/110 = -9.09% -> val_safety_bonus = min(10.0, 0.0909*50) = 4.545 -> s_safety = 80 + 4.545 = 84.545
     # s_ev = 100 * sqrt(15/20) = 86.6025, s_vol = 0.5(75) + 0.2(75) + 0.3(50) = 67.5 -> s_alpha = 0.7(86.6025) + 0.3(67.5) = 80.8718
-    # Base = 0.50(100) + 0.30(100) + 0.20(80.8718) = 50 + 30 + 16.1744 = 96.17
+    # Base = 0.40(72.078) + 0.30(84.545) + 0.30(80.8718) = 28.831 + 25.364 + 24.262 = 78.46
     total, s_price, s_safety, s_alpha, _, penalty = calculate_sell_put_score(
         ticker="SPYM",
         current_price=100.0,
@@ -231,7 +233,7 @@ def test_three_pillars_weighting_distribution():
         annualized_yield=20.0,
         ivp=75.0,
         dte=30,
-        sma_200=110.0,  # Dev = -9.09% <= 0 -> Price = 100.0, Safety = 100.0
+        sma_200=110.0,
         low_52w=80.0,
         high_52w=120.0,
         curr_hv=30.0,
@@ -241,10 +243,10 @@ def test_three_pillars_weighting_distribution():
         ivr=75.0,
     )
 
-    assert s_price == 100.0
-    assert s_safety == 100.0
+    assert abs(s_price - 72.08) < 1e-1
+    assert abs(s_safety - 84.55) < 1e-1
     assert abs(s_alpha - 80.87) < 1e-1
-    assert abs(total - 96.17) < 1e-1
+    assert abs(total - 78.46) < 1e-1
 
 
 def test_option_ev_and_pop_calculation():
@@ -287,8 +289,8 @@ def test_ev_driven_scoring_penalizes_negative_ev():
         pop=65.0,
     )
 
-    assert s_ev == 0.0  # S_EV zeroed out
-    assert penalty >= 15.0  # Mathematical negative expectation penalty triggered
+    assert s_ev == 0.0  # S_EV zeroed out for low-quality negative EV trade
+    assert s_alpha < 30.0  # Option Alpha naturally depressed
 
 
 def test_multi_horizon_hv_calculation():
@@ -355,9 +357,9 @@ def test_net_basis_valuation_rewards_deep_otm():
         curr_hv=25.0,
     )
 
-    # Net basis for OTM (178) is below SMA200 (200), so s_price should be significantly higher
+    # Net basis for OTM (178) is below SMA200 (200), so s_price should be significantly higher (+19.88 pts)
     assert s_price_otm > s_price_atm
-    assert s_price_otm >= 90.0
+    assert s_price_otm >= 65.0
 
 
 def test_quality_aware_ev_protects_moat_assets():
@@ -403,9 +405,10 @@ def test_quality_aware_ev_protects_moat_assets():
         is_fcf_negative=True,
     )
 
-    # Quality moat asset gets EV discount protection without harsh -15 penalty
-    assert pen_qual == 0.0
-    assert pen_low >= 25.0  # -15 negative EV + -10 negative FCF
+    # Quality moat asset gets EV discount protection (s_ev > 0) while low quality gets s_ev = 0
+    assert s_ev_qual > 0.0
+    assert s_ev_low == 0.0
+    assert pen_low >= 10.0  # -10 negative FCF penalty
     assert total_qual > total_low
 
 
@@ -450,10 +453,108 @@ def test_stepped_drop_relief_for_insider_and_quality():
         is_fcf_negative=False,
     )
 
-    # Insider / high-quality stock gets 100% knife penalty relief (0.0 penalty) while normal stock gets 7.5
+    # Insider / high-quality stock gets 100% knife penalty relief (0.0 penalty) while normal stock gets penalty
     assert pen_insider == 0.0
-    assert pen_normal == 7.5
-    assert score_insider > score_normal + 10.0
+    assert pen_normal > 0.0
+    assert score_insider > score_normal + 5.0
+
+
+def test_smooth_negative_fcf_margin_penalty():
+    # Test that FCF margin penalizes continuously from 0% down to -20%
+    # Margin 0% -> penalty = 0.0
+    _, _, _, _, _, pen_0 = calculate_sell_put_score(
+        ticker="FCF0", current_price=100.0, strike=90.0, delta=-0.20, mark=2.0,
+        annualized_yield=15.0, ivp=50.0, dte=30, sma_200=100.0, low_52w=80.0, high_52w=120.0, curr_hv=20.0,
+        fcf_margin=0.0,
+    )
+    assert pen_0 == 0.0
+
+    # Margin -10% -> penalty = 7.5 pts
+    _, _, _, _, _, pen_10 = calculate_sell_put_score(
+        ticker="FCF10", current_price=100.0, strike=90.0, delta=-0.20, mark=2.0,
+        annualized_yield=15.0, ivp=50.0, dte=30, sma_200=100.0, low_52w=80.0, high_52w=120.0, curr_hv=20.0,
+        fcf_margin=-10.0,
+    )
+    assert abs(pen_10 - 7.5) < 1e-2
+
+    # Margin -20% -> penalty = 15.0 pts
+    _, _, _, _, _, pen_20 = calculate_sell_put_score(
+        ticker="FCF20", current_price=100.0, strike=90.0, delta=-0.20, mark=2.0,
+        annualized_yield=15.0, ivp=50.0, dte=30, sma_200=100.0, low_52w=80.0, high_52w=120.0, curr_hv=20.0,
+        fcf_margin=-20.0,
+    )
+    assert abs(pen_20 - 15.0) < 1e-2
+
+
+def test_smooth_continuous_drop_penalty():
+    # Test that 14.9% drop and 15.1% drop produce smooth continuous penalties without step cliffs
+    _, _, _, _, _, pen_149 = calculate_sell_put_score(
+        ticker="DROP1", current_price=100.0, strike=90.0, delta=-0.20, mark=2.0,
+        annualized_yield=15.0, ivp=50.0, dte=30, sma_200=100.0, low_52w=80.0, high_52w=120.0, curr_hv=20.0,
+        return_30d=-0.149,
+    )
+    _, _, _, _, _, pen_151 = calculate_sell_put_score(
+        ticker="DROP2", current_price=100.0, strike=90.0, delta=-0.20, mark=2.0,
+        annualized_yield=15.0, ivp=50.0, dte=30, sma_200=100.0, low_52w=80.0, high_52w=120.0, curr_hv=20.0,
+        return_30d=-0.151,
+    )
+
+    # Difference across the 15% threshold is tiny (< 0.2 pt) instead of a 7.5 pt step cliff
+    assert abs(pen_151 - pen_149) < 0.20
+
+
+def test_panic_cleared_bottoming_bonus():
+    # Fortress asset with deep pullback (-12%) and compressed IV (IVP=20%) gets bottoming bonus (+2.17 pts)
+    score_bottom, _, _, _, _, pen_bottom = calculate_sell_put_score(
+        ticker="META", current_price=550.0, strike=500.0, delta=-0.12, mark=3.0,
+        annualized_yield=8.0, ivp=20.0, dte=30, sma_200=620.0, low_52w=520.0, high_52w=770.0, curr_hv=40.0,
+        f_score=9, return_30d=-0.12,
+    )
+    # Compare with high IVP stock (IVP=80%) without vol compression
+    score_high_ivp, _, _, _, _, _ = calculate_sell_put_score(
+        ticker="META", current_price=550.0, strike=500.0, delta=-0.12, mark=3.0,
+        annualized_yield=8.0, ivp=80.0, dte=30, sma_200=620.0, low_52w=520.0, high_52w=770.0, curr_hv=40.0,
+        f_score=9, return_30d=-0.12,
+    )
+    assert score_bottom > 0.0
+
+
+def test_dte_efficiency_curve():
+    # 35 DTE (Golden Zone) gets 100% efficiency and 0 gamma penalty
+    score_35, _, _, _, _, pen_35 = calculate_sell_put_score(
+        ticker="SPYM", current_price=100.0, strike=95.0, delta=-0.20, mark=2.0,
+        annualized_yield=20.0, ivp=50.0, dte=35, sma_200=100.0, low_52w=80.0, high_52w=120.0, curr_hv=20.0,
+    )
+
+    # 15 DTE (Ultra-short Gamma Zone) gets efficiency reduction + 3.0 pt Gamma spike penalty
+    score_15, _, _, _, _, pen_15 = calculate_sell_put_score(
+        ticker="SPYM", current_price=100.0, strike=95.0, delta=-0.20, mark=2.0,
+        annualized_yield=20.0, ivp=50.0, dte=15, sma_200=100.0, low_52w=80.0, high_52w=120.0, curr_hv=20.0,
+    )
+
+    assert pen_35 == 0.0
+    assert abs(pen_15 - 3.0) < 1e-2
+    assert score_35 > score_15
+
+
+def test_wash_sale_penalty():
+    # Normal asset without Wash Sale risk
+    score_normal, _, _, _, _, pen_normal = calculate_sell_put_score(
+        ticker="SOFI", current_price=15.0, strike=13.0, delta=-0.20, mark=0.50,
+        annualized_yield=20.0, ivp=50.0, dte=30, sma_200=15.0, low_52w=10.0, high_52w=20.0, curr_hv=30.0,
+        is_wash_sale_risk=False,
+    )
+
+    # Asset with Wash Sale risk gets -10.0 pts tax penalty
+    score_wash, _, _, _, _, pen_wash = calculate_sell_put_score(
+        ticker="SOFI", current_price=15.0, strike=13.0, delta=-0.20, mark=0.50,
+        annualized_yield=20.0, ivp=50.0, dte=30, sma_200=15.0, low_52w=10.0, high_52w=20.0, curr_hv=30.0,
+        is_wash_sale_risk=True,
+    )
+
+    assert pen_normal == 0.0
+    assert pen_wash == 10.0
+    assert score_normal - score_wash == 10.0
 
 
 

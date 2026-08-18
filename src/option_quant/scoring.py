@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from option_quant.config import (
+    CYCLICAL_MACRO_ETF_TICKERS,
     RISK_FREE_RATE,
     SECTOR_MAP,
     is_etf_symbol,
@@ -245,12 +246,13 @@ def calculate_option_ev_and_pop(
     p = max(0.01, premium)
     s_be = strike - p  # Break-even price
     
-    # Dual-Damping Volatility Estimator:
+    # Forward-Looking Damped Volatility Estimator:
     # 1. Base on realized HV (historical baseline)
-    # 2. Bound sigma to at most 1.5x IV (prevents single-day gap-down spikes from distorting forward EV)
+    # 2. Bound sigma to at most 1.15x IV when IV has compressed below HV post-drop (panic cleared).
+    #    This eliminates backward-looking drop spike distortion while preserving authentic downside tail risk.
     raw_sigma = hv if hv > 0 else (iv if iv > 0 else 0.25)
     if iv > 0:
-        sigma = min(raw_sigma, 1.5 * iv)
+        sigma = min(raw_sigma, 1.15 * iv)
     else:
         sigma = raw_sigma
     sigma = max(0.08, sigma)
@@ -334,12 +336,15 @@ def calculate_sell_put_score(
     ev_apy: Optional[float] = None,
     ev_dollar: Optional[float] = None,
     pop: Optional[float] = None,
+    fcf_margin: Optional[float] = None,
+    return_30d: Optional[float] = None,
+    is_wash_sale_risk: bool = False,
 ) -> Tuple[float, float, float, float, float, float]:
     """
     Calculate the Institutional Multi-Factor Quantitative Score for Sell Put (0-100 scale).
 
     Formula:
-        Total Score = 0.50 * S_Price + 0.30 * S_Safety + 0.20 * S_OptionAlpha - Trend_Penalty + Bonuses
+        Total Score = 0.40 * S_Price + 0.30 * S_Safety + 0.30 * S_OptionAlpha - Trend_Penalty + Bonuses
 
     Returns:
         (total_score, s_price, s_safety, s_yield, s_iv, trend_penalty)
@@ -351,23 +356,50 @@ def calculate_sell_put_score(
     c_yield = float(annualized_yield) if annualized_yield is not None and not np.isnan(float(annualized_yield)) else 0.0
     c_hv = float(curr_hv) if curr_hv is not None and not np.isnan(float(curr_hv)) else 20.0
     safe_ivp = float(ivp) if ivp is not None and not np.isnan(float(ivp)) else 50.0
+    c_dte = max(1, int(dte)) if dte is not None else 30
+
+    # DTE 30~45d Sweet Spot Efficiency Convex Curve:
+    # 28 <= DTE <= 45: Golden Harvesting Zone (1.00x full efficiency)
+    # DTE < 28: Ultra-short Gamma risk zone (smooth convex reduction down to 0.82 at DTE=15)
+    # DTE > 45: Capital lockup zone (smooth linear reduction down to 0.90 at DTE=60)
+    if 28 <= c_dte <= 45:
+        dte_eff = 1.00
+    elif c_dte < 28:
+        dte_eff = 1.00 - (((28 - c_dte) / 13.0) ** 1.2) * 0.18
+    else:
+        dte_eff = max(0.85, 1.00 - ((c_dte - 45) / 15.0) * 0.10)
+
+    c_yield = c_yield * dte_eff
 
     trend_penalty = 0.0
+    if c_dte < 20:
+        # Smooth Gamma spike penalty for ultra-short expirations (up to 3.0 pts at DTE=15)
+        trend_penalty += ((20 - c_dte) / 5.0) * 3.0
+
+    if is_wash_sale_risk:
+        # Wash Sale Tax Loss Disallowance Penalty (10.0 pts)
+        trend_penalty += 10.0
+
     is_etf = is_etf_symbol(ticker)
     is_high_quality = is_etf or (f_score is not None and f_score >= 7 and not is_fcf_negative) or (insider_sentiment == "net_buying")
+    is_moderate_quality = (f_score is not None and f_score >= 5 and not is_fcf_negative)
 
-    # 1. Option Alpha & Mathematical Expectation Factor (S_OptionAlpha - 20% Weight)
+    # 1. Option Alpha & Mathematical Expectation Factor (S_OptionAlpha - 30% Weight)
     # Blends 70% Pure EV APY (Square-Root Smooth Saturation Mapping) + 30% Volatility/Skew Structure
     if ev_apy is not None and not np.isnan(float(ev_apy)):
-        valid_ev_apy = float(ev_apy)
+        valid_ev_apy = float(ev_apy) * dte_eff
         valid_ev_dollar = float(ev_dollar) if ev_dollar is not None and not np.isnan(float(ev_dollar)) else 0.0
         if valid_ev_dollar <= 0.0:
             if is_high_quality:
                 # Quality moat assets: In a vol-compressed dip, assignment is equity accumulation, not a cash loss
                 s_ev = min(60.0, max(15.0, 50.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
+            elif is_moderate_quality:
+                # Moderate quality with positive cash flow: mild assignment discount value
+                s_ev = min(40.0, max(10.0, 35.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
             else:
                 s_ev = 0.0
-                trend_penalty += 15.0  # Mathematical negative expectation penalty for non-quality assets
+            # NOTE: Eliminated external trend_penalty += 15.0 double penalty.
+            # Compressed EV naturally yields low s_ev (0~15) without artificial double-counting.
         else:
             # Square-root smooth saturation mapping: sqrt(EV_APY / 20.0%) * 100
             s_ev = min(100.0, max(0.0, 100.0 * math.sqrt(max(0.0, valid_ev_apy) / 20.0)))
@@ -396,37 +428,56 @@ def calculate_sell_put_score(
     # Unified Option Alpha Factor
     s_option_alpha = float(np.clip(0.70 * s_ev + 0.30 * s_vol, 0.0, 100.0))
 
-    # 2. Base Safety & Price Factors (S_Price - 50%, S_Safety - 30%)
+    # 2. Base Safety & Price Factors (S_Price - 40%, S_Safety - 30%, S_OptionAlpha - 30%)
     # Net Acquisition Basis = Strike - Premium (Actual net cost if assigned)
     net_basis = (c_strike - mark) if (mark is not None and mark > 0) else c_strike
     eval_price = min(c_price, net_basis)  # Reward OTM strike & premium discount
 
     base_safety = (1.0 - abs(c_delta)) * 100.0
-    if is_long_bull(ticker, hv=curr_hv):
-        s_sma = float(sma_200) if sma_200 is not None and not np.isnan(float(sma_200)) else c_price
-        dev = (eval_price - s_sma) / s_sma if s_sma > 0 else 0.0
-        spot_dev = (c_price - s_sma) / s_sma if s_sma > 0 else 0.0
-        # Hard cap dev at -15%
-        capped_dev = max(-0.15, dev)
-        s_price = min(100.0, 70.0 - capped_dev * 600.0) if dev <= 0.00 else max(0.0, 70.0 - dev * 700.0)
-        if spot_dev <= 0.00:
-            s_safety = 100.0
-        elif spot_dev <= 0.05:
-            s_safety = max(base_safety, 100.0 - (spot_dev / 0.05) * (100.0 - base_safety))
-        else:
-            s_safety = base_safety
+
+    # ==================== Dual-Anchor Max-Discount Valuation Engine ====================
+    # Simultaneously evaluates both Long-Cycle 200 SMA Deviation and 52-Week High-Low Relative Position,
+    # fusing the maximum advantage discount to eliminate single-indicator blind spots (e.g. post-spike drops & bottom lag).
+
+    # Anchor 1: 200-day Moving Average Deviation
+    s_sma = float(sma_200) if sma_200 is not None and not np.isnan(float(sma_200)) else c_price
+    dev = (eval_price - s_sma) / s_sma if s_sma > 0 else 0.0
+    spot_dev = (c_price - s_sma) / s_sma if s_sma > 0 else 0.0
+
+    if dev <= 0.00:
+        s_price_sma = 50.0 + min(50.0, (abs(dev) / 0.35) * 50.0)
     else:
-        s_low = float(low_52w) if low_52w is not None and not np.isnan(float(low_52w)) else c_price * 0.8
-        s_high = float(high_52w) if high_52w is not None and not np.isnan(float(high_52w)) else c_price * 1.2
-        rp = (eval_price - s_low) / (s_high - s_low) if (s_high - s_low) > 0 else 0.5
-        spot_rp = (c_price - s_low) / (s_high - s_low) if (s_high - s_low) > 0 else 0.5
-        s_price = min(100.0, 70.0 + (0.20 - rp) * 200.0) if rp <= 0.20 else max(0.0, 70.0 - (rp - 0.20) * 87.5)
-        if spot_rp <= 0.20:
-            s_safety = 100.0
-        elif spot_rp <= 0.35:
-            s_safety = max(base_safety, 100.0 - ((spot_rp - 0.20) / 0.15) * (100.0 - base_safety))
-        else:
-            s_safety = base_safety
+        s_price_sma = max(0.0, 50.0 - (dev / 0.30) * 50.0)
+
+    if spot_dev <= 0.00:
+        val_safety_bonus_sma = min(10.0, abs(spot_dev) * 50.0)
+    elif spot_dev <= 0.05:
+        val_safety_bonus_sma = max(0.0, (0.05 - spot_dev) * 200.0)
+    else:
+        val_safety_bonus_sma = 0.0
+
+    # Anchor 2: 52-Week High-Low Relative Position (RP)
+    s_low = float(low_52w) if low_52w is not None and not np.isnan(float(low_52w)) else c_price * 0.8
+    s_high = float(high_52w) if high_52w is not None and not np.isnan(float(high_52w)) else c_price * 1.2
+    rp = (eval_price - s_low) / (s_high - s_low) if (s_high - s_low) > 0 else 0.5
+    spot_rp = (c_price - s_low) / (s_high - s_low) if (s_high - s_low) > 0 else 0.5
+
+    if rp <= 0.50:
+        s_price_rp = 50.0 + min(50.0, ((0.50 - rp) / 0.60) * 50.0)
+    else:
+        s_price_rp = max(0.0, 50.0 - ((rp - 0.50) / 0.50) * 50.0)
+
+    if spot_rp <= 0.20:
+        val_safety_bonus_rp = min(10.0, (0.20 - spot_rp) * 50.0)
+    elif spot_rp <= 0.35:
+        val_safety_bonus_rp = max(0.0, (0.35 - spot_rp) / 0.15 * 10.0)
+    else:
+        val_safety_bonus_rp = 0.0
+
+    # Dual-Anchor Fusion: Maximize valuation & safety edge across both 200 SMA and 52w Range
+    s_price = float(max(s_price_sma, s_price_rp))
+    val_safety_bonus = float(max(val_safety_bonus_sma, val_safety_bonus_rp))
+    s_safety = float(np.clip(base_safety + val_safety_bonus, 0.0, 100.0))
 
     # Max Pain gravitational adjustment (continuous smooth ramp between -5% and +5% deviation)
     if max_pain is not None and max_pain > 0 and not np.isnan(float(max_pain)) and c_price > 0:
@@ -434,45 +485,69 @@ def calculate_sell_put_score(
         delta_pain = float(np.clip(d_pain / 5.0 * 4.0, -4.0, 4.0))
         s_safety = float(np.clip(s_safety + delta_pain, 0.0, 100.0))
 
-    # Three-Pillars Base Score: 50% Price + 30% Safety + 20% Option Alpha
-    base_score = 0.50 * s_price + 0.30 * s_safety + 0.20 * s_option_alpha
+    # Three-Pillars Base Score: 40% Price + 30% Safety + 30% Option Alpha
+    base_score = 0.40 * s_price + 0.30 * s_safety + 0.30 * s_option_alpha
 
-    # 3. Smart Drop Classifier & Fundamental Defense
-    # Classifies drops into:
-    # 1. 🟢 Contrarian Opportunity (Golden Pit): High quality (F>=7, positive FCF, or ETF, or net buying) + knife_level 1 or 2
-    #    -> 100% exempt from knife penalty + awards +4.0 pt contrarian golden pit bonus!
-    # 2. 🟡 Pure Technical Drop: Normal quality (F 4-6) + knife_level 1 or 2
-    #    -> Modest defensive penalty (ETF: 5/12.5 pts; Equities: 7.5/15.0 pts)
-    # 3. 🔴 Toxic Knife / Financial Collapse: F <= 3, structural negative FCF with big drop, heavy selling, or knife_level 3 (>35% black swan drop)
-    #    -> Severe penalty (-50.0 pts veto)
+    # 3. Continuous Free Cash Flow (FCF) Margin Penalty
+    fcf_penalty = 0.0
+    if not is_etf:
+        if fcf_margin is not None and not np.isnan(float(fcf_margin)):
+            f_margin = float(fcf_margin)
+            if f_margin < 0.0:
+                m_pct = abs(f_margin) * 100.0 if abs(f_margin) <= 1.0 else abs(f_margin)
+                # Smooth continuous linear ramp: from 0% loss to -20% loss linearly scales 0 to 15.0 pts
+                fcf_penalty = min(15.0, (m_pct / 20.0) * 15.0)
+        elif is_fcf_negative:
+            fcf_penalty = 10.0
+    trend_penalty += fcf_penalty
+
+    # 4. Smart Drop Classifier & Continuous Falling Knife Defense
     contrarian_gold_bonus = 0.0
-    is_contrarian_candidate = (knife_level in (1, 2)) and (
-        is_etf or (f_score is not None and f_score >= 7 and not is_fcf_negative) or (insider_sentiment == "net_buying")
+    is_toxic_knife = (
+        (fcf_penalty >= 7.5)
+        or (f_score is not None and f_score <= 3)
+        or (insider_sentiment == "heavy_selling")
     )
-    is_toxic_knife = is_fcf_negative or (f_score is not None and f_score <= 3) or (insider_sentiment == "heavy_selling")
+    is_contrarian_candidate = is_etf or (
+        (f_score is not None and f_score >= 7 and not is_toxic_knife)
+        or (insider_sentiment == "net_buying")
+    )
 
-    if knife_level == 3:
-        # Black swan level drop (>35% stock / >22% ETF): Hard circuit breaker defense
-        trend_penalty += 50.0
-    elif knife_level in (1, 2):
-        if is_contrarian_candidate and not is_toxic_knife:
-            # 🟢 Golden Pit: 100% exempt from knife penalty + reward contrarian value entry!
-            contrarian_gold_bonus = 4.0
-        elif is_toxic_knife:
-            # 🔴 Toxic Knife: Full heavy trend penalty for deteriorated stocks
-            if is_etf:
-                trend_penalty += 10.0 if knife_level == 1 else 25.0
-            else:
-                trend_penalty += 15.0 if knife_level == 1 else 30.0
-        else:
-            # 🟡 Normal stock: Moderate defensive penalty
-            if is_etf:
-                trend_penalty += 5.0 if knife_level == 1 else 12.5
-            else:
-                trend_penalty += 7.5 if knife_level == 1 else 15.0
+    # Resolve 30d drop percentage: prefer explicit return_30d if provided, else infer from knife_level
+    if return_30d is not None and not np.isnan(float(return_30d)):
+        raw_ret = float(return_30d)
+        drop_pct = abs(raw_ret * 100.0) if abs(raw_ret) <= 1.0 else abs(raw_ret)
+        is_negative_return = raw_ret < 0.0
+    elif knife_level > 0:
+        is_negative_return = True
+        drop_pct = 36.0 if knife_level == 3 else (26.0 if knife_level == 2 else 16.0)
+    else:
+        is_negative_return = False
+        drop_pct = 0.0
 
-    if is_fcf_negative:
-        trend_penalty += 10.0
+    if is_negative_return:
+        black_swan_threshold = 22.0 if is_etf else 35.0
+        if drop_pct >= black_swan_threshold:
+            # ⛔ Black Swan Drop Circuit Breaker (>35% stock / >22% ETF): 50 pt veto
+            trend_penalty += 50.0
+        elif drop_pct > 10.0:
+            if is_contrarian_candidate and not is_toxic_knife:
+                # 🟢 Contrarian Golden Pit: 100% exempt from knife penalty + continuous smooth golden pit reward (up to +4.0 pts)
+                contrarian_gold_bonus = min(4.0, ((drop_pct - 10.0) / 15.0) * 4.0)
+            elif is_toxic_knife:
+                # 🔴 Toxic Falling Knife: steep non-linear quadratic penalty for fundamentally deteriorating assets
+                toxic_mult = 1.3 if not is_etf else 1.0
+                trend_penalty += min(
+                    30.0,
+                    ((drop_pct - 10.0) / (black_swan_threshold - 10.0)) ** 1.3 * 30.0 * toxic_mult,
+                )
+            else:
+                # 🟡 Pure Technical Normal Pullback: smooth continuous quadratic ramp (no 14.9% vs 15.1% step cliff)
+                norm_mult = 1.0 if not is_etf else 0.7
+                trend_penalty += min(
+                    15.0,
+                    ((drop_pct - 10.0) / (black_swan_threshold - 10.0)) ** 1.2 * 15.0 * norm_mult,
+                )
 
     # Piotroski F-Score Multi-Tier Smooth Health Ladder
     f_score_bonus = 0.0
@@ -480,7 +555,7 @@ def calculate_sell_put_score(
         try:
             f_val = int(f_score)
             if f_val <= 2:
-                trend_penalty += 50.0  # Collapse / severe distress veto
+                trend_penalty += 100.0  # Collapse / severe distress veto (hard elimination)
             elif f_val == 3:
                 trend_penalty += 20.0  # High financial risk alert
             elif f_val == 4:
@@ -527,14 +602,28 @@ def calculate_sell_put_score(
         elif m_earnings >= 1.50:
             earnings_safety_bonus = 3.0  # Mathematically deep beyond 1.5-sigma jump
 
-    # Extreme Debt continuous smooth ramp
+    # Extreme Debt continuous smooth ramp (Sector-Adapted & Cash Flow Protected)
     debt_penalty = 0.0
+    CAPITAL_INTENSIVE_TICKERS = {
+        "VST", "CEG", "NRG", "NEE", "DUK", "SO", "AEP", "SRE", "XEL", "ED",
+        "PEG", "WEC", "ES", "D", "AMT", "CCI", "EQIX", "PLD", "PSA", "O",
+        "SPG", "VICI", "WELL", "DLR", "SBAC", "XLU", "VNQ", "XLRE"
+    }
+    is_cap_intensive = ticker in CAPITAL_INTENSIVE_TICKERS or ticker in CYCLICAL_MACRO_ETF_TICKERS
+    low_de_thresh = 300.0 if is_cap_intensive else 180.0
+    high_de_thresh = 550.0 if is_cap_intensive else 320.0
+
     if isinstance(is_heavy_debt, (int, float)) and not isinstance(is_heavy_debt, bool):
         de_val = float(is_heavy_debt)
-        if de_val > 180.0:
-            debt_penalty = min(15.0, (de_val - 180.0) / (320.0 - 180.0) * 15.0)
+        if de_val > low_de_thresh:
+            raw_debt_pen = min(15.0, (de_val - low_de_thresh) / (high_de_thresh - low_de_thresh) * 15.0)
+            # Cash Flow & Solvency Protection: If FCF is positive and company is financially healthy (F >= 6), halve the penalty
+            if not is_fcf_negative and (f_score is not None and f_score >= 6):
+                debt_penalty = raw_debt_pen * 0.5
+            else:
+                debt_penalty = raw_debt_pen
     elif is_heavy_debt:
-        debt_penalty = 15.0
+        debt_penalty = 7.5 if (not is_fcf_negative and is_cap_intensive) else 15.0
     trend_penalty += debt_penalty
 
     # High POP continuous smooth win-rate reward (in range 75% ~ 90% up to +3.0 pts)
@@ -544,7 +633,22 @@ def calculate_sell_put_score(
         if pop_val >= 75.0:
             pop_bonus = min(3.0, max(0.0, (pop_val - 75.0) / 15.0 * 3.0))
 
-    total_score = max(0.0, base_score - trend_penalty + f_score_bonus + insider_bonus + pcr_bonus + earnings_safety_bonus + pop_bonus + contrarian_gold_bonus)
+    # 5. Volatility Compression / Panic Cleared Bottoming Signal
+    # Condition: Underlying has had a pullback (spot_dev <= -0.06, drop >= 8%, or spot_rp <= 0.25)
+    # AND IV has compressed (safe_ivp <= 30.0% or IV is low while HV is high)
+    # AND asset is fortress quality (is_high_quality and not is_toxic_knife)
+    # -> Signals panic premium exhaustion and steady bottoming consolidation (+2.5 pts bonus)
+    vol_bottom_bonus = 0.0
+    has_pullback = (
+        (is_long_bull(ticker, hv=curr_hv) and spot_dev <= -0.06)
+        or (not is_long_bull(ticker, hv=curr_hv) and spot_rp <= 0.25)
+        or (drop_pct >= 8.0)
+    )
+    is_vol_compressed = (safe_ivp <= 30.0) or (c_hv > 0 and (safe_ivp <= 40.0 and c_hv >= 35.0))
+    if has_pullback and is_vol_compressed and is_high_quality and not is_toxic_knife:
+        vol_bottom_bonus = min(3.5, max(1.5, ((30.0 - min(30.0, safe_ivp)) / 30.0) * 2.0 + 1.5))
+
+    total_score = max(0.0, base_score - trend_penalty + f_score_bonus + insider_bonus + pcr_bonus + earnings_safety_bonus + pop_bonus + contrarian_gold_bonus + vol_bottom_bonus)
     return total_score, s_price, s_safety, s_option_alpha, s_ev, trend_penalty
 
 
@@ -697,7 +801,7 @@ def get_recommendation_reason(
     if wash_sale_history_map and ticker in wash_sale_history_map:
         info_list = wash_sale_history_map[ticker]
         unlock_dts = ", ".join([f"{item['unlock_date']}" for item in info_list])
-        wash_text = f" <span style='color: #f87171; font-weight: bold;'>[🚨Wash Sale 避税风险预警：该标在近30天内有平仓亏损记录，在 {unlock_dts} 解封前买入或卖Put将导致亏损无法当期抵税！]</span>"
+        wash_text = f" <span style='color: #f87171; font-weight: bold;'>[🚨Wash Sale 避税风险预警 (-10分)：该标在近30天内有平仓亏损记录，在 {unlock_dts} 解封前买入或卖Put将导致亏损无法当期抵税！]</span>"
 
     # Max Pain badge
     max_pain = opt.get('max_pain')
@@ -735,9 +839,18 @@ def get_recommendation_reason(
             ev_badge = f" <span style='color: #0ea5e9; font-weight: bold; background: rgba(14, 165, 233, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(14, 165, 233, 0.3);'>[🟢 稳健收租 (POP {pop:.0f}%)]</span>"
         else:
             # Deep negative EV (< -150)
-            if is_high_qual:
+            if is_high_qual or (f_score_val is not None and f_score_val >= 5 and not opt.get('is_fcf_negative')):
                 ev_badge = f" <span style='color: #8b5cf6; font-weight: bold; background: rgba(139, 92, 246, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(139, 92, 246, 0.3);'>[💎 折扣建仓 (POP {pop:.0f}%)]</span>"
             else:
                 ev_badge = f" <span style='color: #f59e0b; font-weight: bold; background: rgba(245, 158, 11, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.3);'>[⚠️ 收益偏薄 (POP {pop:.0f}%)]</span>"
 
-    return f"{pos_text} {iv_text} {risk_text}{ev_badge}{pain_badge}{skew_badge}{pcr_badge}{quality_badge}{insider_badge}{earnings_cross_text}{debt_badge}{liq_text}{knife_text}{wash_text}"
+    # Panic Cleared / Vol-Compression Bottoming badge
+    vol_bottom_badge = ""
+    opt_ivp_val = opt.get('ivp', 50.0)
+    ret_30_val = mdata.get('return_30d', 0.0)
+    s_sma_val = mdata.get('sma_200')
+    s_dev_val = (curr_price - s_sma_val) / s_sma_val if s_sma_val and s_sma_val > 0 else 0.0
+    if (ret_30_val <= -0.08 or s_dev_val <= -0.06) and (opt_ivp_val is not None and opt_ivp_val <= 30.0) and is_high_qual:
+        vol_bottom_badge = " <span style='color: #a78bfa; font-weight: bold; background: rgba(167, 139, 250, 0.15); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(167, 139, 250, 0.4);'>[🕊️ 恐慌出清·筑底信号]</span>"
+
+    return f"{pos_text} {iv_text} {risk_text}{ev_badge}{vol_bottom_badge}{pain_badge}{skew_badge}{pcr_badge}{quality_badge}{insider_badge}{earnings_cross_text}{debt_badge}{liq_text}{knife_text}{wash_text}"

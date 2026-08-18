@@ -4,7 +4,7 @@
 > **最赚钱的 4 门生意 —— 开赌场，卖保险，收租子，放贷子。收割恐惧（Vega），贪婪（Gamma），时间（Theta），空间（Delta）。**
 
 [![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-29%20passed-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-38%20passed-brightgreen.svg)](tests/)
 [![Architecture](https://img.shields.io/badge/architecture-modular%20decoupled-purple.svg)](src/option_quant/)
 [![Interactive Report](https://img.shields.io/badge/sample%20report-live%20preview-emerald.svg)](https://iamtroyh.github.io/the-sell-put-king/examples/sample_report_en.html)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -32,7 +32,33 @@ Production-grade quantitative options engine for **Sell Put (Cash Secured Put)**
 
 ## Quickstart & Master Workflow Guide
 
-After cloning the repository, launch the complete quantitative options screening, portfolio review, and watchlist synchronization pipeline in **3 simple steps**:
+### ⚡ 5-Minute Quick Start (快速启动指引)
+
+Get up and running in **5 simple terminal commands**:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/YOUR_USERNAME/the-sell-put-king.git
+cd the-sell-put-king
+
+# 2. Install Python dependencies
+pip install -r requirements.txt
+
+# 3. Initialize configuration template
+cp config/credentials.json.example config/credentials.json
+
+# 4. (Optional) Set your Robinhood Account ID for live MCP sync
+# Edit config/credentials.json OR export via environment variable:
+export ROBINHOOD_ACCOUNT_ID="YOUR_ACCOUNT_ID_HERE"
+
+# 5. Run the master quantitative options research pipeline
+python3 -u scripts/run_research.py
+
+# 6. Open the interactive visual trading dashboard
+open report.html
+```
+
+---
 
 ### Step 1: Clone Repository & Install Dependencies
 ```bash
@@ -54,7 +80,9 @@ chmod 600 config/credentials.json
 Populate your Robinhood Account ID inside `config/credentials.json` (or export via environment variable `export ROBINHOOD_ACCOUNT_ID="YOUR_ACCOUNT_ID"`):
 ```json
 {
-  "robinhood_account_id": "YOUR_ROBINHOOD_ACCOUNT_ID"
+  "robinhood_account_id": "YOUR_ROBINHOOD_ACCOUNT_ID",
+  "account_type": "Joint Tenancy",
+  "marketdata_token": "OPTIONAL_MARKETDATA_TOKEN"
 }
 ```
 *(Note: If operating in Standalone mode with Schwab, Fidelity, IBKR, Webull, or no MCP, skip this step).*
@@ -71,7 +99,7 @@ Open the project workspace in your MCP-equipped AI coding environment and issue 
 
 | Command to Agent | Pipeline Execution Flow | Target Scenario & Deliverables |
 | :--- | :--- | :--- |
-| **`research`** | 1. Ingests unleveraged buying power, active option/stock positions, and past 30-day Wash Sale losses;<br>2. Concurrently scans 80+ blue-chip equities & ETFs for 200-SMA and 52-week valuation troughs;<br>3. Fetches DTE 15~60 option chains, executing Three-Pillar 30/30/40 quantitative scoring (Valuation Floor, Cushion & Max Pain, Option Alpha EV expectation, Kelly sizing, True IVP/IVR, Panic Skew, Piotroski & Insider Sentiment);<br>4. Compiles the interactive research dashboard [`report.html`](report.html);<br>5. Synchronizes top-ranked candidates to Robinhood App `Sell Put Candidate` Watchlist via LIFO reverse insertion. | **Daily / Weekly Portfolio Review**.<br>One-click portfolio action plan, market-wide opening recommendations, and mobile watchlist update. |
+| **`research`** | 1. Ingests unleveraged buying power, active option/stock positions, and past 30-day Wash Sale losses;<br>2. Concurrently scans 80+ blue-chip equities & ETFs for 200-SMA and 52-week valuation troughs;<br>3. Fetches DTE 15~60 option chains, executing Three-Pillar 40/30/30 quantitative scoring (Valuation Floor, Cushion & Max Pain, Option Alpha EV expectation, Kelly sizing, True IVP/IVR, Panic Skew, Piotroski & Insider Sentiment);<br>4. Compiles the interactive research dashboard [`report.html`](report.html);<br>5. Synchronizes top-ranked candidates to Robinhood App `Sell Put Candidate` Watchlist via LIFO reverse insertion. | **Daily / Weekly Portfolio Review**.<br>One-click portfolio action plan, market-wide opening recommendations, and mobile watchlist update. |
 | **`research <TICKER>`**<br>*(e.g. `research AAPL` or `research LULU`)* | 1. Triggers the [`InvestSkill`](https://github.com/yennanliu/InvestSkill) 15-module institutional equity research engine;<br>2. Executes moat evaluation, 5-year DCF scenario valuation, bear-case red-team stress test, and 3-tier Sell Put gradient modeling;<br>3. Generates a standalone HTML report in `~/InvestSkill/output/` and embeds it seamlessly into Tab 2 of [`report.html`](report.html). | **Single-Stock Deep Dive**.<br>Comprehensive fundamental penetration and assignment suitability verification. |
 | **`sync`**<br>*(or: `refresh watchlist` / `update positions`)* | 1. Refreshes live balances and open positions;<br>2. Recalculates portfolio Delta notional exposure and leverage ratio;<br>3. Re-pushes candidate rankings to Robinhood Watchlist. | **Intraday Quick Sync**.<br>Fast balance calibration and mobile watchlist alignment. |
 
@@ -247,27 +275,30 @@ flowchart TD
 
 ## Quantitative Multi-Factor Scoring Models & Risk Controls
 
-### 1. Sell Put Three-Pillar Multi-Factor Scoring Model (50 / 30 / 20)
-$$\text{Total Score} = \max\left(0, 0.50 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.20 \times S_{\text{OptionAlpha}} - \text{Penalties} + \text{Bonuses}\right)$$
+### 1. Sell Put Three-Pillar Multi-Factor Scoring Model (40 / 30 / 30)
+$$\text{Total Score} = \max\left(0, 0.40 \times S_{\text{Price}} + 0.30 \times S_{\text{Safety}} + 0.30 \times S_{\text{OptionAlpha}} - \text{Penalties} + \text{Bonuses}\right)$$
 
 | Factor Pillar | Weight | Underlying Quantitative Drivers & Formulations | Strategic & Risk Objectives |
 | :--- | :---: | :--- | :--- |
-| **Pillar 1: Valuation Floor ($S_{\text{Price}}$)** | 50% | **Long-Bull Equities**: Deviation $Dev = \frac{\text{Price} - \text{SMA}_{200}}{\text{SMA}_{200}}$ (truncated floor at **-15.0%** to prevent knife skew). If $Dev \le 0.0$, $S_{\text{Price}} = \min(100, 70 - Dev \times 600)$; else $S_{\text{Price}} = \max(0, 70 - Dev \times 700)$.<br>**High-Vol Growth Assets**: 52-week position $RP = \frac{\text{Price} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. If $RP \le 0.20$, $S_{\text{Price}} = \min(100, 70 + (0.20 - RP) \times 200)$; else $S_{\text{Price}} = \max(0, 70 - (RP - 0.20) \times 87.5)$. | Enforces disciplined value-entry and margin of safety (50% fundamental weight); ensures only deep-value or mean-reverting assets rank at the top. |
-| **Pillar 2: Safety Cushion & Gravitational Barrier ($S_{\text{Safety}}$)** | 30% | **Contract Safety Cushion**: Base $S_{\text{Safety}} = (1 - \vert\text{Delta}\vert) \times 100$. For valuation-trough assets ($Dev \le 0$ or $RP \le 0.20$), smooth scaling transitions toward 100.<br>**Max Pain Pinning Barrier ($\Delta_{\text{Pain}}$)**: Adds **+4.0 pts** if strike $\le \text{Max Pain} \times 0.95$ (options magnet pinning support); deducts **-4.0 pts** if strike is pinned in gravitational headwind above Max Pain. | Prevents pure EV model bias from selecting dangerous near-the-money (ATM) strikes; rewards structural pinning defenses. |
-| **Pillar 3: Mathematical Expectation & Option Alpha ($S_{\text{OptionAlpha}}$)** | 20% | **Unified Option Alpha Engine**: $S_{\text{OptionAlpha}} = 0.70 \times S_{\text{EV\_APY}} + 0.30 \times S_{\text{Vol}}$.<br>• **Square-Root Smooth Saturation EV ($S_{\text{EV\_APY}}$)**: $S_{\text{EV\_APY}} = \min\left(100, 100 \times \sqrt{\frac{\mathbf{EV\ APY}}{20.0\%}}\right)$, where $\text{EV} = 100 \times [P_{\text{market}} - \text{BS\_Put}(\text{HV})]$ under lognormal distribution. Prevents low-volatility anchor assets (e.g. TLT, MCD) from being artificially penalized while preserving reward for high-volatility alpha.<br>• **Tri-Factor Volatility Surface ($S_{\text{Vol}}$)**: $S_{\text{Vol}} = 0.50 \times \text{IVP} + 0.20 \times \text{IVR} + 0.30 \times S_{\text{Skew}}$ utilizing true 252-day implied volatility percentiles and 25-Delta panic put skew. | Balances mathematical expectation and volatility mispricing without letting pure premium thickness overwhelm fundamental valuation and safety. |
+| **Pillar 1: Dual-Anchor Max-Discount Valuation Floor ($S_{\text{Price}}$)** | 40% | **Dual-Anchor Engine**: Concurrently evaluates 200 SMA Deviation ($S_{\text{Price\_SMA}}$) and 52-Week High-Low Relative Position ($S_{\text{Price\_RP}}$) with 50-baseline symmetric normalization, taking the maximum advantage discount: $S_{\text{Price}} = \max(S_{\text{Price\_SMA}}, S_{\text{Price\_RP}})$.<br>• **Long-Bull Anchor**: $Dev_{\text{basis}} = \frac{\text{Net Basis} - \text{SMA}_{200}}{\text{SMA}_{200}}$ (floor at -15.0%). If $Dev \le 0.0$, $S_{\text{Price\_SMA}} = 50.0 + \min(50.0, \frac{\|Dev\|}{35.0\%} \times 50.0)$; else $S_{\text{Price\_SMA}} = \max(0, 50.0 - \frac{Dev}{30.0\%} \times 50.0)$.<br>• **High-Vol Anchor**: $RP_{\text{basis}} = \frac{\text{Net Basis} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. If $RP \le 0.50$, $S_{\text{Price\_RP}} = 50.0 + \min(50.0, \frac{0.50 - RP}{0.60} \times 50.0)$; else $S_{\text{Price\_RP}} = \max(0, 50.0 - \frac{RP - 0.50}{0.50} \times 50.0)$. | Rewards deep OTM strike discounts on net acquisition basis $\text{Net Basis} = \min(\text{Spot}, K - P_{\text{market}})$; eliminates single-anchor classification bias. |
+| **Pillar 2: Safety Cushion & Gravitational Barrier ($S_{\text{Safety}}$)** | 30% | **Contract Safety Cushion**: $S_{\text{Safety}} = \text{clip}\left((1 - \vert\text{Delta}\vert) \times 100 + \max(\text{Valuation\_Bonus}_{\text{SMA}}, \text{Valuation\_Bonus}_{\text{RP}}) + \Delta_{\text{Pain}}, 0, 100\right)$.<br>• **Continuous Valuation Safety Bonus**: $\text{Valuation\_Bonus}_{\text{SMA}} = \min(10.0, \|Dev_{\text{spot}}\| \times 50.0)$, $\text{Valuation\_Bonus}_{\text{RP}} = \min(10.0, (0.20 - RP_{\text{spot}}) \times 50.0)$.<br>• **Max Pain Pinning Barrier ($\Delta_{\text{Pain}}$)**: Continuous smooth linear ramp $\Delta_{\text{Pain}} = \text{clip}\left(\frac{d_{\text{pain}}}{5.0\%} \times 4.0, -4.0, +4.0\right)$. | Prevents model bias from selecting dangerous ATM strikes; rewards deep safety cushions and structural option magnet pinning defenses. |
+| **Pillar 3: Mathematical Expectation & Option Alpha ($S_{\text{OptionAlpha}}$)** | 30% | **Unified Option Alpha Engine**: $S_{\text{OptionAlpha}} = 0.70 \times S_{\text{EV\_APY}} + 0.30 \times S_{\text{Vol}}$.<br>• **Square-Root Saturation EV ($S_{\text{EV\_APY}}$)**: $S_{\text{EV\_APY}} = \min\left(100, 100 \times \sqrt{\frac{\mathbf{EV\ APY}}{20.0\%}}\right)$, driven by closed-form lognormal Black-Scholes expectation $\text{EV} = 100 \times [P_{\text{exec}} - \text{BS\_Put}(\text{HV}_{\text{effective}})]$.<br>• **Forward-Looking Sigma Damping**: Dampens $\sigma = \min(\text{raw\_sigma}, 1.15 \times \text{IV})$ when IV cools post-drop, eliminating backward-looking jump distortion.<br>• **4-Tier Action Taxonomy**: `💰 Premium Harvesting` ($\text{EV} > +\$10, \text{IVP} \ge 35\%$), `🟢 Steady Harvesting` ($-\$150 \le \text{EV} \le +\$10$), `💎 Discount Assignment` ($\text{EV} < -\$150$ on fortress assets / ETFs), and `⚠️ Thin Yield` ($\text{EV} < -\$150$ on non-quality assets).<br>• **Tri-Factor Volatility Surface ($S_{\text{Vol}}$)**: $S_{\text{Vol}} = 0.50 \times \text{IVP} + 0.20 \times \text{IVR} + 0.30 \times S_{\text{Skew}}$ utilizing true 252d implied volatility percentiles and 25-Delta panic put skew. | Balances pure Theta harvesting and volatility mispricing while protecting fortress equity accumulation during volatility troughs. |
 
 #### Calibrated Risk Penalties & Fortress Bonuses ($\text{Penalties}$ & $\text{Bonuses}$)
-- **Stepped Falling Knife Penalty**:
-  * **Individual Equities**: 30-day drop > 15% deducts **15 pts**; > 25% deducts **30 pts**; > 35% triggers **Black Swan Veto (Disqualification)**.
-  * **Broad / Sector ETFs**: 30-day drop > 10% deducts **10 pts**; > 16% deducts **25 pts**; > 22% triggers **ETF Veto**.
-- **Negative EV Penalty ($\text{EV} \le 0$)**: If option premium fails to cover underlying statistical down-tail risk, deducts **15 pts**.
-- **Piotroski F-Score Quality Filter**: $F \le 3$ deducts **50 pts** (Veto distressed/accounting risk); $F \ge 7$ awards **+6.0 pts** (calibrated fortress balance sheet bonus).
-- **Structural Negative Free Cash Flow**: Deducts **10 pts** (equities only).
-- **SEC Form 4 Insider Sentiment**: Heavy insider selling ($\ge \$10\text{M}$ net selling) deducts **5 pts**; Net insider buying ($\ge \$500\text{K}$) awards **+5.0 pts**.
-- **Extreme Debt Leverage**: $D/E > 250\%$ with interest coverage $< 3.5\times$ deducts **15 pts** (excludes Financials & Utilities).
-- **Earnings Expected Move Gatekeeper**: If option crosses earnings date and safety cushion $< 1.0 \times \sigma_{\text{earnings}}$, deducts **25 pts**; if cushion $\ge 1.5 \times \sigma_{\text{earnings}}$, awards **+3.0 pts**.
-- **Contrarian Market Fear (PCR)**: Put/Call OI ratio $\ge 1.40$ awards **+3.0 pts** (contrarian bottoming bonus); PCR $\le 0.50$ deducts **3 pts** (complacency penalty).
-- **High POP Certainty Bonus**: Mathematical probability of profit $\text{POP} \ge 86.0\%$ awards **+2.0 pts**.
+- **Smart Drop Classifier**:
+  * 🟢 **Contrarian Golden Pit**: 10%~30% drop on fortress assets ($F \ge 7$ & $\text{FCF} > 0$, or ETF, or Insider Net Buying $\ge \$500\text{K}$) is 100% exempt from knife penalty + awards continuous smooth golden pit bonus up to **+4.0 pts** ($\min(4.0, \frac{\text{drop} - 10\%}{15\%} \times 4.0)$).
+  * 🟡 **Technical Pullback**: Continuous smooth quadratic ramp starting from 10% drop ($\min(15.0, (\frac{\text{drop} - 10\%}{25\%})^{1.2} \times 15.0)$), eliminating step cliffs.
+  * 🔴 **Toxic Falling Knife / Structural Collapse**: Steep non-linear penalty on fundamentally deteriorating assets ($\min(30.0, (\frac{\text{drop} - 10\%}{25\%})^{1.3} \times 30.0 \times 1.3)$).
+  * ⛔ **Black Swan Halt**: 30-day drop > 35% on individual stocks or > 22% on ETFs triggers hard 50 pt veto.
+- **Panic-Cleared Volatility Compression Bottoming Bonus**: Underlying pullback ($\text{drop} \ge 8\%$ or spot $Dev \le -6.0\%$) with calm IV ($\text{IVP} \le 30\%$ or $\text{IV} < \text{HV}$) on fortress assets ($F \ge 7$ & $\text{FCF} > 0$, or broad ETF) awards **+1.5 ~ +3.5 pts** bottoming consolidation bonus and displays `[🕊️ Panic Cleared · Bottoming Signal]`.
+- **DTE 30~45d Sweet Spot Efficiency Curve**: 28~45 DTE is 1.00x full efficiency. Ultra-short ($<28$ DTE) applies smooth convex yield reduction (down to 0.82x at 15 DTE) and Gamma spike penalty (up to 3.0 pts for DTE < 20). Long lockup ($>45$ DTE) applies capital velocity reduction (down to 0.90x at 60 DTE).
+- **Wash Sale Tax Loss Disallowance Penalty**: Tickers with realized loss within 30 days automatically receive **-10.0 pts** tax avoidance penalty and display `[🚨 Wash Sale Tax Disallowance Warning (-10 pts)]`.
+- **Piotroski F-Score Multi-Tier Smooth Health Ladder**: $F \le 2$ deducts 100 pts (severe collapse veto); $F = 3$ deducts 20 pts; $F = 4$ deducts 5 pts; $F = 5$ neutral (0 pts); $F = 6$ rewards +2.5 pts; $F = 7$ rewards +5.0 pts; $F \ge 8$ rewards +7.0 pts.
+- **Structural Negative Free Cash Flow**: Continuous smooth linear penalty based on FCF margin ($\min(15.0, \frac{|\text{Margin}|}{20\%} \times 15.0)$ from 0% down to -20% margin).
+- **Extreme Debt Leverage**: Sector-adapted continuous ramp (Standard 180%~320% D/E; Utilities & Real Estate 300%~550% D/E; halved if positive FCF and $F \ge 6$) up to 15 pts penalty.
+- **SEC Form 4 Insider Sentiment**: Heavy selling ($\ge \$10\text{M}$ net selling) deducts 5 pts; Net buying ($\ge \$500\text{K}$) rewards +5 pts.
+- **Earnings Expected Move Gatekeeper**: Continuous smooth ramp (5~15 pts when $0.60 \le m_{\text{earnings}} < 1.0$; 20 pts when $m_{\text{earnings}} < 0.60$; rewards +3 pts if cushion $\ge 1.5 \times \sigma_{\text{earnings}}$).
+- **Contrarian Market Fear (PCR)**: Continuous smooth ramp ($\ge 0.95$ rewards up to +3.0 pts; $\le 0.70$ deducts up to -3.0 pts).
 
 ---
 
@@ -405,7 +436,7 @@ ev_res = calculate_option_ev_and_pop(
 )
 print(f"Delta: {delta:.2f}, Simple APY: {apy_res['simple_apy']:.1f}%, POP: {ev_res['pop']:.1f}%, EV: ${ev_res['ev_dollar']:+.2f}")
 
-# 2. Compute Three-Pillar Multi-Factor Total Score (30 / 30 / 40)
+# 2. Compute Three-Pillar Multi-Factor Total Score (40 / 30 / 30)
 total_score, s_price, s_safety, s_option_alpha, s_yield, penalty = calculate_sell_put_score(
     ticker="LULU",
     current_price=192.40,

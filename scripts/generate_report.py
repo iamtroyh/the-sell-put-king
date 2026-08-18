@@ -494,19 +494,27 @@ def main():
         is_falling_knife = knife_level > 0
         
         is_fcf_negative = False
+        fcf_margin = None
         if not is_etf:
             f_info = GLOBAL_FUNDAMENTAL_CACHE.get(display_ticker, {}).get("info", {})
             sec_name = SECTOR_MAP.get(display_ticker) or f_info.get('sector', "")
             is_fin_or_reit = sec_name in ['Financial Services', 'Financials', 'Real Estate', 'Utilities']
             fcf = f_info.get('freeCashflow')
+            rev = f_info.get('totalRevenue')
             ocf = f_info.get('operatingCashflow')
             ebitda_margin = f_info.get('ebitdaMargins')
+            
+            if fcf is not None and rev is not None and rev > 0:
+                fcf_margin = (fcf / rev) * 100.0
+
             if is_fin_or_reit:
                 is_fcf_negative = False
+                fcf_margin = None
             elif fcf is not None and fcf < 0:
                 # If operating cashflow is positive and EBITDA margin is healthy, it is M&A amortization/Capex, not operational burn
                 if ocf is not None and ocf > 0 and ebitda_margin is not None and ebitda_margin > 0.08:
                     is_fcf_negative = False
+                    fcf_margin = None
                 else:
                     is_fcf_negative = True
 
@@ -535,7 +543,8 @@ def main():
             'knife_level': knife_level,
             'is_falling_knife': is_falling_knife,
             'is_black_swan': is_black_swan,
-            'is_fcf_negative': is_fcf_negative
+            'is_fcf_negative': is_fcf_negative,
+            'fcf_margin': fcf_margin
         }
         
         # Black swan veto: skip new CSP openings for unheld crashing tickers
@@ -832,6 +841,9 @@ def main():
                     ev_apy=ev_apy,
                     ev_dollar=ev_dollar,
                     pop=pop,
+                    fcf_margin=ticker_market_data[display_ticker].get('fcf_margin'),
+                    return_30d=ticker_market_data[display_ticker].get('return_30d'),
+                    is_wash_sale_risk=(display_ticker in wash_sale_history_map),
                 )
                     
                 opt_info = {
@@ -1608,6 +1620,7 @@ def main():
     # Generate Candidate Watchlist Table (Grouped by Ticker & Valuation Monitor)
     tv_formatted_tickers = [format_tradingview_ticker(t) for t in ordered_watchlist]
     tv_copy_str = ", ".join(tv_formatted_tickers)
+    tv_plain_copy_str = ", ".join([to_rh_symbol(t) for t in ordered_watchlist])
     
     tv_card_html = f"""
     <div style="margin-bottom: 16px; padding: 16px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);">
@@ -1615,15 +1628,31 @@ def main():
         <span style="font-size: 14px; font-weight: 600; color: #60a5fa; display: flex; align-items: center; gap: 8px;">
           <span>📈</span> TradingView 一键复制自选股 (Watchlist Sync String)
         </span>
-        <button onclick="navigator.clipboard.writeText('{tv_copy_str}'); alert('TradingView 自选股文本已成功复制到剪贴板！');" style="background: rgba(96, 165, 250, 0.15); border: 1px solid rgba(96, 165, 250, 0.4); color: #60a5fa; padding: 5px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
-          📋 点击一键复制 TradingView 文本
-        </button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button onclick="navigator.clipboard.writeText('{tv_plain_copy_str}'); alert('✅ 纯代码文本已复制！直接在 TradingView 粘贴即可 100% 自动识别，零前缀错误！');" style="background: rgba(52, 211, 153, 0.2); border: 1px solid rgba(52, 211, 153, 0.5); color: #34d399; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+            📋 一键复制纯代码 (推荐·零前缀错误)
+          </button>
+          <button onclick="navigator.clipboard.writeText('{tv_copy_str}'); alert('TradingView 带交易所前缀文本已复制！');" style="background: rgba(96, 165, 250, 0.15); border: 1px solid rgba(96, 165, 250, 0.4); color: #60a5fa; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+            📋 复制带交易所前缀
+          </button>
+        </div>
       </div>
-      <div style="background: #09090b; border: 1px solid #27272a; border-radius: 6px; padding: 10px 12px; font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace; font-size: 12px; color: #34d399; word-break: break-all; max-height: 75px; overflow-y: auto; line-height: 1.5; user-select: all;">
-        {tv_copy_str}
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
+        <div>
+          <div style="font-size: 11px; font-weight: 600; color: #34d399; margin-bottom: 4px;">🟢 纯代码模式 (Pure Tickers - TradingView 官方自动匹配交易所，100% 成功率):</div>
+          <div style="background: #09090b; border: 1px solid #27272a; border-radius: 6px; padding: 8px 10px; font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace; font-size: 11.5px; color: #34d399; word-break: break-all; max-height: 65px; overflow-y: auto; line-height: 1.4; user-select: all;">
+            {tv_plain_copy_str}
+          </div>
+        </div>
+        <div>
+          <div style="font-size: 11px; font-weight: 600; color: #60a5fa; margin-bottom: 4px;">🔵 带交易所前缀 (Exchange Prefixes - 官方主板映射):</div>
+          <div style="background: #09090b; border: 1px solid #27272a; border-radius: 6px; padding: 8px 10px; font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace; font-size: 11.5px; color: #60a5fa; word-break: break-all; max-height: 65px; overflow-y: auto; line-height: 1.4; user-select: all;">
+            {tv_copy_str}
+          </div>
+        </div>
       </div>
-      <div style="font-size: 11px; color: #a1a1aa; margin-top: 8px;">
-        💡 <strong>使用指引</strong>：在 TradingView 面板按 <code>Cmd+A</code> ➔ <code>Delete</code> 清空旧列表，或点击右上角 <strong><code>...</code> ➔ Import Watchlist</strong> 选文件；也可在添加代码 <code>+</code> 框中直接粘贴上框代码一键导入！
+      <div style="font-size: 11px; color: #a1a1aa; margin-top: 10px; line-height: 1.4;">
+        💡 <strong>使用指引</strong>：在 TradingView 界面按 <code>Cmd+A</code> ➔ <code>Delete</code> 清空旧自选股，或点击右上角 <strong><code>...</code> ➔ Import Watchlist</strong> 选文件；也可直接点击 <code>+</code> 添加代码并在输入框直接粘贴上面任一框的代码！
       </div>
     </div>
     """
@@ -1643,7 +1672,7 @@ def main():
             <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">首选行权价 (平衡型)</th>
             <th style="padding: 12px 14px; font-weight: 600; text-align: center; white-space: nowrap;" title="252日真实历史隐含波动率百分位 (IVP)">IVP</th>
             <th style="padding: 12px 14px; font-weight: 600; text-align: center; white-space: nowrap;">InvestSkill 研报信号</th>
-            <th style="padding: 12px 14px; font-weight: 600; text-align: center; white-space: nowrap;" title="三支柱多因子打分: 估值底 (50%) / 接股安全 (30%) / 期权Alpha (20%)">期权评分 (平衡型)<br><span style="font-size: 10px; font-weight: normal; color: #a1a1aa;">(估值 / 安全 / Alpha)</span></th>
+            <th style="padding: 12px 14px; font-weight: 600; text-align: center; white-space: nowrap;" title="三支柱多因子打分: 估值底 (40%) / 接股安全 (30%) / 期权Alpha (30%)">期权评分 (平衡型)<br><span style="font-size: 10px; font-weight: normal; color: #a1a1aa;">(估值 / 安全 / Alpha)</span></th>
           </tr>
         </thead>
         <tbody>"""
