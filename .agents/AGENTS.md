@@ -33,7 +33,7 @@ Output Specifications & Ordering:
   * **Medium Volatility ($20\% \le \text{HV}_{30} \le 35\%$)**: Inefficient Yield BTC < 10.0% APY; Greedy Hold >= 15.0% APY.
   * **High Volatility ($\text{HV}_{30} > 35\%$)**: Inefficient Yield BTC < 15.0% APY; Greedy Hold >= 22.0% APY.
 - **Chronological Sorting**: Mandatorily sort all active positions in ascending order of expiration date (DTE from smallest to largest).
-- **IBIT BTC Price Annotation**: Whenever displaying IBIT prices, simultaneously annotate the corresponding Bitcoin spot price as `IBIT Price (BTC $BTC Price)` (e.g., `$35.63 (BTC $62,976)`).
+- **IBIT BTC Price Annotation**: Whenever displaying IBIT prices, simultaneously annotate the corresponding Bitcoin spot price as `IBIT Price (BTC Price)` (e.g., `$35.63 (BTC $62,976)`).
 - **Wash Sale Compliance**: Review past 30-day realized loss transactions (from `get_pnl_trade_history`) and unrealized losses. Display Wash Sale risk warnings with countdown dates to prevent disallowed tax deductions.
 - **Portfolio Delta Notional Exposure**:
   * For each Short Put, calculate $\text{Delta Shares} = -\text{Delta} \times \text{Quantity} \times 100$ and $\text{Delta Notional} = \text{Delta Shares} \times \text{Spot Price}$.
@@ -62,7 +62,7 @@ Conduct multi-factor quantitative screening across the market:
 
 ### 4-Tier Smooth Liquidity & Conservative Pricing Gatekeeper
 1. **Tier 1 (🟢 Prime Liquidity - Spread $\le 20\%$ & OI $\ge 50$)**: 0 penalty, executed at 100% Mark.
-2. **Tier 2 (🟡 Standard Liquidity - Spread $\le 35\%$ or Absolute Spread $\le \$0.15$, and OI $\ge 20$)**: 0 penalty, conservatively priced as $\text{Price}_{\text{exec}} = \min(\text{Mark}, \text{Bid} \times 1.15)$.
+2. **Tier 2 (🟡 Standard Liquidity - Spread $\le 35\%$ or Absolute Spread $\le 0.15\text{ USD}$, and OI $\ge 20$)**: 0 penalty, conservatively priced as $\text{Price}_{\text{exec}} = \min(\text{Mark}, \text{Bid} \times 1.15)$.
 3. **Tier 3 (🟠 Moderate Spread - $35\% < \text{Spread} \le 50\%$ or $10 \le \text{OI} < 20$)**: Conservatively priced as $\min(\text{Mark}, \text{Bid} \times 1.10)$, **0 pt penalty** (slippage already absorbed by price discount) with `[⚠️ Moderate Spread (Limit Order Recommended)]` badge.
 4. **Tier 4 (🔴 Wide Spread - Spread $> 50\%$ or $\text{OI} < 10$, and $\text{Bid} > 0$)**: Conservatively priced as $\min(\text{Mark}, \text{Bid} \times 1.05)$, modest **-4.0 pt penalty** (execution difficulty warning, non-punitive) with `[⚠️ Wide Spread (Limit Order Recommended)]` badge.
 5. **Tier 5 (⛔ Zero Bid Illiquidity - $\text{Bid} = 0$)**: 0 price, **-15.0 pt penalty** with `[🚫 Zero Bid Illiquid]` warning flag.
@@ -72,32 +72,32 @@ $$\text{Total Score} = \max\left(0, 0.40 \times S_{\text{Price}} + 0.30 \times S
 
 - **Pillar 1: Dual-Anchor Max-Discount Valuation Floor ($S_{\text{Price}}$ - 40%)**:
   * Evaluated on net acquisition cost $\text{Net Basis} = \min(\text{Spot}, K - P_{\text{market}})$ to reward deep OTM strike discounts.
-  * **Dual-Anchor Engine**: Simultaneously computes 200 SMA Deviation ($S_{\text{Price\_SMA}}$) and 52-Week High-Low Relative Position ($S_{\text{Price\_RP}}$) with 50-baseline symmetric normalization, taking the maximum advantage discount: $S_{\text{Price}} = \max(S_{\text{Price\_SMA}}, S_{\text{Price\_RP}})$.
-  * Long-bull Anchor: $Dev_{\text{basis}} = \frac{\text{Net Basis} - \text{SMA}_{200}}{\text{SMA}_{200}}$. if $Dev \le 0.0$, $S_{\text{Price\_SMA}} = 50.0 + \min(50.0, \frac{|Dev|}{35.0\%} \times 50.0)$; else $S_{\text{Price\_SMA}} = \max(0, 50.0 - \frac{Dev}{30.0\%} \times 50.0)$.
-  * High-vol Anchor: $RP_{\text{basis}} = \frac{\text{Net Basis} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. if $RP \le 0.50$, $S_{\text{Price\_RP}} = 50.0 + \min(50.0, \frac{0.50 - RP}{0.60} \times 50.0)$; else $S_{\text{Price\_RP}} = \max(0, 50.0 - \frac{RP - 0.50}{0.50} \times 50.0)$.
+  * **Dual-Anchor Engine**: Simultaneously computes 200 SMA Deviation ($S_{\text{Price-SMA}}$) and 52-Week High-Low Relative Position ($S_{\text{Price-RP}}$) with 50-baseline symmetric normalization, taking the maximum advantage discount: $S_{\text{Price}} = \max(S_{\text{Price-SMA}}, S_{\text{Price-RP}})$.
+  * Long-bull Anchor: $Dev_{\text{basis}} = \frac{\text{Net Basis} - \text{SMA}_{200}}{\text{SMA}_{200}}$. if $Dev \le 0.0$, $S_{\text{Price-SMA}} = 50.0 + \min(50.0, \frac{\text{abs}(Dev)}{35.0\%} \times 50.0)$; else $S_{\text{Price-SMA}} = \max(0, 50.0 - \frac{Dev}{30.0\%} \times 50.0)$.
+  * High-vol Anchor: $RP_{\text{basis}} = \frac{\text{Net Basis} - \text{Low}_{52\text{w}}}{\text{High}_{52\text{w}} - \text{Low}_{52\text{w}}}$. if $RP \le 0.50$, $S_{\text{Price-RP}} = 50.0 + \min(50.0, \frac{0.50 - RP}{0.60} \times 50.0)$; else $S_{\text{Price-RP}} = \max(0, 50.0 - \frac{RP - 0.50}{0.50} \times 50.0)$.
 - **Pillar 2: Safety Cushion & Gravitational Barrier ($S_{\text{Safety}}$ - 30%)**:
-  * $S_{\text{Safety}} = \text{clip}\left((1 - \vert\text{Delta}\vert) \times 100 + \max(\text{Valuation\_Bonus}_{\text{SMA}}, \text{Valuation\_Bonus}_{\text{RP}}) + \Delta_{\text{Pain}}, 0, 100\right)$.
-  * Continuous valuation safety bonus: $\text{Valuation\_Bonus}_{\text{SMA}} = \min(10.0, |Dev_{\text{spot}}| \times 50.0)$, $\text{Valuation\_Bonus}_{\text{RP}} = \min(10.0, (0.20 - RP_{\text{spot}}) \times 50.0)$.
+  * $S_{\text{Safety}} = \text{clip}\left((1 - \vert\text{Delta}\vert) \times 100 + \max(\text{Bonus}_{\text{SMA}}, \text{Bonus}_{\text{RP}}) + \Delta_{\text{Pain}}, 0, 100\right)$.
+  * Continuous valuation safety bonus: $\text{Bonus}_{\text{SMA}} = \min(10.0, \text{abs}(Dev_{\text{spot}}) \times 50.0)$, $\text{Bonus}_{\text{RP}} = \min(10.0, (0.20 - RP_{\text{spot}}) \times 50.0)$.
   * Max Pain pinning barrier smooth linear ramp $\Delta_{\text{Pain}} = \text{clip}\left(\frac{d_{\text{pain}}}{5.0\%} \times 4.0, -4.0, +4.0\right)$.
 - **Pillar 3: Mathematical Expectation & Option Alpha ($S_{\text{OptionAlpha}}$ - 30%)**:
-  * $S_{\text{OptionAlpha}} = 0.70 \times S_{\text{EV\_APY}} + 0.30 \times S_{\text{Vol}}$.
+  * $S_{\text{OptionAlpha}} = 0.70 \times S_{\text{EV-APY}} + 0.30 \times S_{\text{Vol}}$.
   * Realized Volatility: **Multi-Horizon Weighted Blend** $\text{HV}_{\text{blend}} = 0.50 \times \text{HV}_{30} + 0.30 \times \text{HV}_{60} + 0.20 \times \text{HV}_{90}$, anchored by $\text{HV}_{\text{effective}} = \min(\text{HV}_{\text{blend}}, \text{HV}_{252})$.
-  * $S_{\text{EV\_APY}} = \min\left(100, 100 \times \sqrt{\frac{\mathbf{EV\ APY}}{20.0\%}}\right)$ driven by closed-form lognormal Black-Scholes expectation $\text{EV} = 100 \times [P_{\text{exec}} - \text{BS\_Put}(\text{HV}_{\text{effective}})]$.
+  * $S_{\text{EV-APY}} = \min\left(100, 100 \times \sqrt{\frac{\text{EV-APY}}{20.0\%}}\right)$ driven by closed-form lognormal Black-Scholes expectation $\text{EV} = 100 \times [P_{\text{exec}} - \text{BS-Put}(\text{HV}_{\text{effective}})]$.
   * **Quality-Aware EV Protection & 4-Character Action Taxonomy**:
-    - **`💰 Premium Harvesting (Premium Focus)`** ($\text{EV} > +\$10$ and $\text{IVP} \ge 35\%$): Elevated implied volatility providing rich premium buffer.
-    - **`🟢 Steady Harvesting (Theta Focus)`** ($-\$150 \le \text{EV} \le +\$10$, or $\text{EV} > +\$10$ with low $\text{IVP} < 35\%$): Quiet market volatility steady-state with fair premium decay.
-    - **`💎 Discount Assignment (Assignment Focus)`** ($\text{EV} < -\$150$ on broad ETFs or fortress assets $F \ge 7$ & $\text{FCF} > 0$): Deep implied volatility compression with 100% exemption from the -15 pt penalty, prioritizing assignment at discounted valuation floor.
-    - **`⚠️ Thin Yield (Thin Reward)`** ($\text{EV} < -\$150$ on non-quality assets): Compressed premium failing to justify downside tail risk ($S_{\text{EV}} = 0$, natural Option Alpha compression without external double penalty).
+    - **`💰 Premium Harvesting (Premium Focus)`** ($\text{EV} > +10\text{ USD}, \text{IVP} \ge 35\%$): Elevated implied volatility providing rich premium buffer.
+    - **`🟢 Steady Harvesting (Theta Focus)`** ($-150 \le \text{EV} \le +10\text{ USD}$, or $\text{EV} > +10\text{ USD}$ with low $\text{IVP} < 35\%$): Quiet market volatility steady-state with fair premium decay.
+    - **`💎 Discount Assignment (Assignment Focus)`** ($\text{EV} < -150\text{ USD}$ on broad ETFs or fortress assets $F \ge 7$ & $\text{FCF} > 0$): Deep implied volatility compression with 100% exemption from the -15 pt penalty, prioritizing assignment at discounted valuation floor.
+    - **`⚠️ Thin Yield (Thin Reward)`** ($\text{EV} < -150\text{ USD}$ on non-quality assets): Compressed premium failing to justify downside tail risk ($S_{\text{EV}} = 0$, natural Option Alpha compression without external double penalty).
   * $S_{\text{Vol}} = 0.50 \times \text{IVP} + 0.20 \times \text{IVR} + 0.30 \times S_{\text{Skew}}$ (authentic 252d implied volatility percentiles and 25-Delta panic put skew).
 - **Penalties & Bonuses ($\text{Penalties}$ & $\text{Bonuses}$)**:
   * **Smart Drop Classifier**:
-    - 🟢 **Contrarian Golden Pit**: Drop 10%~30% on fortress assets ($F \ge 7$ & positive FCF, or ETF, or Insider Net Buying $\ge \$500\text{K}$) $\implies$ 100% exempt from knife penalty + continuous smooth golden pit reward up to **$+4.0$ pts** ($\min(4.0, \frac{\text{drop} - 10\%}{15\%} \times 4.0)$).
+    - 🟢 **Contrarian Golden Pit**: Drop 10%~30% on fortress assets ($F \ge 7$ & positive FCF, or ETF, or Insider Net Buying $\ge 500\text{K USD}$) $\implies$ 100% exempt from knife penalty + continuous smooth golden pit reward up to **$+4.0$ pts** ($\min(4.0, \frac{\text{drop} - 10\%}{15\%} \times 4.0)$).
     - 🟡 **Technical Pullback**: Continuous smooth quadratic ramp starting from 10% drop ($\min(15.0, (\frac{\text{drop} - 10\%}{25\%})^{1.2} \times 15.0)$), eliminating all step cliffs.
     - 🔴 **Toxic Falling Knife / Structural Collapse**: Steep non-linear penalty on fundamentally deteriorating assets ($\min(30.0, (\frac{\text{drop} - 10\%}{25\%})^{1.3} \times 30.0 \times 1.3)$).
     - ⛔ **Black Swan Halt**: Drop > 35% on individual stocks or > 22% on ETFs triggers hard 50 pt veto.
-  * Structural Negative FCF: Continuous smooth linear penalty based on $\text{FCF Margin} = \frac{\text{FCF}}{\text{Revenue}}$ ($\min(15.0, \frac{|\text{Margin}|}{20\%} \times 15.0)$ from 0% down to -20% margin, replacing binary switch).
+  * Structural Negative FCF: Continuous smooth linear penalty based on $\text{FCF Margin} = \frac{\text{FCF}}{\text{Revenue}}$ ($\min(15.0, \frac{\text{abs}(\text{Margin})}{20\%} \times 15.0)$ from 0% down to -20% margin, replacing binary switch).
   * Piotroski F-Score Multi-Tier Smooth Health Ladder: $F \le 2$ deducts 100 pts (severe collapse veto); $F = 3$ deducts 20 pts; $F = 4$ deducts 5 pts; $F = 5$ neutral (0 pts); $F = 6$ rewards +2.5 pts; $F = 7$ rewards +5.0 pts; $F \ge 8$ rewards +7.0 pts.
-  * SEC Form 4 Insider Sentiment: Heavy selling (>= $10M net selling) deducts 5 pts; Net buying (>= $500K) rewards +5 pts.
+  * SEC Form 4 Insider Sentiment: Heavy selling (net selling $\ge 10\text{M USD}$) deducts 5 pts; Net buying (net buying $\ge 500\text{K USD}$) rewards +5 pts.
   * Extreme Debt: Continuous smooth ramp with **Sector Adaptation** (Standard 180%~320% D/E; Utilities & Real Estate 300%~550% D/E; halved if positive FCF and $F \ge 6$) up to 15 pts penalty.
   * Earnings Expected Move: Continuous smooth ramp (5~15 pts when $0.60 \le m_{\text{earnings}} < 1.0$; 20 pts when $m_{\text{earnings}} < 0.60$; rewards $+3$ pts if cushion $\ge 1.5 \times \sigma_{\text{earnings}}$).
   * Contrarian Sentiment (PCR): Continuous smooth ramp ($\ge 0.95$ rewards up to $+3.0$ pts; $\le 0.70$ deducts up to $-3.0$ pts).
