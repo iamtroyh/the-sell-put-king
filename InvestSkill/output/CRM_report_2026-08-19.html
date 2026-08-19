@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Salesforce (CRM) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(5,150,105,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 18px; font-weight: 800; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+
+        .table-scroll { overflow-x: auto; margin: 14px 0; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        thead { background: #F1F5F9; }
+        th { padding: 10px 12px; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; text-align: right; }
+
+        .tag-bull { background: #ECFDF5; color: #065F46; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-warn { background: #FEF3C7; color: #92400E; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-bear { background: #FEE2E2; color: #991B1B; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+
+        .chart-box { position: relative; height: 320px; width: 100%; margin: 16px 0; }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13.5px;
+            color: #064E3B;
+            line-height: 1.6;
+        }
+        .callout-warn {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .signal-main { display: flex; align-items: center; gap: 16px; }
+        .signal-badge-lg {
+            background: #10B981;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 800;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(16,185,129,.7);
+        }
+        .signal-meta { font-size: 13px; opacity: .9; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 24px; }
+            .sec-card { padding: 18px 16px; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: CRM • 企业级软件与云计算</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-score">综合量化得分: 8.3 / 10</span>
+            <span class="badge badge-hero-stock">全球CRM垄断者 • Agentforce AI智能体飞轮</span>
+        </div>
+        <h1 class="hero-title">Salesforce (CRM) 深度投研报告</h1>
+        <p class="hero-sub">全球企业级客户关系管理（CRM）绝对霸主，坐拥超21.7%全球市场份额与77.6%极高毛利率。在激进激进投资者推动下完成盈利质量转型，TTM自由现金流突破$165.5亿美元（FCF收益率高达9.8%）。Agentforce企业级AI智能体平台开启第二增长曲线，远期P/E仅13.2x（PEG 0.81），具备极高估值修复空间与丰厚期权权利金收益。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                <div class="hero-kpi-val">$205.56</div>
+                <div class="hero-kpi-sub">52周区间: $146.32 - $269.11</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 / 企业价值</div>
+                <div class="hero-kpi-val">$168.35B</div>
+                <div class="hero-kpi-sub">EV: $191.35B | 现金储备 $118.4亿</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 营收 / FCF</div>
+                <div class="hero-kpi-val">$42.83B / $16.55B</div>
+                <div class="hero-kpi-sub">毛利率 77.6% | FCF利润率 38.6%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">远期市盈率 / PEG</div>
+                <div class="hero-kpi-val">13.25x</div>
+                <div class="hero-kpi-sub">PEG: 0.81 | Trailing P/E 23.8x</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">年度股息 / 股息率</div>
+                <div class="hero-kpi-val">$1.76 (0.90%)</div>
+                <div class="hero-kpi-sub">Payout: 19.6% | 年回购超$125亿</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师目标均价</div>
+                <div class="hero-kpi-val">$242.74</div>
+                <div class="hero-kpi-sub">54位分析师覆盖 | 潜在空间 +18.1%</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+    
+    <!-- 目录导航 -->
+    <nav class="toc-bar">
+        <div class="toc-title">报告核心导航目录 (15大专业投研模块)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">1. 执行摘要</a>
+            <a href="#sec-2" class="toc-link">2. 多因子雷达</a>
+            <a href="#sec-3" class="toc-link">3. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">4. 财务报表剖析</a>
+            <a href="#sec-5" class="toc-link">5. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">6. 同行全景对标</a>
+            <a href="#sec-7" class="toc-link">7. DCF估值模型</a>
+            <a href="#sec-8" class="toc-link">8. 技术面与筹码</a>
+            <a href="#sec-9" class="toc-link">9. 资本配置与股息</a>
+            <a href="#sec-10" class="toc-link">10. Sell Put期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会</a>
+            <a href="#sec-13" class="toc-link">13. 做空与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </nav>
+
+    <!-- 模块 1: 执行摘要与核心投资逻辑 -->
+    <section id="sec-1" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📌</span> 1. 执行摘要与核心投资逻辑 (Executive Summary & Thesis)</h2>
+            <span class="sec-tag">核心逻辑</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14.5px; line-height: 1.7;">
+            <strong>公司概况：</strong>Salesforce, Inc. (NYSE: CRM) 是全球企业级软件和云原生客户关系管理（CRM）的绝对开创者与领导者。公司通过旗下核心产品矩阵——Sales Cloud、Service Cloud、Marketing Cloud、Commerce Cloud、Platform、Data Cloud、MuleSoft、Tableau 和 Slack，构建了全球最完备的企业级客户数字化运营系统，并率先推出自主型企业 AI 平台 <strong>Agentforce</strong>。
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 自由现金流印钞机</div>
+                <div class="info-card-val">$165.5 亿美元 TTM FCF</div>
+                <div class="info-card-desc">FCF 利润率高达 38.6%，自由现金流收益率达 9.8%，在标普500大型科技股中名列前茅。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 极度低估的估值倍数</div>
+                <div class="info-card-val">13.25x 远期 P/E • PEG 0.81</div>
+                <div class="info-card-desc">估值被大幅压制在成熟价值股区间，显著低于微软（20.5x）、甲骨文（13.1x）、ServiceNow（25.6x）。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ Agentforce AI 智能体飞轮</div>
+                <div class="info-card-val">企业级自主 AI 变现</div>
+                <div class="info-card-desc">依托独家企业核心私域数据（Data Cloud），Agentforce 实现按会话与成果计费，打破传统席位费增长天花板。</div>
+            </div>
+        </div>
+        <div class="callout">
+            <strong>💡 核心投资洞察：</strong>市场此前过度担忧企业 IT 预算收缩与传统 SaaS 席位制增长放缓，将 CRM 估值压至近十年历史最低分位数（Forward P/E 仅 13.2x）。然而，Salesforce 已成功完成从“单纯追求规模”向“超强盈利与现金流机器”的战略蜕变，并通过百亿美元级股份回购与季度派息积极回馈股东。现价具备深厚的安全边际与绝佳的 Sell Put 期权收租机会。
+        </div>
+    </section>
+
+    <!-- 模块 2: 多因子量化评分雷达模型 -->
+    <section id="sec-2" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📊</span> 2. 多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar)</h2>
+            <span class="sec-tag">量化评级: 8.3 / 10 (强烈看多)</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评分维度</th>
+                                <th>权重</th>
+                                <th>得分 (0-10)</th>
+                                <th>加权得分</th>
+                                <th>驱动因子解析</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>商业质量 (Business Quality)</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="tag-bull">9.2</span></td>
+                                <td class="num-cell">2.30</td>
+                                <td>CRM全球市占率超21.7%，毛利率77.6%，Data Cloud核心壁垒</td>
+                            </tr>
+                            <tr>
+                                <td><strong>估值水平 (Valuation)</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="tag-bull">8.8</span></td>
+                                <td class="num-cell">2.20</td>
+                                <td>远期P/E 13.25x，PEG 0.81，FCF收益率 9.8%，深度价值低估</td>
+                            </tr>
+                            <tr>
+                                <td><strong>市场与资金面 (Market Signals)</strong></td>
+                                <td class="num-cell">20%</td>
+                                <td class="num-cell"><span class="tag-bull">7.8</span></td>
+                                <td class="num-cell">1.56</td>
+                                <td>BlackRock/Vanguard重仓，年回购超$125亿，机构持仓极度稳定</td>
+                            </tr>
+                            <tr>
+                                <td><strong>技术面形态 (Technical Setup)</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="tag-bull">7.5</span></td>
+                                <td class="num-cell">1.13</td>
+                                <td>放量突破200日均线（$200.58），均线多头排列，动能强劲</td>
+                            </tr>
+                            <tr>
+                                <td><strong>风险防御 (Risk Profile)</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="tag-bull">8.5</span></td>
+                                <td class="num-cell">1.28</td>
+                                <td>$118亿现金储备，净负债极其健康，利息覆盖倍数超15x</td>
+                            </tr>
+                            <tr style="background: #F1F5F9; font-weight: 700;">
+                                <td><strong>综合量化得分 (Composite)</strong></td>
+                                <td class="num-cell">100%</td>
+                                <td class="num-cell"><span class="tag-bull" style="font-size: 13px;">8.3</span></td>
+                                <td class="num-cell" style="color: var(--primary);">8.47 / 10</td>
+                                <td><strong>强烈看多 (STRONG BUY)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 3: 商业模式、垂直整合与波特五力护城河评级 -->
+    <section id="sec-3" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏰</span> 3. 商业模式、垂直整合与波特五力护城河 (Business Model & Moat)</h2>
+            <span class="sec-tag">护城河: 极宽 (Wide Moat / 9.2分)</span>
+        </div>
+        <div class="data-grid-3" style="margin-bottom: 16px;">
+            <div class="info-card">
+                <div class="info-card-title">① 超高客户粘性与转换成本</div>
+                <div class="info-card-desc">企业客户将全部客户数据、销售流程、服务工单与营销流水线深深绑定于 Salesforce，替换系统将面临极高的迁移风险与业务中断成本，净留存率（NDR）长期维持在 100%+。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 一体化多云生态飞轮</div>
+                <div class="info-card-desc">Sales Cloud、Service Cloud 与 Data Cloud 相互交叉销售，搭配 MuleSoft 数据集成、Tableau 商业智能与 Slack 协同办公入口，构建了不可分割的企业数字化底座。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ Agentforce AI 护城河升级</div>
+                <div class="info-card-desc">Agentforce 直接植根于客户的真实业务上下文与安全合规体系中，无需将核心数据暴露给外部公共大模型，解决了企业部署 AI 最核心的隐私与幻觉痛点。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>波特五力维度</th>
+                        <th>竞争压力评级</th>
+                        <th>护城河与竞争优势支撑深度解析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>供应商议价能力</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>底层主要依赖自身数据中心及 AWS/GCP 等公共云基础设施，作为全球最大云软件采购商之一，具备极强的大规模算力议价权。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>买方议价能力</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>全球财富500强企业中超过90%是其深度客户，核心业务数据高度锁定，企业很难因微小价格差异而更换核心CRM系统。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>潜在进入者威胁</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>企业级软件需要长达数十年的合规认证、全球生态集成伙伴（Accenture, Deloitte等）以及数百万开发者的AppExchange应用生态支持。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品竞争威胁</strong></td>
+                        <td><span class="tag-warn">低至中等 (Low-Med)</span></td>
+                        <td>初创开源或单一工具难以提供端到端全生命周期的客户旅程管理，多系统拼接的维护成本远超一体化Salesforce平台。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>行业内现有竞争</strong></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td>主要竞争对手包括 Microsoft Dynamics 365、Oracle、SAP 及 ServiceNow。但在专属CRM领域，Salesforce市场份额是微软与甲骨文之和的数倍。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 4: 核心财务报表与盈利质量深度剖析 -->
+    <section id="sec-4" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📑</span> 4. 核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</h2>
+            <span class="sec-tag">Piotroski F-Score: 8 / 9</span>
+        </div>
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">TTM 总营收</div>
+                <div class="info-card-val">$428.3 亿美元</div>
+                <div class="info-card-desc">同比增长 13.3%，多云订阅续约率稳健，国际业务加速渗透。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">综合毛利率</div>
+                <div class="info-card-val">77.64%</div>
+                <div class="info-card-desc">SaaS 高毛利本质凸显，云基础设施规模效应持续释放。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">TTM 营业利润</div>
+                <div class="info-card-val">$93.4 亿美元</div>
+                <div class="info-card-desc">营业利润率提升至 21.80%，严格控费与人效优化成效卓著。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">自由现金流 (FCF)</div>
+                <div class="info-card-val">$165.5 亿美元</div>
+                <div class="info-card-desc">FCF 利润率达 38.6%，自由现金流达历史最高水平。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财年 / 报告期</th>
+                        <th>总营收 ($B)</th>
+                        <th>毛利润 ($B)</th>
+                        <th>营业利润 ($B)</th>
+                        <th>净利润 ($B)</th>
+                        <th>经营现金流 ($B)</th>
+                        <th>自由现金流 ($B)</th>
+                        <th>稀释EPS ($)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td class="num-cell">$31.35</td>
+                        <td class="num-cell">$22.99</td>
+                        <td class="num-cell">$1.86</td>
+                        <td class="num-cell">$0.21</td>
+                        <td class="num-cell">$7.11</td>
+                        <td class="num-cell">$6.31</td>
+                        <td class="num-cell">$0.21</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td class="num-cell">$34.86</td>
+                        <td class="num-cell">$26.32</td>
+                        <td class="num-cell">$6.00</td>
+                        <td class="num-cell">$4.14</td>
+                        <td class="num-cell">$10.23</td>
+                        <td class="num-cell">$9.50</td>
+                        <td class="num-cell">$4.20</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025</strong></td>
+                        <td class="num-cell">$37.90</td>
+                        <td class="num-cell">$29.25</td>
+                        <td class="num-cell">$7.67</td>
+                        <td class="num-cell">$6.20</td>
+                        <td class="num-cell">$13.09</td>
+                        <td class="num-cell">$12.43</td>
+                        <td class="num-cell">$6.36</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2026</strong></td>
+                        <td class="num-cell">$41.53</td>
+                        <td class="num-cell">$32.26</td>
+                        <td class="num-cell">$8.92</td>
+                        <td class="num-cell">$7.46</td>
+                        <td class="num-cell">$15.00</td>
+                        <td class="num-cell">$14.40</td>
+                        <td class="num-cell">$7.80</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>TTM (最新12个月)</strong></td>
+                        <td class="num-cell">$42.83</td>
+                        <td class="num-cell">$33.25</td>
+                        <td class="num-cell">$9.34</td>
+                        <td class="num-cell">$8.02</td>
+                        <td class="num-cell">$15.22</td>
+                        <td class="num-cell">$16.55</td>
+                        <td class="num-cell">$8.63</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 5: 杜邦三因子拆解与资本运营效率 -->
+    <section id="sec-5" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>⚙️</span> 5. 杜邦三因子拆解与资本运营效率 (DuPont Analysis & Efficiency)</h2>
+            <span class="sec-tag">ROE: 16.91% | ROA: 5.70%</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 净利润率 (Net Margin)</div>
+                <div class="info-card-val">18.73%</div>
+                <div class="info-card-desc">较三年前不足1%实现脱胎换骨的跃升，控本降本成效显著。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 资产周转率 (Asset Turnover)</div>
+                <div class="info-card-val">0.45x</div>
+                <div class="info-card-desc">包含收购产生的商誉与无形资产，随着内生增长加速，周转率稳步上行。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 权益乘数 (Financial Leverage)</div>
+                <div class="info-card-val">2.01x</div>
+                <div class="info-card-desc">资本结构健康，总债务 $425亿，现金及短期投资 $118亿，无财务危机隐患。</div>
+            </div>
+        </div>
+        <div class="callout">
+            <strong>资本运营效率评估：</strong>Salesforce 近年来彻底改变了此前依赖高溢价并购（如Slack/Tableau）的外延扩张模式，转向以<strong>精细化运营、内生研发与大规模股东现金回报（回购+分红）</strong>为主导的高质量资本配置模式。
+        </div>
+    </section>
+
+    <!-- 模块 6: 行业竞争格局与同行全景对标矩阵 -->
+    <section id="sec-6" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🥊</span> 6. 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</h2>
+            <span class="sec-tag">对标: MSFT / ORCL / NOW / ADBE / WDAY</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>代码</th>
+                        <th>公司名称</th>
+                        <th>现价 ($)</th>
+                        <th>市值 ($B)</th>
+                        <th>远期P/E</th>
+                        <th>PEG</th>
+                        <th>P/S</th>
+                        <th>EV/EBITDA</th>
+                        <th>毛利率</th>
+                        <th>营收同比增速</th>
+                        <th>52周高点回撤</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>CRM</strong></td>
+                        <td>Salesforce, Inc.</td>
+                        <td class="num-cell">$205.56</td>
+                        <td class="num-cell">$168.35B</td>
+                        <td class="num-cell" style="color: var(--primary);">13.25x</td>
+                        <td class="num-cell" style="color: var(--primary);">0.81</td>
+                        <td class="num-cell">3.93x</td>
+                        <td class="num-cell">14.84x</td>
+                        <td class="num-cell">77.64%</td>
+                        <td class="num-cell">+13.3%</td>
+                        <td class="num-cell">-23.61%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MSFT</strong></td>
+                        <td>Microsoft Corp.</td>
+                        <td class="num-cell">$483.42</td>
+                        <td class="num-cell">$3,589.62B</td>
+                        <td class="num-cell">20.51x</td>
+                        <td class="num-cell">1.61</td>
+                        <td class="num-cell">10.82x</td>
+                        <td class="num-cell">18.68x</td>
+                        <td class="num-cell">67.94%</td>
+                        <td class="num-cell">+17.7%</td>
+                        <td class="num-cell">-12.70%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ORCL</strong></td>
+                        <td>Oracle Corp.</td>
+                        <td class="num-cell">$143.34</td>
+                        <td class="num-cell">$412.89B</td>
+                        <td class="num-cell">13.13x</td>
+                        <td class="num-cell">0.85</td>
+                        <td class="num-cell">6.13x</td>
+                        <td class="num-cell">18.11x</td>
+                        <td class="num-cell">65.82%</td>
+                        <td class="num-cell">+20.6%</td>
+                        <td class="num-cell">-58.54%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NOW</strong></td>
+                        <td>ServiceNow, Inc.</td>
+                        <td class="num-cell">$128.11</td>
+                        <td class="num-cell">$132.45B</td>
+                        <td class="num-cell">25.59x</td>
+                        <td class="num-cell">1.11</td>
+                        <td class="num-cell">8.99x</td>
+                        <td class="num-cell">43.95x</td>
+                        <td class="num-cell">74.77%</td>
+                        <td class="num-cell">+24.0%</td>
+                        <td class="num-cell">-34.21%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ADBE</strong></td>
+                        <td>Adobe Inc.</td>
+                        <td class="num-cell">$271.97</td>
+                        <td class="num-cell">$108.11B</td>
+                        <td class="num-cell">9.89x</td>
+                        <td class="num-cell">0.64</td>
+                        <td class="num-cell">4.29x</td>
+                        <td class="num-cell">10.90x</td>
+                        <td class="num-cell">89.40%</td>
+                        <td class="num-cell">+12.7%</td>
+                        <td class="num-cell">-26.67%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WDAY</strong></td>
+                        <td>Workday, Inc.</td>
+                        <td class="num-cell">$199.41</td>
+                        <td class="num-cell">$49.25B</td>
+                        <td class="num-cell">15.78x</td>
+                        <td class="num-cell">0.78</td>
+                        <td class="num-cell">5.00x</td>
+                        <td class="num-cell">30.78x</td>
+                        <td class="num-cell">75.77%</td>
+                        <td class="num-cell">+13.5%</td>
+                        <td class="num-cell">-20.19%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 7: DCF 现金流折现与内在价值三情景敏感性模型 -->
+    <section id="sec-7" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🧮</span> 7. DCF 现金流折现与内在价值敏感性模型 (DCF Valuation Model)</h2>
+            <span class="sec-tag">多情景内在价值分析</span>
+        </div>
+        <p style="margin-bottom: 12px; color: var(--text-secondary);">
+            以基准自由现金流 $165.5 亿美元、净负债 $307.1 亿美元、流通股数 8.19 亿股构建三情景估值模型：
+        </p>
+        <div class="data-grid-3" style="margin-bottom: 16px;">
+            <div class="info-card" style="border-top: 3px solid var(--red);">
+                <div class="info-card-title">🐻 熊市悲观情景 (Bear Case)</div>
+                <div class="info-card-val">$287.93</div>
+                <div class="info-card-desc">FCF年增 6%，WACC 9.5%，永续增长 2.0%。假设企业IT支出极度疲软，Agentforce变现滞后。</div>
+            </div>
+            <div class="info-card" style="border-top: 3px solid var(--primary);">
+                <div class="info-card-title">⚖️ 基准中性情景 (Base Case)</div>
+                <div class="info-card-val">$419.33</div>
+                <div class="info-card-desc">FCF年增 8-10%，WACC 8.5%，永续增长 2.5%。稳健释放多云协同效应，Agentforce稳步贡献增量。</div>
+            </div>
+            <div class="info-card" style="border-top: 3px solid var(--emerald);">
+                <div class="info-card-title">🐂 牛市乐观情景 (Bull Case)</div>
+                <div class="info-card-val">$586.73</div>
+                <div class="info-card-desc">FCF年增 12-14%，WACC 8.0%，永续增长 3.0%。Agentforce引发企业级自主AI采购狂潮，FCF破$250亿。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>折现率 (WACC) \ 永续增长率 (g)</th>
+                        <th>g = 2.0%</th>
+                        <th>g = 2.5% (基准)</th>
+                        <th>g = 3.0%</th>
+                        <th>较现价 ($205.56) 溢价空间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC = 7.5%</strong></td>
+                        <td class="num-cell">$470.67</td>
+                        <td class="num-cell">$513.00</td>
+                        <td class="num-cell">$564.74</td>
+                        <td class="num-cell" style="color: var(--emerald);">+149.6%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC = 8.0%</strong></td>
+                        <td class="num-cell">$427.27</td>
+                        <td class="num-cell">$461.90</td>
+                        <td class="num-cell">$503.45</td>
+                        <td class="num-cell" style="color: var(--emerald);">+124.7%</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>WACC = 8.5% (基准设定)</strong></td>
+                        <td class="num-cell">$390.57</td>
+                        <td class="num-cell" style="color: var(--primary);">$419.33</td>
+                        <td class="num-cell">$453.33</td>
+                        <td class="num-cell" style="color: var(--primary);">+104.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC = 9.0%</strong></td>
+                        <td class="num-cell">$359.13</td>
+                        <td class="num-cell">$383.33</td>
+                        <td class="num-cell">$411.57</td>
+                        <td class="num-cell" style="color: var(--primary);">+86.5%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC = 9.5%</strong></td>
+                        <td class="num-cell">$331.89</td>
+                        <td class="num-cell">$352.49</td>
+                        <td class="num-cell">$376.25</td>
+                        <td class="num-cell" style="color: var(--primary);">+71.5%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout">
+            <strong>安全边际总结：</strong>即便在极端悲观假设下（熊市估值 $287.93），现价 $205.56 较悲观底线仍有 <strong>28.6% 的深度折价</strong>。当前估值处于极其罕见的价值洼地。
+        </div>
+    </section>
+
+    <!-- 模块 8: 技术面量化、均线系统与关键筹码位 -->
+    <section id="sec-8" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📈</span> 8. 技术面量化、均线系统与关键筹码位 (Technical Analysis)</h2>
+            <span class="sec-tag">均线突破与多头排列</span>
+        </div>
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">200日均线突破 (SMA200)</div>
+                <div class="info-card-val" style="color: var(--emerald);">$200.58 (已突破)</div>
+                <div class="info-card-desc">现价 $205.56 站上年线，正乖离 +2.52%，牛熊转换信号确认。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">50日均线位置 (SMA50)</div>
+                <div class="info-card-val">$173.20 (上行发散)</div>
+                <div class="info-card-desc">短期均线（SMA20 $187.84）金叉中长期均线，底部支撑极为坚实。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">RSI (14日相对强弱)</div>
+                <div class="info-card-val">68.73</div>
+                <div class="info-card-desc">买盘动能充沛，处于强多头区域，未出现明显顶背离。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">MACD 动能指标</div>
+                <div class="info-card-val">柱状图翻红 (+0.69)</div>
+                <div class="info-card-desc">快慢线在零轴上方持续发散，中线反弹趋势确立。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>关键技术关口</th>
+                        <th>价格点位 ($)</th>
+                        <th>技术属性与交易指导建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>52周高点阻力 R3</strong></td>
+                        <td class="num-cell">$269.11</td>
+                        <td>前期历史密集筹码峰值区，长线反转终极目标。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>中期目标阻力 R2</strong></td>
+                        <td class="num-cell">$242.74</td>
+                        <td>华尔街分析师平均目标价位区，预期震荡消化获利盘。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>短线突破阻力 R1</strong></td>
+                        <td class="num-cell">$220.00</td>
+                        <td>前期平台破位阻力位，短期第一上攻目标。</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>当前市价 (Spot)</strong></td>
+                        <td class="num-cell" style="color: var(--primary);">$205.56</td>
+                        <td>成功站稳200日均线上方，处于右侧加速上攻初期。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>核心多空防线 S1 (200 DMA)</strong></td>
+                        <td class="num-cell">$200.58</td>
+                        <td>牛熊分水岭强支撑，回踩不破即为绝佳加仓点。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>强力底部支撑 S2 (20 DMA)</strong></td>
+                        <td class="num-cell">$187.84</td>
+                        <td>20日均线支撑位，Sell Put 高防御性首选安全垫行权区。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 9: 资本配置、股息政策与股东回报披露 -->
+    <section id="sec-9" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>💰</span> 9. 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</h2>
+            <span class="sec-tag">股息率: 0.90% | 派息率: 19.6%</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">常规现金股息</div>
+                <div class="info-card-val">$1.76 / 年 ($0.44/季)</div>
+                <div class="info-card-desc">派息比率仅 19.56%，年派息支出约 $15.9 亿美元，现金流覆盖倍数达 10.4 倍。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">大规模股份回购</div>
+                <div class="info-card-val">$125.96 亿美元 (FY2026)</div>
+                <div class="info-card-desc">单年回购注销超过7%的流通股份，极大地提升了每股含金量与长期EPS。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">综合股东现金回报</div>
+                <div class="info-card-val">&gt; $141.8 亿美元 / 年</div>
+                <div class="info-card-desc">回购加分红合计占总市值的 8.4% 以上，展现极强的股东回报导向。</div>
+            </div>
+        </div>
+        <div class="callout">
+            <strong>股息政策披露：</strong>Salesforce 自2024年起正式建立季度常规分红机制（当前年化股息 $1.76，股息率 0.90%），绝非零股息标的。充沛的现金流使得公司具备持续提高每股分红的坚实底气。
+        </div>
+    </section>
+
+    <!-- 模块 10: 现金担保卖出看跌期权 (Sell Put) 收益增强策略 -->
+    <section id="sec-10" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🎯</span> 10. 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</h2>
+            <span class="sec-tag">到期日: 2026-09-18 (30 DTE 黄金周期)</span>
+        </div>
+        <p style="margin-bottom: 14px; color: var(--text-secondary);">
+            基于当前现价 $205.56 及 2026-09-18 到期的期权链，构建三档高胜率 Cash-Secured Put 策略：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯度</th>
+                        <th>行权价 (Strike)</th>
+                        <th>安全缓冲垫</th>
+                        <th>期权 Delta</th>
+                        <th>权利金报价 (Bid / Ask / Mid)</th>
+                        <th>净持仓成本 (Net Basis)</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>推荐指数与交易指引</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>🟢 保守型 (Conservative)</strong></td>
+                        <td class="num-cell"><strong>$180.00</strong></td>
+                        <td class="num-cell"><span class="tag-bull">12.43%</span></td>
+                        <td class="num-cell">-0.15</td>
+                        <td class="num-cell">$2.25 / $2.44 (Mid $2.35)</td>
+                        <td class="num-cell"><strong>$177.65</strong></td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">15.9%</td>
+                        <td>⭐⭐⭐⭐⭐ 远离200日均线与20日均线，下行破位概率极低，稳健吃肉。</td>
+                    </tr>
+                    <tr style="background: #FEF3C7;">
+                        <td><strong>🟡 稳健型 (Moderate)</strong></td>
+                        <td class="num-cell"><strong>$190.00</strong></td>
+                        <td class="num-cell"><span class="tag-warn">7.57%</span></td>
+                        <td class="num-cell">-0.25</td>
+                        <td class="num-cell">$4.80 / $4.95 (Mid $4.88)</td>
+                        <td class="num-cell"><strong>$185.12</strong></td>
+                        <td class="num-cell" style="color: var(--amber); font-weight: 700;">31.2%</td>
+                        <td>⭐⭐⭐⭐⭐ 兼顾 31.2% 超高年化与 20 日均线支撑保护，最佳风险收益比。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔴 进取型 (Aggressive)</strong></td>
+                        <td class="num-cell"><strong>$195.00</strong></td>
+                        <td class="num-cell"><span class="tag-warn">5.14%</span></td>
+                        <td class="num-cell">-0.32</td>
+                        <td class="num-cell">$6.60 / $6.80 (Mid $6.70)</td>
+                        <td class="num-cell"><strong>$188.30</strong></td>
+                        <td class="num-cell" style="color: var(--red); font-weight: 700;">41.8%</td>
+                        <td>⭐⭐⭐⭐ 紧贴 200 日均线支撑，若被行权可以极佳低估值建仓并启动 Covered Call。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout">
+            <strong>💡 策略执行指引：</strong>建议将 <strong>$190.00 行权价（稳健型）</strong>作为主要建仓标的，获取高达 <strong>31.2% 的年化权利金收益</strong>。若到期股价保持在 $190 之上，全额收下权利金；若被行权，实际买入成本仅为 $185.12（对应远期市盈率不足 12x），极度安全。
+        </div>
+    </section>
+
+    <!-- 模块 11: 机构持仓与主力资金动向 -->
+    <section id="sec-11" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏛️</span> 11. 机构持仓与主力资金动向 (Institutional Ownership & 13F)</h2>
+            <span class="sec-tag">机构持股: ~82.4%</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (Top 13F Holders)</th>
+                        <th>持股比例 (pctHeld)</th>
+                        <th>持股股数 (Shares)</th>
+                        <th>持仓市值 ($)</th>
+                        <th>最新季度变动趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BlackRock Inc. (贝莱德)</strong></td>
+                        <td class="num-cell">8.88%</td>
+                        <td class="num-cell">72,748,909</td>
+                        <td class="num-cell">$149.55 亿</td>
+                        <td><span class="tag-warn">指数调仓 -8.71%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Group (先锋领航合计)</strong></td>
+                        <td class="num-cell">8.33%</td>
+                        <td class="num-cell">68,169,950</td>
+                        <td class="num-cell">$140.14 亿</td>
+                        <td><span class="tag-warn">被动调仓 -13.2%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation (道富)</strong></td>
+                        <td class="num-cell">5.48%</td>
+                        <td class="num-cell">44,869,478</td>
+                        <td class="num-cell">$92.24 亿</td>
+                        <td><span class="tag-warn">微调 -8.34%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Morgan Stanley (摩根士丹利)</strong></td>
+                        <td class="num-cell">2.85%</td>
+                        <td class="num-cell">23,311,316</td>
+                        <td class="num-cell">$47.92 亿</td>
+                        <td><span class="tag-warn">调仓 -26.41%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Geode Capital Management</strong></td>
+                        <td class="num-cell">2.42%</td>
+                        <td class="num-cell">19,814,297</td>
+                        <td class="num-cell">$40.73 亿</td>
+                        <td><span class="tag-warn">被动调仓 -10.85%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Harris Associates L.P.</strong></td>
+                        <td class="num-cell">1.97%</td>
+                        <td class="num-cell">16,151,269</td>
+                        <td class="num-cell">$33.20 亿</td>
+                        <td><span class="tag-bull">主动增持 +8.27% (价值基金加仓)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Arrowstreet Capital, L.P.</strong></td>
+                        <td class="num-cell">1.62%</td>
+                        <td class="num-cell">13,278,612</td>
+                        <td class="num-cell">$27.30 亿</td>
+                        <td><span class="tag-bull">量化主动增持 +4.89%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bank of America Corporation</strong></td>
+                        <td class="num-cell">1.49%</td>
+                        <td class="num-cell">12,218,090</td>
+                        <td class="num-cell">$25.12 亿</td>
+                        <td><span class="tag-bull">主动加仓 +4.21%</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 12: 内部人交易、管理层语气与财报电话会洞察 -->
+    <section id="sec-12" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🎙️</span> 12. 内部人交易、管理层语气与财报电话会洞察 (Insider Trading & Earnings Call)</h2>
+            <span class="sec-tag">SEC Form 4 & 电话会</span>
+        </div>
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">SEC Form 4 内部人交易特征</div>
+                <div class="info-card-desc">
+                    创始人兼CEO Marc Benioff 及高管近期交易均严格依照预设的 10b5-1 自动交易计划执行，未发生异常的主动大额清仓。管理层薪酬与营业利润率改善及自由现金流增长深度挂钩。
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">财报电话会管理层基调 (Management Tone)</div>
+                <div class="info-card-desc">
+                    Marc Benioff 在最新财报会上展现出极高的战略信心，称 <strong>Agentforce 是公司自创办以来最大的技术飞跃与商业机遇</strong>，强调“企业不需要通用聊天机器人，而是需要能安全连接私域数据、自主执行端到端业务流程的专业智能体”。
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 13: 做空比例、平仓天数与轧空风险评估 -->
+    <section id="sec-13" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🔥</span> 13. 做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze)</h2>
+            <span class="sec-tag">做空比例: 4.15% (低空头压力)</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">做空股数 (Shares Short)</div>
+                <div class="info-card-val">2,940.6 万股</div>
+                <div class="info-card-desc">空头持仓处于历史温和区间，主要为宏观对冲与软件板块配对交易。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">做空比例 (Short % of Float)</div>
+                <div class="info-card-val">4.15%</div>
+                <div class="info-card-desc">空头抛压极小，表明市场并无针对公司的实质性质疑或基本面做空论据。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">平仓天数 (Days to Cover)</div>
+                <div class="info-card-val">2.30 天</div>
+                <div class="info-card-desc">流动性极佳，日均成交量超1,200万股，无流动性挤压风险。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 14: 核心风险矩阵与熊市压力测试 -->
+    <section id="sec-14" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🛡️</span> 14. 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Case Test)</h2>
+            <span class="sec-tag">风险可控度: 极优</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险维度</th>
+                        <th>风险概率</th>
+                        <th>潜在影响</th>
+                        <th>应对机制与缓释对策 (Mitigation)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>企业级 IT 预算紧缩导致采购周期拉长</strong></td>
+                        <td><span class="tag-warn">中等</span></td>
+                        <td><span class="tag-warn">中等</span></td>
+                        <td>Salesforce 多产品打包销售（Einstein 1 捆绑套件）降低企业总拥有成本（TCO），增强采购吸引力。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Agentforce AI 智能体商业化进度不及预期</strong></td>
+                        <td><span class="tag-warn">中等</span></td>
+                        <td><span class="tag-warn">中等</span></td>
+                        <td>公司采用“低门槛接入 + 按使用量计费”的弹性商业模式，降低客户尝试门槛。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>微软 Copilot 及 Dynamics 365 价格战竞争</strong></td>
+                        <td><span class="tag-warn">中等</span></td>
+                        <td><span class="tag-warn">中等</span></td>
+                        <td>Salesforce 在复杂企业级业务逻辑、定制开发及垂直行业解决方案上的积淀远深于通用办公套件。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>外汇汇率波动对海外营收的折算冲击</strong></td>
+                        <td><span class="tag-bull">低</span></td>
+                        <td><span class="tag-bull">低</span></td>
+                        <td>公司开展常态化外汇套期保值，且海外本地化支出形成天然对冲。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 15: 未来关键催化剂日历与增长路线图 -->
+    <section id="sec-15" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🗓️</span> 15. 未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</h2>
+            <span class="sec-tag">未来 90-180 天重要节点</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 2026 Dreamforce 年度旗舰大会</div>
+                <div class="info-card-desc">预计将于秋季盛大开幕，届时将全面展示 Agentforce 2.0/3.0 全自动智能体生态及企业级商业落地大单。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 季度业绩发布与 FCF 持续超预期</div>
+                <div class="info-card-desc">重点观察营业利润率向 25%+ 迈进的节奏以及 Data Cloud 订阅客户数的爆发式增长。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 新一轮资本返还与股息调增</div>
+                <div class="info-card-desc">在强劲自由现金流支撑下，预计董事会将继续扩大股份回购授权并按期提高季度现金分红。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 16: 最终投资评级与执行建议 -->
+    <section id="sec-16" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏁</span> 16. 最终投资评级与执行建议 (Final Verdict & Execution Plan)</h2>
+            <span class="sec-tag">标准化投资决策</span>
+        </div>
+        
+        <div class="signal-block">
+            <div class="signal-main">
+                <div class="signal-badge-lg">强烈看多 (STRONG BUY)</div>
+                <div>
+                    <div style="font-size: 18px; font-weight: 800;">综合量化评级: 8.3 / 10</div>
+                    <div class="signal-meta">投资周期: 中长期 (6-24个月) | 置信度: HIGH (极高数据置信)</div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 12px; opacity: 0.85;">现价: $205.56 | 内在价值中枢: $419.33</div>
+                <div style="font-size: 15px; font-weight: 700; color: #A7F3D0; margin-top: 4px;">首选策略: 现货加仓 + Sell Put ($180 / $190)</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 18px; line-height: 1.7; font-size: 13.5px; color: var(--text-secondary);">
+            <strong>📌 机构执行路线图：</strong>
+            <ul style="padding-left: 20px; margin-top: 8px;">
+                <li><strong>期权现金流策略：</strong>卖出 2026-09-18 到期、行权价 $190.00 的 Put 期权，获取约 $4.88 权利金（年化 APY 31.2%），若股价不破 $190 则稳收高额现金流；若跌破被行权，则以 $185.12 的极限安全成本承接全球 CRM 龙头。</li>
+                <li><strong>现货长线配置策略：</strong>现价 $205 附近已突破 200 日均线，可直接建立 40%-50% 核心仓位，第一目标价看向华尔街分析师均价 $242.74，长线目标看向 DCF 基准内在价值 $400+。</li>
+            </ul>
+        </div>
+    </section>
+
+</div>
+
+<footer style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); background: #fff;">
+    InvestSkill Institutional Equity Research Framework • 数据来源: SEC EDGAR 10-K/10-Q, yfinance, Robinhood MCP API • 仅供量化投研参考
+</footer>
+
+<script>
+    // 渲染多因子雷达图
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['商业质量', '估值水平', '市场与资金', '技术面形态', '风险防御'],
+            datasets: [{
+                label: 'CRM 量化得分',
+                data: [9.2, 8.8, 7.8, 7.5, 8.5],
+                backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#10B981',
+                pointBackgroundColor: '#059669',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#059669',
+                borderWidth: 2.5
+            }, {
+                label: '标普500科技板块基准',
+                data: [7.5, 5.0, 6.5, 6.0, 7.0],
+                backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                borderColor: '#94A3B8',
+                borderDash: [4, 4],
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(0, 0, 0, 0.08)' },
+                    grid: { color: 'rgba(0, 0, 0, 0.08)' },
+                    pointLabels: {
+                        font: { size: 12, weight: '600' },
+                        color: '#334155'
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, display: false }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { boxWidth: 12, font: { size: 11, weight: '600' } }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
