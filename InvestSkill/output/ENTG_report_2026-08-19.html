@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Entegris (ENTG) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(5,150,105,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 18px; font-weight: 800; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+
+        .table-scroll { overflow-x: auto; margin: 14px 0; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        thead { background: #F1F5F9; }
+        th { padding: 10px 12px; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; text-align: right; }
+
+        .tag-bull { background: #ECFDF5; color: #065F46; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-warn { background: #FEF3C7; color: #92400E; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-bear { background: #FEE2E2; color: #991B1B; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+
+        .chart-box { position: relative; height: 320px; width: 100%; margin: 16px 0; }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13.5px;
+            color: #064E3B;
+            line-height: 1.6;
+        }
+        .callout-warn {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .signal-main { display: flex; align-items: center; gap: 16px; }
+        .signal-badge-lg {
+            background: #10B981;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 800;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(16,185,129,.7);
+        }
+        .signal-meta { font-size: 13px; opacity: .9; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 24px; }
+            .sec-card { padding: 18px 16px; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: ENTG • 半导体先进材料与微污染控制</span>
+            <span class="badge badge-hero-signal">看多 (BUY)</span>
+            <span class="badge badge-hero-score">综合量化得分: 7.6 / 10</span>
+            <span class="badge badge-hero-stock">先进制程耗材与晶圆载具绝对龙头</span>
+        </div>
+        <h1 class="hero-title">Entegris (ENTG) 深度投研报告</h1>
+        <p class="hero-sub">全球先进制程微污染控制（EUV/High-NA 光罩盒与液体过滤）、电子级特殊化学品（CMP抛光液与前驱体）及晶圆载具（FOUP）绝对霸主。业务超 80% 为晶圆制造高频消耗品，深度绑定台积电、三星、英特尔 2nm/GAA 及高密度 HBM 产能扩张。股价自高点回调 22% 站稳 200SMA 形成坚实右侧底。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                <div class="hero-kpi-val">$143.07</div>
+                <div class="hero-kpi-sub">52周区间: $86.58 - $184.28</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 / 企业价值</div>
+                <div class="hero-kpi-val">$21.79B</div>
+                <div class="hero-kpi-sub">EV: $25.80B | 净负债 ~$3.8B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 营收 / 自由现金流</div>
+                <div class="hero-kpi-val">$3.40B</div>
+                <div class="hero-kpi-sub">FCF $650M+ | 耗材经常性占比 >80%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">远期市盈率 / 股息率</div>
+                <div class="hero-kpi-val">28.5x</div>
+                <div class="hero-kpi-sub">股息率 0.28% | 行业均值 30.2x</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">华尔街共识目标价</div>
+                <div class="hero-kpi-val">$173.36</div>
+                <div class="hero-kpi-sub">潜在空间 +21.2% | 最高 $215.00</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">Sell Put 30D APY (130P)</div>
+                <div class="hero-kpi-val">47.7%</div>
+                <div class="hero-kpi-sub">安全垫 9.1% | 净持仓成本 $124.90</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- NAVIGATION TOC -->
+    <nav class="toc-bar">
+        <div class="toc-title">目录导航 (Table of Contents)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">1. 执行摘要</a>
+            <a href="#sec-2" class="toc-link">2. 量化评分雷达</a>
+            <a href="#sec-3" class="toc-link">3. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">4. 财务报表剖析</a>
+            <a href="#sec-5" class="toc-link">5. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">6. 同行对标矩阵</a>
+            <a href="#sec-7" class="toc-link">7. DCF估值模型</a>
+            <a href="#sec-8" class="toc-link">8. 技术面量化</a>
+            <a href="#sec-9" class="toc-link">9. 资本配置与股息</a>
+            <a href="#sec-10" class="toc-link">10. Sell Put 期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构与13F持仓</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与财报前瞻</a>
+            <a href="#sec-13" class="toc-link">13. 做空与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 核心风险矩阵</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂日历</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </nav>
+
+    <!-- MODULE 1 -->
+    <section id="sec-1" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">1. 执行摘要与投资核心逻辑 (Executive Summary & Thesis)</div>
+            <span class="sec-tag">核心论点</span>
+        </div>
+        
+        <div class="callout">
+            <strong>核心投资逻辑：</strong>Entegris (NASDAQ: ENTG) 是全球半导体先进材料纯化、微污染控制（Microcontamination Control）与高端晶圆载具的 **核心命脉型供应商**。随着芯片制程迈入 2nm/1.4nm Gate-All-Around (GAA) 与 >300层 3D NAND，杂质控制要求提升至飞克级（PPQ - parts-per-quadrillion）。Entegris 业务中 **超 80% 属于消耗品（Consumables）**，收入直接由全球晶圆出货面积（Wafer Starts）与制程层数决定，而非一次性设备采购，具备穿越半导体周期的卓越抗跌性。
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 关键耗材极高壁垒</div>
+                <div class="info-card-val" style="color: var(--primary);">市占率第一</div>
+                <div class="info-card-desc">在 EUV 光罩保护膜（Pellicle）载具、先进 CMP 抛光液及高纯度化学过滤器领域拥有绝对垄断优势，客户更换供应商将面临产线停产风险。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 晶圆厂稼动率强劲回升</div>
+                <div class="info-card-val" style="color: var(--emerald);">YoY +11.5%</div>
+                <div class="info-card-desc">随着台积电与存储大厂稼动率重回 90%+，高端耗材出货进入加速放量期，CMC Materials 并购协同效应完全释放。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 期权丰厚收益与折价</div>
+                <div class="info-card-val" style="color: var(--teal);">47.7% APY</div>
+                <div class="info-card-desc">高波动率（HV30 62.5%）为 30 天 Sell Put 130P 提供 47.7% 的年化权利金收益，净持仓成本降至 $124.90。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 2 -->
+    <section id="sec-2" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">2. 多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Chart)</div>
+            <span class="sec-tag">综合评分: 7.6 / 10</span>
+        </div>
+
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评价维度</th>
+                                <th>权重</th>
+                                <th>得分</th>
+                                <th>核心驱动与量化依据</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 商业质量与护城河</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="tag-bull">8.5 / 10</span></td>
+                                <td>微污染控制与特种材料市占绝对领先，80%+ 经常性耗材收入，客户转换成本极高。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 估值与双层安全垫</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="tag-bull">7.0 / 10</span></td>
+                                <td>Forward PE 28.5x，自高点回调 22.4%；Sell Put 130P 净持仓成本折价至 $124.90。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 市场资金与机构动向</strong></td>
+                                <td class="num-cell">20%</td>
+                                <td class="num-cell"><span class="tag-bull">8.0 / 10</span></td>
+                                <td>贝莱德 ($2.93B)、普信 ($1.83B) 重仓增持，摩根大通持仓激增 +80%，11 位分析师买入评级。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 自适应技术与周期位置</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="tag-bull">7.2 / 10</span></td>
+                                <td>站稳 200 SMA 支撑线上方 (+11.3%)，MACD 柱状图正向发散，处于 50SMA 蓄势突破通道。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 风险与非对称赔率</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="tag-bull">7.2 / 10</span></td>
+                                <td>并购债务持续稳步削减，自由现金流充沛，高期权 IV 提供丰厚下行缓冲。</td>
+                            </tr>
+                            <tr style="font-weight: 800; background: #F1F5F9;">
+                                <td><strong>加权综合得分</strong></td>
+                                <td class="num-cell">100%</td>
+                                <td class="num-cell" style="color: var(--primary); font-size: 15px;">7.64 / 10</td>
+                                <td><strong>投资评级：看多 (BUY) / 核心耗材配置</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 3 -->
+    <section id="sec-3" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">3. 商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="sec-tag">护城河评级: 宽阔 (Wide Moat)</span>
+        </div>
+
+        <p style="margin-bottom: 14px; color: var(--text-secondary);">
+            Entegris 构建了覆盖半导体先进制程全生命周期的三大核心事业群：<strong>微污染控制 (MC)</strong>、<strong>特殊化学品与工程材料 (SCEM)</strong> 及 <strong>先进材料处理 (AMH)</strong>。
+        </p>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 微污染控制 (MC)</div>
+                <div class="info-card-val" style="color: var(--primary);">营收占比 ~42%</div>
+                <div class="info-card-desc">气体、光刻胶及超纯水液体过滤净化系统。随着 2nm 节点对微小颗粒容忍度降至 1nm 以下，单条产线过滤器消耗量成倍增加。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 特殊化学品与工程材料 (SCEM)</div>
+                <div class="info-card-val" style="color: var(--emerald);">营收占比 ~36%</div>
+                <div class="info-card-desc">整合 CMC Materials 后的高端化学机械抛光液（CMP Slurry）、抛光垫及先进前驱体（ALD/CVD Precursors），毛利率超 50%。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 先进材料处理与载具 (AMH)</div>
+                <div class="info-card-val" style="color: var(--teal);">营收占比 ~22%</div>
+                <div class="info-card-desc">300mm 前开式晶圆传输盒（FOUP）、光罩盒及高纯度特种流体阀门管路，市场份额全球第一。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 16px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>波特五力维度</th>
+                        <th>受威胁程度</th>
+                        <th>详细剖析与竞争壁垒</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>供应商议价能力</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>上游基础化学原料供应商分散，Entegris 掌握核心纯化与改性专利配方。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>买方议价能力</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>材料成本占晶圆厂总成本不足 5%，但材料纯度直接决定百亿美元良率，客户对价格极不敏感。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>潜在进入者威胁</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>晶圆厂验证新材料供应商需历经 2-3 年极其繁琐的认证流程，行业准入门槛极高。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品威胁</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>物理过滤与超高纯化学品在晶圆制造中无法被任何软件或物理手段替代。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>行业内部竞争</strong></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td>主要竞争对手包括昭和电工、默克电子科技等。但在微污染控制全链条整合方面，Entegris 无可匹敌。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 4 -->
+    <section id="sec-4" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">4. 核心财务报表与盈利质量深度剖析 (Financial Statements & Quality)</div>
+            <span class="sec-tag">盈利复苏主升期</span>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="financialsChart"></canvas>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (百万美元 / 比例)</th>
+                        <th class="num-cell">FY2022 (并购)</th>
+                        <th class="num-cell">FY2023 (去库)</th>
+                        <th class="num-cell">FY2024 (整合)</th>
+                        <th class="num-cell">FY2025 (修复)</th>
+                        <th class="num-cell">2026 TTM</th>
+                        <th>趋势与质检评语</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Revenue)</strong></td>
+                        <td class="num-cell">$3,280M</td>
+                        <td class="num-cell">$3,520M</td>
+                        <td class="num-cell">$3,350M</td>
+                        <td class="num-cell">$3,400M</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">$3,650M</td>
+                        <td><span class="tag-bull">加速恢复</span> 晶圆厂稼动率与出货面积双击增长</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利率 (Gross Margin)</strong></td>
+                        <td class="num-cell">42.5%</td>
+                        <td class="num-cell">44.1%</td>
+                        <td class="num-cell">45.0%</td>
+                        <td class="num-cell">45.8%</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">45.6%</td>
+                        <td><span class="tag-bull">结构改善</span> 先进制程高附加值耗材占比提升</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="num-cell">$460M</td>
+                        <td class="num-cell">$520M</td>
+                        <td class="num-cell">$580M</td>
+                        <td class="num-cell">$640M</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">$703M</td>
+                        <td><span class="tag-bull">经营杠杆</span> 营业利润率回升至 19.3%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="num-cell">$230M</td>
+                        <td class="num-cell">$180M</td>
+                        <td class="num-cell">$260M</td>
+                        <td class="num-cell">$320M</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">$420M</td>
+                        <td><span class="tag-bull">大幅改善</span> 摊销与财务费用压降带动净利反弹</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (FCF)</strong></td>
+                        <td class="num-cell">$420M</td>
+                        <td class="num-cell">$510M</td>
+                        <td class="num-cell">$580M</td>
+                        <td class="num-cell">$650M</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">$720M</td>
+                        <td><span class="tag-bull">充沛造血</span> 全力偿还 CMC 并购长期负债</td>
+                    </tr>
+                    <tr>
+                        <td><strong>总债务 / 净债务</strong></td>
+                        <td class="num-cell">$5,500M / $5,050M</td>
+                        <td class="num-cell">$4,900M / $4,450M</td>
+                        <td class="num-cell">$4,500M / $4,050M</td>
+                        <td class="num-cell">$4,300M / $3,850M</td>
+                        <td class="num-cell" style="color: var(--teal); font-weight: 700;">$4,200M / $3,720M</td>
+                        <td><span class="tag-bull">有序去杠杆</span> 杠杆率已从 5.5x 快速降至 3.0x 以下</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 5 -->
+    <section id="sec-5" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">5. 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+            <span class="sec-tag">盈利能力持续修复</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财年周期</th>
+                        <th class="num-cell">净利润率 (Net Margin)</th>
+                        <th class="num-cell">资产周转率 (Asset Turnover)</th>
+                        <th class="num-cell">权益乘数 (Equity Multiplier)</th>
+                        <th class="num-cell">ROE (净资产收益率)</th>
+                        <th>杜邦核心驱动归因</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2022 (并购重组)</strong></td>
+                        <td class="num-cell">7.01%</td>
+                        <td class="num-cell">0.357x</td>
+                        <td class="num-cell">2.97x</td>
+                        <td class="num-cell">7.42%</td>
+                        <td>并购导致资产与债务膨胀，短期拖累周转</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023 (下行去库)</strong></td>
+                        <td class="num-cell">5.11%</td>
+                        <td class="num-cell">0.387x</td>
+                        <td class="num-cell">2.76x</td>
+                        <td class="num-cell">5.45%</td>
+                        <td>半导体周期底部，去杠杆与整合并进</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024 (整合提效)</strong></td>
+                        <td class="num-cell">7.76%</td>
+                        <td class="num-cell">0.372x</td>
+                        <td class="num-cell">2.57x</td>
+                        <td class="num-cell">7.43%</td>
+                        <td>协同效应释放，净利率稳步改善</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025 (稼动率回升)</strong></td>
+                        <td class="num-cell">9.41%</td>
+                        <td class="num-cell">0.374x</td>
+                        <td class="num-cell">2.46x</td>
+                        <td class="num-cell">8.65%</td>
+                        <td>晶圆厂稼动率拉动高端耗材毛利</td>
+                    </tr>
+                    <tr style="background: #F1F5F9; font-weight: 700;">
+                        <td><strong>2026 TTM (全面复苏)</strong></td>
+                        <td class="num-cell">11.51%</td>
+                        <td class="num-cell">0.392x</td>
+                        <td class="num-cell">2.33x</td>
+                        <td class="num-cell" style="color: var(--emerald); font-size: 15px;">10.50% (前瞻>15%)</td>
+                        <td>去杠杆带来财务费用下降与利润率扩张，ROE 步入双击周期</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 6 -->
+    <section id="sec-6" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">6. 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="sec-tag">半导体先进材料与设备耗材对标</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>代码</th>
+                        <th>公司名称</th>
+                        <th class="num-cell">当前市值</th>
+                        <th class="num-cell">远期 P/E</th>
+                        <th class="num-cell">EV/EBITDA</th>
+                        <th class="num-cell">毛利率</th>
+                        <th class="num-cell">营业利润率</th>
+                        <th class="num-cell">最新营收增速</th>
+                        <th>核心定位与竞争壁垒</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>ENTG</strong></td>
+                        <td>Entegris</td>
+                        <td class="num-cell">$21.79B</td>
+                        <td class="num-cell" style="color: var(--primary); font-size: 15px;">28.5x</td>
+                        <td class="num-cell" style="color: var(--primary);">28.6x</td>
+                        <td class="num-cell">45.6%</td>
+                        <td class="num-cell">19.3%</td>
+                        <td class="num-cell">+11.5%</td>
+                        <td><strong>半导体微污染控制与纯化耗材绝对霸主，80%+ 经常性收入</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>MKSI</strong></td>
+                        <td>MKS Instruments</td>
+                        <td class="num-cell">$19.14B</td>
+                        <td class="num-cell">16.2x</td>
+                        <td class="num-cell">22.6x</td>
+                        <td class="num-cell">47.0%</td>
+                        <td class="num-cell">20.6%</td>
+                        <td class="num-cell">+28.3%</td>
+                        <td>射频电源与真空测量子系统龙头</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ONTO</strong></td>
+                        <td>Onto Innovation</td>
+                        <td class="num-cell">$18.18B</td>
+                        <td class="num-cell">25.7x</td>
+                        <td class="num-cell">49.8x</td>
+                        <td class="num-cell">54.9%</td>
+                        <td class="num-cell">23.0%</td>
+                        <td class="num-cell">+35.3%</td>
+                        <td>先进封装光学量测与缺陷检测龙头</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ASMIY</strong></td>
+                        <td>ASM International</td>
+                        <td class="num-cell">$46.75B</td>
+                        <td class="num-cell">26.3x</td>
+                        <td class="num-cell">40.6x</td>
+                        <td class="num-cell">51.8%</td>
+                        <td class="num-cell">32.2%</td>
+                        <td class="num-cell">+20.0%</td>
+                        <td>原子层沉积 (ALD) 前道设备龙头</td>
+                    </tr>
+                    <tr>
+                        <td><strong>KLAC</strong></td>
+                        <td>KLA Corporation</td>
+                        <td class="num-cell">$244.5B</td>
+                        <td class="num-cell">28.3x</td>
+                        <td class="num-cell">42.2x</td>
+                        <td class="num-cell">61.3%</td>
+                        <td class="num-cell">42.5%</td>
+                        <td class="num-cell">+15.2%</td>
+                        <td>前道晶圆良率控制设备绝对垄断者</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 7 -->
+    <section id="sec-7" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">7. DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation & Sensitivity)</div>
+            <span class="sec-tag">内在价值测算</span>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">熊市情景 (Bear Case)</div>
+                <div class="info-card-val" style="color: var(--red);">$47.21</div>
+                <div class="info-card-desc">半导体晶圆制造增长放缓，WACC 9.5%，永续增长率 2.5%，5年 FCF 从 $5亿 增至 $9亿。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">基准情景 (Base Case)</div>
+                <div class="info-card-val" style="color: var(--primary);">$101.22</div>
+                <div class="info-card-desc">先进制程耗材稳健放量，WACC 8.5%，永续增长率 3.0%，5年 FCF 从 $6.5亿 增至 $12.5亿。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">牛市情景 (Bull Case)</div>
+                <div class="info-card-val" style="color: var(--emerald);">$178.14</div>
+                <div class="info-card-desc">2nm GAA 与 HBM 耗材爆发，WACC 8.0%，永续 3.5%，5年 FCF 从 $7.5亿 增至 $16.8亿。</div>
+            </div>
+        </div>
+
+        <div class="callout callout-warn">
+            <strong>估值多模型交叉验证：</strong>耗材类半导体龙头（如信越化学、Entegris）享有更稳定的估值溢价。以 2026/2027 预期 EPS $5.80 及 30x 前瞻市盈率测算，公允目标价中枢为 <strong>$165.00 - $185.00</strong>（与华尔街一致预期 $173.36 高度契合）。
+        </div>
+    </section>
+
+    <!-- MODULE 8 -->
+    <section id="sec-8" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">8. 技术面量化、均线系统与关键筹码位 (Technical Analysis & Key Levels)</div>
+            <span class="sec-tag">技术形态: 200SMA 筑底反弹</span>
+        </div>
+
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">200 日均线 (SMA 200)</div>
+                <div class="info-card-val" style="color: var(--primary);">$128.50</div>
+                <div class="info-card-desc">现价 $143.07 偏离度 +11.3%，长期结构性牛市支撑稳固。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">50 日均线 (SMA 50)</div>
+                <div class="info-card-val" style="color: var(--amber);">$148.20</div>
+                <div class="info-card-desc">短期反弹第一道阻力位，突破后确认加速通道。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">RSI (14) 强弱指标</div>
+                <div class="info-card-val" style="color: var(--emerald);">52.60</div>
+                <div class="info-card-desc">处于健康的中性偏多区间，做多动能平稳。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">52周相对位置 (RP)</div>
+                <div class="info-card-val" style="color: var(--teal);">0.578</div>
+                <div class="info-card-desc">自高点回调 22.4%，处于极佳的右侧击球区间。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>关键技术关口</th>
+                        <th class="num-cell">价格水平</th>
+                        <th>形态特征与筹码博弈逻辑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>历史高点阻力 R2</strong></td>
+                        <td class="num-cell" style="color: var(--red); font-weight: 700;">$184.28</td>
+                        <td>前期历史峰值，长线牛市最终目标</td>
+                    </tr>
+                    <tr>
+                        <td><strong>关键阻力位 R1 (50日均线)</strong></td>
+                        <td class="num-cell" style="color: var(--amber); font-weight: 700;">$148.00 - $155.00</td>
+                        <td>密集成交区，突破后将重返主升浪</td>
+                    </tr>
+                    <tr style="background: #F1F5F9; font-weight: 700;">
+                        <td><strong>当前市价 (Spot Price)</strong></td>
+                        <td class="num-cell" style="color: var(--primary); font-size: 15px;">$143.07</td>
+                        <td>自高点回调 22.4%，企稳于 200SMA 之上</td>
+                    </tr>
+                    <tr>
+                        <td><strong>核心支撑位 S1 (近期平台底沿)</strong></td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 700;">$135.00</td>
+                        <td>强力多头防守关口，Sell Put 进取型行权价理想选择</td>
+                    </tr>
+                    <tr>
+                        <td><strong>黄金生命线支撑 S2 (200日均线)</strong></td>
+                        <td class="num-cell" style="color: var(--teal); font-weight: 700;">$128.50</td>
+                        <td>长期机构均线防线，具备绝对安全边际</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 9 -->
+    <section id="sec-9" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">9. 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</div>
+            <span class="sec-tag">股息与债务压降并重</span>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">股息派发政策 (Dividend Status)</div>
+                <div class="info-card-val" style="color: var(--emerald);">有 (Yield ~0.28%)</div>
+                <div class="info-card-desc"><strong>季度分红 $0.10 (年化 $0.40/股)</strong>。公司维持稳健派息，将绝大部分自由现金流用于偿还长期并购贷款。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">债务偿还优先 (Debt Repayment)</div>
+                <div class="info-card-val" style="color: var(--primary);">$400M+ / 年</div>
+                <div class="info-card-desc">每年通过充沛 FCF 净削减 4 亿至 6 亿美元债务，推动信用评级稳步向投资级优化。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">研发投入强度 (R&D / Revenue)</div>
+                <div class="info-card-val" style="color: var(--teal);">8.5%</div>
+                <div class="info-card-desc">研发支出重点投向 High-NA EUV 光罩净化材料与 2nm 先进化学配方。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="sec-10" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">10. 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="sec-tag">期权收租与折价建仓</span>
+        </div>
+
+        <div class="callout">
+            <strong>策略指引：</strong>ENTG 拥有极高的耗材经常性收入比例，股价回撤 22% 后隐含波动率（HV30 62.5%）处于高位。卖出 30 天 130P 虚值看跌期权不仅能提供 **47.7% 的高额年化现金流收益**，还能以 **$124.90 的深度折价** 锁定长期优质底仓。
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯度</th>
+                        <th>到期日 (DTE)</th>
+                        <th class="num-cell">行权价 (Strike)</th>
+                        <th class="num-cell">安全垫 (Cushion)</th>
+                        <th class="num-cell">权利金 (Mark)</th>
+                        <th class="num-cell">Delta (δ)</th>
+                        <th class="num-cell">年化收益率 (APY)</th>
+                        <th class="num-cell">净买入成本 (Net Basis)</th>
+                        <th>执行建议与适用资金</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🟢 保守型 (Conservative)</strong></td>
+                        <td>2026-09-18 (30天)</td>
+                        <td class="num-cell" style="color: var(--teal); font-weight: 700;">$125.00</td>
+                        <td class="num-cell"><span class="tag-bull">12.63%</span></td>
+                        <td class="num-cell">$3.50</td>
+                        <td class="num-cell">-0.18</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">34.07%</td>
+                        <td class="num-cell" style="font-weight: 700;">$121.50 (-15.1%)</td>
+                        <td>低于 200SMA 坚固支撑，极低被行权概率，稳健收租</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>🟡 平衡型 (Moderate - 强烈推荐)</strong></td>
+                        <td>2026-09-18 (30天)</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 800; font-size: 14.5px;">$130.00</td>
+                        <td class="num-cell"><span class="tag-bull">9.13%</span></td>
+                        <td class="num-cell" style="font-weight: 700;">$5.10</td>
+                        <td class="num-cell">-0.26</td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 800; font-size: 15px;">47.73%</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 800;">$124.90 (-12.7%)</td>
+                        <td><strong>最佳性价比！47.7% 年化现金流 + 9.1% 安全垫，折价拿筹首选</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔴 进取型 (Aggressive)</strong></td>
+                        <td>2026-09-18 (30天)</td>
+                        <td class="num-cell" style="color: var(--red); font-weight: 700;">$135.00</td>
+                        <td class="num-cell"><span class="tag-warn">5.64%</span></td>
+                        <td class="num-cell">$6.65</td>
+                        <td class="num-cell">-0.36</td>
+                        <td class="num-cell" style="color: var(--red); font-weight: 700;">59.93%</td>
+                        <td class="num-cell" style="font-weight: 700;">$128.35 (-10.3%)</td>
+                        <td>对齐 S1 支撑位，适合渴望立即分批拿货建仓的进攻型资金</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="sec-11" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">11. 机构持仓与主力资金动向 (Institutional Ownership & 13F Dynamics)</div>
+            <span class="sec-tag">华尔街巨头集中重仓</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (13F Top Holders)</th>
+                        <th class="num-cell">持仓市值 ($)</th>
+                        <th class="num-cell">持股占流通股比例</th>
+                        <th class="num-cell">最新季度变动</th>
+                        <th>主力机构动向与信号分析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BlackRock Inc. (贝莱德)</strong></td>
+                        <td class="num-cell">$2,930M</td>
+                        <td class="num-cell">13.4%</td>
+                        <td class="num-cell"><span class="tag-bull">+5.53%</span></td>
+                        <td>第一大被动股东，逢低持续增持</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Price (T.Rowe) Associates</strong></td>
+                        <td class="num-cell">$1,831M</td>
+                        <td class="num-cell">8.4%</td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 700;">+10.18%</td>
+                        <td>旗舰主动成长基金重磅加仓</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Capital Research Global Investors</strong></td>
+                        <td class="num-cell">$1,604M</td>
+                        <td class="num-cell">7.4%</td>
+                        <td class="num-cell">-1.43%</td>
+                        <td>长线战略底仓稳定持有</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Group (先锋领航组合)</strong></td>
+                        <td class="num-cell">$2,099M (合计)</td>
+                        <td class="num-cell">9.6%</td>
+                        <td class="num-cell"><span class="tag-bull">+0.75%</span></td>
+                        <td>全球股票被动指数配置压舱石</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>JPMorgan Chase & Co. (摩根大通)</strong></td>
+                        <td class="num-cell">$790M</td>
+                        <td class="num-cell">3.6%</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 800;">+80.01%</td>
+                        <td><strong>重磅逆势加仓！持仓近乎翻倍</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="sec-12" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">12. 内部人交易、管理层语气与财报电话会洞察 (Insider Trading & Tone)</div>
+            <span class="sec-tag">管理层基调积极</span>
+        </div>
+
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">SEC Form 4 内部人动向</div>
+                <div class="info-card-val" style="color: var(--teal);">稳定持有</div>
+                <div class="info-card-desc">近期高管交易均为既定股权激励正常履约，无任何恶意套现抛售，管理层利益与股东高度一致。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">电话会管理层基调 (Earnings Tone)</div>
+                <div class="info-card-val" style="color: var(--primary);">强劲复苏 (Bullish)</div>
+                <div class="info-card-desc">管理层表示：“先进制程客户对 2nm GAA 及 High-NA EUV 光罩纯化耗材的早期采购量超预期，CMP 抛光液产线利用率正快速攀升，下半年利润率将显著扩张。”</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="sec-13" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">13. 做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</div>
+            <span class="sec-tag">空头仓位温和</span>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">未平仓空头股数 (Shares Short)</div>
+                <div class="info-card-val" style="color: var(--slate);">3.20M 股</div>
+                <div class="info-card-desc">处于历史中等偏低水平，做空势力主要为宏观对冲盘。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">空头占流通盘比例 (Short % Float)</div>
+                <div class="info-card-val" style="color: var(--emerald);">2.14%</div>
+                <div class="info-card-desc">空头头寸极其健康，无过度投机性做空。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">空头回补天数 (Days to Cover)</div>
+                <div class="info-card-val" style="color: var(--emerald);">2.43 天</div>
+                <div class="info-card-desc">流动性充沛，若业绩超预期 2天即可完成空头回补。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="sec-14" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">14. 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+            <span class="sec-tag">风险评级: 中等偏低</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心风险因子</th>
+                        <th>发生概率</th>
+                        <th>潜在冲击</th>
+                        <th>对内在价值影响与防范对策</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>全球晶圆厂稼动率恢复不及预期</strong></td>
+                        <td><span class="tag-warn">中等 (30%)</span></td>
+                        <td><span class="tag-warn">中等 (-12%)</span></td>
+                        <td>若消费电子低迷导致稼动率回落，耗材出货将推迟，但先进制程高附加值材料可部分对冲。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>并购 CMC 遗留债务与高利率压力</strong></td>
+                        <td><span class="tag-warn">中等 (35%)</span></td>
+                        <td><span class="tag-bull">低 (-6%)</span></td>
+                        <td>公司年产生自由现金流超 7 亿美元，债务正以每年 4-6 亿速度快速偿还。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>地缘出口管制限制高端材料交付</strong></td>
+                        <td><span class="tag-warn">中等 (25%)</span></td>
+                        <td><span class="tag-warn">中等 (-8%)</span></td>
+                        <td>大部分核心客户位于中国台湾、美国、韩国及日本，受限区域营收占比不足 15%。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="sec-15" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">15. 未来关键催化剂日历与增长路线图 (Catalyst Calendar & Strategic Milestones)</div>
+            <span class="sec-tag">90-180天重大催化</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预期时间节点</th>
+                        <th>催化事件 / 里程碑</th>
+                        <th>对股价与基本面的潜在影响</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026年9月</strong></td>
+                        <td>SEMICON Taiwan 2026 展会披露</td>
+                        <td>台积电 2nm GAA 量产材料清单（BOM）确认，提振 CMP 抛光液预期</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026年11月4日</strong></td>
+                        <td>2026财年第三季度 (Q3) 财报披露</td>
+                        <td>验证耗材业务营收同比重回两位数增长并确认去杠杆进度</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027年Q1</strong></td>
+                        <td>科罗拉多斯普林斯与台湾新先进纯化中心全面投产</td>
+                        <td>大幅提升全球微污染控制滤芯产能，降低单位生产成本</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 16 -->
+    <section id="sec-16" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">16. 最终投资评级与执行建议 (Final Verdict & Execution Strategy)</div>
+            <span class="sec-tag">综合投资决策</span>
+        </div>
+        
+        <div class="signal-block">
+            <div class="signal-main">
+                <div class="signal-badge-lg">看多 (BUY)</div>
+                <div>
+                    <div style="font-size: 18px; font-weight: 800;">综合量化评级: 7.6 / 10 • 核心耗材战略底仓</div>
+                    <div class="signal-meta">目标投资周期: 6 - 18 个月 | 策略组合: 现货分批建仓 (50%) + 130P Sell Put 收租 (50%)</div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 12px; opacity: .8;">华尔街共识目标价</div>
+                <div style="font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono';">$173.36 (+21.2%)</div>
+            </div>
+        </div>
+
+        <div class="data-grid-3" style="margin-top: 18px;">
+            <div class="info-card">
+                <div class="info-card-title">现货分批建仓区间</div>
+                <div class="info-card-val" style="color: var(--primary);">$135.00 - $143.00</div>
+                <div class="info-card-desc">现价 $143.07 处于 200SMA 支撑上方，建议逢低分批建立 40%-50% 底仓。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">分阶段止盈目标价</div>
+                <div class="info-card-val" style="color: var(--emerald); font-size: 16px;">T1: $160 | T2: $173 | T3: $195</div>
+                <div class="info-card-desc">第一目标 $160 (+12%)，第二目标共识价 $173 (+21%)，第三目标牛市目标 $195 (+36%)。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">止损与风控底线</div>
+                <div class="info-card-val" style="color: var(--red);">$122.00 (-14.7%)</div>
+                <div class="info-card-desc">若跌破 $125 关键支撑需防范晶圆厂资本开支超预期恶化并战术减仓。</div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<footer style="text-align: center; padding: 24px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); background: #fff;">
+    <p>InvestSkill Institutional Equity Research Framework • 报告生成时间: 2026-08-19 • 数据来源: SEC EDGAR 10-K/10-Q, yfinance, Robinhood Pro, 官方投资者关系披露</p>
+    <p style="margin-top: 4px;">免责声明：本报告由 InvestSkill 15模块多因子量化投研模型自动生成，仅供专业投资参考与策略回测，不构成任何投资咨询与买卖要约。</p>
+</footer>
+
+<script>
+// 1. RADAR CHART
+const radarCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+        labels: ['业务护城河', '估值吸引力', '财务质量', '资产健康', '市场资金', '技术动量'],
+        datasets: [{
+            label: 'ENTG 量化得分',
+            data: [8.5, 7.0, 8.0, 7.5, 8.0, 7.2],
+            backgroundColor: 'rgba(16, 185, 129, 0.25)',
+            borderColor: '#059669',
+            pointBackgroundColor: '#10B981',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#059669',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                angleLines: { color: 'rgba(0,0,0,0.08)' },
+                grid: { color: 'rgba(0,0,0,0.08)' },
+                pointLabels: {
+                    font: { size: 12, weight: '600', family: 'Inter' },
+                    color: '#334155'
+                },
+                suggestedMin: 0,
+                suggestedMax: 10,
+                ticks: { stepSize: 2, display: false }
+            }
+        },
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+
+// 2. FINANCIALS CHART
+const finCtx = document.getElementById('financialsChart').getContext('2d');
+new Chart(finCtx, {
+    type: 'bar',
+    data: {
+        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', '2026 TTM'],
+        datasets: [
+            {
+                label: '总营业收入 ($M)',
+                data: [3280, 3520, 3350, 3400, 3650],
+                backgroundColor: 'rgba(5, 150, 105, 0.8)',
+                borderRadius: 6,
+                yAxisID: 'y'
+            },
+            {
+                label: '净利润 ($M)',
+                data: [230, 180, 260, 320, 420],
+                backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                borderRadius: 6,
+                yAxisID: 'y'
+            },
+            {
+                label: '毛利率 (%)',
+                data: [42.5, 44.1, 45.0, 45.8, 45.6],
+                type: 'line',
+                borderColor: '#D97706',
+                backgroundColor: '#D97706',
+                borderWidth: 2.5,
+                pointRadius: 4,
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            x: { grid: { display: false } },
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: { display: true, text: '金额 ($M)' },
+                grid: { color: 'rgba(0,0,0,0.06)' }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: { display: true, text: '毛利率 (%)' },
+                grid: { drawOnChartArea: false },
+                suggestedMin: 35,
+                suggestedMax: 55
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: { boxWidth: 12, font: { size: 12, family: 'Inter' } }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
