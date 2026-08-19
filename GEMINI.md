@@ -93,7 +93,10 @@ Whenever executing `research <TICKER>` or `@InvestSkill/prompts/full-report.md`,
 4. **核心财务报表与盈利质量深度剖析 (Financial Statements, Margins & Cash Flow Quality)**
 5. **杜邦三因子拆解与资本运营效率 (DuPont Analysis: Margin × Turnover × Leverage)**
 6. **行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix with Multiples, Margins, Market Share)**
-7. **DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation: Bear/Base/Bull & WACC Sensitivity)**
+7. **DCF 现金流折现、研发资本化成长模型与多维估值公允中枢 (DCF Valuation: Conservative Floor, Growth & R&D Capitalized DCF, Multiples-Implied Fair Value & Premium Decomposition Bridge)**:
+   - **四维多模型全景矩阵**: 并列呈现 ① 传统保守型 DCF（5年清算底线/极限压力测试）、② 研发资本化成长型 DCF（10年两阶段/纠正 GAAP 研发费用化扭曲/反映技术垄断真实内在价值）、③ 相对估值公允中枢（Forward P/E, EV/EBITDA, P/FCF 加权）、④ 华尔街机构共识目标价。
+   - **估值溢价拆解桥 (Valuation Premium Bridge)**: 显式拆解现价相对传统 DCF 的溢价来源（研发资本化无形资产、AI/先进制程非线性增长溢价、垄断护城河高 ROIC 溢价、净现金资产加成）。
+   - **Sell Put 策略精准锚定**: 测算 Sell Put 净持仓成本与研发资本化 DCF 真实内在价值区间的安全边际吻合度。
 8. **技术面量化、均线系统与关键筹码位 (Technical Analysis: SMA20/50/200, RSI, MACD, S/R)**
 9. **资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend: explicit "无/没有" if zero dividend)**
 10. **现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 (Conservative, Moderate, Aggressive 3 Tiers)**

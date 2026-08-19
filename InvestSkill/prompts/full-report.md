@@ -65,11 +65,13 @@ Score reflects durability of competitive advantages, financial health, and consi
 
 ### Phase 2 — Valuation & Dual-Anchor Margin of Safety
 
-Determine intrinsic, relative, and options-discounted worth of the business.
+Determine intrinsic, relative, and options-discounted worth of the business using a **4-Pillar Valuation Architecture**:
 
-- **dcf-valuation** — Intrinsic value with Bull/Base/Bear scenarios and WACC sensitivity
-- **stock-valuation** *(comprehensive)* — P/E, EV/EBITDA, P/S, P/FCF peer multiples and 5-year historical percentile
-- **Dual-Anchor Net Basis Floor** — Evaluates both spot discount and Cash-Secured Put net acquisition basis `min(Spot, Strike - Premium)` against DCF intrinsic value
+- **Conservative 5-Year DCF Floor** — Baseline stress-test intrinsic value with Bull/Base/Bear scenarios and WACC sensitivity (liquidation floor).
+- **Growth & R&D Capitalized DCF** — 10-year two-stage model capitalizing R&D investments (Aswath Damodaran framework) to reflect authentic technology monopoly intrinsic value.
+- **Multiples-Implied Fair Value Matrix** — Blended synthesis of Forward P/E, EV/EBITDA, and P/FCF Yield relative to peer moat multiples.
+- **Valuation Premium Bridge** — Explicit decomposition of premium over conservative DCF (R&D intangible asset, AI/secular non-linear growth, high ROIC moat pricing power, net cash buffer).
+- **Dual-Anchor Net Basis Floor** — Evaluates both spot discount and Cash-Secured Put net acquisition basis `min(Spot, Strike - Premium)` against R&D-capitalized DCF and conservative floor.
 
 Output: **Valuation & Margin of Safety Score (0–10)** — 10 = deep discount to intrinsic value (>40% margin of safety or net basis P/E < 15x on quality compounder); 5 = fair value; 0 = extreme overvaluation.
 

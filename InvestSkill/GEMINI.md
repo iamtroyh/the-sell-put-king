@@ -283,7 +283,7 @@ Whenever generating or updating an HTML report in the `output/` directory:
     4. 核心财务报表与盈利质量深度剖析 (Financial Statements, Margins & Cash Flow Quality)
     5. 杜邦三因子拆解与资本运营效率 (DuPont Analysis: Margin × Turnover × Leverage)
     6. 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix with Multiples, Margins, Market Share)
-    7. DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation: Bear/Base/Bull & WACC Sensitivity)
+    7. DCF 现金流折现、研发资本化成长模型与多维估值公允中枢 (DCF Valuation: Conservative Floor, Growth & R&D Capitalized DCF, Multiples-Implied Fair Value & Premium Decomposition Bridge)
     8. 技术面量化、均线系统与关键筹码位 (Technical Analysis: SMA20/50/200, RSI, MACD, S/R)
     9. 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend: explicit "无/没有" if zero dividend)
     10. 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 (Conservative, Moderate, Aggressive 3 Tiers)
