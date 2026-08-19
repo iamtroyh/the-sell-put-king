@@ -78,11 +78,17 @@ You can directly invoke any prompt framework using `@InvestSkill/prompts/<name>.
 
 ---
 
-## 3. Mandatory 15-Module Institutional Standard
+## 3. Mandatory 15-Module Institutional Standard & Quality-Conditioned Scoring
 
-Whenever executing `research <TICKER>` or `@InvestSkill/prompts/full-report.md`, strictly generate all 15 modules:
+Whenever executing `research <TICKER>` or `@InvestSkill/prompts/full-report.md`, strictly generate all 15 modules adhering to the **Quality-Conditioned Multi-Factor Architecture** (preventing momentum trap on tops and falling knife trap on distressed assets):
+
 1. **执行摘要与核心投资逻辑 (Executive Summary & Thesis)**
-2. **多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Chart)**
+2. **多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Chart)**:
+   - **商业质量与护城河 (25%)**: 护城河深度、ROIC/ROE、FCF Margin、特许经营与轻资产指标。
+   - **估值与双层安全垫 (25%)**: DCF 内在价值折现 + 历史倍数百分位 + Sell Put 净持仓成本折价。
+   - **市场资金与机构动向 (20%)**: 13F 机构增减持、SEC Form 4 内部人态度、财报电话会前瞻。
+   - **自适应技术与周期位置 (15%)**: 质量条件调制引擎（高质量宽护城河资产在 52 周底部 RP<0.20 判定为**左侧黄金坑 8.0-9.5 分**；劣质资产破位下行严惩为**毒飞刀 0.0-3.5 分**）。
+   - **风险与非对称赔率 (15%)**: 偿债安全度、IV 时间价值下行吸收率、做空比例与轧空弹性。
 3. **商业模式、垂直整合与波特五力护城河评级 (Business Model & Porter's 5 Forces)**
 4. **核心财务报表与盈利质量深度剖析 (Financial Statements, Margins & Cash Flow Quality)**
 5. **杜邦三因子拆解与资本运营效率 (DuPont Analysis: Margin × Turnover × Leverage)**

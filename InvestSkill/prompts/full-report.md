@@ -63,14 +63,15 @@ Establish qualitative and quantitative foundation before attempting valuation.
 Output: **Business Quality Score (0–10)**
 Score reflects durability of competitive advantages, financial health, and consistency of returns.
 
-### Phase 2 — Valuation
+### Phase 2 — Valuation & Dual-Anchor Margin of Safety
 
-Determine intrinsic and relative worth of the business.
+Determine intrinsic, relative, and options-discounted worth of the business.
 
-- **dcf-valuation** — Intrinsic value with Bull/Base/Bear scenarios
-- **stock-valuation** *(comprehensive)* — P/E, EV/EBITDA, P/S, P/FCF peer multiples
+- **dcf-valuation** — Intrinsic value with Bull/Base/Bear scenarios and WACC sensitivity
+- **stock-valuation** *(comprehensive)* — P/E, EV/EBITDA, P/S, P/FCF peer multiples and 5-year historical percentile
+- **Dual-Anchor Net Basis Floor** — Evaluates both spot discount and Cash-Secured Put net acquisition basis `min(Spot, Strike - Premium)` against DCF intrinsic value
 
-Output: **Valuation Score (0–10)** — 10 = deep discount to intrinsic value; 5 = fair value; 0 = extreme overvaluation.
+Output: **Valuation & Margin of Safety Score (0–10)** — 10 = deep discount to intrinsic value (>40% margin of safety or net basis P/E < 15x on quality compounder); 5 = fair value; 0 = extreme overvaluation.
 
 ### Phase 3 — Market Signals
 
@@ -82,25 +83,31 @@ Understand what sophisticated market participants are signaling.
 
 Output: **Market Signal Score (0–10)** — High = insider buying + institutional accumulation + positive management tone.
 
-### Phase 4 — Technical Timing
+### Phase 4 — Technical Timing & Quality-Conditioned Regime Switch
 
-Identify current technical setup to optimize entry timing.
+Identify current technical setup and asymmetric payoff position using a **Quality-Conditioned Regime Switching Engine** (preventing momentum trap on tops and falling knife trap on distressed assets):
 
-- **technical-analysis** — Trend structure, support/resistance, volume, momentum
-- **sector-analysis** *(standard+)* — Sector rotation, relative strength vs. benchmark
+- **High-Quality Asset Regime (Business Quality >= 7.5 & Financial Health >= 7.0)**:
+  - Switches to **Mean-Reversion & Value Floor Mode**:
+  - Deep 52W Low test (RP < 0.20), 200 SMA negative deviation, and RSI oversold/bullish divergence are scored as **Strong Left-Side Accumulation / Golden Pit (8.0–9.5)**.
+  - Overbought peaks (RP > 0.85, RSI > 75) without multiple expansion justification are penalized for chasing momentum (5.0–6.0).
+- **Distressed / Low-Quality Asset Regime (Business Quality < 5.0 or Solvency Risk High)**:
+  - Locks into **Strict Trend-Following & Breakdown Penalty Mode**:
+  - Downtrends and 200 SMA breakdowns are scored as **Weak / Toxic Falling Knife (0.0–3.5)** to prevent catching falling knives on deteriorating businesses.
+- **Classic Indicators**: MA30/60/90/200/365 alignment, RSI(14), MACD momentum, Volume profile, Key Support/Resistance.
 
-Output: **Technical Setup Score (0–10)** — Strong (8–10), Moderate (4–7), Weak (0–3).
+Output: **Technical & Position Score (0–10)** — 8.0–10.0 = Prime entry (Golden Pit floor or confirmed breakout); 4.0–7.0 = Consolidating / Neutral; 0.0–3.9 = Toxic breakdown or high-risk topping pattern.
 
-### Phase 5 — Risk Assessment
+### Phase 5 — Risk Assessment & Asymmetric Payoff
 
-Quantify downside risks and positioning pressure.
+Quantify downside risks, positioning pressure, and option-implied buffer.
 
-- **short-interest** *(standard+)* — Short positioning, days-to-cover, squeeze risk
-- **options-analysis** *(standard+)* — Implied volatility, put/call ratios, options flow
+- **short-interest** *(standard+)* — Short positioning, days-to-cover, squeeze risk (bullish catalyst for quality assets, danger sign for low-quality)
+- **options-analysis** *(standard+)* — Implied volatility percentile (IVP), options skew, put/call ratios, Theta cushion rate
 - **economics-analysis** *(comprehensive)* — Macro environment, rate sensitivity
-- **financial-report-analyst** *(comprehensive)* — 10-K/10-Q risk factors
+- **financial-report-analyst** *(comprehensive)* — 10-K/10-Q risk factors and debt maturity schedule
 
-Output: **Risk Profile Score (0–10)** — Inverse of risk: Low risk = high score (8–10), High risk = low score (0–3).
+Output: **Risk & Asymmetric Payoff Score (0–10)** — High score (8–10) = Low solvency risk + High IV cushion (>30% APY protection) + Asymmetric upside (>1:3 risk-reward); Low score (0–3) = Structural insolvency or downside tail risk.
 
 ---
 
@@ -109,39 +116,41 @@ Output: **Risk Profile Score (0–10)** — Inverse of risk: Low risk = high sco
 ```
 Full Report Score = Weighted Composite
 
-Component                Weight    Sub-Score (0-10)
-─────────────────────────────────────────────────────
-Business Quality          25%      [Phase 1 modules]
-Valuation                 25%      [Phase 2 modules]
-Market Signals            20%      [Phase 3 modules]
-Technical Setup           15%      [Phase 4 modules]
-Risk Profile              15%      [Phase 5 modules]
-─────────────────────────────────────────────────────
-COMPOSITE SCORE          100%      X.X / 10
+Component                         Weight    Sub-Score (0-10)
+─────────────────────────────────────────────────────────────────────────────
+1. Business Quality & Moat         25%      [Phase 1: Franchise, ROIC, FCF]
+2. Valuation & Margin of Safety    25%      [Phase 2: DCF, Multiples, Net Basis]
+3. Market & Institutional Signals  20%      [Phase 3: 13F, Insider, Guidance]
+4. Technical & Regime Position     15%      [Phase 4: Golden Pit vs Trend]
+5. Risk & Asymmetric Payoff        15%      [Phase 5: Solvency, IV Buffer, Squeeze]
+─────────────────────────────────────────────────────────────────────────────
+COMPOSITE SCORE                   100%      X.X / 10
 
 Composite Interpretation:
-8.0–10.0  → Strong Buy   (all signals aligned)
-6.5–7.9   → Buy          (most signals positive)
-5.0–6.4   → Hold/Watch   (mixed signals)
-3.5–4.9   → Underweight  (mostly negative signals)
-0.0–3.4   → Sell/Avoid   (strong negative signals)
+8.0–10.0  → Strong Buy   (all signals aligned / prime golden pit or breakout)
+6.5–7.9   → Buy          (strong fundamentals, favorable risk-reward)
+5.0–6.4   → Hold/Watch   (fairly valued or consolidating)
+3.5–4.9   → Underweight  (elevated valuation or weakening moat)
+0.0–3.4   → Sell/Avoid   (structural deterioration or severe solvency distress)
 ```
 
 Sub-score derivation:
-- Business Quality: average of moat score (competitor-analysis) + financial strength (fundamental-analysis / stock-eval)
-- Valuation: 10 = deep discount to intrinsic value; 5 = at fair value; 0 = extreme overvaluation
-- Market Signals: weighted average of insider, institutional, and earnings call scores
-- Technical Setup: Strong=8–10, Moderate=4–7, Weak=0–3
-- Risk Profile: inverse of risk — Low risk = 8–10, High risk = 0–3
+- **Business Quality (25%)**: Average of economic moat rating (0-10) + capital return efficiency (ROIC/ROE/FCF Margin).
+- **Valuation & Margin of Safety (25%)**: Weighted blend of DCF base-case discount + 5-year historical multiple percentile + Sell Put net basis discount.
+- **Market Signals (20%)**: Weighted average of SEC Form 4 insider sentiment + 13F institutional accumulation + management earnings call tone.
+- **Technical & Regime Position (15%)**: Conditioned on business quality. High quality + 52W bottom (RP < 0.20) = 8.0~9.5 (Golden Pit); Low quality + breakdown = 0.0~3.5 (Falling Knife).
+- **Risk & Asymmetric Payoff (15%)**: Solvency safety (Interest coverage, Net debt/EBITDA) + IV time-decay downside cushion rate + Short squeeze asymmetry.
 
 When running quick or standard depth, scores for missing modules default to neutral (5.0) and are flagged as "not assessed" in the scorecard.
 
 ---
 
-## Conflict Resolution
+## Conflict Resolution & Epistemic Rigor
 
 When signals conflict across modules, apply these rules:
 
+- **Quality & Solvency Gatekeeper**: If Interest Coverage < 2.0x or structural FCF is negative on non-growth assets, cap the overall rating at Hold (<= 6.0) regardless of how cheap valuation appears.
+- **Quality-Conditioned Technical Interpretation**: Never penalize high-quality, cash-generating compounders merely for being in a left-side cyclical pullback. Recognize that deep 200 SMA negative deviation on wide-moat assets represents maximal margin of safety.
 - **Fundamental overrides technical**: Business quality and intrinsic value take precedence over short-term price action.
 - **Consensus overrides outlier**: When 4 of 5 phases agree on direction, document the outlier but do not let it dominate the composite score.
 - **Document all conflicts explicitly**: Never suppress conflicting signals. Present the full bull and bear case and explain how the weighting resolves the conflict.
