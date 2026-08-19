@@ -220,4 +220,8 @@ For equity holdings >= 100 shares:
      - `<h1>` 格式固定为 `{公司名/标的} ({TICKER}) 深度投研报告`
    - **Concise & Direct Institutional Tone (极简、专业、客观、零废话风格)**: 语言风格力求极简、克制、专业、高信息密度，坚决剔除任何口水话、套话与冗余形容词。
 
+10. **Auto Commit & Push on InvestSkill Output (研报输出自动提交与推送规范)**:
+    - 凡是仅涉及 `InvestSkill/output/` 目录内的文件变更（新增/更新研报 HTML 或重新生成 `index.html`），且工作区无其他代码文件变动时，AI Agent **无需等待用户手动输入 `commit`，直接自动执行 `git add InvestSkill/output/`、精准语义 Commit 并立即执行 `git push`** 同步至远程仓库。
+
+
 

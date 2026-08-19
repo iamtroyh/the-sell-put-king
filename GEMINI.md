@@ -121,4 +121,7 @@ Whenever executing `research <TICKER>` or `@InvestSkill/prompts/full-report.md`,
    - **Zero Boilerplate Titles (严禁模板化废话标题)**: Strictly prohibit long, redundant boilerplate in `<title>` and `<h1>` (e.g. NEVER use "15模块全景深度投研与多因子量化评估", "全模块深度研究与多因子量化评估报告", "深度投资研究与多因子评估报告").
    - **Standardized Concise Title Format**: Use `{Company} ({TICKER}) 深度投研报告 - InvestSkill` for `<title>` and `{Company} ({TICKER}) 深度投研报告` for `<h1>`.
    - **Concise & Direct Institutional Tone (极简、专业、客观、零废话风格)**: Language style must be clean, rigorous, data-dense, and professional. Eliminate conversational filler, redundant padding, and verbose rhetorical phrases.
+8. **Auto Commit & Push on InvestSkill Output (研报输出自动提交与推送规范)**:
+   - 凡是仅涉及 `InvestSkill/output/` 目录内的文件变更（新增/更新研报 HTML 或重新生成 `index.html`），且工作区无其他代码文件变动时，AI Agent **无需等待用户手动输入 `commit`，直接自动执行 `git add InvestSkill/output/`、精准语义 Commit 并立即执行 `git push`** 同步至远程仓库。
+
 
