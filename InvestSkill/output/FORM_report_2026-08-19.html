@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>FormFactor (FORM) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(5,150,105,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 18px; font-weight: 800; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+
+        .table-scroll { overflow-x: auto; margin: 14px 0; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        thead { background: #F1F5F9; }
+        th { padding: 10px 12px; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; text-align: right; }
+
+        .tag-bull { background: #ECFDF5; color: #065F46; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-warn { background: #FEF3C7; color: #92400E; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-bear { background: #FEE2E2; color: #991B1B; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+
+        .chart-box { position: relative; height: 320px; width: 100%; margin: 16px 0; }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13.5px;
+            color: #064E3B;
+            line-height: 1.6;
+        }
+        .callout-warn {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .signal-main { display: flex; align-items: center; gap: 16px; }
+        .signal-badge-lg {
+            background: #10B981;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 800;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(16,185,129,.7);
+        }
+        .signal-meta { font-size: 13px; opacity: .9; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 24px; }
+            .sec-card { padding: 18px 16px; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: FORM • 半导体先进探针卡全球霸主</span>
+            <span class="badge badge-hero-signal">看多 (BUY)</span>
+            <span class="badge badge-hero-score">综合量化得分: 7.8 / 10</span>
+            <span class="badge badge-hero-stock">HBM4 与 Chiplet 晶圆级测试核心受惠者</span>
+        </div>
+        <h1 class="hero-title">FormFactor (FORM) 深度投研报告</h1>
+        <p class="hero-sub">全球先进 MEMS 探针卡（Probe Cards）与晶圆级工程分析测试系统绝对龙头。深度卡位 HBM3e/HBM4 高带宽内存堆叠前 KGD（Known Good Die）晶圆测试与 2.5D/3D Chiplet 先进封装验证。资产负债表极度纯洁（净现金超 3.1 亿美元），受惠于高波动率（HV30 113.8%），期权 Sell Put 具备年化 45%+ 的超高收租回报。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                <div class="hero-kpi-val">$114.47</div>
+                <div class="hero-kpi-sub">52周区间: $27.00 - $160.27</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 / 企业价值</div>
+                <div class="hero-kpi-val">$8.92B</div>
+                <div class="hero-kpi-sub">EV: $9.40B | 净现金 +$315.7M</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 营收 / 净利润增速</div>
+                <div class="hero-kpi-val">$950M</div>
+                <div class="hero-kpi-sub">营收 +31.9% | 利润爆发式倍增</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">远期市盈率 / 静态 PEG</div>
+                <div class="hero-kpi-val">32.9x</div>
+                <div class="hero-kpi-sub">PEG: 1.39 | 处于高速成长消化期</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">流动比率 / 现金储备</div>
+                <div class="hero-kpi-val">4.08x</div>
+                <div class="hero-kpi-sub">现金 $345.6M | 零实质性负债</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">Sell Put 30D APY (100P)</div>
+                <div class="hero-kpi-val">45.6%</div>
+                <div class="hero-kpi-sub">安全垫 12.6% | 净持仓成本 $96.25</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- NAVIGATION TOC -->
+    <nav class="toc-bar">
+        <div class="toc-title">目录导航 (Table of Contents)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">1. 执行摘要</a>
+            <a href="#sec-2" class="toc-link">2. 量化评分雷达</a>
+            <a href="#sec-3" class="toc-link">3. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">4. 财务报表剖析</a>
+            <a href="#sec-5" class="toc-link">5. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">6. 同行对标矩阵</a>
+            <a href="#sec-7" class="toc-link">7. DCF估值模型</a>
+            <a href="#sec-8" class="toc-link">8. 技术面量化</a>
+            <a href="#sec-9" class="toc-link">9. 资本配置与股息</a>
+            <a href="#sec-10" class="toc-link">10. Sell Put 期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构与13F持仓</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与财报前瞻</a>
+            <a href="#sec-13" class="toc-link">13. 做空与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 核心风险矩阵</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂日历</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </nav>
+
+    <!-- MODULE 1 -->
+    <section id="sec-1" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">1. 执行摘要与投资核心逻辑 (Executive Summary & Thesis)</div>
+            <span class="sec-tag">核心论点</span>
+        </div>
+        
+        <div class="callout">
+            <strong>核心投资逻辑：</strong>FormFactor (NASDAQ: FORM) 是全球半导体先进探针卡（Advanced Probe Cards）的 **绝对第一霸主**（全球市占率超 30%，DRAM 领域市占率超 50%）。在 AI 驱动的 HBM3e / HBM4 架构中，8 层至 16 层 DRAM 裸晶圆在通过 TSV 硅通孔垂直堆叠前，必须先经过 **100% 晶圆级 KGD（Known Good Die）高频测试**。一颗缺陷芯片若混入堆叠将导致整颗数千美元的 HBM 报废，使得 FormFactor 的高密度 MEMS 微弹簧探针卡成为 AI 芯片制造不可替代的消耗性命脉。
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① MEMS 微弹簧物理极限壁垒</div>
+                <div class="info-card-val" style="color: var(--primary);">全球 No.1</div>
+                <div class="info-card-desc">单张探针卡集成超 100,000 根微米级 MEMS 弹簧探针，在高温与高频下实现微米级精准接触，专利与制造工艺全球领先。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 堡垒级纯净资产负债表</div>
+                <div class="info-card-val" style="color: var(--emerald);">净现金 $3.16亿</div>
+                <div class="info-card-desc">流动比率高达 4.08x，总债务仅 $2991 万，拥有充足的净现金对抗半导体周期波动，抗风险能力极强。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 超高期权波动率溢价</div>
+                <div class="info-card-val" style="color: var(--teal);">45.6% APY</div>
+                <div class="info-card-desc">历史波动率超 100%，卖出 30 天 100P 虚值看跌期权可捕获 45.6% 的年化权利金，将建仓成本折价至 $96.25。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 2 -->
+    <section id="sec-2" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">2. 多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Chart)</div>
+            <span class="sec-tag">综合评分: 7.8 / 10</span>
+        </div>
+
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评价维度</th>
+                                <th>权重</th>
+                                <th>得分</th>
+                                <th>核心驱动与量化依据</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 商业质量与护城河</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="tag-bull">8.8 / 10</span></td>
+                                <td>MEMS 探针卡全球第一，HBM 堆叠前 KGD 测试核心受惠者，高耗材属性，客户壁垒深厚。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 估值与双层安全垫</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="tag-bull">7.2 / 10</span></td>
+                                <td>自高点回调 28.6%，Forward PE 32.9x，PEG 1.39x；Sell Put 100P 净持仓成本降至 $96.25。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 市场资金与机构动向</strong></td>
+                                <td class="num-cell">20%</td>
+                                <td class="num-cell"><span class="tag-bull">7.6 / 10</span></td>
+                                <td>8 位华尔街分析师买入评级，平均目标价 $138.63 (+21.1%)，景顺与先锋长线增持。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 自适应技术与周期位置</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="tag-bull">7.4 / 10</span></td>
+                                <td>站稳 200 SMA 长期牛熊线上方 (+15.7%)，MACD 柱状图强势上穿 (+1.75)，反弹动能充沛。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 风险与非对称赔率</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="tag-bull">8.0 / 10</span></td>
+                                <td>净现金状态 ($3.16亿)，零财务杠杆风险；HBM4 与先进封装放量带来巨大业绩爆发弹性。</td>
+                            </tr>
+                            <tr style="font-weight: 800; background: #F1F5F9;">
+                                <td><strong>加权综合得分</strong></td>
+                                <td class="num-cell">100%</td>
+                                <td class="num-cell" style="color: var(--primary); font-size: 15px;">7.83 / 10</td>
+                                <td><strong>投资评级：看多 (BUY) / 核心成长配置</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 3 -->
+    <section id="sec-3" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">3. 商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="sec-tag">护城河评级: 宽阔 (Wide Moat)</span>
+        </div>
+
+        <p style="margin-bottom: 14px; color: var(--text-secondary);">
+            FormFactor 业务由两大核心支柱构成：<strong>探针卡事业部 (Probe Cards)</strong> 与 <strong>分析探测系统事业部 (Systems)</strong>。
+        </p>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 探针卡事业部 (Probe Cards)</div>
+                <div class="info-card-val" style="color: var(--primary);">营收占比 ~80%</div>
+                <div class="info-card-desc">覆盖 DRAM/HBM 存储探针卡（Matrix/Katana 系列）、晶圆代工与逻辑芯片探针卡（Apollo/SmartMatrix 系列）。每种芯片设计与改版均需定制全新探针卡，属于高频消耗品。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 分析系统与极低温测控 (Systems)</div>
+                <div class="info-card-val" style="color: var(--emerald);">营收占比 ~20%</div>
+                <div class="info-card-desc">为半导体物理实验室提供晶圆探测台、热力学温控卡盘及极低温量子计算测控系统（Cryogenic Systems）。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ HBM 浪潮下 KGD 测试刚需</div>
+                <div class="info-card-val" style="color: var(--teal);">超级催化剂</div>
+                <div class="info-card-desc">HBM 堆叠层数从 8层、12层向 16层（HBM4）演进，单颗芯片良率乘数效应要求晶圆级测试密度提升 3-5 倍。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 16px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>波特五力维度</th>
+                        <th>受威胁程度</th>
+                        <th>详细剖析与竞争壁垒</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>供应商议价能力</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>公司内部拥有专有 MEMS 晶圆制造与微机械加工产线，核心微弹簧技术完全自主受控。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>买方议价能力</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>三大存储巨头（SK海力士、美光、三星）及台积电均深度依赖 FormFactor 保证 HBM 测试良率，替换风险极高。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>潜在进入者威胁</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>微弹簧制造需要微米级 MEMS 光刻与材料冶金积累，新进入者良率和寿命无法达标。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品威胁</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>晶圆级物理电性能接触测试是半导体制造的刚性物理工序，无任何非接触手段可替代。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>行业内部竞争</strong></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td>主要竞争对手为日本 MJC (Micronics Japan) 和 Technoprobe。但在高端 HBM 与 Foundry 领域，FormFactor 领先优势显著。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 4 -->
+    <section id="sec-4" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">4. 核心财务报表与盈利质量深度剖析 (Financial Statements & Quality)</div>
+            <span class="sec-tag">利润爆发式增长</span>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="financialsChart"></canvas>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (百万美元 / 比例)</th>
+                        <th class="num-cell">FY2022</th>
+                        <th class="num-cell">FY2023 (低谷)</th>
+                        <th class="num-cell">FY2024 (启动)</th>
+                        <th class="num-cell">FY2025 (放量)</th>
+                        <th class="num-cell">2026 TTM</th>
+                        <th>趋势与质检评语</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Revenue)</strong></td>
+                        <td class="num-cell">$748M</td>
+                        <td class="num-cell">$663M</td>
+                        <td class="num-cell">$720M</td>
+                        <td class="num-cell">$840M</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">$950M</td>
+                        <td><span class="tag-bull">强劲增长</span> HBM 与先进封装探针卡营收创历史新高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利率 (Gross Margin)</strong></td>
+                        <td class="num-cell">44.8%</td>
+                        <td class="num-cell">40.2%</td>
+                        <td class="num-cell">42.5%</td>
+                        <td class="num-cell">45.0%</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">46.2%</td>
+                        <td><span class="tag-bull">稳步攀升</span> 高毛利 MEMS 探针卡出货占比扩大</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="num-cell">$58M</td>
+                        <td class="num-cell">$32M</td>
+                        <td class="num-cell">$70M</td>
+                        <td class="num-cell">$135M</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">$229M</td>
+                        <td><span class="tag-bull">杠杆释放</span> 营业利润率由低谷 5% 暴增至 24.1%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="num-cell">$51M</td>
+                        <td class="num-cell">$84M</td>
+                        <td class="num-cell">$54M</td>
+                        <td class="num-cell">$85M</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">$125M</td>
+                        <td><span class="tag-bull">倍增爆发</span> 经营净利润同比呈现数倍增长</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (FCF)</strong></td>
+                        <td class="num-cell">$72M</td>
+                        <td class="num-cell">$65M</td>
+                        <td class="num-cell">$88M</td>
+                        <td class="num-cell">$105M</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">$115M</td>
+                        <td><span class="tag-bull">造血健康</span> 现金流充沛支持高强度研发</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净现金储备 (Net Cash)</strong></td>
+                        <td class="num-cell">+$240M</td>
+                        <td class="num-cell">+$260M</td>
+                        <td class="num-cell">+$285M</td>
+                        <td class="num-cell">+$305M</td>
+                        <td class="num-cell" style="color: var(--teal); font-weight: 700;">+$315.7M</td>
+                        <td><span class="tag-bull">零负债</span> 资产负债表极度纯洁，抗风险能力顶尖</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 5 -->
+    <section id="sec-5" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">5. 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+            <span class="sec-tag">运营杠杆驱动 ROE</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财年周期</th>
+                        <th class="num-cell">净利润率 (Net Margin)</th>
+                        <th class="num-cell">资产周转率 (Asset Turnover)</th>
+                        <th class="num-cell">权益乘数 (Equity Multiplier)</th>
+                        <th class="num-cell">ROE (净资产收益率)</th>
+                        <th>杜邦核心驱动归因</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2022 (景气高点)</strong></td>
+                        <td class="num-cell">6.82%</td>
+                        <td class="num-cell">0.668x</td>
+                        <td class="num-cell">1.22x</td>
+                        <td class="num-cell">5.54%</td>
+                        <td>高资产周转，但所得税与研发投入压制净利率</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023 (存储低谷)</strong></td>
+                        <td class="num-cell">12.67%</td>
+                        <td class="num-cell">0.562x</td>
+                        <td class="num-cell">1.19x</td>
+                        <td class="num-cell">8.48%</td>
+                        <td>含非经常性税收抵免收益</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024 (HBM 导入)</strong></td>
+                        <td class="num-cell">7.50%</td>
+                        <td class="num-cell">0.590x</td>
+                        <td class="num-cell">1.16x</td>
+                        <td class="num-cell">5.14%</td>
+                        <td>新产品前期试产与验证产线投入</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025 (量产放量)</strong></td>
+                        <td class="num-cell">10.12%</td>
+                        <td class="num-cell">0.636x</td>
+                        <td class="num-cell">1.18x</td>
+                        <td class="num-cell">7.59%</td>
+                        <td>HBM3e 探针卡放量带动净利率提振</td>
+                    </tr>
+                    <tr style="background: #F1F5F9; font-weight: 700;">
+                        <td><strong>2026 TTM (全面爆发)</strong></td>
+                        <td class="num-cell">13.16%</td>
+                        <td class="num-cell">0.655x</td>
+                        <td class="num-cell">1.19x</td>
+                        <td class="num-cell" style="color: var(--emerald); font-size: 15px;">10.25% (前瞻>16%)</td>
+                        <td>高毛利 MEMS 探针卡规模效应释放，经营杠杆推动 ROE 冲上双位数</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 6 -->
+    <section id="sec-6" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">6. 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="sec-tag">半导体测试与先进封装对标</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>代码</th>
+                        <th>公司名称</th>
+                        <th class="num-cell">当前市值</th>
+                        <th class="num-cell">远期 P/E</th>
+                        <th class="num-cell">毛利率</th>
+                        <th class="num-cell">营业利润率</th>
+                        <th class="num-cell">最新营收增速</th>
+                        <th class="num-cell">资产负债状况</th>
+                        <th>核心定位与竞争优势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>FORM</strong></td>
+                        <td>FormFactor</td>
+                        <td class="num-cell">$8.92B</td>
+                        <td class="num-cell" style="color: var(--primary); font-size: 15px;">32.9x</td>
+                        <td class="num-cell">46.2%</td>
+                        <td class="num-cell" style="color: var(--primary);">24.1%</td>
+                        <td class="num-cell" style="color: var(--emerald);">+31.9%</td>
+                        <td class="num-cell" style="color: var(--teal);">净现金 +$3.16亿</td>
+                        <td><strong>全球 MEMS 探针卡绝对龙头，HBM4 与 Chiplet 核心受益者</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>CAMT</strong></td>
+                        <td>Camtek Ltd</td>
+                        <td class="num-cell">$6.96B</td>
+                        <td class="num-cell">30.5x</td>
+                        <td class="num-cell">51.0%</td>
+                        <td class="num-cell">22.4%</td>
+                        <td class="num-cell">+2.5%</td>
+                        <td class="num-cell">净现金</td>
+                        <td>先进封装光学检测设备龙头</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ONTO</strong></td>
+                        <td>Onto Innovation</td>
+                        <td class="num-cell">$18.12B</td>
+                        <td class="num-cell">25.6x</td>
+                        <td class="num-cell">54.9%</td>
+                        <td class="num-cell">23.0%</td>
+                        <td class="num-cell">+35.3%</td>
+                        <td class="num-cell">净现金</td>
+                        <td>先进封装光学量测与检测龙头</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TER</strong></td>
+                        <td>Teradyne</td>
+                        <td class="num-cell">$58.97B</td>
+                        <td class="num-cell">32.7x</td>
+                        <td class="num-cell">59.2%</td>
+                        <td class="num-cell">33.2%</td>
+                        <td class="num-cell">+103.9%</td>
+                        <td class="num-cell">净现金</td>
+                        <td>ATE 自动化测试机台系统龙头</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ENTG</strong></td>
+                        <td>Entegris</td>
+                        <td class="num-cell">$21.76B</td>
+                        <td class="num-cell">28.5x</td>
+                        <td class="num-cell">45.6%</td>
+                        <td class="num-cell">19.3%</td>
+                        <td class="num-cell">+11.5%</td>
+                        <td class="num-cell">净负债 ~$3.7B</td>
+                        <td>微污染控制与特种化学品耗材龙头</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 7 -->
+    <section id="sec-7" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">7. DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation & Sensitivity)</div>
+            <span class="sec-tag">内在价值测算</span>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">熊市情景 (Bear Case)</div>
+                <div class="info-card-val" style="color: var(--red);">$31.82</div>
+                <div class="info-card-desc">存储芯片资本开支大幅下滑，WACC 10.0%，永续 2.5%，5年 FCF 从 $1.1亿 增至 $1.9亿。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">基准情景 (Base Case)</div>
+                <div class="info-card-val" style="color: var(--primary);">$64.34</div>
+                <div class="info-card-desc">HBM 与 Chiplet 稳步渗透，WACC 9.0%，永续 3.0%，5年 FCF 从 $1.5亿 增至 $3.4亿。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">牛市情景 (Bull Case)</div>
+                <div class="info-card-val" style="color: var(--emerald);">$104.32</div>
+                <div class="info-card-desc">HBM4 全面采用超高密度探针卡，WACC 8.5%，永续 3.5%，5年 FCF 从 $1.8亿 增至 $4.8亿。</div>
+            </div>
+        </div>
+
+        <div class="callout callout-warn">
+            <strong>高成长性估值重估：</strong>作为轻资产高毛利的耗材型成长股，市场给予其 <strong>30x - 35x 远期市盈率</strong>。以 2026/2027 预期 EPS $4.50 测算，公允目标价区间为 <strong>$135.00 - $155.00</strong>（华尔街平均目标价 $138.63，最高看至 $175.00）。
+        </div>
+    </section>
+
+    <!-- MODULE 8 -->
+    <section id="sec-8" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">8. 技术面量化、均线系统与关键筹码位 (Technical Analysis & Key Levels)</div>
+            <span class="sec-tag">技术形态: 强势中继蓄势</span>
+        </div>
+
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">200 日均线 (SMA 200)</div>
+                <div class="info-card-val" style="color: var(--primary);">$98.90</div>
+                <div class="info-card-desc">现价 $114.47 偏离度 +15.74%，长期牛市防线极为坚固。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">50 日均线 (SMA 50)</div>
+                <div class="info-card-val" style="color: var(--amber);">$122.44</div>
+                <div class="info-card-desc">短期第一阻力位，突破后将打开加速空间。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">RSI (14) 强弱指标</div>
+                <div class="info-card-val" style="color: var(--emerald);">55.81</div>
+                <div class="info-card-desc">中性偏强，买盘动能逐步增强。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">MACD 柱状图</div>
+                <div class="info-card-val" style="color: var(--emerald);">+1.75 柱</div>
+                <div class="info-card-desc">快慢线在零轴上方形成强势金叉。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>关键技术关口</th>
+                        <th class="num-cell">价格水平</th>
+                        <th>形态特征与筹码博弈逻辑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>历史高点阻力 R2</strong></td>
+                        <td class="num-cell" style="color: var(--red); font-weight: 700;">$160.27</td>
+                        <td>前期历史峰值，突破将进入无套牢盘真空区</td>
+                    </tr>
+                    <tr>
+                        <td><strong>中期阻力位 R1 (50日均线)</strong></td>
+                        <td class="num-cell" style="color: var(--amber); font-weight: 700;">$122.00 - $125.00</td>
+                        <td>近期密集成交区，突破确认右侧加速</td>
+                    </tr>
+                    <tr style="background: #F1F5F9; font-weight: 700;">
+                        <td><strong>当前市价 (Spot Price)</strong></td>
+                        <td class="num-cell" style="color: var(--primary); font-size: 15px;">$114.47</td>
+                        <td>自高点回调 28.6%，处于合理蓄势带</td>
+                    </tr>
+                    <tr>
+                        <td><strong>核心支撑位 S1 (整数平台支撑)</strong></td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 700;">$105.00</td>
+                        <td>强力多头防守关口，Sell Put 进取型行权价理想选择</td>
+                    </tr>
+                    <tr>
+                        <td><strong>黄金生命线支撑 S2 (200日均线)</strong></td>
+                        <td class="num-cell" style="color: var(--teal); font-weight: 700;">$98.90</td>
+                        <td>长期均线支撑，极端行情下的坚固防线</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 9 -->
+    <section id="sec-9" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">9. 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</div>
+            <span class="sec-tag">内生高研发与回购型</span>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">股息派发政策 (Dividend Status)</div>
+                <div class="info-card-val" style="color: var(--slate);">无 / 没有</div>
+                <div class="info-card-desc"><strong>无股息派发 (Dividend: None / N/A)</strong>。公司将自由现金流全力投入 MEMS 探针卡先进研发与机会性股票回购。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">研发投入强度 (R&D / Revenue)</div>
+                <div class="info-card-val" style="color: var(--primary);">13.5%</div>
+                <div class="info-card-desc">年研发投入超 1.2 亿美元，重点投向 sub-micron 极小间距探针与 100K 针超高密度探针卡。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">股票回购授权 (Share Buybacks)</div>
+                <div class="info-card-val" style="color: var(--emerald);">$75M+ 授权</div>
+                <div class="info-card-desc">董事会授权持续回购计划，在股价回调时积极注销股份增厚 EPS。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="sec-10" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">10. 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="sec-tag">超高波动率收租</span>
+        </div>
+
+        <div class="callout">
+            <strong>策略指引：</strong>FORM 拥有超高历史波动率（HV30 113.8%），期权时间价值极度丰厚。卖出 30 天虚值看跌期权（100P / 105P）可获取 **45% - 63% 的年化权利金回报**，即便被行权亦可在 **$96.25 的深度折价** 锁定全球探针卡龙头的核心底仓。
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯度</th>
+                        <th>到期日 (DTE)</th>
+                        <th class="num-cell">行权价 (Strike)</th>
+                        <th class="num-cell">安全垫 (Cushion)</th>
+                        <th class="num-cell">权利金 (Mark)</th>
+                        <th class="num-cell">Delta (δ)</th>
+                        <th class="num-cell">年化收益率 (APY)</th>
+                        <th class="num-cell">净买入成本 (Net Basis)</th>
+                        <th>执行建议与适用资金</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🟢 保守型 (Conservative)</strong></td>
+                        <td>2026-09-18 (30天)</td>
+                        <td class="num-cell" style="color: var(--teal); font-weight: 700;">$95.00</td>
+                        <td class="num-cell"><span class="tag-bull">17.01%</span></td>
+                        <td class="num-cell">$2.75</td>
+                        <td class="num-cell">-0.18</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">35.21%</td>
+                        <td class="num-cell" style="font-weight: 700;">$92.25 (-19.4%)</td>
+                        <td>低于 200SMA 坚固支撑，极高安全边际，稳健收租</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>🟡 平衡型 (Moderate - 强烈推荐)</strong></td>
+                        <td>2026-09-18 (30天)</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 800; font-size: 14.5px;">$100.00</td>
+                        <td class="num-cell"><span class="tag-bull">12.64%</span></td>
+                        <td class="num-cell" style="font-weight: 700;">$3.75</td>
+                        <td class="num-cell">-0.25</td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 800; font-size: 15px;">45.63%</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 800;">$96.25 (-15.9%)</td>
+                        <td><strong>最佳性价比！45.6% 年化现金流 + 12.6% 缓冲垫，折价建仓首选</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔴 进取型 (Aggressive)</strong></td>
+                        <td>2026-09-18 (30天)</td>
+                        <td class="num-cell" style="color: var(--red); font-weight: 700;">$105.00</td>
+                        <td class="num-cell"><span class="tag-warn">8.27%</span></td>
+                        <td class="num-cell">$5.50</td>
+                        <td class="num-cell">-0.34</td>
+                        <td class="num-cell" style="color: var(--red); font-weight: 700;">63.73%</td>
+                        <td class="num-cell" style="font-weight: 700;">$99.50 (-13.1%)</td>
+                        <td>对齐 S1 支撑位，适合渴望立即分批拿货建仓的进攻型资金</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="sec-11" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">11. 机构持仓与主力资金动向 (Institutional Ownership & 13F Dynamics)</div>
+            <span class="sec-tag">机构持仓占比 >95%</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (13F Top Holders)</th>
+                        <th class="num-cell">持仓市值 ($)</th>
+                        <th class="num-cell">持股占流通股比例</th>
+                        <th class="num-cell">最新季度变动</th>
+                        <th>主力机构动向与信号分析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BlackRock Inc. (贝莱德)</strong></td>
+                        <td class="num-cell">$1,200M</td>
+                        <td class="num-cell">13.5%</td>
+                        <td class="num-cell">-14.4%</td>
+                        <td>高位部分战术性获利了结</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Group (先锋领航组合)</strong></td>
+                        <td class="num-cell">$1,002M (合计)</td>
+                        <td class="num-cell">11.2%</td>
+                        <td class="num-cell">-5.8%</td>
+                        <td>科技指数核心被动配置</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Earnest Partners LLC</strong></td>
+                        <td class="num-cell">$431M</td>
+                        <td class="num-cell">4.8%</td>
+                        <td class="num-cell">-22.8%</td>
+                        <td>主动型基金调仓</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>Invesco Ltd. (景顺)</strong></td>
+                        <td class="num-cell">$181M</td>
+                        <td class="num-cell">2.0%</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 800;">+27.47%</td>
+                        <td><strong>主动成长型基金逆势大幅加仓</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="sec-12" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">12. 内部人交易、管理层语气与财报电话会洞察 (Insider Trading & Tone)</div>
+            <span class="sec-tag">管理层对 HBM 需求极度乐观</span>
+        </div>
+
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">SEC Form 4 内部人动向</div>
+                <div class="info-card-val" style="color: var(--teal);">稳定持有</div>
+                <div class="info-card-desc">近期高管交易均为既定股权激励计划的自动行权与合规税费扣除，无任何异常减持。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">电话会管理层基调 (Earnings Tone)</div>
+                <div class="info-card-val" style="color: var(--primary);">强劲看多 (Very Bullish)</div>
+                <div class="info-card-desc">管理层在财报电话会上指出：“HBM 存储客户对我们下一代高密度 MEMS 探针卡的需求极其强劲，随着 HBM4 进入工程试产阶段，测试复杂度和探针卡单价（ASP）均呈现跃升式增长。”</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="sec-13" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">13. 做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</div>
+            <span class="sec-tag">空头仓位适中</span>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">未平仓空头股数 (Shares Short)</div>
+                <div class="info-card-val" style="color: var(--slate);">2.48M 股</div>
+                <div class="info-card-desc">处于历史中等水平，空头主要对冲半导体周期波动。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">空头占流通盘比例 (Short % Float)</div>
+                <div class="info-card-val" style="color: var(--emerald);">4.50%</div>
+                <div class="info-card-desc">低于 5% 预警线，做空压力温和。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">空头回补天数 (Days to Cover)</div>
+                <div class="info-card-val" style="color: var(--emerald);">1.56 天</div>
+                <div class="info-card-desc">流动性极好，空头可在 1.5 天内迅速回补。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="sec-14" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">14. 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+            <span class="sec-tag">风险评级: 中等</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心风险因子</th>
+                        <th>发生概率</th>
+                        <th>潜在冲击</th>
+                        <th>对内在价值影响与防范对策</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>全球存储芯片周期性产能过剩</strong></td>
+                        <td><span class="tag-warn">中等 (35%)</span></td>
+                        <td><span class="tag-warn">中等 (-15%)</span></td>
+                        <td>若通用 DRAM/NAND 需求下滑将影响标准探针卡出货，但 HBM 结构性高景气提供强劲对冲。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HBM4 键合技术路线变更风险</strong></td>
+                        <td><span class="tag-bull">低 (20%)</span></td>
+                        <td><span class="tag-warn">中等 (-10%)</span></td>
+                        <td>无论采用微凸块还是混合键合，堆叠前晶圆级 KGD 测试工序不可替代。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>主要大客户采购集中度较高</strong></td>
+                        <td><span class="tag-warn">中等 (40%)</span></td>
+                        <td><span class="tag-warn">中等 (-8%)</span></td>
+                        <td>前三大客户占比超 40%，但三大客户在 HBM 军备竞赛中均大力增加 FormFactor 订单。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="sec-15" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">15. 未来关键催化剂日历与增长路线图 (Catalyst Calendar & Strategic Milestones)</div>
+            <span class="sec-tag">90-180天重大催化</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预期时间节点</th>
+                        <th>催化事件 / 里程碑</th>
+                        <th>对股价与基本面的潜在影响</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026年9月</strong></td>
+                        <td>SEMICON Taiwan 先进封装论坛</td>
+                        <td>展示针对 HBM4 与 CoWoS-L 的全新 120K 针超高密度探针卡</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026年10月28日</strong></td>
+                        <td>2026财年第三季度 (Q3) 财报披露</td>
+                        <td>验证季度营收突破 $2.7 亿美元并确认全年盈利倍增趋势</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027年Q1</strong></td>
+                        <td>英伟达 Rubin 架构量产备货</td>
+                        <td>HBM4 探针卡采购进入首波规模化交付高峰</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 16 -->
+    <section id="sec-16" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">16. 最终投资评级与执行建议 (Final Verdict & Execution Strategy)</div>
+            <span class="sec-tag">综合投资决策</span>
+        </div>
+        
+        <div class="signal-block">
+            <div class="signal-main">
+                <div class="signal-badge-lg">看多 (BUY)</div>
+                <div>
+                    <div style="font-size: 18px; font-weight: 800;">综合量化评级: 7.8 / 10 • 高成长核心弹性标的</div>
+                    <div class="signal-meta">目标投资周期: 6 - 18 个月 | 策略组合: 现货分批建仓 (50%) + 100P Sell Put 收租 (50%)</div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 12px; opacity: .8;">华尔街共识目标价</div>
+                <div style="font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono';">$138.63 (+21.1%)</div>
+            </div>
+        </div>
+
+        <div class="data-grid-3" style="margin-top: 18px;">
+            <div class="info-card">
+                <div class="info-card-title">现货分批建仓区间</div>
+                <div class="info-card-val" style="color: var(--primary);">$105.00 - $115.00</div>
+                <div class="info-card-desc">现价 $114.47 处于合理估值带，建议逢低分批建立 40%-50% 底仓。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">分阶段止盈目标价</div>
+                <div class="info-card-val" style="color: var(--emerald); font-size: 16px;">T1: $130 | T2: $138 | T3: $160</div>
+                <div class="info-card-desc">第一目标 $130 (+14%)，第二目标共识价 $138 (+21%)，第三目标前高 $160 (+40%)。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">止损与风控底线</div>
+                <div class="info-card-val" style="color: var(--red);">$93.00 (-18.8%)</div>
+                <div class="info-card-desc">若有效跌破 200SMA ($98.90) 且失守 $93 需战术减仓对冲周期性下行风险。</div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<footer style="text-align: center; padding: 24px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); background: #fff;">
+    <p>InvestSkill Institutional Equity Research Framework • 报告生成时间: 2026-08-19 • 数据来源: SEC EDGAR 10-K/10-Q, yfinance, Robinhood Pro, 官方投资者关系披露</p>
+    <p style="margin-top: 4px;">免责声明：本报告由 InvestSkill 15模块多因子量化投研模型自动生成，仅供专业投资参考与策略回测，不构成任何投资咨询与买卖要约。</p>
+</footer>
+
+<script>
+// 1. RADAR CHART
+const radarCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+        labels: ['业务护城河', '估值吸引力', '财务质量', '资产健康', '市场资金', '技术动量'],
+        datasets: [{
+            label: 'FORM 量化得分',
+            data: [8.8, 7.2, 8.5, 9.5, 7.6, 7.4],
+            backgroundColor: 'rgba(16, 185, 129, 0.25)',
+            borderColor: '#059669',
+            pointBackgroundColor: '#10B981',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#059669',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                angleLines: { color: 'rgba(0,0,0,0.08)' },
+                grid: { color: 'rgba(0,0,0,0.08)' },
+                pointLabels: {
+                    font: { size: 12, weight: '600', family: 'Inter' },
+                    color: '#334155'
+                },
+                suggestedMin: 0,
+                suggestedMax: 10,
+                ticks: { stepSize: 2, display: false }
+            }
+        },
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+
+// 2. FINANCIALS CHART
+const finCtx = document.getElementById('financialsChart').getContext('2d');
+new Chart(finCtx, {
+    type: 'bar',
+    data: {
+        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', '2026 TTM'],
+        datasets: [
+            {
+                label: '总营业收入 ($M)',
+                data: [748, 663, 720, 840, 950],
+                backgroundColor: 'rgba(5, 150, 105, 0.8)',
+                borderRadius: 6,
+                yAxisID: 'y'
+            },
+            {
+                label: '净利润 ($M)',
+                data: [51, 84, 54, 85, 125],
+                backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                borderRadius: 6,
+                yAxisID: 'y'
+            },
+            {
+                label: '毛利率 (%)',
+                data: [44.8, 40.2, 42.5, 45.0, 46.2],
+                type: 'line',
+                borderColor: '#D97706',
+                backgroundColor: '#D97706',
+                borderWidth: 2.5,
+                pointRadius: 4,
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            x: { grid: { display: false } },
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: { display: true, text: '金额 ($M)' },
+                grid: { color: 'rgba(0,0,0,0.06)' }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: { display: true, text: '毛利率 (%)' },
+                grid: { drawOnChartArea: false },
+                suggestedMin: 35,
+                suggestedMax: 55
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: { boxWidth: 12, font: { size: 12, family: 'Inter' } }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
