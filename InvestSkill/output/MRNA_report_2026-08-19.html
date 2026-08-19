@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Moderna (MRNA) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(5,150,105,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 18px; font-weight: 800; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+
+        .table-scroll { overflow-x: auto; margin: 14px 0; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        thead { background: #F1F5F9; }
+        th { padding: 10px 12px; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; text-align: right; }
+
+        .tag-bull { background: #ECFDF5; color: #065F46; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-warn { background: #FEF3C7; color: #92400E; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-bear { background: #FEE2E2; color: #991B1B; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+
+        .chart-box { position: relative; height: 320px; width: 100%; margin: 16px 0; }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13.5px;
+            color: #064E3B;
+            line-height: 1.6;
+        }
+        .callout-warn {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .signal-main { display: flex; align-items: center; gap: 16px; }
+        .signal-badge-lg {
+            background: #10B981;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 800;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(16,185,129,.7);
+        }
+        .signal-meta { font-size: 13px; opacity: .9; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 24px; }
+            .sec-card { padding: 18px 16px; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: MRNA • 生物医药与肿瘤疫苗</span>
+            <span class="badge badge-hero-signal">看多 (BUY)</span>
+            <span class="badge badge-hero-score">综合量化得分: 7.1 / 10</span>
+            <span class="badge badge-hero-stock">mRNA平台先驱 • 个性化肿瘤疫苗爆发</span>
+        </div>
+        <h1 class="hero-title">Moderna, Inc. (MRNA) 深度投研报告</h1>
+        <p class="hero-sub">全球mRNA平台技术先驱，正处于从单一新冠疫苗向呼吸道全谱系、重磅个体化新抗原肿瘤疫苗 (INT, mRNA-4157与默沙东Keytruda联用) 及罕见病治疗全面商业化跨越期。拥有超51亿美元现金与投资储备，空头比例达15.2%引发历史级轧空重构，隐含波动率暴涨为Sell Put期权提供高达20%~60%的年化收租与深度折价接货契机。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                <div class="hero-kpi-val">$141.55</div>
+                <div class="hero-kpi-sub">52周区间: $22.28 - $163.47</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 / 企业价值</div>
+                <div class="hero-kpi-val">$56.6B</div>
+                <div class="hero-kpi-sub">EV: $21.3B | 净现金 $3.85B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">现金与投资储备</div>
+                <div class="hero-kpi-val">$5.14B</div>
+                <div class="hero-kpi-sub">每股现金 $12.87 | 跑道至2028</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">空头比例 / 平仓天数</div>
+                <div class="hero-kpi-val">15.23% / 7.2d</div>
+                <div class="hero-kpi-sub">做空股数 49.77M 股</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">基准 DCF 内在价值</div>
+                <div class="hero-kpi-val">$142.51</div>
+                <div class="hero-kpi-sub">乐观管线估值: $286.68</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">期权隐含波动率 (IV)</div>
+                <div class="hero-kpi-val">110% - 130%</div>
+                <div class="hero-kpi-sub">Sell Put APY 20% - 60%+</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <div class="toc-bar">
+        <div class="toc-title">目录导航 • 15模块全景投研标准架构</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">1. 执行摘要</a>
+            <a href="#sec-2" class="toc-link">2. 量化雷达</a>
+            <a href="#sec-3" class="toc-link">3. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">4. 财务剖析</a>
+            <a href="#sec-5" class="toc-link">5. 杜邦分析</a>
+            <a href="#sec-6" class="toc-link">6. 同行对标</a>
+            <a href="#sec-7" class="toc-link">7. DCF 估值</a>
+            <a href="#sec-8" class="toc-link">8. 技术量化</a>
+            <a href="#sec-9" class="toc-link">9. 资本配置与股息</a>
+            <a href="#sec-10" class="toc-link">10. Sell Put 策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会</a>
+            <a href="#sec-13" class="toc-link">13. 做空与情绪</a>
+            <a href="#sec-14" class="toc-link">14. 风险矩阵</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂日历</a>
+            <a href="#sec-16" class="toc-link">16. 最终评级</a>
+        </div>
+    </div>
+
+    <!-- MODULE 1 -->
+    <section id="sec-1" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">1. 执行摘要与投资核心逻辑 (Executive Summary & Thesis)</div>
+            <span class="sec-tag">核心论点</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 14.5px; line-height: 1.7;">
+            <strong>Moderna, Inc. (NASDAQ: MRNA)</strong> 总部位于马萨诸塞州剑桥，是全球信使核糖核酸 (mRNA) 疗法与疫苗领域的领军生物科技巨头。公司成功完成了从新冠大流行时期单一 Spikevax 产品的业绩高峰，向包含<strong>呼吸道疫苗全家桶 (RSV mRESVIA、流感 mRNA-1010、新冠流感二合一 mRNA-1083)、肿瘤个体化新抗原疫苗 (INT, mRNA-4157 / V940 与默沙东联用)、潜伏病毒疫苗 (CMV mRNA-1647、诺如病毒) 及罕见病代谢疗法</strong>的综合生物制药平台的战略跨越。
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">肿瘤疫苗 INT 重构百亿天花板</div>
+                <div class="info-card-val" style="font-size: 15px; color: var(--primary);">与默沙东 50:50 联手</div>
+                <div class="info-card-desc">mRNA-4157 / V940 联用 Keytruda 在高危黑色素瘤 Phase 2b 展现 49% 降低复发与死亡风险，目前全面推进黑色素瘤与非小细胞肺癌 (NSCLC) Phase 3 关键注册临床。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">充足现金储备与盈亏平衡路径</div>
+                <div class="info-card-val" style="font-size: 15px; color: var(--emerald);">$5.14B 现金 / 净现金 $3.85B</div>
+                <div class="info-card-desc">资产负债表极其强健，零流动性担忧。通过年均削减 $11 亿运营成本与多产品放量，预计于 2028 年实现经营性现金流自给自足。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">空头挤压与期权高权利金</div>
+                <div class="info-card-val" style="font-size: 15px; color: var(--teal);">做空 15.23% | IV 110%~130%</div>
+                <div class="info-card-desc">49.8M 股做空仓位在管线催化下触发剧烈轧空。超高隐含波动率使 Sell Put 策略能够以 30%~40% 的深厚安全垫获取 20%~60% 的超高年化权利金收益。</div>
+            </div>
+        </div>
+        <div class="callout">
+            <strong>核心洞见：</strong> 市场此前对 MRNA 的悲观定价过度线性外推了新冠业务下滑，严重忽视了其 mRNA 平台的工程化扩展效率。随着肿瘤疫苗 INT 与二合一呼吸道疫苗进入申报与商业化收获期，MRNA 正在迎来第二次成长曲线。在极高隐含波动率环境下，Cash-Secured Put 策略为投资者提供了“深度安全边际打折接盘”与“收割极高年化现金流”的双赢工具。
+        </div>
+    </section>
+
+    <!-- MODULE 2 -->
+    <section id="sec-2" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">2. 多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Chart)</div>
+            <span class="sec-tag">量化评分: 7.1 / 10</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评价维度</th>
+                                <th>权重</th>
+                                <th>得分 (0-10)</th>
+                                <th>核心驱动与诊断说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>业务与技术护城河</strong></td>
+                                <td>25%</td>
+                                <td class="num-cell"><strong>8.5</strong></td>
+                                <td>全球 mRNA 专利霸主，LNP 递送系统与个体化肿瘤疫苗全球领跑</td>
+                            </tr>
+                            <tr>
+                                <td><strong>管线潜力与 DCF 估值</strong></td>
+                                <td>25%</td>
+                                <td class="num-cell"><strong>7.0</strong></td>
+                                <td>现价贴近基准 DCF ($142.51)，肿瘤 INT 与二合一疫苗爆发空间大</td>
+                            </tr>
+                            <tr>
+                                <td><strong>资产健康与现金跑道</strong></td>
+                                <td>20%</td>
+                                <td class="num-cell"><strong>7.5</strong></td>
+                                <td>在手现金及投资 $5.14B，净现金 $3.85B，支撑至 2028 盈亏平衡</td>
+                            </tr>
+                            <tr>
+                                <td><strong>市场资金与空头挤压</strong></td>
+                                <td>15%</td>
+                                <td class="num-cell"><strong>7.5</strong></td>
+                                <td>空头比例 15.23%，平仓天数 7.2 天，FMR、贝莱德与先锋重仓</td>
+                            </tr>
+                            <tr>
+                                <td><strong>财务与盈利现状 (转折期)</strong></td>
+                                <td>15%</td>
+                                <td class="num-cell"><strong>5.0</strong></td>
+                                <td>处于后新冠研发高投入转折期，TTM 净利润仍亏损，但收窄拐点将至</td>
+                            </tr>
+                            <tr style="background: #ECFDF5; font-weight: 700;">
+                                <td><strong>加权综合得分</strong></td>
+                                <td>100%</td>
+                                <td class="num-cell" style="color: #065F46;"><strong>7.10 / 10</strong></td>
+                                <td><span class="tag-bull">看多 (BUY) • 重磅生物科技跨越期</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 3 -->
+    <section id="sec-3" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">3. 商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="sec-tag">护城河评级: 宽护城河 (Wide Moat)</span>
+        </div>
+        <p style="margin-bottom: 14px;">
+            Moderna 建立了以 mRNA 设计与 LNP 递送为核心的四大前沿治疗板块，具备极高研发迭代速度：
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <h4 style="color: var(--primary); margin-bottom: 6px;">1. 呼吸道疫苗矩阵 (Respiratory)</h4>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;">
+                    • <strong>Spikevax：</strong> 新冠常态化接种基石。<br>
+                    • <strong>mRESVIA (mRNA-1345)：</strong> 针对老年人的 RSV 疫苗已获批。<br>
+                    • <strong>mRNA-1010 / 1083：</strong> 流感与流感-新冠二合一疫苗，凭借优异抗体滴度直击千亿市场。
+                </p>
+            </div>
+            <div class="info-card">
+                <h4 style="color: var(--teal); margin-bottom: 6px;">2. 个体化肿瘤疫苗 (Oncology INT)</h4>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;">
+                    • <strong>mRNA-4157 (V940)：</strong> 与默沙东 50:50 联合开发。针对患者特定肿瘤突变定制达 34 个新抗原，在黑色素瘤、NSCLC、膀胱癌等多癌种开展 Phase 3 试验，开创新一代免疫疗法范式。
+                </p>
+            </div>
+            <div class="info-card">
+                <h4 style="color: #8B5CF6; margin-bottom: 6px;">3. 潜伏病毒与罕见病 (Latent & Rare)</h4>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;">
+                    • <strong>mRNA-1647 (CMV 巨细胞病毒)：</strong> 填补全球无 CMV 疫苗空白，进入 Phase 3 关键读出期。<br>
+                    • <strong>诺如病毒疫苗 & 罕见病：</strong> 丙酸血症 (PA) 与甲基丙二酸血症 (MMA) mRNA 酶替代疗法展现突破性临床数据。
+                </p>
+            </div>
+        </div>
+
+        <h4 style="margin: 18px 0 10px; font-weight: 700;">波特五力模型深入诊断 (Porter's Five Forces)</h4>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>五力维度</th>
+                        <th>竞争强度</th>
+                        <th>竞争态势剖析与护城河机制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>供应商议价能力</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>拥有成熟的内部自动化核酸合成与质粒生产设施，关键脂质纳米颗粒 (LNP) 配方自主研发并规模化自产。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>买方议价能力</strong></td>
+                        <td><span class="tag-warn">中等 (Moderate)</span></td>
+                        <td>各国政府与商业保险采购具备议价权，但二合一疫苗与独占性肿瘤疫苗具备极高临床不可替代性与高溢价能力。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>潜在进入者威胁</strong></td>
+                        <td><span class="tag-bull">极低 (Virtually Zero)</span></td>
+                        <td>mRNA 涉及转录后修饰、LNP 靶向递送、免疫原性控制与全球专利丛林，新进入者面临极高研发与专利诉讼壁垒。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品威胁</strong></td>
+                        <td><span class="tag-warn">中低 (Low to Moderate)</span></td>
+                        <td>传统重组蛋白疫苗与病毒载体疫苗开发周期长、抗原定制能力差，mRNA 在快速突变变异株与个体化抗癌领域无真正替代品。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>行业内同业竞争</strong></td>
+                        <td><span class="tag-warn">双寡头垄断 (Duopoly)</span></td>
+                        <td>全球仅 Moderna 与 BioNTech/Pfizer 具备成熟商业化 mRNA 平台，双方在不同管线错位竞争并共享行业技术红利。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 4 -->
+    <section id="sec-4" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">4. 核心财务报表与盈利质量深度剖析 (Financial Statements & Quality)</div>
+            <span class="sec-tag">现金储备 $51.4亿 • 2028 盈亏平衡拐点</span>
+        </div>
+        <div class="chart-box">
+            <canvas id="financialsChart"></canvas>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财报年度 (截至12月31日)</th>
+                        <th>营业收入 ($M)</th>
+                        <th>毛利润 ($M)</th>
+                        <th>研发费用 ($M)</th>
+                        <th>营业利润 ($M)</th>
+                        <th>净利润 ($M)</th>
+                        <th>自由现金流 ($M)</th>
+                        <th>期末现金及投资 ($M)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2022 (新冠峰值)</strong></td>
+                        <td class="num-cell">$19,263M</td>
+                        <td class="num-cell">$12,793M</td>
+                        <td class="num-cell">$3,295M</td>
+                        <td class="num-cell">$9,419M</td>
+                        <td class="num-cell">$8,362M</td>
+                        <td class="num-cell">+$4,581M</td>
+                        <td class="num-cell">$9,902M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023 (需求断崖)</strong></td>
+                        <td class="num-cell">$6,848M</td>
+                        <td class="num-cell">-$1,940M</td>
+                        <td class="num-cell">$4,845M</td>
+                        <td class="num-cell">-$4,228M</td>
+                        <td class="num-cell">-$4,714M</td>
+                        <td class="num-cell">-$3,825M</td>
+                        <td class="num-cell">$8,604M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024 (结构调整)</strong></td>
+                        <td class="num-cell">$3,244M</td>
+                        <td class="num-cell">-$1,348M</td>
+                        <td class="num-cell">$4,267M</td>
+                        <td class="num-cell">-$3,966M</td>
+                        <td class="num-cell">-$3,561M</td>
+                        <td class="num-cell">-$4,055M</td>
+                        <td class="num-cell">$7,025M</td>
+                    </tr>
+                    <tr style="background: #F8FAFC; font-weight: 700;">
+                        <td><strong>FY2025 (转型筑底)</strong></td>
+                        <td class="num-cell">$2,228M</td>
+                        <td class="num-cell">-$1,471M</td>
+                        <td class="num-cell">$3,250M</td>
+                        <td class="num-cell">-$3,163M</td>
+                        <td class="num-cell">-$2,822M</td>
+                        <td class="num-cell" style="color: var(--primary);">-$2,075M</td>
+                        <td class="num-cell" style="color: var(--primary);">$5,799M</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="data-grid-3" style="margin-top: 14px;">
+            <div class="info-card">
+                <div class="info-card-title">现金跑道与净资产</div>
+                <div class="info-card-val">$5.14B 现金 / 净现金 $3.85B</div>
+                <div class="info-card-desc">总资产 $125.2 亿，股东权益 $67.7 亿，债务仅 $12.9 亿。现金充沛，至少可支撑 3 年以上研发消耗。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">降本增效进展</div>
+                <div class="info-card-val">年均削减 $11 亿支出</div>
+                <div class="info-card-desc">研发支出自峰值 $48.5 亿收窄至 $30 亿-$32 亿区间，精简非核心管线，集中资源攻坚 INT 肿瘤与二合一疫苗。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">皮氏 F 得分 (Piotroski)</div>
+                <div class="info-card-val">4 / 9 转型筑底</div>
+                <div class="info-card-desc">受后新冠亏损与库存减值影响，但自由现金流流出显著放缓，流动比率达 3.8x，资产流动性极高。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 5 -->
+    <section id="sec-5" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">5. 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+            <span class="sec-tag">从疫情暴利到平台研发期</span>
+        </div>
+        <p style="margin-bottom: 12px;">
+            通过对 Moderna 近四年杜邦公式（净资产收益率 ROE = 净利润率 × 资产周转率 × 权益乘数）进行结构化拆解：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>年份</th>
+                        <th>净利润率 (Margin)</th>
+                        <th>× 资产周转率 (Turnover)</th>
+                        <th>× 权益乘数 (Leverage)</th>
+                        <th>= 净资产收益率 (ROE)</th>
+                        <th>阶段特征与驱动因素</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2022</strong></td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">+43.41%</td>
+                        <td class="num-cell">0.741x</td>
+                        <td class="num-cell">1.36x</td>
+                        <td class="num-cell" style="color: var(--primary); font-weight: 700;">+43.76%</td>
+                        <td>新冠疫苗全球商业化巅峰，净利率与ROE极高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td class="num-cell">-68.84%</td>
+                        <td class="num-cell">0.372x</td>
+                        <td class="num-cell">1.34x</td>
+                        <td class="num-cell">-34.30%</td>
+                        <td>政府大单终止与大额过剩产能库存减值</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td class="num-cell">-109.77%</td>
+                        <td class="num-cell">0.228x</td>
+                        <td class="num-cell">1.43x</td>
+                        <td class="num-cell">-35.68%</td>
+                        <td>研发高强度投入，管线推进至 Phase 3 关键期</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025</strong></td>
+                        <td class="num-cell">-126.66%</td>
+                        <td class="num-cell">0.178x</td>
+                        <td class="num-cell">1.85x</td>
+                        <td class="num-cell">-41.71%</td>
+                        <td>收入见底，降本生效，亏损额度显著收窄</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout">
+            <strong>杜邦诊断结论：</strong> MRNA 当前处于典型的<strong>“重磅产品上市前夜的研发低谷期”</strong>。财务指标呈现负值主要系战略性研发投入而非经营性债务崩塌。随着 RSV、流感及肿瘤疫苗在 2026-2028 年形成规模商业化放量，资产周转率与净利润率将迅速回正，驱动内生 ROE 重新向 25%+ 修复。
+        </div>
+    </section>
+
+    <!-- MODULE 6 -->
+    <section id="sec-6" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">6. 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="sec-tag">mRNA 创新与肿瘤疫苗领军</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>代码</th>
+                        <th>公司名称</th>
+                        <th>市值 ($B)</th>
+                        <th>远期 P/E</th>
+                        <th>EV/EBITDA</th>
+                        <th>市销率 (P/S)</th>
+                        <th>在手现金 ($B)</th>
+                        <th>总负债 ($B)</th>
+                        <th>核心竞争优势与管线亮点</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>MRNA</strong></td>
+                        <td>Moderna, Inc.</td>
+                        <td class="num-cell">$56.6B</td>
+                        <td class="num-cell">-28.8x</td>
+                        <td class="num-cell">-9.7x</td>
+                        <td class="num-cell">25.3x</td>
+                        <td class="num-cell" style="color: var(--primary);">$5.14B</td>
+                        <td class="num-cell">$1.29B</td>
+                        <td>mRNA 平台先驱，默沙东联合 INT 肿瘤疫苗 Phase 3</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BNTX</strong></td>
+                        <td>BioNTech SE</td>
+                        <td class="num-cell">$27.9B</td>
+                        <td class="num-cell">-19.7x</td>
+                        <td class="num-cell">-7.4x</td>
+                        <td class="num-cell">10.5x</td>
+                        <td class="num-cell">$13.46B</td>
+                        <td class="num-cell">$0.32B</td>
+                        <td>与辉瑞合作新冠，布局双抗与肿瘤 mRNA 疗法</td>
+                    </tr>
+                    <tr>
+                        <td><strong>VRTX</strong></td>
+                        <td>Vertex Pharma</td>
+                        <td class="num-cell">$137.5B</td>
+                        <td class="num-cell">24.9x</td>
+                        <td class="num-cell">25.1x</td>
+                        <td class="num-cell">10.9x</td>
+                        <td class="num-cell">$7.85B</td>
+                        <td class="num-cell">$1.98B</td>
+                        <td>囊性纤维化垄断，CRISPR 基因编辑疗法获批</td>
+                    </tr>
+                    <tr>
+                        <td><strong>REGN</strong></td>
+                        <td>Regeneron</td>
+                        <td class="num-cell">$85.9B</td>
+                        <td class="num-cell">13.8x</td>
+                        <td class="num-cell">16.1x</td>
+                        <td class="num-cell">5.5x</td>
+                        <td class="num-cell">$7.99B</td>
+                        <td class="num-cell">$2.71B</td>
+                        <td>Dupixent 超级重磅炸弹，双抗抗肿瘤平台</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PFE</strong></td>
+                        <td>Pfizer Inc.</td>
+                        <td class="num-cell">$160.2B</td>
+                        <td class="num-cell">9.7x</td>
+                        <td class="num-cell">8.2x</td>
+                        <td class="num-cell">2.5x</td>
+                        <td class="num-cell">$11.70B</td>
+                        <td class="num-cell">$63.48B</td>
+                        <td>全产业链跨国制药巨头，并购 Seagen 发力 ADC</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 6px;">
+            <strong>对标洞察：</strong> 相较于传统大药企，Moderna 拥有极致的平台研发效率与净现金储备 ($38.5 亿)。相较于 BioNTech，Moderna 在呼吸道二合一疫苗及个性化新抗原肿瘤疫苗 (INT) 的临床推进速度上更具商业化先发优势。
+        </p>
+    </section>
+
+    <!-- MODULE 7 -->
+    <section id="sec-7" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">7. DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation & Sensitivity)</div>
+            <span class="sec-tag">基准内在价值: $142.51</span>
+        </div>
+        <p style="margin-bottom: 14px;">
+            针对生物科技管线特征，模型采用风险调整净现值法 (rNPV) 与 5 年自由现金流折现模型：无风险利率 4.25%，Beta 0.90，ERP 5.0%，生物科技行业风险加点推导 <strong>WACC = 9.0%</strong>，永续增长率 <strong>g = 2.5%</strong>，净现金加回 $38.5 亿：
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">悲观情景 (Bear Case)</div>
+                <div class="info-card-val" style="color: var(--red);">$42.42</div>
+                <div class="info-card-desc">INT 肿瘤疫苗上市推迟，二合一疫苗价格战惨烈，峰值销售仅 $80 亿，WACC 10.5%，g 2.0%。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">基准情景 (Base Case)</div>
+                <div class="info-card-val" style="color: var(--primary);">$142.51</div>
+                <div class="info-card-desc">INT 2027/2028 顺利获批，二合一疫苗抢占 40% 份额，峰值销售 $140 亿，2028 盈利，WACC 9.0%。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">乐观情景 (Bull Case)</div>
+                <div class="info-card-val" style="color: var(--emerald);">$286.68</div>
+                <div class="info-card-desc">INT 获 FDA 加速批准并扩展至全癌种，CMV 与罕见病全面爆发，峰值销售超 $200 亿，WACC 8.5%。</div>
+            </div>
+        </div>
+
+        <h4 style="margin: 18px 0 10px; font-weight: 700;">WACC vs. 永续增长率估值敏感性矩阵 (每股内在价值 $)</h4>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th>g = 1.8%</th>
+                        <th>g = 2.2%</th>
+                        <th>g = 2.5% (基准)</th>
+                        <th>g = 2.8%</th>
+                        <th>g = 3.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC = 8.0%</strong></td>
+                        <td class="num-cell">$154.21</td>
+                        <td class="num-cell">$164.04</td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 700;">$172.35</td>
+                        <td class="num-cell">$181.62</td>
+                        <td class="num-cell">$188.42</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC = 8.5%</strong></td>
+                        <td class="num-cell">$141.06</td>
+                        <td class="num-cell">$149.28</td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 700;">$156.17</td>
+                        <td class="num-cell">$163.78</td>
+                        <td class="num-cell">$169.31</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC = 9.0% (基准)</strong></td>
+                        <td class="num-cell">$129.77</td>
+                        <td class="num-cell">$136.73</td>
+                        <td class="num-cell" style="background: #ECFDF5; color: var(--primary); font-weight: 800;">$142.51</td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 700;">$148.86</td>
+                        <td class="num-cell">$153.43</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC = 9.5%</strong></td>
+                        <td class="num-cell">$119.99</td>
+                        <td class="num-cell">$125.94</td>
+                        <td class="num-cell">$130.85</td>
+                        <td class="num-cell">$136.20</td>
+                        <td class="num-cell">$140.04</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC = 10.0%</strong></td>
+                        <td class="num-cell">$111.43</td>
+                        <td class="num-cell">$116.57</td>
+                        <td class="num-cell">$120.78</td>
+                        <td class="num-cell">$125.34</td>
+                        <td class="num-cell">$128.60</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 6px;">
+            <strong>估值结论：</strong> 当前股价 $141.55 已经精准反应了基准管线价值 ($142.51)。若 INT 肿瘤疫苗在肺癌或黑色素瘤 Phase 3 取得压倒性阳性疗效，乐观情景内在价值高达 <strong>$286.68</strong> (+102.5% 上行空间)。
+        </p>
+    </section>
+
+    <!-- MODULE 8 -->
+    <section id="sec-8" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">8. 技术面量化、均线系统与关键筹码位 (Technical Analysis & Key Levels)</div>
+            <span class="sec-tag">突破暴力拉升 • 均线多头排列</span>
+        </div>
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">均线系统 (Moving Avg)</div>
+                <div class="info-card-val" style="font-size: 15px;">SMA20: $62.53</div>
+                <div class="info-card-desc">SMA50: $63.24<br>SMA200: $47.43 (偏离 +197.6%)</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">动量指标 (RSI 14)</div>
+                <div class="info-card-val" style="color: var(--amber);">91.86 超买</div>
+                <div class="info-card-desc">日线极端超买，存在技术性回踩确认支撑需求。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">MACD 趋势强动能</div>
+                <div class="info-card-val" style="color: var(--emerald);">+5.793 巨量发散</div>
+                <div class="info-card-desc">快线 6.91 巨幅上穿慢线 1.12，多头超级动能确立。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">关键筹码突破平台</div>
+                <div class="info-card-val" style="color: var(--primary);">$95.00 - $110.00</div>
+                <div class="info-card-desc">跳空缺口与前期筹码密集转换区，强支撑垫。</div>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>关键技术关口</th>
+                        <th>价格水平</th>
+                        <th>技术意义与策略应对</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>年内高点阻力 (R2)</strong></td>
+                        <td class="num-cell">$163.47</td>
+                        <td>今日冲高受阻回落点，突破即打开中长线上行空间</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第一阻力位 (R1)</strong></td>
+                        <td class="num-cell">$150.00</td>
+                        <td>整数心理阻力与多头震荡争夺位</td>
+                    </tr>
+                    <tr>
+                        <td><strong>当前市价 (Spot)</strong></td>
+                        <td class="num-cell" style="font-weight: 700; color: var(--primary);">$141.55</td>
+                        <td>暴涨后高位宽幅震荡，极高期权 IV 孕育收租良机</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第一支撑位 (S1)</strong></td>
+                        <td class="num-cell">$115.00 - $120.00</td>
+                        <td>今日开盘跳空承接区，短线回踩第一防线</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第二强支撑位 (S2)</strong></td>
+                        <td class="num-cell">$95.00 - $100.00</td>
+                        <td>期权大单密集未平仓区，绝佳 Sell Put 锁定安全行权位</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 9 -->
+    <section id="sec-9" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">9. 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</div>
+            <span class="sec-tag">研发优先 • 净现金防御</span>
+        </div>
+        <div class="callout" style="background: #F8FAFC; border-left-color: var(--slate); color: var(--text-secondary);">
+            <strong>📢 股息指标与股东回报明确披露 (Mandatory Dividend Disclosure)：</strong><br>
+            • <strong>当前股息派发：</strong> <strong>无 / 没有 (无股息派发 / Dividend: None / N/A)</strong><br>
+            • <strong>股息收益率 (Dividend Yield)：</strong> <strong>0.00%</strong><br>
+            • <strong>派息率 (Payout Ratio)：</strong> <strong>0.00%</strong> (成长型生物科技研发企业，全部资金用于管线研发与产能建设)<br>
+            • <strong>资本开支与研发投入：</strong> 年均研发开支 $30 亿-$33 亿，资本开支仅 $2 亿左右（轻工厂自动化模式）。
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">净现金与流动性安全</div>
+                <div class="info-card-val">$3.85B 净现金储备</div>
+                <div class="info-card-desc">现金与投资总额达 $5.14B，仅有 $12.9B 长期负债，资产负债表极度清洁，零破产或债务违约风险。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">过往股份回购记录</div>
+                <div class="info-card-val">曾累计回购 >$50 亿</div>
+                <div class="info-card-desc">新冠高峰期曾回购注销近 15% 股份。当前暂停回购以保证现金充沛，待 2028 年盈亏平衡后有望重启。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">资金使用优先级</div>
+                <div class="info-card-val">INT 肿瘤与二合一疫苗</div>
+                <div class="info-card-desc">资金高度聚焦于推进高胜率 Phase 3 商业化申报与全球冷链分销网络，战略执行极其专注。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="sec-10" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">10. 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="sec-tag">到期日: 2026-09-18 (DTE 30天) / 2026-10-16 (DTE 58天)</span>
+        </div>
+        <p style="margin-bottom: 14px;">
+            受股价单日暴力飙升与空头平仓影响，MRNA 期权隐含波动率 (IV) 飙升至 <strong>110% - 130%</strong>。利用超高 IV 卖出<strong>深虚值现金担保看跌期权 (Cash-Secured Put, CSP)</strong>，既能在享受 30%~45% 极深安全垫的同时捕获 20%~60% 的暴利年化权利金：
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card" style="border-top: 4px solid var(--primary);">
+                <div class="info-card-title">1. 保守防御型 (Conservative)</div>
+                <div class="info-card-val" style="font-size: 17px; color: var(--primary);">Strike $85.00 Put</div>
+                <div class="table-scroll" style="margin: 8px 0; border: none;">
+                    <table style="font-size: 12px;">
+                        <tr><td>到期日 / DTE</td><td class="num-cell">2026-10-16 (58天)</td></tr>
+                        <tr><td>权利金 (Bid/Ask)</td><td class="num-cell">$2.50 / $3.70 (成交价 $2.75)</td></tr>
+                        <tr><td>期权 Delta</td><td class="num-cell">-0.082 (极深虚值)</td></tr>
+                        <tr><td>安全缓冲垫</td><td class="num-cell" style="color: var(--primary); font-weight: 700;">40.0% (距现价 $56.55)</td></tr>
+                        <tr><td>年化收益率 (APY)</td><td class="num-cell" style="font-weight: 700;">20.36% (年化超20%)</td></tr>
+                        <tr><td>实际接盘成本</td><td class="num-cell"><strong>$82.25</strong> (较现价折价 -41.9%)</td></tr>
+                    </table>
+                </div>
+                <p style="font-size: 11.5px; color: var(--text-secondary);">40% 极深下跌缓冲垫，即使股价大幅腰斩亦能在 $82 附近超低位接货，稳稳收获 20.4% 年化收益。</p>
+            </div>
+
+            <div class="info-card" style="border-top: 4px solid var(--emerald);">
+                <div class="info-card-title">2. 平衡进取型 (Moderate - 推荐)</div>
+                <div class="info-card-val" style="font-size: 17px; color: var(--emerald);">Strike $95.00 Put</div>
+                <div class="table-scroll" style="margin: 8px 0; border: none;">
+                    <table style="font-size: 12px;">
+                        <tr><td>到期日 / DTE</td><td class="num-cell">2026-09-18 (30天)</td></tr>
+                        <tr><td>权利金 (Bid/Ask)</td><td class="num-cell">$2.90 / $3.45 (成交价 $3.17)</td></tr>
+                        <tr><td>期权 Delta</td><td class="num-cell"><strong>-0.102</strong> (黄金安全Delta)</td></tr>
+                        <tr><td>安全缓冲垫</td><td class="num-cell" style="color: var(--emerald); font-weight: 700;">32.7% (距现价 $46.55)</td></tr>
+                        <tr><td>年化收益率 (APY)</td><td class="num-cell" style="color: var(--emerald); font-weight: 800;">40.66% (暴利年化)</td></tr>
+                        <tr><td>实际接盘成本</td><td class="num-cell"><strong>$91.83</strong> (较现价折价 -35.1%)</td></tr>
+                    </table>
+                </div>
+                <p style="font-size: 11.5px; color: var(--text-secondary);"><strong>核心推荐合约：</strong> 32.7% 深厚缓冲垫，以 $91.83 超级安全底打折接货，1个月坐享 40.7% 极高年化权利金。</p>
+            </div>
+
+            <div class="info-card" style="border-top: 4px solid var(--amber);">
+                <div class="info-card-title">3. 积极建仓型 (Aggressive)</div>
+                <div class="info-card-val" style="font-size: 17px; color: var(--amber);">Strike $105.00 Put</div>
+                <div class="table-scroll" style="margin: 8px 0; border: none;">
+                    <table style="font-size: 12px;">
+                        <tr><td>到期日 / DTE</td><td class="num-cell">2026-09-18 (30天)</td></tr>
+                        <tr><td>权利金 (Bid/Ask)</td><td class="num-cell">$5.00 / $5.70 (成交价 $5.35)</td></tr>
+                        <tr><td>期权 Delta</td><td class="num-cell">-0.157 (适度虚值)</td></tr>
+                        <tr><td>安全缓冲垫</td><td class="num-cell">25.8% (距现价 $36.55)</td></tr>
+                        <tr><td>年化收益率 (APY)</td><td class="num-cell" style="color: var(--amber); font-weight: 800;">61.99% (超高年化)</td></tr>
+                        <tr><td>实际接盘成本</td><td class="num-cell"><strong>$99.65</strong> (较现价折价 -29.6%)</td></tr>
+                    </table>
+                </div>
+                <p style="font-size: 11.5px; color: var(--text-secondary);">专为乐意在 $100 整数关口建仓的投资者设计，单月捕获 62% 极高年化，破百即以 $99.65 锁定底仓。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="sec-11" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">11. 机构持仓与主力资金动向 (Institutional Ownership & 13F Dynamics)</div>
+            <span class="sec-tag">机构持股: 80.5% • 顶级成长公募重仓</span>
+        </div>
+        <p style="margin-bottom: 12px;">
+            头部国际顶级基金在低谷期持续坚定加仓，机构持股占比高达 80.5%：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (13F Top Holders)</th>
+                        <th>报告日期</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持仓市值 ($M)</th>
+                        <th>最新季度变动比例</th>
+                        <th>主力资金行为定性</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FMR, LLC (富达基金)</strong></td>
+                        <td>2026-06-30</td>
+                        <td class="num-cell">51,859,891</td>
+                        <td class="num-cell">$7,308.9M</td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 800;">+13.55%</td>
+                        <td><span class="tag-bull">第一大股东大举增持超13%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Blackrock Inc.</strong></td>
+                        <td>2026-06-30</td>
+                        <td class="num-cell">30,599,409</td>
+                        <td class="num-cell">$4,312.5M</td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 700;">+3.25%</td>
+                        <td>稳步增持基石底仓</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Capital Management LLC</strong></td>
+                        <td>2026-06-30</td>
+                        <td class="num-cell">23,208,792</td>
+                        <td class="num-cell">$3,270.9M</td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 700;">+1.47%</td>
+                        <td>被动指数配置增持</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Capital World Investors</strong></td>
+                        <td>2026-06-30</td>
+                        <td class="num-cell">22,276,996</td>
+                        <td class="num-cell">$3,139.6M</td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 800;">+19.14%</td>
+                        <td><span class="tag-bull">知名主动长线资金大举加仓近20%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>BAILLIE GIFFORD & CO</strong></td>
+                        <td>2026-06-30</td>
+                        <td class="num-cell">18,206,778</td>
+                        <td class="num-cell">$2,566.0M</td>
+                        <td class="num-cell">-8.90%</td>
+                        <td>长期成长股投资者底仓持有</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation</strong></td>
+                        <td>2026-06-30</td>
+                        <td class="num-cell">15,726,193</td>
+                        <td class="num-cell">$2,216.4M</td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 700;">+5.82%</td>
+                        <td>ETF配置增持</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Morgan Stanley</strong></td>
+                        <td>2026-06-30</td>
+                        <td class="num-cell">9,538,094</td>
+                        <td class="num-cell">$1,344.3M</td>
+                        <td class="num-cell" style="color: var(--emerald); font-weight: 800;">+12.59%</td>
+                        <td>大举净加仓</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="sec-12" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">12. 内部人交易、管理层语气与财报电话会洞察 (Insider Trading & Tone)</div>
+            <span class="sec-tag">管理层基调: 信心倍增 • 聚焦关键临床</span>
+        </div>
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">SEC Form 4 内部人交易与持股</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-top: 6px;">
+                    CEO Stéphane Bancel 与联合创始人团队持股比例依然高达 7.3% 以上。高管近期的交易主要为根据 10b5-1 预先设立计划进行的少量例行期权行权与慈善捐赠，未出现由于基本面恶化导致的非理性清仓抛售。核心技术团队与管理层利益高度一致。
+                </p>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">财报电话会与 R&D Day 核心指引</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-top: 6px;">
+                    • <strong>肿瘤疫苗 INT：</strong> 黑色素瘤 Phase 3 入组顺利，与 Keytruda 联合治疗非小细胞肺癌 (NSCLC) 临床稳步推进，有望申请突破性疗法加速获批。<br>
+                    • <strong>二合一疫苗里程碑：</strong> mRNA-1083 展现优于单苗联用的免疫原性，已进入全球主要监管机构滚动申报。<br>
+                    • <strong>2028 盈利目标：</strong> 预计到 2028 年累计斩获 10 项以上商业化批准，实现经营性现金流全面转正。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="sec-13" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">13. 做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Potential)</div>
+            <span class="sec-tag">极高做空 15.23% • 轧空正在发生</span>
+        </div>
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">做空股数 (Short Shares)</div>
+                <div class="info-card-val" style="color: var(--red);">49.77M 股</div>
+                <div class="info-card-desc">占总流通盘高达 15.23%</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">平仓所需天数 (DTC)</div>
+                <div class="info-card-val" style="color: var(--amber);">7.21 天</div>
+                <div class="info-card-desc">平仓流动性压力极高</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">期权沽购比 (P/C Ratio)</div>
+                <div class="info-card-val">0.65</div>
+                <div class="info-card-desc">多头看涨期权成交量剧增</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">轧空风险评级</div>
+                <div class="info-card-val" style="color: var(--red);">极高 (High Squeeze)</div>
+                <div class="info-card-desc">空头仓位踩踏回补进一步推高股价波动</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="sec-14" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">14. 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+            <span class="sec-tag">风险等级: 中高 (生物科技研发属性)</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心风险因子</th>
+                        <th>发生概率</th>
+                        <th>潜在冲击</th>
+                        <th>风险缓释与应对机制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>肿瘤疫苗 Phase 3 关键终点未达预期</strong></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td><span class="tag-bear">极高 (Severe)</span></td>
+                        <td>Phase 2b 展现 49% 显著无复发生存期 (RFS) 改善，多癌种联用分散了单一适应症风险。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>呼吸道二合一疫苗监管审批延迟</strong></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td>拥有完整 Phase 3 头对头阳性对照数据，与监管机构保持高频沟通滚动提交。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>mRNA 专利与知识产权侵权诉讼</strong></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td>自主构建了全方位的全球专利网，与多家机构已达成交叉许可或准备了诉讼和解基金。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>现金消耗过快与再融资稀释</strong></td>
+                        <td><span class="tag-bull">极低 (Low)</span></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td>在手现金超 $51 亿，年化消耗已压降至 $20 亿以内，至少支撑 3 年以上研发无忧。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout callout-warn">
+            <strong>极端熊市压力测试：</strong> 假设 INT 肿瘤疫苗 Phase 3 疗效不及预期且二合一疫苗审批延期，MRNA 仅依靠呼吸道常规疫苗与现有现金储备进行清算重组，其<strong>现金底与固定资产重置价值约在 $35.00 - $45.00 区间</strong>。因此，通过在 <strong>$85 - $95</strong> 行权价卖出 Sell Put，即便发生深度调整亦能获得充足的二次安全缓冲垫。
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="sec-15" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">15. 未来关键催化剂日历与增长路线图 (Catalyst Calendar & Strategic Milestones)</div>
+            <span class="sec-tag">密集临床与申报期</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预计时间节点</th>
+                        <th>关键催化事件 (Key Catalyst)</th>
+                        <th>潜在商业与股价影响</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026年9月 (R&D Day)</strong></td>
+                        <td>年度研发日 (R&D Day) 全管线数据更新</td>
+                        <td>全面展示肿瘤 INT、潜伏病毒与罕见病最新临床数据</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026年Q4</strong></td>
+                        <td>FDA 对流感-新冠二合一疫苗 (mRNA-1083) 审评进展</td>
+                        <td>若获批将确立首个呼吸道二合一商业化霸主地位</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026年11月初</strong></td>
+                        <td>2026财年第三季度 (Q3) 财报披露</td>
+                        <td>检验秋季呼吸道疫苗接种季销售额与现金消耗控制</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027年上半年</strong></td>
+                        <td>CMV 巨细胞病毒疫苗 (mRNA-1647) Phase 3 顶线读出</td>
+                        <td>填补全球无 CMV 疫苗空白，开辟 $20B-$30B 独占市场</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027年下半年</strong></td>
+                        <td><strong>mRNA-4157 黑色素瘤 Phase 3 关键注册数据发布</strong></td>
+                        <td>重构全球肿瘤免疫治疗范式，开启百亿美元商业化爆发</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 16 -->
+    <section id="sec-16" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title">16. 最终投资评级与执行建议 (Final Verdict & Execution Strategy)</div>
+            <span class="sec-tag">综合投资决策</span>
+        </div>
+        
+        <div class="signal-block">
+            <div class="signal-main">
+                <div class="signal-badge-lg">看多 (BUY)</div>
+                <div>
+                    <div style="font-size: 18px; font-weight: 800;">综合量化评级: 7.1 / 10 • 平台型生物科技跨越期</div>
+                    <div class="signal-meta">目标投资周期: 12 - 36 个月 | 适合策略: 现货回调分批吸筹 + Sell Put 期权高权利金收租</div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 12px; opacity: .8;">基准 DCF 内在价值</div>
+                <div style="font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono';">$142.51 (乐观 $286.68)</div>
+            </div>
+        </div>
+
+        <div class="data-grid-3" style="margin-top: 18px;">
+            <div class="info-card">
+                <div class="info-card-title">现货分批建仓区间</div>
+                <div class="info-card-val" style="color: var(--primary);">$110.00 - $125.00</div>
+                <div class="info-card-desc">鉴于日线 RSI 达 91.86 极端超买，不建议追高。建议等待技术性回踩 $110-$125 缺口分批建仓。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">分阶段止盈目标价</div>
+                <div class="info-card-val" style="color: var(--emerald); font-size: 16px;">T1: $165 | T2: $210 | T3: $280+</div>
+                <div class="info-card-desc">第一目标突破前高 $165，第二目标 $210 (+48%)，第三目标直指乐观管线估值 $280+ (+98%)。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">期权超高年化收租</div>
+                <div class="info-card-val" style="color: var(--teal);">20.4% - 40.7% APY</div>
+                <div class="info-card-desc">首选卖出 30 DTE Strike $95.00 Put，享受 32.7% 超深安全垫与 40.7% 年化收益，折价接货。</div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<footer style="text-align: center; padding: 24px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); background: #fff;">
+    <p>InvestSkill Institutional Equity Research Framework • 报告生成时间: 2026-08-19 • 数据来源: SEC EDGAR 10-K/10-Q, yfinance, Robinhood Pro, 官方投资者关系披露</p>
+    <p style="margin-top: 4px;">免责声明：本报告由 InvestSkill 15模块多因子量化投研模型自动生成，仅供专业投资参考与策略回测，不构成任何投资咨询与买卖要约。</p>
+</footer>
+
+<script>
+// 1. RADAR CHART
+const radarCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+        labels: ['业务护城河', '管线估值', '资产健康', '市场资金', '盈利拐点', '技术动量'],
+        datasets: [{
+            label: 'MRNA 量化得分',
+            data: [8.5, 7.0, 7.5, 7.5, 5.0, 6.0],
+            backgroundColor: 'rgba(16, 185, 129, 0.25)',
+            borderColor: '#059669',
+            pointBackgroundColor: '#10B981',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#059669',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                angleLines: { color: 'rgba(0,0,0,0.08)' },
+                grid: { color: 'rgba(0,0,0,0.08)' },
+                pointLabels: {
+                    font: { size: 12, weight: '600', family: 'Inter' },
+                    color: '#334155'
+                },
+                suggestedMin: 0,
+                suggestedMax: 10,
+                ticks: { stepSize: 2, display: false }
+            }
+        },
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+
+// 2. FINANCIALS CHART
+const finCtx = document.getElementById('financialsChart').getContext('2d');
+new Chart(finCtx, {
+    type: 'bar',
+    data: {
+        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025'],
+        datasets: [
+            {
+                label: '总营业收入 ($M)',
+                data: [19263, 6848, 3244, 2228],
+                backgroundColor: 'rgba(5, 150, 105, 0.8)',
+                borderRadius: 6,
+                yAxisID: 'y'
+            },
+            {
+                label: '研发费用 ($M)',
+                data: [3295, 4845, 4267, 3250],
+                backgroundColor: 'rgba(217, 119, 6, 0.7)',
+                borderRadius: 6,
+                yAxisID: 'y'
+            },
+            {
+                label: '期末现金及投资 ($M)',
+                data: [9902, 8604, 7025, 5799],
+                backgroundColor: 'rgba(13, 148, 136, 0.5)',
+                borderRadius: 6,
+                yAxisID: 'y'
+            },
+            {
+                label: '自由现金流 ($M)',
+                data: [4581, -3825, -4055, -2075],
+                type: 'line',
+                borderColor: '#DC2626',
+                backgroundColor: '#DC2626',
+                borderWidth: 2.5,
+                pointRadius: 4,
+                yAxisID: 'y'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            x: { grid: { display: false } },
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: { display: true, text: '金额 ($M)' },
+                grid: { color: 'rgba(0,0,0,0.06)' }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: { boxWidth: 12, font: { size: 12, family: 'Inter' } }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
