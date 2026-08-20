@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>T-Mobile US (TMUS) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(5,150,105,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 18px; font-weight: 800; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+
+        .table-scroll { overflow-x: auto; margin: 14px 0; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        thead { background: #F1F5F9; }
+        th { padding: 10px 12px; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; text-align: right; }
+
+        .tag-bull { background: #ECFDF5; color: #065F46; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-warn { background: #FEF3C7; color: #92400E; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-bear { background: #FEE2E2; color: #991B1B; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+
+        .chart-box { position: relative; height: 320px; width: 100%; margin: 16px 0; }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13.5px;
+            color: #064E3B;
+            line-height: 1.6;
+        }
+        .callout-warn {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .signal-main { display: flex; align-items: center; gap: 16px; }
+        .signal-badge-lg {
+            background: #10B981;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 800;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(16,185,129,.7);
+        }
+        .signal-meta { font-size: 13px; opacity: .9; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 24px; }
+            .sec-card { padding: 18px 16px; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: TMUS • 全美 5G 通信网络领军者与自由现金流巨兽</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-score">综合量化得分: 8.8 / 10</span>
+            <span class="badge badge-hero-stock">远期 P/E 12.5x • FCF 达 $154.3亿 • 52周底部 RP 0.15</span>
+        </div>
+        <h1 class="hero-title">T-Mobile US (TMUS) 深度投研报告</h1>
+        <p class="hero-sub">全美 5G 中频网络（2.5GHz）与电信行业增长速度最快、后付费手机净增客户连续多年断层领先的全国性电信巨头。公司凭借“Un-carrier”（非传统电信运营商）颠覆性战略、业内最低的客户流失率（Churn < 0.85%）以及 5G 家用无线宽带（FWA）的爆发式渗透，持续从 AT&T 与 Verizon 手中掠夺高价值市场份额。TTM 自由现金流跃升至创纪录的 $154.3 亿美元，推动激进的大规模股票回购与高速股息增长。当前股价回踩 52 周底部黄金坑（$180.75，RP 0.15，年线偏离 -7.2%），远期市盈率仅 12.52x，华尔街共识目标价 $243.38（潜在空间 +34.6%），高盛二季度爆买增持 88%，兼具高防御现金牛与价值估值修复双重属性。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                <div class="hero-kpi-val">$180.75</div>
+                <div class="hero-kpi-sub">52周区间: $167.73 - $254.22 (RP 0.15)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 / 企业价值</div>
+                <div class="hero-kpi-val">$193.84B</div>
+                <div class="hero-kpi-sub">EV: $313.21B | 德国电信绝对控股</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 营收 / FCF</div>
+                <div class="hero-kpi-val">$88.31B / $15.43B</div>
+                <div class="hero-kpi-sub">营业利润率 25.22% | 净利润 $109.9B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">远期市盈率 / 静态 P/E</div>
+                <div class="hero-kpi-val">12.52x / 18.90x</div>
+                <div class="hero-kpi-sub">EV/EBITDA 9.11x (高性价比)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息派发政策</div>
+                <div class="hero-kpi-val">2.24% ($4.08/年)</div>
+                <div class="hero-kpi-sub">年复合增息超 10% | 派息率 41.2%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">华尔街评级 / 目标价</div>
+                <div class="hero-kpi-val">Buy / $243.38</div>
+                <div class="hero-kpi-sub">28位分析师覆盖 | 最高看至 $300.00</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+    
+    <!-- 目录导航 -->
+    <nav class="toc-bar">
+        <div class="toc-title">报告核心导航目录 (15大专业投研模块)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">1. 执行摘要</a>
+            <a href="#sec-2" class="toc-link">2. 多因子雷达</a>
+            <a href="#sec-3" class="toc-link">3. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">4. 财务报表剖析</a>
+            <a href="#sec-5" class="toc-link">5. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">6. 同行全景对标</a>
+            <a href="#sec-7" class="toc-link">7. DCF估值模型</a>
+            <a href="#sec-8" class="toc-link">8. 技术面与筹码</a>
+            <a href="#sec-9" class="toc-link">9. 资本配置与股息</a>
+            <a href="#sec-10" class="toc-link">10. Sell Put期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会</a>
+            <a href="#sec-13" class="toc-link">13. 做空与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </nav>
+
+    <!-- 模块 1: 执行摘要与核心投资逻辑 -->
+    <section id="sec-1" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📌</span> 1. 执行摘要与核心投资逻辑 (Executive Summary & Thesis)</h2>
+            <span class="sec-tag">核心逻辑</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14.5px; line-height: 1.7;">
+            <strong>公司概况：</strong>T-Mobile US, Inc. (NASDAQ: TMUS) 总部位于华盛顿州贝尔维尤，是全美领先的无线通信与宽带综合服务运营商。自2020年成功合并 Sprint 以来，T-Mobile 在 5G 中频黄金频谱（2.5GHz Ultra Capacity 5G）确立了长达数年的网络速度与人口覆盖领先优势，服务全美超过 1.25 亿移动与宽带客户。
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 5G 黄金中频频谱绝对统治力</div>
+                <div class="info-card-val">全美覆盖超 3.3 亿人口</div>
+                <div class="info-card-desc">在 2.5GHz 黄金中频频谱拥有无可比拟的深度与带宽，在各类第三方独立测评（Ookla, Opensignal）中网络速度与体验连续多年霸榜第一。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 5G 5G Home Internet (FWA) 跨界颠覆</div>
+                <div class="info-card-val">超 600 万宽带用户 • 掠夺有线宽带</div>
+                <div class="info-card-desc">利用 5G 剩余网络容量推出即插即用无线家庭宽带，以极具竞争力的价格（$50/月）迅速从 Comcast 与 Charter 手中抢夺传统有线宽带市场。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 自由现金流爆炸式释放与资本回报</div>
+                <div class="info-card-val">$154.3 亿 FCF • 年回购超 $140 亿</div>
+                <div class="info-card-desc">Sprint 网络整合完成后 CapEx 显著回落，经营现金流高达 $279.5 亿，FCF 转化为大规模回购与快速增长的股息分红。</div>
+            </div>
+        </div>
+        <div class="callout">
+            <strong>💡 核心投资洞察：</strong>TMUS 近期受电信行业价格战担忧与大盘轮动影响回踩 52 周底部（$180.75，RP 0.15，年线偏离 -7.2%）。当前远期市盈率回落至 12.52x，相较其两位数的 EPS 复合增速具备极高的 PEG 性价比。通过 Sell Put 策略在 $170.00~$175.00 开仓，可锁定年化 15.7%~27.0% 的安全权利金收益。
+        </div>
+    </section>
+
+    <!-- 模块 2: 多因子量化评分雷达模型 -->
+    <section id="sec-2" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📊</span> 2. 多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar)</h2>
+            <span class="sec-tag">量化评级: 8.8 / 10 (强烈看多)</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评分维度</th>
+                                <th>权重</th>
+                                <th>得分 (0-10)</th>
+                                <th>加权得分</th>
+                                <th>驱动因子解析</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>商业质量 (Business Quality)</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="tag-bull">9.3</span></td>
+                                <td class="num-cell">2.33</td>
+                                <td>5G 网络速度与覆盖第一，毛利率63.1%，后付费手机净增断层领跑</td>
+                            </tr>
+                            <tr>
+                                <td><strong>估值水平 (Valuation)</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="tag-bull">8.6</span></td>
+                                <td class="num-cell">2.15</td>
+                                <td>远期P/E 12.52x，EV/EBITDA 9.11x，PEG仅0.95，较华尔街目标价折价35%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>市场与资金面 (Market Signals)</strong></td>
+                                <td class="num-cell">20%</td>
+                                <td class="num-cell"><span class="tag-bull">8.8</span></td>
+                                <td class="num-cell">1.76</td>
+                                <td>高盛二季度爆买+88%，华尔街共识Buy，德国电信母公司坚定持股</td>
+                            </tr>
+                            <tr>
+                                <td><strong>自适应技术面 (Technical & Cycle)</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="tag-bull">8.4</span></td>
+                                <td class="num-cell">1.26</td>
+                                <td>RP=0.15 处于52周黄金坑底部，RSI 61.6底部放量突破，年线偏离-7.2%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>风险与非对称赔率 (Risk & Payoff)</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="tag-bull">8.5</span></td>
+                                <td class="num-cell">1.28</td>
+                                <td>电信订阅制现金牛，FCF超$154亿支撑回购，做空比例仅3.79%</td>
+                            </tr>
+                            <tr style="background: #F1F5F9; font-weight: 700;">
+                                <td><strong>综合量化得分 (Composite)</strong></td>
+                                <td class="num-cell">100%</td>
+                                <td class="num-cell"><span class="tag-bull" style="font-size: 13px;">8.8</span></td>
+                                <td class="num-cell" style="color: var(--primary);">8.78 / 10</td>
+                                <td><strong>强烈看多 (STRONG BUY)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 3: 商业模式、垂直整合与波特五力护城河评级 -->
+    <section id="sec-3" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏰</span> 3. 商业模式、垂直整合与波特五力护城河 (Business Model & Moat)</h2>
+            <span class="sec-tag">护城河: 极宽 (Wide Moat / 9.3分)</span>
+        </div>
+        <div class="data-grid-3" style="margin-bottom: 16px;">
+            <div class="info-card">
+                <div class="info-card-title">① 2.5GHz 频谱护城河与建网成本优势</div>
+                <div class="info-card-desc">合并 Sprint 获得的 2.5GHz 中频频谱是 5G 黄金频段，相比 C-band（Verizon/AT&T 所用）基站覆盖半径大 2 倍，建网成本节省数百亿美元。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 业内最低的客户流失率 (Churn < 0.85%)</div>
+                <div class="info-card-desc">Un-carrier 品牌深入人心（免除隐藏收费、国际漫游免费、T-Life 福利生态），客户忠诚度极高，生命周期价值（LTV）持续攀升。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 5G FWA 几乎零边际成本拓客</div>
+                <div class="info-card-desc">家庭宽带直接利用现有 5G 宏站闲置容量，无需入户铺设光纤，毛利率高达 70%+，成为公司第二增长曲线。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>波特五力维度</th>
+                        <th>竞争压力评级</th>
+                        <th>护城河与竞争优势支撑深度解析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>供应商议价能力 (设备商/铁塔)</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>爱立信、诺基亚等主流设备商充分竞争；拥有数万基站租赁规模，对 Crown Castle/AMT 具备极强租金议价权。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>买方议价能力 (消费者/企业)</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>移动通信已成为水电气般的基础刚需，套餐资费锁定周期长，价格敏感度低且换网成本高。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>潜在进入者威胁</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>美国 FCC 频谱拍卖牌照耗资数百亿，全国性宏站与光纤回传承载网建设需要数千亿资本积累，新玩家无法复制。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品竞争威胁 (卫星直连)</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>Starlink 等卫星直连主要用于极端偏远地区应急，无法在高密度城区提供超大带宽 5G 传输，反与 T-Mobile 达成合作互补。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>行业内现有竞争 (三寡头)</strong></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td>与 Verizon (VZ) 和 AT&T (T) 形成稳定的寡头格局，T-Mobile 凭借技术与成本优势持续实现净增份额扩张。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 4: 核心财务报表与盈利质量深度剖析 -->
+    <section id="sec-4" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📈</span> 4. 核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</h2>
+            <span class="sec-tag">财务健康度: 极高 (Piotroski F-Score: 8)</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            过去4年，T-Mobile 营收从 2022 年的 $795.7 亿稳健扩张至 2025 年的 $883.1 亿，营业利润从 $81.1 亿飙升至 $185.6 亿（增幅超 128%），自由现金流从负转正达到创纪录的 $154.3 亿美元：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (单位: 百万美元)</th>
+                        <th>FY2022 (12/22)</th>
+                        <th>FY2023 (12/23)</th>
+                        <th>FY2024 (12/24)</th>
+                        <th>FY2025 (12/25)</th>
+                        <th>TTM 表现</th>
+                        <th>4年复合趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业收入 (Total Revenue)</strong></td>
+                        <td class="num-cell">$79,571.0</td>
+                        <td class="num-cell">$78,558.0</td>
+                        <td class="num-cell">$81,400.0</td>
+                        <td class="num-cell">$88,309.0</td>
+                        <td class="num-cell"><strong>$88,309.0</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+3.5% CAGR</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="num-cell">$43,365.0</td>
+                        <td class="num-cell">$48,370.0</td>
+                        <td class="num-cell">$51,747.0</td>
+                        <td class="num-cell">$55,535.0</td>
+                        <td class="num-cell"><strong>$55,535.0</strong></td>
+                        <td class="num-cell"><strong>毛利率 63.05%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="num-cell">$8,107.0</td>
+                        <td class="num-cell">$14,241.0</td>
+                        <td class="num-cell">$18,010.0</td>
+                        <td class="num-cell">$18,557.0</td>
+                        <td class="num-cell"><strong>$18,557.0</strong></td>
+                        <td class="num-cell"><span class="tag-bull">利润率 25.22%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="num-cell">$2,590.0</td>
+                        <td class="num-cell">$8,317.0</td>
+                        <td class="num-cell">$11,339.0</td>
+                        <td class="num-cell">$10,992.0</td>
+                        <td class="num-cell"><strong>$10,992.0</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+61.8% CAGR</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating CF)</strong></td>
+                        <td class="num-cell">$16,781.0</td>
+                        <td class="num-cell">$18,559.0</td>
+                        <td class="num-cell">$22,293.0</td>
+                        <td class="num-cell">$27,950.0</td>
+                        <td class="num-cell"><strong>$27,950.0</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+18.5% CAGR</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="num-cell">-$17,301.0</td>
+                        <td class="num-cell">-$10,811.0</td>
+                        <td class="num-cell">-$12,311.0</td>
+                        <td class="num-cell">-$12,523.0</td>
+                        <td class="num-cell">-$12,523.0</td>
+                        <td class="num-cell">建网高峰期已过</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="num-cell">-$520.0</td>
+                        <td class="num-cell">+$7,748.0</td>
+                        <td class="num-cell">+$9,982.0</td>
+                        <td class="num-cell">+$15,427.0</td>
+                        <td class="num-cell"><strong>+$15,427.0</strong></td>
+                        <td class="num-cell"><span class="tag-bull">FCF 爆发释放</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>股东回报 (回购 + 分红)</strong></td>
+                        <td class="num-cell">$3.0B</td>
+                        <td class="num-cell">$13.2B</td>
+                        <td class="num-cell">$15.0B</td>
+                        <td class="num-cell">$16.5B</td>
+                        <td class="num-cell"><strong>每年超 $160 亿</strong></td>
+                        <td class="num-cell">全美最激进回购之一</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-box">
+            <canvas id="finChart"></canvas>
+        </div>
+    </section>
+
+    <!-- 模块 5: 杜邦三因子拆解与资本运营效率 -->
+    <section id="sec-5" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>⚖️</span> 5. 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</h2>
+            <span class="sec-tag">ROE: 17.99% | 盈利质量与杠杆健康度兼备</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 13.5px; color: var(--text-secondary);">
+            通过杜邦三因子拆解（净利率 × 资产周转率 × 权益乘数），展现出网络规模效应驱动的净利率扩张特征：
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 销售净利率 (Net Margin)</div>
+                <div class="info-card-val">12.45%</div>
+                <div class="info-card-desc">Sprint 协同效应释放完毕，租金与铁塔重叠开支消除，净利率显著提升。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 资产周转率 (Asset Turnover)</div>
+                <div class="info-card-val">0.42x</div>
+                <div class="info-card-desc">重资产频谱与基站网络折旧摊销稳定，客户 ARPU 值随 5G 套餐升级稳步提高。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 权益乘数 (Financial Leverage)</div>
+                <div class="info-card-val">3.45x</div>
+                <div class="info-card-desc">净债务 / EBITDA 稳定在 2.5x 舒适区间，标普维持稳定投资级（BBB+）评级。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 6: 行业竞争格局与同行全景对标矩阵 -->
+    <section id="sec-6" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🥊</span> 6. 行业竞争格局与同行全景对标矩阵 (Peer Comparison)</h2>
+            <span class="sec-tag">增速与现金流质量全行业第一</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            对标全美代表性电信运营商与有线宽带巨头（Verizon、AT&T、Comcast、Charter、Deutsche Telekom）：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>代码 / 公司</th>
+                        <th>核心竞争优势</th>
+                        <th>总市值 (市值)</th>
+                        <th>远期 P/E</th>
+                        <th>EV/EBITDA</th>
+                        <th>营业利润率</th>
+                        <th>股息率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>TMUS (T-Mobile US)</strong></td>
+                        <td><strong>5G 网络与用户净增第一 (Un-carrier)</strong></td>
+                        <td class="num-cell"><strong>$193.84B</strong></td>
+                        <td class="num-cell"><strong style="color: var(--primary);">12.52x</strong></td>
+                        <td class="num-cell"><strong>9.11x</strong></td>
+                        <td class="num-cell"><strong style="color: var(--primary);">25.22%</strong></td>
+                        <td class="num-cell"><strong>2.24%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>VZ (Verizon)</strong></td>
+                        <td>传统政企与高价值存量用户</td>
+                        <td class="num-cell">$205.00B</td>
+                        <td class="num-cell">9.34x</td>
+                        <td class="num-cell">7.80x</td>
+                        <td class="num-cell">23.00%</td>
+                        <td class="num-cell">5.73%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>T (AT&T)</strong></td>
+                        <td>光纤宽带与移动网络融合</td>
+                        <td class="num-cell">$172.23B</td>
+                        <td class="num-cell">9.80x</td>
+                        <td class="num-cell">7.20x</td>
+                        <td class="num-cell">24.79%</td>
+                        <td class="num-cell">4.42%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CMCSA (Comcast)</strong></td>
+                        <td>传统同轴电缆与环球影业</td>
+                        <td class="num-cell">$93.45B</td>
+                        <td class="num-cell">7.27x</td>
+                        <td class="num-cell">6.50x</td>
+                        <td class="num-cell">17.23%</td>
+                        <td class="num-cell">4.96%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DTEGY (Deutsche Telekom)</strong></td>
+                        <td>欧洲与德国第一大电信巨头</td>
+                        <td class="num-cell">$160.60B</td>
+                        <td class="num-cell">10.54x</td>
+                        <td class="num-cell">6.80x</td>
+                        <td class="num-cell">23.54%</td>
+                        <td class="num-cell">3.43%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout">
+            <strong>对标总结：</strong>相较于增速停滞、深受光纤资本开支拖累的 AT&T 与 Verizon，T-Mobile 拥有行业最强劲的自由现金流增速与用户净增动力。其远期 P/E 12.52x 对应两位数的每股收益增长，PEG 仅 0.95，处于严重低估状态。
+        </div>
+    </section>
+
+    <!-- 模块 7: DCF 现金流折现与多维估值公允中枢 -->
+    <section id="sec-7" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🧮</span> 7. DCF 现金流折现与多维估值公允中枢 (DCF & Valuation Models)</h2>
+            <span class="sec-tag">内在价值公允中枢: $242.00 (低估 33.9%)</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            基于 10 年期两阶段自由现金流折现模型（DCF）、P/E 乘数倍数法与华尔街共识目标价综合测算：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>估值模型 / 维度</th>
+                        <th>核心参数与假设</th>
+                        <th>测算公允每股价值</th>
+                        <th>现价 ($180.75) 潜在空间</th>
+                        <th>安全边际评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>① 极限压力测试底线 (Bear DCF)</strong></td>
+                        <td>WACC 8.5%, 电信价格战激化, 5年 FCF 增速 2%, 永续 1.5%</td>
+                        <td class="num-cell"><strong>$168.00</strong></td>
+                        <td class="num-cell"><span class="tag-warn">-7.1%</span></td>
+                        <td>极限清算底线支撑</td>
+                    </tr>
+                    <tr>
+                        <td><strong>② 基准 FCF 折现模型 (Base DCF)</strong></td>
+                        <td>WACC 7.2%, 5年 FCF 复合增速 7.5%, 永续 2.0%</td>
+                        <td class="num-cell"><strong>$240.00</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+32.8%</span></td>
+                        <td><span class="tag-bull">极度安全 (33% 空间)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>③ 乐观扩张情景 (Bull DCF)</strong></td>
+                        <td>WACC 6.8%, 5G FWA 突破 1000 万户, 永续 2.5%</td>
+                        <td class="num-cell"><strong>$285.00</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+57.7%</span></td>
+                        <td>高赔率上行空间</td>
+                    </tr>
+                    <tr>
+                        <td><strong>④ 相对估值乘数中枢 (P/E 16.5x)</strong></td>
+                        <td>2026E EPS $14.44 × 16.5x 历史合理溢价</td>
+                        <td class="num-cell"><strong>$238.26</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+31.8%</span></td>
+                        <td>估值乘数均值回归</td>
+                    </tr>
+                    <tr>
+                        <td><strong>⑤ 华尔街机构共识平均目标价</strong></td>
+                        <td>28位顶级电信分析师目标均价</td>
+                        <td class="num-cell"><strong>$243.38</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+34.6%</span></td>
+                        <td>机构一致预期</td>
+                    </tr>
+                    <tr style="background: #F1F5F9; font-weight: 700;">
+                        <td><strong>综合公允内在价值中枢 (Fair Value)</strong></td>
+                        <td>多模型加权综合公允中枢</td>
+                        <td class="num-cell" style="color: var(--primary); font-size: 15px;"><strong>$242.00</strong></td>
+                        <td class="num-cell"><strong style="color: var(--primary);">+33.9%</strong></td>
+                        <td><strong>强烈低估 (STRONG BUY)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-box">
+            <canvas id="dcfChart"></canvas>
+        </div>
+    </section>
+
+    <!-- 模块 8: 技术面量化、均线系统与关键筹码位 -->
+    <section id="sec-8" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📉</span> 8. 技术面量化、均线系统与关键筹码位 (Technical Analysis)</h2>
+            <span class="sec-tag">形态: 52周底部黄金坑反转确立</span>
+        </div>
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">当前价格 / 200SMA</div>
+                <div class="info-card-val">$180.75 / $194.82</div>
+                <div class="info-card-desc">偏离度 -7.2% | 年线下方超跌</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">52周相对位置 (RP)</div>
+                <div class="info-card-val">0.15 (底部 15%)</div>
+                <div class="info-card-desc">52周区间: $167.73 - $254.22</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">RSI (14日) / MACD</div>
+                <div class="info-card-val">61.6 / 底部金叉发散</div>
+                <div class="info-card-desc">多头动能强劲复苏</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">30日历史波动率 (HV30)</div>
+                <div class="info-card-val">24.5% / 稳健防御</div>
+                <div class="info-card-desc">HV60: 25.8% | HV252: 23.9%</div>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>关键技术与筹码位</th>
+                        <th>价格区间</th>
+                        <th>技术与筹码支撑/阻力逻辑</th>
+                        <th>期权策略对应操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>强支撑位 S1 (52周铁底)</strong></td>
+                        <td class="num-cell"><strong>$167.00 - $172.00</strong></td>
+                        <td>2024-2026年长期平台底颈线，对应远期 P/E 11.5x 极限底部</td>
+                        <td>保守型 Sell Put $170.00 行权价锚定区</td>
+                    </tr>
+                    <tr>
+                        <td><strong>中线支撑位 S2</strong></td>
+                        <td class="num-cell"><strong>$175.00 - $178.00</strong></td>
+                        <td>近期双底颈线放量突破确认位</td>
+                        <td>平衡型 Sell Put $175.00 开仓区</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第一阻力位 R1 (200SMA)</strong></td>
+                        <td class="num-cell"><strong>$195.00 - $205.00</strong></td>
+                        <td>200日牛熊分界年线阻力，放量突破将开启主升浪</td>
+                        <td>Covered Call 备兑卖出阻力位</td>
+                    </tr>
+                    <tr>
+                        <td><strong>目标阻力位 R2 (52周顶)</strong></td>
+                        <td class="num-cell"><strong>$240.00 - $254.00</strong></td>
+                        <td>历史高点密集成交区与公允内在价值目标位</td>
+                        <td>波段多头获利止盈目标位</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 9: 资本配置、股息政策与股东回报披露 -->
+    <section id="sec-9" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>💰</span> 9. 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</h2>
+            <span class="sec-tag">股息年化增幅 > 10% | 巨额回购注销</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 现金股息政策</div>
+                <div class="info-card-val">$4.08 / 股 (年化 2.24%)</div>
+                <div class="info-card-desc">按季度派息（$1.02/季），每年股息增幅保持在 10% 以上，派息率仅 41.2%。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 激进股票回购计划</div>
+                <div class="info-card-val">年回购超 $140 亿美元</div>
+                <div class="info-card-desc">董事会批准了高达 $190 亿美元的新一轮股东回报计划，持续注销流通股大幅增厚 EPS。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 稳健现金流再投资</div>
+                <div class="info-card-val">CapEx 占营收比降至 14%</div>
+                <div class="info-card-desc">建网资本开支常态化平稳，充足现金流兼顾光纤合资企业（Lumos/Metronet）布局。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 10: 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 -->
+    <section id="sec-10" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🎯</span> 10. 现金担保卖出看跌期权 (Cash-Secured Sell Put) 策略</h2>
+            <span class="sec-tag">策略评级: 极高胜率与确定性</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            基于当前股价 $180.75 与 2026-09-18 到期日（DTE 29天）的实时期权链数据，构建三档高胜率 Sell Put 策略：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯度</th>
+                        <th>推荐合约代码 / 到期日</th>
+                        <th>行权价 (Strike)</th>
+                        <th>Delta / IV</th>
+                        <th>权利金 (Mark)</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>净持仓成本 (Net Basis)</th>
+                        <th>安全垫 (Cushion)</th>
+                        <th>执行指引与情景研判</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>🟢 保守型 (深度防守)</strong></td>
+                        <td><code>TMUS 260918P170.00</code> (29d)</td>
+                        <td class="num-cell"><strong>$170.00</strong></td>
+                        <td class="num-cell">-0.21 / 30.6%</td>
+                        <td class="num-cell"><strong>$2.125</strong></td>
+                        <td class="num-cell"><strong>15.74%</strong></td>
+                        <td class="num-cell"><strong>$167.875</strong> (-7.1%)</td>
+                        <td class="num-cell"><span class="tag-bull">5.95%</span></td>
+                        <td>安全垫达 5.95%，未行权纯收 15.7% 年化收益；若被指派则在 $167.88（52周绝对底）低成本建仓。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🟡 平衡型 (强烈推荐)</strong></td>
+                        <td><code>TMUS 260918P175.00</code> (29d)</td>
+                        <td class="num-cell"><strong>$175.00</strong></td>
+                        <td class="num-cell">-0.35 / 31.3%</td>
+                        <td class="num-cell"><strong>$3.75</strong></td>
+                        <td class="num-cell"><strong style="color: var(--primary);">26.97%</strong></td>
+                        <td class="num-cell"><strong>$171.25</strong> (-5.3%)</td>
+                        <td class="num-cell"><span class="tag-bull">3.18%</span></td>
+                        <td>绝佳风险收益比，锁定近 27% 年化权利金收益，折价 5.3% 锁定高质量筹码。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔴 进取型 (平价吸筹)</strong></td>
+                        <td><code>TMUS 260918P180.00</code> (29d)</td>
+                        <td class="num-cell"><strong>$180.00</strong></td>
+                        <td class="num-cell">-0.49 / 31.4%</td>
+                        <td class="num-cell"><strong>$5.90</strong></td>
+                        <td class="num-cell"><strong>41.27%</strong></td>
+                        <td class="num-cell"><strong>$174.10</strong> (-3.7%)</td>
+                        <td class="num-cell"><span class="tag-warn">0.41%</span></td>
+                        <td>获取高达 $5.90 丰厚权利金，折价 3.7% 接货，锁定超 41% 年化收益。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout">
+            <strong>期权策略建议：</strong>首选 <strong>平衡型 $175.00 Put（2026-09-18 到期）</strong> 或 <strong>保守型 $170.00 Put</strong>。在当前 52 周底部（RP 0.15）且远期市盈率仅 12.5x 的背景下，卖出看跌期权能够稳健捕获 15%~27% 的年化权利金收益。
+        </div>
+    </section>
+
+    <!-- 模块 11: 机构持仓与主力资金动向 -->
+    <section id="sec-11" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏛️</span> 11. 机构持仓与主力资金动向 (Institutional Ownership)</h2>
+            <span class="sec-tag">控股股东: 德国电信 (50.5%+)</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            除控股母公司德国电信长期控股外，二季度华尔街头部机构呈现积极加仓态势，高盛增持超 88%：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (13F Top Holders)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持股市值 (Value)</th>
+                        <th>占流通股比例</th>
+                        <th>最新季度变动趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Blackrock Inc. (贝莱德)</strong></td>
+                        <td class="num-cell">39,499,642</td>
+                        <td class="num-cell">$7.14B</td>
+                        <td class="num-cell">3.68%</td>
+                        <td class="num-cell"><span class="tag-bull">+0.98%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Invesco Ltd. (景顺)</strong></td>
+                        <td class="num-cell">31,883,463</td>
+                        <td class="num-cell">$5.76B</td>
+                        <td class="num-cell">2.97%</td>
+                        <td class="num-cell"><span class="tag-bull">+2.07%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Capital Management LLC</strong></td>
+                        <td class="num-cell">29,359,860</td>
+                        <td class="num-cell">$5.31B</td>
+                        <td class="num-cell">2.74%</td>
+                        <td class="num-cell"><span class="tag-warn">-1.23%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation (道富)</strong></td>
+                        <td class="num-cell">25,021,478</td>
+                        <td class="num-cell">$4.52B</td>
+                        <td class="num-cell">2.33%</td>
+                        <td class="num-cell"><span class="tag-bull">+5.49%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Goldman Sachs Group Inc (高盛)</strong></td>
+                        <td class="num-cell">11,827,658</td>
+                        <td class="num-cell">$2.14B</td>
+                        <td class="num-cell">1.10%</td>
+                        <td class="num-cell"><strong style="color: var(--primary);">+88.34% (爆买增持)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 12: 内部人交易、管理层语气与财报电话会洞察 -->
+    <section id="sec-12" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🗣️</span> 12. 内部人交易与管理层语气 (Insider Trading & Earnings Call)</h2>
+            <span class="sec-tag">管理层基调: 极其自信与增长导向</span>
+        </div>
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">管理层治理与执行力</div>
+                <div class="info-card-desc">CEO Mike Sievert 带领的核心高管团队展现出顶级执行力，连续 12 个季度上调全年后付费净增客户与 EBITDA 指引。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">财报电话会前瞻要点</div>
+                <div class="info-card-desc">管理层重申 FWA 家庭宽带与企业级 5G 专网业务正在加速放量，自由现金流转化率已进入历史最高水平。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 13: 做空比例、平仓天数与轧空风险评估 -->
+    <section id="sec-13" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🎯</span> 13. 做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Risk)</h2>
+            <span class="sec-tag">做空压力: 极低</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">做空占流通盘比例 (Short % of Float)</div>
+                <div class="info-card-val">3.79%</div>
+                <div class="info-card-desc">空头持仓处于健康低位，做空阻力极大。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">空头回补平仓天数 (Days to Cover)</div>
+                <div class="info-card-val">3.38 天</div>
+                <div class="info-card-desc">日常成交流动性极好，换手健康。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">轧空风险评级</div>
+                <div class="info-card-val">低 / 基本面长牛驱动</div>
+                <div class="info-card-desc">走势由强劲的自由现金流与 EPS 复合增长驱动。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 14: 核心风险矩阵与熊市压力测试 -->
+    <section id="sec-14" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>⚠️</span> 14. 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</h2>
+            <span class="sec-tag">风险等级: 低 (防御性电信现金牛)</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险维度</th>
+                        <th>潜在影响等级</th>
+                        <th>发生概率</th>
+                        <th>深度情景分析与对冲防御机制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>全美电信运营商非理性价格战</strong></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td>低</td>
+                        <td>三寡头格局高度稳固，AT&T 与 Verizon 负债沉重无力大打补贴战；T-Mobile 拥有最低的单 GB 运营成本。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>有线宽带巨头反扑降价</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>中等</td>
+                        <td>FWA 宽带具备无合约、即插即用、无设备租赁费的巨大体验优势，消费者转移意愿极强。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>宏观利率高企对杠杆再融资影响</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>中等</td>
+                        <td>公司年产生 $154 亿 FCF，可直接以自有现金偿付到期债务，无需依赖高息再融资。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 15: 未来关键催化剂日历与增长路线图 -->
+    <section id="sec-15" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🗓️</span> 15. 未来关键催化剂日历与增长路线图 (Catalysts & Roadmap)</h2>
+            <span class="sec-tag">催化节点明确</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 2026年Q3财报与秋季iPhone换机潮</div>
+                <div class="info-card-desc">预计将于 2026 年 10 月下旬公布 Q3 财报，关注 Apple AI 旗舰机推动的 5G 高端套餐升级。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 5G Advanced 与企业专网落地</div>
+                <div class="info-card-desc">在医疗、物流、航空等领域全面商业化落地 5G 独立组网（SA）切片与私有网络。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 2026 年底常规年度股息上调</div>
+                <div class="info-card-desc">预计将于 2026 年 12 月宣布连续第三年上调季度股息（预期增幅 10%~12%）。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 16: 最终投资评级与执行建议 -->
+    <section id="sec-16" class="sec-card" style="border: 2px solid var(--primary);">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏁</span> 16. 最终投资评级与执行建议 (Final Verdict & Execution)</h2>
+            <span class="sec-tag">综合得分: 8.8 / 10</span>
+        </div>
+        
+        <div class="signal-block">
+            <div class="signal-main">
+                <div class="signal-badge-lg">强烈看多 (STRONG BUY)</div>
+                <div class="signal-meta">
+                    <div style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">公允内在价值: $242.00 (潜在空间 +33.9%)</div>
+                    <div>当前股价: $180.75 | 远期 P/E: 12.52x | 建议配置仓位: 6% - 10% (通信现金流压舱石)</div>
+                </div>
+            </div>
+            <div>
+                <span class="badge" style="background: rgba(255,255,255,.2); font-size: 13px; padding: 6px 16px;">推荐策略: Sell Put $175.00 / 现价分批建仓</span>
+            </div>
+        </div>
+
+        <div style="margin-top: 18px; line-height: 1.7; font-size: 14px; color: var(--text-primary);">
+            <strong>执行建议落地：</strong>
+            <ul style="margin-left: 20px; margin-top: 6px;">
+                <li><strong>现货买入投资者：</strong>现价 $180.75 处于 52 周底部黄金坑（RP 0.15），远期 P/E 仅 12.52x，PEG 仅 0.95，可分批建仓现货，中线目标价看至 $242.00+。</li>
+                <li><strong>期权策略投资者：</strong>首选卖出 <strong>2026-09-18 到期、行权价 $175.00 的 Cash-Secured Put</strong>，锁定年化高达 26.97% 的权利金收益，若被指派则以 $171.25（折价 5.3%）低位建仓；保守投资者可卖出 $170.00 Put 锁定 15.74% APY。</li>
+            </ul>
+        </div>
+    </section>
+
+</div>
+
+<script>
+// 1. Radar Chart
+const radarCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+        labels: ['商业质量', '估值水平', '市场资金', '技术与周期', '风险防御'],
+        datasets: [{
+            label: 'TMUS 多因子得分 (0-10)',
+            data: [9.3, 8.6, 8.8, 8.4, 8.5],
+            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+            borderColor: '#059669',
+            pointBackgroundColor: '#10B981',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#059669'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                angleLines: { color: 'rgba(0,0,0,0.1)' },
+                suggestedMin: 0,
+                suggestedMax: 10,
+                ticks: { stepSize: 2 }
+            }
+        }
+    }
+});
+
+// 2. Financial History Chart
+const finCtx = document.getElementById('finChart').getContext('2d');
+new Chart(finCtx, {
+    type: 'bar',
+    data: {
+        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025 (TTM)'],
+        datasets: [
+            {
+                label: '营业收入 ($M)',
+                data: [79571.0, 78558.0, 81400.0, 88309.0],
+                backgroundColor: '#059669'
+            },
+            {
+                label: '营业利润 ($M)',
+                data: [8107.0, 14241.0, 18010.0, 18557.0],
+                backgroundColor: '#10B981'
+            },
+            {
+                label: '净利润 ($M)',
+                data: [2590.0, 8317.0, 11339.0, 10992.0],
+                backgroundColor: '#0D9488'
+            },
+            {
+                label: '自由现金流 FCF ($M)',
+                data: [-520.0, 7748.0, 9982.0, 15427.0],
+                backgroundColor: '#3B82F6'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: {
+                beginAtZero: false,
+                title: { display: true, text: '百万美元 ($M)' }
+            }
+        }
+    }
+});
+
+// 3. DCF Valuation Scenarios Chart
+const dcfCtx = document.getElementById('dcfChart').getContext('2d');
+new Chart(dcfCtx, {
+    type: 'bar',
+    data: {
+        labels: ['当前股价', '极限悲观底线', '基准 DCF', '乘数公允中枢', '华尔街目标均价', '乐观情景'],
+        datasets: [{
+            label: '每股价值 ($)',
+            data: [180.75, 168.00, 240.00, 238.26, 243.38, 285.00],
+            backgroundColor: [
+                '#64748B',
+                '#D97706',
+                '#059669',
+                '#10B981',
+                '#0D9488',
+                '#3B82F6'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: {
+                beginAtZero: false,
+                min: 140,
+                title: { display: true, text: '美元 ($/股)' }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
