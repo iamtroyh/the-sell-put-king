@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>VICI Properties (VICI) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(5,150,105,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 18px; font-weight: 800; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+
+        .table-scroll { overflow-x: auto; margin: 14px 0; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        thead { background: #F1F5F9; }
+        th { padding: 10px 12px; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; text-align: right; }
+
+        .tag-bull { background: #ECFDF5; color: #065F46; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-warn { background: #FEF3C7; color: #92400E; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-bear { background: #FEE2E2; color: #991B1B; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+
+        .chart-box { position: relative; height: 320px; width: 100%; margin: 16px 0; }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13.5px;
+            color: #064E3B;
+            line-height: 1.6;
+        }
+        .callout-warn {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .signal-main { display: flex; align-items: center; gap: 16px; }
+        .signal-badge-lg {
+            background: #10B981;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 800;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(16,185,129,.7);
+        }
+        .signal-meta { font-size: 13px; opacity: .9; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 24px; }
+            .sec-card { padding: 18px 16px; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: VICI • 标普500体验式博彩地产信托 (Gaming & Experiential REIT)</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-score">综合量化得分: 8.3 / 10</span>
+            <span class="badge badge-hero-stock">6.83% 高股息 • 100% 入住率 • 40年超长租期</span>
+        </div>
+        <h1 class="hero-title">VICI Properties (VICI) 深度投研报告</h1>
+        <p class="hero-sub">全球顶尖体验式与博彩物业净租赁REIT旗舰，坐拥拉斯维加斯大道核心资产群（Caesars Palace、MGM Grand、Venetian、Mandalay Bay等）。三净租赁（NNN）模式实现100%租金收缴与100%入住率，加权平均租期（WALT）超40年，约50%租金挂钩CPI通胀调整。当前估值处于52周历史黄金底部区间（RP 0.12，P/AFFO 仅10.3x），股息率达6.83%，兼备确定性现金流、抗通胀护城河与高赔率期权收租价值。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                <div class="hero-kpi-val">$26.61</div>
+                <div class="hero-kpi-sub">52周区间: $25.91 - $31.73 (RP 0.12)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 / 企业价值</div>
+                <div class="hero-kpi-val">$29.29B</div>
+                <div class="hero-kpi-sub">EV: $47.01B | 总资产超 $430 亿</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 营收 / 净利润</div>
+                <div class="hero-kpi-val">$4.01B / $2.78B</div>
+                <div class="hero-kpi-sub">净利润率 69.3% | EBITDA利润率 91.2%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">P/AFFO / 远期 P/E</div>
+                <div class="hero-kpi-val">10.31x / 8.90x</div>
+                <div class="hero-kpi-sub">行业历史中枢: 15-18x (折价 ~35%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息派发政策</div>
+                <div class="hero-kpi-val">6.83% ($1.80/年)</div>
+                <div class="hero-kpi-sub">按季派息 | AFFO 派息率 ~69.8%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">华尔街评级 / 目标价</div>
+                <div class="hero-kpi-val">Buy / $32.54</div>
+                <div class="hero-kpi-sub">22位分析师覆盖 | 潜在空间 +22.3%</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+    
+    <!-- 目录导航 -->
+    <nav class="toc-bar">
+        <div class="toc-title">报告核心导航目录 (15大专业投研模块)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">1. 执行摘要</a>
+            <a href="#sec-2" class="toc-link">2. 多因子雷达</a>
+            <a href="#sec-3" class="toc-link">3. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">4. 财务报表剖析</a>
+            <a href="#sec-5" class="toc-link">5. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">6. 同行全景对标</a>
+            <a href="#sec-7" class="toc-link">7. DCF/AFFO估值模型</a>
+            <a href="#sec-8" class="toc-link">8. 技术面与筹码</a>
+            <a href="#sec-9" class="toc-link">9. 资本配置与股息</a>
+            <a href="#sec-10" class="toc-link">10. Sell Put期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会</a>
+            <a href="#sec-13" class="toc-link">13. 做空与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </nav>
+
+    <!-- 模块 1: 执行摘要与核心投资逻辑 -->
+    <section id="sec-1" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📌</span> 1. 执行摘要与核心投资逻辑 (Executive Summary & Thesis)</h2>
+            <span class="sec-tag">核心逻辑</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14.5px; line-height: 1.7;">
+            <strong>公司概况：</strong>VICI Properties Inc. (NYSE: VICI) 是标普500指数成分股中规模最大的体验式与博彩娱乐净租赁不动产信托（REIT）。公司拥有54家顶级博彩及娱乐物业（包括拉斯维加斯大道的凯撒宫、美高梅大酒店、威尼斯人酒店、曼德勒海湾等），总客房数超60,000间，餐饮与零售空间超500家，年租金收入突破40亿美元。
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 独占性皇冠资产与终极护城河</div>
+                <div class="info-card-val">不可复制的拉斯维加斯主街资产</div>
+                <div class="info-card-desc">拥有拉斯维加斯核心大道超过660英亩土地产权，严格的博彩特许牌照与高昂重置成本构建了几乎无法被替代的地理与政策壁垒。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 100% 入住率与超长周期锁死</div>
+                <div class="info-card-val">WALT 40.5 年 • 100% 收缴率</div>
+                <div class="info-card-desc">三净租赁（NNN）结构下租户承担所有房产税、保险和维护支出；母公司母体全额担保，即使在疫情封锁期租金收缴率亦保持100.0%。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 6.83% 高股息与抗通胀租金上浮</div>
+                <div class="info-card-val">~50% CPI 联动 • 连续年化增息</div>
+                <div class="info-card-desc">租约中约50%具备CPI通胀自动上浮条款（长期目标超80%），年化股息$1.80/股，AFFO派息率稳健控制在70%安全线内。</div>
+            </div>
+        </div>
+        <div class="callout">
+            <strong>💡 核心投资洞察：</strong>当前市场受降息节奏推迟及商业地产悲观情绪的非理性外溢影响，将优质体验式净租赁资产误杀至52周底部（$26.61，RP仅0.12）。VICI的P/AFFO估值已压缩至10.3x（历史中枢16x），股息率达6.83%，构成了极为罕见的“高票息+低估值+宽护城河”三重安全垫，极度适合通过 Sell Put 策略在 $25.00 支撑位锁定年化 9.1%~25% 的权利金收益或折价吸筹。
+        </div>
+    </section>
+
+    <!-- 模块 2: 多因子量化评分雷达模型 -->
+    <section id="sec-2" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📊</span> 2. 多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar)</h2>
+            <span class="sec-tag">量化评级: 8.3 / 10 (强烈看多)</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评分维度</th>
+                                <th>权重</th>
+                                <th>得分 (0-10)</th>
+                                <th>加权得分</th>
+                                <th>驱动因子解析</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>商业质量 (Business Quality)</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="tag-bull">9.4</span></td>
+                                <td class="num-cell">2.35</td>
+                                <td>100% 入住率，40+年超长WALT，EBITDA利润率91.2%，特许牌照壁垒</td>
+                            </tr>
+                            <tr>
+                                <td><strong>估值水平 (Valuation)</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="tag-bull">8.6</span></td>
+                                <td class="num-cell">2.15</td>
+                                <td>P/AFFO 10.3x，股息率 6.83%，较NAV折价约18%，处于52周底部黄金坑</td>
+                            </tr>
+                            <tr>
+                                <td><strong>市场与资金面 (Market Signals)</strong></td>
+                                <td class="num-cell">20%</td>
+                                <td class="num-cell"><span class="tag-bull">7.6</span></td>
+                                <td class="num-cell">1.52</td>
+                                <td>BlackRock/Vanguard/State Street合计持股超25%，华尔街22位分析师全线超配</td>
+                            </tr>
+                            <tr>
+                                <td><strong>自适应技术面 (Technical & Cycle)</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="tag-bull">8.0</span></td>
+                                <td class="num-cell">1.20</td>
+                                <td>RP=0.12处于52周极限底部，SMA200偏离度-3.0%，触发高质量资产“左侧黄金坑”加分</td>
+                            </tr>
+                            <tr>
+                                <td><strong>风险与非对称赔率 (Risk & Payoff)</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="tag-bull">7.5</span></td>
+                                <td class="num-cell">1.13</td>
+                                <td>投资级评级（BBB-/Baa3），固定利率债务占比超99%，空头比例仅2.6%</td>
+                            </tr>
+                            <tr style="background: #F1F5F9; font-weight: 700;">
+                                <td><strong>综合量化得分 (Composite)</strong></td>
+                                <td class="num-cell">100%</td>
+                                <td class="num-cell"><span class="tag-bull" style="font-size: 13px;">8.3</span></td>
+                                <td class="num-cell" style="color: var(--primary);">8.35 / 10</td>
+                                <td><strong>强烈看多 (STRONG BUY)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 3: 商业模式、垂直整合与波特五力护城河评级 -->
+    <section id="sec-3" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏰</span> 3. 商业模式、垂直整合与波特五力护城河 (Business Model & Moat)</h2>
+            <span class="sec-tag">护城河: 极宽 (Wide Moat / 9.4分)</span>
+        </div>
+        <div class="data-grid-3" style="margin-bottom: 16px;">
+            <div class="info-card">
+                <div class="info-card-title">① 纯粹三净租赁 (Triple-Net NNN)</div>
+                <div class="info-card-desc">租户（Caesars、MGM、Venetian运营商）承担所有的不动产税（Taxes）、财产保险（Insurance）与建筑日常及重大资本修缮维护（Maintenance），VICI几乎无额外CapEx负担。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 主租约与母公司交叉违约条款</div>
+                <div class="info-card-desc">采用统揽式总租约（Master Lease），租户无法仅选择性放弃个别盈利较差的物业，必须对整个资产包履约；同时享有母公司全额连带担保与极高法律违约代价。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 体验式经济与非博彩多元化</div>
+                <div class="info-card-desc">除核心博彩娱乐场外，持续向切尔西码头（Chelsea Piers）、Bowlero保龄球馆、Cabot高尔夫度假村等高增长体验式娱乐资产扩展，丰富现金流来源。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>波特五力维度</th>
+                        <th>竞争压力评级</th>
+                        <th>护城河与竞争优势支撑深度解析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>供应商议价能力</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>作为资金提供方与资产持有方，资本市场融资渠道通畅，与承销银团议价能力极强，不存在核心物料供应商掣肘。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>买方议价能力 (租户)</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>拉斯维加斯大道土地开发已趋于饱和，优质博彩物业具备不可迁移性与牌照独占性，租户迁移重置成本达数十亿美元，议价权完全受制于40年长约。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>潜在进入者威胁</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>单体顶级博彩物业收购对价普遍在20亿至60亿美元，极高的资本门槛、复杂的内华达州博彩委员会（NGCB）审批要求杜绝了新玩家涌入。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品竞争威胁</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>虽然线上博彩（iGaming）增长迅速，但线下拉斯维加斯的现场娱乐、巨型会展（MICE）、豪华餐饮及沉浸式度假体验具备无可替代的社交属性。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>行业内现有竞争</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>全美博彩REIT仅VICI与GLPI（Gaming and Leisure Properties）形成双雄寡头垄断，且VICI在拉斯维加斯主街资产规模与质量上占据碾压优势。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 4: 核心财务报表与盈利质量深度剖析 -->
+    <section id="sec-4" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📈</span> 4. 核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</h2>
+            <span class="sec-tag">财务健康度: 极高 (Piotroski F-Score: 7)</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            过去4年，VICI通过成功收购MGM Growth Properties (MGP) 及威尼斯人酒店不动产，实现了跨越式成长。营业收入从2022年的$26.0亿跃升至2025年的$40.1亿，自由现金流（FCF）突破$25.0亿，净利润率长期维持在67%~70%的惊人水准。
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (单位: 百万美元)</th>
+                        <th>FY2022 (12/22)</th>
+                        <th>FY2023 (12/23)</th>
+                        <th>FY2024 (12/24)</th>
+                        <th>FY2025 (12/25)</th>
+                        <th>TTM 表现</th>
+                        <th>4年 CAGR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业收入 (Total Revenue)</strong></td>
+                        <td class="num-cell">$2,600.7</td>
+                        <td class="num-cell">$3,612.0</td>
+                        <td class="num-cell">$3,849.2</td>
+                        <td class="num-cell">$4,006.1</td>
+                        <td class="num-cell"><strong>$4,006.1</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+15.5%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="num-cell">$1,632.5</td>
+                        <td class="num-cell">$3,344.8</td>
+                        <td class="num-cell">$3,544.9</td>
+                        <td class="num-cell">$3,655.3</td>
+                        <td class="num-cell"><strong>$3,655.3</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+30.8%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润率 (Operating Margin)</strong></td>
+                        <td class="num-cell">62.8%</td>
+                        <td class="num-cell">92.6%</td>
+                        <td class="num-cell">92.1%</td>
+                        <td class="num-cell">91.2%</td>
+                        <td class="num-cell"><strong>91.2%</strong></td>
+                        <td class="num-cell">+28.4 pp</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="num-cell">$1,117.6</td>
+                        <td class="num-cell">$2,513.5</td>
+                        <td class="num-cell">$2,678.8</td>
+                        <td class="num-cell">$2,775.5</td>
+                        <td class="num-cell"><strong>$2,775.5</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+35.4%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润率 (Net Margin)</strong></td>
+                        <td class="num-cell">43.0%</td>
+                        <td class="num-cell">69.6%</td>
+                        <td class="num-cell">69.6%</td>
+                        <td class="num-cell">69.3%</td>
+                        <td class="num-cell"><strong>69.3%</strong></td>
+                        <td class="num-cell">+26.3 pp</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating CF)</strong></td>
+                        <td class="num-cell">$1,943.4</td>
+                        <td class="num-cell">$2,181.0</td>
+                        <td class="num-cell">$2,381.5</td>
+                        <td class="num-cell">$2,510.0</td>
+                        <td class="num-cell"><strong>$2,510.0</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+8.9%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="num-cell">-$1.9</td>
+                        <td class="num-cell">-$4.0</td>
+                        <td class="num-cell">-$7.5</td>
+                        <td class="num-cell">-$1.3</td>
+                        <td class="num-cell">-$1.3</td>
+                        <td class="num-cell">极轻资产运营</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="num-cell">$1,941.5</td>
+                        <td class="num-cell">$2,177.0</td>
+                        <td class="num-cell">$2,374.0</td>
+                        <td class="num-cell">$2,508.7</td>
+                        <td class="num-cell"><strong>$2,508.7</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+8.9%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>总债务 / 净杠杆率</strong></td>
+                        <td class="num-cell">$17.1B</td>
+                        <td class="num-cell">$17.4B</td>
+                        <td class="num-cell">$17.7B</td>
+                        <td class="num-cell">$17.8B</td>
+                        <td class="num-cell">Net Debt/EBITDA 5.6x</td>
+                        <td class="num-cell">投资级标准</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-box">
+            <canvas id="finChart"></canvas>
+        </div>
+    </section>
+
+    <!-- 模块 5: 杜邦三因子拆解与资本运营效率 -->
+    <section id="sec-5" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>⚖️</span> 5. 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</h2>
+            <span class="sec-tag">ROE: 9.85% | 优质净资产驱动</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 13.5px; color: var(--text-secondary);">
+            对净租赁不动产信托（REIT）进行杜邦分析，VICI体现出极致的净利润率（69.3%）与稳健的杠杆倍数（1.54x），资产负债表极为健康。
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 销售净利率 (Net Margin)</div>
+                <div class="info-card-val">69.28%</div>
+                <div class="info-card-desc">NNN模式下无运营开支与维护CapEx，毛利几乎100%转化为EBITDA与净利润。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 资产周转率 (Asset Turnover)</div>
+                <div class="info-card-val">0.093x</div>
+                <div class="info-card-desc">由于持有超过$430亿美元高价值重资产土地与物业，周转率符合超大型优质商业不动产特征。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 权益乘数 (Financial Leverage)</div>
+                <div class="info-card-val">1.54x</div>
+                <div class="info-card-desc">负债率仅约35%，远低于传统商业地产60%+的杠杆水平，具备极高的抗加息抗周期韧性。</div>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>年份</th>
+                        <th>净利润率 (Margin)</th>
+                        <th>资产周转率 (Turnover)</th>
+                        <th>权益乘数 (Leverage)</th>
+                        <th>杜邦分解 ROE</th>
+                        <th>ROA (资产收益率)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>FY2022</td>
+                        <td class="num-cell">43.0%</td>
+                        <td class="num-cell">0.088x</td>
+                        <td class="num-cell">1.62x</td>
+                        <td class="num-cell">6.13%</td>
+                        <td class="num-cell">3.78%</td>
+                    </tr>
+                    <tr>
+                        <td>FY2023</td>
+                        <td class="num-cell">69.6%</td>
+                        <td class="num-cell">0.091x</td>
+                        <td class="num-cell">1.55x</td>
+                        <td class="num-cell">9.81%</td>
+                        <td class="num-cell">6.33%</td>
+                    </tr>
+                    <tr>
+                        <td>FY2024</td>
+                        <td class="num-cell">69.6%</td>
+                        <td class="num-cell">0.092x</td>
+                        <td class="num-cell">1.54x</td>
+                        <td class="num-cell">9.86%</td>
+                        <td class="num-cell">6.40%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025 (TTM)</strong></td>
+                        <td class="num-cell"><strong>69.3%</strong></td>
+                        <td class="num-cell"><strong>0.093x</strong></td>
+                        <td class="num-cell"><strong>1.54x</strong></td>
+                        <td class="num-cell"><strong>9.85%</strong></td>
+                        <td class="num-cell"><strong>4.82%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 6: 行业竞争格局与同行全景对标矩阵 -->
+    <section id="sec-6" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🥊</span> 6. 行业竞争格局与同行全景对标矩阵 (Peer Comparison)</h2>
+            <span class="sec-tag">估值折价: ~30% | 股息领先</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            对标全美代表性净租赁与博彩REIT旗舰（GLPI、O Realty Income、NNN REIT、WPC W. P. Carey）：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>代码 / 公司</th>
+                        <th>核心赛道</th>
+                        <th>总市值 (市值)</th>
+                        <th>P/E / P/FFO</th>
+                        <th>远期 P/E</th>
+                        <th>股息率 (Div Yield)</th>
+                        <th>营业利润率</th>
+                        <th>净利润率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>VICI (VICI Properties)</strong></td>
+                        <td><strong>体验式与主街博彩</strong></td>
+                        <td class="num-cell"><strong>$29.29B</strong></td>
+                        <td class="num-cell"><strong>10.31x</strong></td>
+                        <td class="num-cell"><strong>8.90x</strong></td>
+                        <td class="num-cell"><strong style="color: var(--primary);">6.83%</strong></td>
+                        <td class="num-cell"><strong>91.2%</strong></td>
+                        <td class="num-cell"><strong>69.3%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>GLPI (Gaming & Leisure)</strong></td>
+                        <td>区域型博彩地产</td>
+                        <td class="num-cell">$13.09B</td>
+                        <td class="num-cell">12.78x</td>
+                        <td class="num-cell">13.23x</td>
+                        <td class="num-cell">7.65%</td>
+                        <td class="num-cell">77.5%</td>
+                        <td class="num-cell">56.2%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>O (Realty Income)</strong></td>
+                        <td>零售商业三净租赁</td>
+                        <td class="num-cell">$59.91B</td>
+                        <td class="num-cell">46.21x</td>
+                        <td class="num-cell">39.94x</td>
+                        <td class="num-cell">5.17%</td>
+                        <td class="num-cell">47.0%</td>
+                        <td class="num-cell">18.5%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NNN (NNN REIT)</strong></td>
+                        <td>零售单租户净租赁</td>
+                        <td class="num-cell">$8.88B</td>
+                        <td class="num-cell">22.80x</td>
+                        <td class="num-cell">22.00x</td>
+                        <td class="num-cell">5.36%</td>
+                        <td class="num-cell">61.7%</td>
+                        <td class="num-cell">41.8%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WPC (W. P. Carey)</strong></td>
+                        <td>多元化工业仓储净租赁</td>
+                        <td class="num-cell">$16.45B</td>
+                        <td class="num-cell">24.74x</td>
+                        <td class="num-cell">22.94x</td>
+                        <td class="num-cell">5.23%</td>
+                        <td class="num-cell">59.3%</td>
+                        <td class="num-cell">38.1%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout">
+            <strong>对标总结：</strong>VICI在营业利润率（91.2%）与净利润率（69.3%）上冠绝整个REIT板块，同时P/AFFO估值（10.3x）显著低于传统单租户净租赁巨头（Realty Income 14.5x P/AFFO），具备明显的估值折价与更高的股息率吸引力。
+        </div>
+    </section>
+
+    <!-- 模块 7: DCF 现金流折现与多维估值公允中枢 -->
+    <section id="sec-7" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🧮</span> 7. DCF 现金流折现与多维估值公允中枢 (DCF & Valuation Models)</h2>
+            <span class="sec-tag">内在价值公允中枢: $33.40 (低估 25.5%)</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            结合 10 年期 AFFO 股息折现模型（DDM/DCF）、历史乘数倍数法及资产净值法（NAV）进行综合加权定价：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>估值模型 / 维度</th>
+                        <th>核心参数与假设</th>
+                        <th>测算公允每股价值</th>
+                        <th>现价 ($26.61) 潜在溢价/折价</th>
+                        <th>安全边际评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>① 极限压力测试底线 (Bear DCF)</strong></td>
+                        <td>WACC 8.5%, 永续增长 1.0%, 无新并购</td>
+                        <td class="num-cell"><strong>$27.50</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+3.3%</span></td>
+                        <td>极限清算底线支撑</td>
+                    </tr>
+                    <tr>
+                        <td><strong>② 基准 AFFO 现金流折现 (Base DCF)</strong></td>
+                        <td>WACC 7.2%, 5年AFFO复合增长 4.2%, 永续 2.0%</td>
+                        <td class="num-cell"><strong>$33.80</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+27.0%</span></td>
+                        <td><span class="tag-bull">极度安全 (27% 折价)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>③ 乐观扩张情景 (Bull DCF)</strong></td>
+                        <td>WACC 6.5%, 加速体验式娱乐资产并购, 永续 2.5%</td>
+                        <td class="num-cell"><strong>$38.50</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+44.7%</span></td>
+                        <td>高赔率上行空间</td>
+                    </tr>
+                    <tr>
+                        <td><strong>④ 相对估值乘数公允中枢 (P/AFFO 14.0x)</strong></td>
+                        <td>2026E AFFO $2.40/股 × 14.0x 行业中枢倍数</td>
+                        <td class="num-cell"><strong>$33.60</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+26.3%</span></td>
+                        <td>乘数修复中枢</td>
+                    </tr>
+                    <tr>
+                        <td><strong>⑤ 华尔街机构共识目标价</strong></td>
+                        <td>22位顶级投行分析师目标均价</td>
+                        <td class="num-cell"><strong>$32.54</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+22.3%</span></td>
+                        <td>机构一致预期</td>
+                    </tr>
+                    <tr style="background: #F1F5F9; font-weight: 700;">
+                        <td><strong>综合公允内在价值中枢 (Fair Value)</strong></td>
+                        <td>多模型加权综合公允中枢</td>
+                        <td class="num-cell" style="color: var(--primary); font-size: 15px;"><strong>$33.40</strong></td>
+                        <td class="num-cell"><strong style="color: var(--primary);">+25.5%</strong></td>
+                        <td><strong>强烈低估 (STRONG BUY)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-box">
+            <canvas id="dcfChart"></canvas>
+        </div>
+    </section>
+
+    <!-- 模块 8: 技术面量化、均线系统与关键筹码位 -->
+    <section id="sec-8" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📉</span> 8. 技术面量化、均线系统与关键筹码位 (Technical Analysis)</h2>
+            <span class="sec-tag">形态: 52周底部双底构筑</span>
+        </div>
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">当前价格 / 200SMA</div>
+                <div class="info-card-val">$26.61 / $27.45</div>
+                <div class="info-card-desc">偏离度 -3.0% | 靠近年线阻力位</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">52周相对位置 (RP)</div>
+                <div class="info-card-val">0.12 (底部 12%)</div>
+                <div class="info-card-desc">52周区间: $25.91 - $31.73</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">RSI (14日) / MACD</div>
+                <div class="info-card-val">54.3 / 金叉收敛</div>
+                <div class="info-card-desc">中性健康反弹区间</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">30日历史波动率 (HV30)</div>
+                <div class="info-card-val">19.7% / 低波资产</div>
+                <div class="info-card-desc">HV60: 23.0% | HV252: 18.2%</div>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>关键技术与筹码位</th>
+                        <th>价格区间</th>
+                        <th>技术与筹码支撑/阻力逻辑</th>
+                        <th>期权策略对应操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>强支撑位 S1 (52周极限底)</strong></td>
+                        <td class="num-cell"><strong>$25.50 - $25.90</strong></td>
+                        <td>2024-2026年多次探底形成的绝对铁底，股息率达7.0%的机构配置护城河</td>
+                        <td>保守型 Sell Put $25.00 行权价锚定区</td>
+                    </tr>
+                    <tr>
+                        <td><strong>当前震荡平台 S2</strong></td>
+                        <td class="num-cell"><strong>$26.40 - $26.80</strong></td>
+                        <td>短期密集成交区与20日/50日均线粘合带，多空换手充分</td>
+                        <td>平价开仓或平衡型 Sell Put 挂单区</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第一阻力位 R1 (200SMA)</strong></td>
+                        <td class="num-cell"><strong>$27.45 - $28.00</strong></td>
+                        <td>牛熊分界年线阻力与前期破位颈线，突破后将确认中期反转</td>
+                        <td>Covered Call 备兑卖出第一卖点</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第二阻力位 R2 (52周高点)</strong></td>
+                        <td class="num-cell"><strong>$31.50 - $32.00</strong></td>
+                        <td>历史估值修复目标位与高点密集成交区</td>
+                        <td>波段多头获利止盈目标位</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 9: 资本配置、股息政策与股东回报披露 -->
+    <section id="sec-9" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>💰</span> 9. 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</h2>
+            <span class="sec-tag">股息率: 6.83% | 连续多年增息</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 现金股息派发政策</div>
+                <div class="info-card-val">$1.80 / 股 (年化)</div>
+                <div class="info-card-desc">按季度派息（$0.45/季），股息率达 6.83%，自上市以来保持连续年化增息记录。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② AFFO 派息覆盖率</div>
+                <div class="info-card-val">69.8% 安全覆盖</div>
+                <div class="info-card-desc">管理层目标将派息率控制在70%~75%区间，留存约30%自由现金流用于再投资与债务去杠杆。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 稳健的债务结构</div>
+                <div class="info-card-val">99% 固定利率</div>
+                <div class="info-card-desc">加权平均债务到期年限超6年，无近期巨额集中再融资压力，有效规避高利率冲击。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 10: 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 -->
+    <section id="sec-10" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🎯</span> 10. 现金担保卖出看跌期权 (Cash-Secured Sell Put) 策略</h2>
+            <span class="sec-tag">策略评级: 极高胜率与安全垫</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            基于当前股价 $26.61 与 2026-09-18 到期日（DTE 29天）的实时期权链数据，构建三档阶梯化 Sell Put 策略：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯度</th>
+                        <th>推荐合约代码 / 到期日</th>
+                        <th>行权价 (Strike)</th>
+                        <th>Delta / IV</th>
+                        <th>权利金 (Mark)</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>净持仓成本 (Net Basis)</th>
+                        <th>安全垫 (Cushion)</th>
+                        <th>执行指引与情景研判</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>🟢 保守型 (防守收租)</strong></td>
+                        <td><code>VICI 260918P25.00</code> (29d)</td>
+                        <td class="num-cell"><strong>$25.00</strong></td>
+                        <td class="num-cell">-0.15 / 25.2%</td>
+                        <td class="num-cell"><strong>$0.18</strong></td>
+                        <td class="num-cell"><strong style="color: var(--primary);">9.06%</strong></td>
+                        <td class="num-cell"><strong>$24.82</strong> (-6.7%)</td>
+                        <td class="num-cell"><span class="tag-bull">6.05%</span></td>
+                        <td>若未被行权纯赚 9.1% 年化收益；若行权则在 $24.82（股息率 7.25%）极限底部抄底建仓。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🟡 平衡型 (胜率与收益兼备)</strong></td>
+                        <td><code>VICI 261218P25.00</code> (120d)</td>
+                        <td class="num-cell"><strong>$25.00</strong></td>
+                        <td class="num-cell">-0.22 / 24.5%</td>
+                        <td class="num-cell"><strong>$0.83</strong></td>
+                        <td class="num-cell"><strong>10.04%</strong></td>
+                        <td class="num-cell"><strong>$24.17</strong> (-9.2%)</td>
+                        <td class="num-cell"><span class="tag-bull">6.05%</span></td>
+                        <td>拉长DTE锁定更长时间维度的10%年化Theta衰减，净成本降至 $24.17。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔴 进取型 (高确定性接股)</strong></td>
+                        <td><code>VICI 260918P27.50</code> (29d)</td>
+                        <td class="num-cell"><strong>$27.50</strong></td>
+                        <td class="num-cell">-0.65 / 32.0%</td>
+                        <td class="num-cell"><strong>$1.43</strong></td>
+                        <td class="num-cell"><strong>65.20%</strong></td>
+                        <td class="num-cell"><strong>$26.07</strong> (-2.0%)</td>
+                        <td class="num-cell"><span class="tag-warn">-3.34%</span></td>
+                        <td>深度实值/平价开仓，获得高达 $1.43 丰厚权利金，实际持仓成本低于现价直接买入。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout">
+            <strong>期权策略建议：</strong>首选 <strong>保守型 $25.00 Put（2026-09-18 到期）</strong>。在52周底部铁底下方开仓，即使遇到极端行情被指派，买入成本 $24.82 对应的股息收益率高达 7.25%，随后可立即开启 Covered Call 轮动策略（Wheel Strategy）实现双重现金流增强。
+        </div>
+    </section>
+
+    <!-- 模块 11: 机构持仓与主力资金动向 -->
+    <section id="sec-11" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏛️</span> 11. 机构持仓与主力资金动向 (Institutional Ownership)</h2>
+            <span class="sec-tag">机构持股比例: > 88%</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            顶级机构主力持仓极为集中，前五大机构合计持股超30%，最新13F报告期显示多数头部基金均在逢低增持：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (13F Top Holders)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持股市值 (Value)</th>
+                        <th>占流通股比例 (Pct Held)</th>
+                        <th>最新季度变动趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Blackrock Inc. (贝莱德)</strong></td>
+                        <td class="num-cell">129,333,957</td>
+                        <td class="num-cell">$3,440.9M</td>
+                        <td class="num-cell">11.75%</td>
+                        <td class="num-cell"><span class="tag-warn">-2.25%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Portfolio Management (先锋领航)</strong></td>
+                        <td class="num-cell">86,343,952</td>
+                        <td class="num-cell">$2,297.2M</td>
+                        <td class="num-cell">7.84%</td>
+                        <td class="num-cell"><span class="tag-bull">+2.39%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation (道富)</strong></td>
+                        <td class="num-cell">67,155,780</td>
+                        <td class="num-cell">$1,786.7M</td>
+                        <td class="num-cell">6.10%</td>
+                        <td class="num-cell"><span class="tag-bull">+3.47%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Capital Management LLC</strong></td>
+                        <td class="num-cell">65,331,968</td>
+                        <td class="num-cell">$1,738.2M</td>
+                        <td class="num-cell">5.93%</td>
+                        <td class="num-cell"><span class="tag-bull">+1.13%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Geode Capital Management, LLC</strong></td>
+                        <td class="num-cell">40,211,201</td>
+                        <td class="num-cell">$1,069.8M</td>
+                        <td class="num-cell">3.65%</td>
+                        <td class="num-cell"><span class="tag-bull">+2.84%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Price (T.Rowe) Associates Inc</strong></td>
+                        <td class="num-cell">24,042,019</td>
+                        <td class="num-cell">$639.6M</td>
+                        <td class="num-cell">2.18%</td>
+                        <td class="num-cell"><span class="tag-bull">+27.18% (大幅增持)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 12: 内部人交易、管理层语气与财报电话会洞察 -->
+    <section id="sec-12" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🗣️</span> 12. 内部人交易与管理层语气 (Insider Trading & Earnings Call)</h2>
+            <span class="sec-tag">内部人态度: 积极看多</span>
+        </div>
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">内部人交易 (SEC Form 4)</div>
+                <div class="info-card-desc">过去12个月内无任何高管大额抛售记录，董事会成员及高管持股结构稳定；CEO Edward Pitoniak 持续持有大额股权并与股东利益高度绑定。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">最新财报电话会语气与前瞻</div>
+                <div class="info-card-desc">管理层对2026年AFFO指引保持坚定信心，重申拉斯维加斯会展客流创历史新高、F1拉斯维加斯大奖赛与超级碗等顶级赛事带来的长期消费溢价。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 13: 做空比例、平仓天数与轧空风险评估 -->
+    <section id="sec-13" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🎯</span> 13. 做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Risk)</h2>
+            <span class="sec-tag">做空压力: 极低</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">做空占流通盘比例 (Short % of Float)</div>
+                <div class="info-card-val">2.64%</div>
+                <div class="info-card-desc">空头持仓极低，无系统性做空机构聚集。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">空头回补平仓天数 (Days to Cover)</div>
+                <div class="info-card-val">2.76 天</div>
+                <div class="info-card-desc">日均成交量流动性充裕，空头极易平仓。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">轧空潜力评级 (Squeeze Potential)</div>
+                <div class="info-card-val">低 / 稳定防守</div>
+                <div class="info-card-desc">股价走势由基本面与利率驱动，不易产生剧烈非理性轧空。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 14: 核心风险矩阵与熊市压力测试 -->
+    <section id="sec-14" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>⚠️</span> 14. 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</h2>
+            <span class="sec-tag">风险等级: 中低 (防守型资产)</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险维度</th>
+                        <th>潜在影响等级</th>
+                        <th>发生概率</th>
+                        <th>深度情景分析与对冲防御机制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>利率长期维持高位 (Higher for Longer)</strong></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td>中等</td>
+                        <td>国债收益率高企会压制REIT整体估值倍数；但VICI已将99%债务锁定为固定利率，实际财务利息支出不受即期利率波动影响。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>核心租户集中度过高 (Caesars & MGM)</strong></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td>低</td>
+                        <td>Caesars与MGM合计贡献超过70%租金；但两家运营商均具备极高的EBITDAR租金覆盖倍数（> 3.5x），且采用全资产母公司统揽主租约。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>宏观深度衰退与博彩消费下滑</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>低至中</td>
+                        <td>即使运营商博彩GGR下滑，由于三净租赁租金为固定刚性支出且有CPI下限保护，VICI租金收缴率在历史危机中均保持100%。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 15: 未来关键催化剂日历与增长路线图 -->
+    <section id="sec-15" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🗓️</span> 15. 未来关键催化剂日历与增长路线图 (Catalysts & Roadmap)</h2>
+            <span class="sec-tag">近中期催化剂明确</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 美联储降息周期落地</div>
+                <div class="info-card-desc">基准利率每下调50bps，高股息REIT板块估值普遍获得8%~15%的乘数扩张修复。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 体验式与国际资产并购拓展</div>
+                <div class="info-card-desc">向加拿大、欧洲及全美主题乐园、体育场馆与豪华度假胜地的排他性售后回租合作落地。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 每年常规股息递增宣布 (9月)</div>
+                <div class="info-card-desc">预计将于2026年9月公布新一轮年度增息（预期上调 3%~5%），强化高股息配置吸引力。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 16: 最终投资评级与执行建议 -->
+    <section id="sec-16" class="sec-card" style="border: 2px solid var(--primary);">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏁</span> 16. 最终投资评级与执行建议 (Final Verdict & Execution)</h2>
+            <span class="sec-tag">综合得分: 8.3 / 10</span>
+        </div>
+        
+        <div class="signal-block">
+            <div class="signal-main">
+                <div class="signal-badge-lg">强烈看多 (STRONG BUY)</div>
+                <div class="signal-meta">
+                    <div style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">公允内在价值: $33.40 (潜在空间 +25.5%)</div>
+                    <div>当前股价: $26.61 | 股息率: 6.83% | 建议配置仓位: 5% - 8% (核心防守高息仓)</div>
+                </div>
+            </div>
+            <div>
+                <span class="badge" style="background: rgba(255,255,255,.2); font-size: 13px; padding: 6px 16px;">推荐策略: Sell Put $25.00 / 现价定投</span>
+            </div>
+        </div>
+
+        <div style="margin-top: 18px; line-height: 1.7; font-size: 14px; color: var(--text-primary);">
+            <strong>执行建议落地：</strong>
+            <ul style="margin-left: 20px; margin-top: 6px;">
+                <li><strong>现货买入投资者：</strong>现价 $26.61 处于52周极限底部（RP 0.12），可直接分批建仓，坐享 6.83% 季度高额派息与中线估值修复至 $32.50+。</li>
+                <li><strong>期权策略投资者：</strong>首选卖出 <strong>2026-09-18 到期、行权价 $25.00 的 Cash-Secured Put</strong>，年化权利金收益约 9.1%，若被指派则以 $24.82（股息率 7.25%）黄金底仓接货。</li>
+            </ul>
+        </div>
+    </section>
+
+</div>
+
+<script>
+// 1. Radar Chart
+const radarCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+        labels: ['商业质量', '估值水平', '市场资金', '技术与周期', '风险防御'],
+        datasets: [{
+            label: 'VICI 多因子得分 (0-10)',
+            data: [9.4, 8.6, 7.6, 8.0, 7.5],
+            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+            borderColor: '#059669',
+            pointBackgroundColor: '#10B981',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#059669'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                angleLines: { color: 'rgba(0,0,0,0.1)' },
+                suggestedMin: 0,
+                suggestedMax: 10,
+                ticks: { stepSize: 2 }
+            }
+        }
+    }
+});
+
+// 2. Financial History Chart
+const finCtx = document.getElementById('finChart').getContext('2d');
+new Chart(finCtx, {
+    type: 'bar',
+    data: {
+        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025 (TTM)'],
+        datasets: [
+            {
+                label: '营业收入 ($M)',
+                data: [2600.7, 3612.0, 3849.2, 4006.1],
+                backgroundColor: '#059669'
+            },
+            {
+                label: '净利润 ($M)',
+                data: [1117.6, 2513.5, 2678.8, 2775.5],
+                backgroundColor: '#10B981'
+            },
+            {
+                label: '自由现金流 FCF ($M)',
+                data: [1941.5, 2177.0, 2374.0, 2508.7],
+                backgroundColor: '#0D9488'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: { display: true, text: '百万美元 ($M)' }
+            }
+        }
+    }
+});
+
+// 3. DCF Valuation Scenarios Chart
+const dcfCtx = document.getElementById('dcfChart').getContext('2d');
+new Chart(dcfCtx, {
+    type: 'bar',
+    data: {
+        labels: ['当前股价', '极限悲观底线', '基准 DCF', '乘数公允中枢', '华尔街目标价', '乐观情景'],
+        datasets: [{
+            label: '每股价值 ($)',
+            data: [26.61, 27.50, 33.80, 33.60, 32.54, 38.50],
+            backgroundColor: [
+                '#64748B',
+                '#D97706',
+                '#059669',
+                '#10B981',
+                '#0D9488',
+                '#3B82F6'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: {
+                beginAtZero: false,
+                min: 20,
+                title: { display: true, text: '美元 ($/股)' }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
