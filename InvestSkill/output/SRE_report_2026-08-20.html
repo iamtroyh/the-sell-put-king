@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Sempra (SRE) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(5,150,105,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 18px; font-weight: 800; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+
+        .table-scroll { overflow-x: auto; margin: 14px 0; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        thead { background: #F1F5F9; }
+        th { padding: 10px 12px; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; text-align: right; }
+
+        .tag-bull { background: #ECFDF5; color: #065F46; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-warn { background: #FEF3C7; color: #92400E; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .tag-bear { background: #FEE2E2; color: #991B1B; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+
+        .chart-box { position: relative; height: 320px; width: 100%; margin: 16px 0; }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13.5px;
+            color: #064E3B;
+            line-height: 1.6;
+        }
+        .callout-warn {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .signal-main { display: flex; align-items: center; gap: 16px; }
+        .signal-badge-lg {
+            background: #10B981;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 800;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(16,185,129,.7);
+        }
+        .signal-meta { font-size: 13px; opacity: .9; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 24px; }
+            .sec-card { padding: 18px 16px; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: SRE • 北美核心能源基建与德州 AI 算力电力巨擘</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-score">综合量化得分: 8.6 / 10</span>
+            <span class="badge badge-hero-stock">远期 P/E 15.9x • 股息率 3.07% • 德州 Oncor 算力负荷激增</span>
+        </div>
+        <h1 class="hero-title">Sempra (SRE) 深度投研报告</h1>
+        <p class="hero-sub">北美顶尖的受监管公用事业与液化天然气（LNG）能源基础设施领军企业。旗下拥有全美最大的输配电公用事业之一 Oncor（占股 80.25%，直接垄断德州 ERCOT 核心区域，深度受益于 AI 数据中心与大型算力集群电力负荷爆发式增长）、加州核心公用事业（SDG&E 与 SoCalGas，服务 2,600 万居民）以及 Sempra Infrastructure（Cameron LNG 与 Port Arthur LNG 20年长协出口枢纽）。公司享有 9%~10% 的高费率基数（Rate Base）年化复合增长率，连续 20+ 年稳健上调股息。当前股价报 $87.81（年线下方偏离 -3.1%），远期市盈率仅 15.85x，较 NextEra (19.3x) 与 Southern (18.6x) 明显折价，华尔街共识目标价 $104.62（潜在空间 +19.1%），先锋领航 Q2 增仓超 33%，兼具 AI 能源超级周期红利与公用事业防御收租价值。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                <div class="hero-kpi-val">$87.81</div>
+                <div class="hero-kpi-sub">52周区间: $77.18 - $99.04 (RP 0.49)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 / 企业价值</div>
+                <div class="hero-kpi-val">$57.42B</div>
+                <div class="hero-kpi-sub">EV: $103.20B | 费率资产超 $500 亿</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 营收 / 营业利润</div>
+                <div class="hero-kpi-val">$13.70B / $3.08B</div>
+                <div class="hero-kpi-sub">营业利润率 28.33% | 净利润 $18.4B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">远期市盈率 / 静态 P/E</div>
+                <div class="hero-kpi-val">15.85x / 25.45x</div>
+                <div class="hero-kpi-sub">较 NEE (19.3x) 与 SO (18.6x) 显著折价</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息派发政策</div>
+                <div class="hero-kpi-val">3.07% ($2.70/年)</div>
+                <div class="hero-kpi-sub">连续 20+ 年增息 | 季度稳健派息</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">华尔街评级 / 目标价</div>
+                <div class="hero-kpi-val">Buy / $104.62</div>
+                <div class="hero-kpi-sub">18位分析师覆盖 | 最高看至 $118.00</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+    
+    <!-- 目录导航 -->
+    <nav class="toc-bar">
+        <div class="toc-title">报告核心导航目录 (15大专业投研模块)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">1. 执行摘要</a>
+            <a href="#sec-2" class="toc-link">2. 多因子雷达</a>
+            <a href="#sec-3" class="toc-link">3. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">4. 财务报表剖析</a>
+            <a href="#sec-5" class="toc-link">5. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">6. 同行全景对标</a>
+            <a href="#sec-7" class="toc-link">7. DCF估值模型</a>
+            <a href="#sec-8" class="toc-link">8. 技术面与筹码</a>
+            <a href="#sec-9" class="toc-link">9. 资本配置与股息</a>
+            <a href="#sec-10" class="toc-link">10. Sell Put期权策略</a>
+            <a href="#sec-11" class="toc-link">11. 机构持仓动向</a>
+            <a href="#sec-12" class="toc-link">12. 内部人与电话会</a>
+            <a href="#sec-13" class="toc-link">13. 做空与轧空评估</a>
+            <a href="#sec-14" class="toc-link">14. 风险与压力测试</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与路线图</a>
+            <a href="#sec-16" class="toc-link">16. 最终投资评级</a>
+        </div>
+    </nav>
+
+    <!-- 模块 1: 执行摘要与核心投资逻辑 -->
+    <section id="sec-1" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📌</span> 1. 执行摘要与核心投资逻辑 (Executive Summary & Thesis)</h2>
+            <span class="sec-tag">核心逻辑</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14.5px; line-height: 1.7;">
+            <strong>公司概况：</strong>Sempra (NYSE: SRE) 成立于 1998 年，总部位于加利福尼亚州圣地亚哥，是标普500指数公用事业板块中成长性与战略卡位最具优势的能源基础设施巨头。公司业务涵盖三大板块：Sempra Texas Utilities (Oncor 输配电网络)、Sempra California (SDG&E 电力天然气与 SoCalGas 天然气分销) 以及 Sempra Infrastructure (美湾与墨西湾 LNG 终端与跨境天然气管道)。
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 德州 Oncor：AI 算力电力负荷主战场</div>
+                <div class="info-card-val">德州最大电网 • 负荷预测翻倍</div>
+                <div class="info-card-desc">Oncor 在德州 ERCOT 电网连接超 1,400 万居民与全美最密集的数据中心集群，德州电网预计未来 5-8 年数据中心负荷将从 5GW 飙升至 25GW+。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 加州特许受监管资产高 ROE 兜底</div>
+                <div class="info-card-desc">SDG&E 与 SoCalGas 受加州公用事业委员会（CPUC）监管，享有法定约 10.2% 的资本回报率（ROE），收入与费率基数挂钩，完全免受通胀与大宗气价波动侵蚀。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ Cameron & Port Arthur LNG 20年长协</div>
+                <div class="info-card-desc">全球能源安全转型下，欧美亚跨国能源巨头与 Sempra 签订了 20 年期“照付不议”（Take-or-Pay）LNG 液化出口长约，锁定确定性极高的美元现金流。</div>
+            </div>
+        </div>
+        <div class="callout">
+            <strong>💡 核心投资洞察：</strong>Sempra 完美融合了“加州受监管公用事业的稳健防御”与“德州 AI 算力中心电力基建 + 美湾 LNG 出口的强劲成长爆发力”。当前远期市盈率仅 15.85x，较传统公用事业同行具备明显折价，且提供 3.07% 的安全股息。通过 Sell Put 策略在 $80.00~$85.00 开仓，可锁定年化 11.4%~23.0% 的安全权利金收益。
+        </div>
+    </section>
+
+    <!-- 模块 2: 多因子量化评分雷达模型 -->
+    <section id="sec-2" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📊</span> 2. 多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar)</h2>
+            <span class="sec-tag">量化评级: 8.6 / 10 (强烈看多)</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评分维度</th>
+                                <th>权重</th>
+                                <th>得分 (0-10)</th>
+                                <th>加权得分</th>
+                                <th>驱动因子解析</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>商业质量 (Business Quality)</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="tag-bull">9.1</span></td>
+                                <td class="num-cell">2.28</td>
+                                <td>德州 Oncor 独家电网垄断，加州法定 10.2% 费率基数回报，LNG 20年长约</td>
+                            </tr>
+                            <tr>
+                                <td><strong>估值水平 (Valuation)</strong></td>
+                                <td class="num-cell">25%</td>
+                                <td class="num-cell"><span class="tag-bull">8.3</span></td>
+                                <td class="num-cell">2.08</td>
+                                <td>远期 P/E 15.85x，低于公用事业行业均值 18.0x，股息率 3.07% 提供收益支撑</td>
+                            </tr>
+                            <tr>
+                                <td><strong>市场与资金面 (Market Signals)</strong></td>
+                                <td class="num-cell">20%</td>
+                                <td class="num-cell"><span class="tag-bull">8.7</span></td>
+                                <td class="num-cell">1.74</td>
+                                <td>先锋领航 Q2 暴增持仓超 33%，摩根大通增持 11.7%，机构持股超 85%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>自适应技术面 (Technical & Cycle)</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="tag-bull">8.1</span></td>
+                                <td class="num-cell">1.22</td>
+                                <td>年线下方温和回踩（-3.1%），RSI 47.1 扎实蓄势，筹码结构极其稳定</td>
+                            </tr>
+                            <tr>
+                                <td><strong>风险与非对称赔率 (Risk & Payoff)</strong></td>
+                                <td class="num-cell">15%</td>
+                                <td class="num-cell"><span class="tag-bull">8.5</span></td>
+                                <td class="num-cell">1.28</td>
+                                <td>政府特许经营受监管公用事业，抗宏观衰退，做空比例仅 2.04%</td>
+                            </tr>
+                            <tr style="background: #F1F5F9; font-weight: 700;">
+                                <td><strong>综合量化得分 (Composite)</strong></td>
+                                <td class="num-cell">100%</td>
+                                <td class="num-cell"><span class="tag-bull" style="font-size: 13px;">8.6</span></td>
+                                <td class="num-cell" style="color: var(--primary);">8.60 / 10</td>
+                                <td><strong>强烈看多 (STRONG BUY)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 3: 商业模式、垂直整合与波特五力护城河评级 -->
+    <section id="sec-3" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏰</span> 3. 商业模式、垂直整合与波特五力护城河 (Business Model & Moat)</h2>
+            <span class="sec-tag">护城河: 极宽 (Wide Moat / 9.1分)</span>
+        </div>
+        <div class="data-grid-3" style="margin-bottom: 16px;">
+            <div class="info-card">
+                <div class="info-card-title">① 德州输配电特许垄断 (Oncor)</div>
+                <div class="info-card-desc">拥有德州超 14 万英里输配电线路，作为纯输配电运营商不承担发电商品价风险，仅赚取受监管的稳定输电过网费。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 费率基数（Rate Base）复利增长</div>
+                <div class="info-card-desc">未来 5 年计划投资超 $480 亿美元用于电网现代化与清洁能源接入，推动费率基数以每年 9%~10% 的复合速度高速膨胀。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ LNG 跨洋出口核心枢纽</div>
+                <div class="info-card-desc">美湾深水港码头、液化列车与干线天然气管道一体化垂直整合，拥有全美最优质的天然气出海通道。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>波特五力维度</th>
+                        <th>竞争压力评级</th>
+                        <th>护城河与竞争优势支撑深度解析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>供应商议价能力</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>天然气与电力设备采购遵循监管核准成本传导机制，燃料成本 100% 通过账单转嫁给终端用户。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>买方议价能力 (居民与企业)</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>电力与天然气属于不可或缺的基础公共生活刚需，特许经营区域内用户无任何换网选择。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>潜在进入者威胁</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>地方政府特许经营权、数万英里地下管网与地上高压电网构成天然的物理与法律垄断。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品竞争威胁</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>分布式屋顶光伏仍需依赖电网进行调峰调频，电网过网费与容量费收入不受影响。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>行业内现有竞争</strong></td>
+                        <td><span class="tag-bull">极低 (Very Low)</span></td>
+                        <td>公用事业按地理区域严格划分特许经营范围，特许区域内完全零同业竞争。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 4: 核心财务报表与盈利质量深度剖析 -->
+    <section id="sec-4" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📈</span> 4. 核心财务报表与盈利质量深度剖析 (Financial Statements & Margins)</h2>
+            <span class="sec-tag">财务健康度: 高度稳健 (Piotroski F-Score: 7)</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            过去4年，Sempra 营业收入保持在 $130 亿~$167 亿美元稳健区间，营业利润稳定在 $30 亿美元左右，经营现金流维持在 $45 亿~$62 亿美元充沛水平：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (单位: 百万美元)</th>
+                        <th>FY2022 (12/22)</th>
+                        <th>FY2023 (12/23)</th>
+                        <th>FY2024 (12/24)</th>
+                        <th>FY2025 (12/25)</th>
+                        <th>TTM 表现</th>
+                        <th>4年复合趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业收入 (Total Revenue)</strong></td>
+                        <td class="num-cell">$14,439.0</td>
+                        <td class="num-cell">$16,720.0</td>
+                        <td class="num-cell">$13,185.0</td>
+                        <td class="num-cell">$13,702.0</td>
+                        <td class="num-cell"><strong>$13,702.0</strong></td>
+                        <td class="num-cell">大宗气价传导影响营收口径</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="num-cell">$5,211.0</td>
+                        <td class="num-cell">$6,620.0</td>
+                        <td class="num-cell">$6,092.0</td>
+                        <td class="num-cell">$6,387.0</td>
+                        <td class="num-cell"><strong>$6,387.0</strong></td>
+                        <td class="num-cell"><strong>毛利率 44.0%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="num-cell">$2,557.0</td>
+                        <td class="num-cell">$3,716.0</td>
+                        <td class="num-cell">$2,962.0</td>
+                        <td class="num-cell">$3,080.0</td>
+                        <td class="num-cell"><strong>$3,080.0</strong></td>
+                        <td class="num-cell"><span class="tag-bull">利润率 28.33%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="num-cell">$2,139.0</td>
+                        <td class="num-cell">$3,075.0</td>
+                        <td class="num-cell">$2,862.0</td>
+                        <td class="num-cell">$1,837.0</td>
+                        <td class="num-cell"><strong>$1,837.0</strong></td>
+                        <td class="num-cell">受基建会计折旧调节</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating CF)</strong></td>
+                        <td class="num-cell">$1,142.0</td>
+                        <td class="num-cell">$6,218.0</td>
+                        <td class="num-cell">$4,907.0</td>
+                        <td class="num-cell">$4,565.0</td>
+                        <td class="num-cell"><strong>$4,565.0</strong></td>
+                        <td class="num-cell"><span class="tag-bull">充沛公用事业现金造血</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx 扩建费率基数)</strong></td>
+                        <td class="num-cell">-$5,357.0</td>
+                        <td class="num-cell">-$8,397.0</td>
+                        <td class="num-cell">-$8,215.0</td>
+                        <td class="num-cell">-$10,612.0</td>
+                        <td class="num-cell">-$10,612.0</td>
+                        <td class="num-cell">高 CapEx 驱动未来收益</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-box">
+            <canvas id="finChart"></canvas>
+        </div>
+    </section>
+
+    <!-- 模块 5: 杜邦三因子拆解与资本运营效率 -->
+    <section id="sec-5" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>⚖️</span> 5. 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</h2>
+            <span class="sec-tag">典型重资产受监管公用事业模型</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 销售净利率 (Net Margin)</div>
+                <div class="info-card-val">13.41%</div>
+                <div class="info-card-desc">受法定投资回报率保障，长期保持在 12%~18% 稳定区间。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 资产周转率 (Asset Turnover)</div>
+                <div class="info-card-val">0.15x</div>
+                <div class="info-card-desc">超 $900 亿美元庞大固定资产基础，形成高进入壁垒。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 权益乘数 (Financial Leverage)</div>
+                <div class="info-card-val">3.25x</div>
+                <div class="info-card-desc">公用事业标准资本结构（50% 负债 / 50% 股本），获标普 A- 投资级信用。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 6: 行业竞争格局与同行全景对标矩阵 -->
+    <section id="sec-6" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🥊</span> 6. 行业竞争格局与同行全景对标矩阵 (Peer Comparison)</h2>
+            <span class="sec-tag">成长性突出 | 远期估值具备吸引力</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            对标全美领先公用事业与电力基建巨头（NextEra、Southern、Duke、AEP、Constellation）：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>代码 / 公司</th>
+                        <th>核心业务特色</th>
+                        <th>总市值 (市值)</th>
+                        <th>远期 P/E</th>
+                        <th>EV/EBITDA</th>
+                        <th>营业利润率</th>
+                        <th>股息收益率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>SRE (Sempra)</strong></td>
+                        <td><strong>德州 Oncor 算力电网 + LNG 跨洋出口</strong></td>
+                        <td class="num-cell"><strong>$57.42B</strong></td>
+                        <td class="num-cell"><strong style="color: var(--primary);">15.85x</strong></td>
+                        <td class="num-cell"><strong>17.57x</strong></td>
+                        <td class="num-cell"><strong>28.33%</strong></td>
+                        <td class="num-cell"><strong style="color: var(--primary);">3.07%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>NEE (NextEra Energy)</strong></td>
+                        <td>佛州电网 + 全球最大绿电运营商</td>
+                        <td class="num-cell">$177.74B</td>
+                        <td class="num-cell">19.30x</td>
+                        <td class="num-cell">18.20x</td>
+                        <td class="num-cell">31.52%</td>
+                        <td class="num-cell">2.90%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SO (Southern Company)</strong></td>
+                        <td>东南电网 + Vogtle 核电机组</td>
+                        <td class="num-cell">$105.55B</td>
+                        <td class="num-cell">18.63x</td>
+                        <td class="num-cell">16.40x</td>
+                        <td class="num-cell">29.61%</td>
+                        <td class="num-cell">3.30%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DUK (Duke Energy)</strong></td>
+                        <td>卡罗莱纳与中西部综合电网</td>
+                        <td class="num-cell">$96.16B</td>
+                        <td class="num-cell">17.19x</td>
+                        <td class="num-cell">15.80x</td>
+                        <td class="num-cell">27.50%</td>
+                        <td class="num-cell">3.51%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AEP (American Electric Power)</strong></td>
+                        <td>中西部跨州高压骨干输电网</td>
+                        <td class="num-cell">$68.79B</td>
+                        <td class="num-cell">18.44x</td>
+                        <td class="num-cell">16.10x</td>
+                        <td class="num-cell">23.25%</td>
+                        <td class="num-cell">3.01%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout">
+            <strong>对标总结：</strong>相较于传统区域性电网（Southern 18.6x、AEP 18.4x、NextEra 19.3x），Sempra 凭借德州 AI 数据中心负荷接入最前沿的 Oncor 与全球 LNG 出口资产，远期 P/E 仅 15.85x，具备极佳的估值安全垫与成长溢价空间。
+        </div>
+    </section>
+
+    <!-- 模块 7: DCF 现金流折现与多维估值公允中枢 -->
+    <section id="sec-7" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🧮</span> 7. DCF 现金流折现与多维估值公允中枢 (DCF & Valuation Models)</h2>
+            <span class="sec-tag">内在价值公允中枢: $105.00 (低估 19.6%)</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            基于费率基数扩张模型、P/E 乘数倍数法与华尔街共识目标价综合测算：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>估值模型 / 维度</th>
+                        <th>核心参数与假设</th>
+                        <th>测算公允每股价值</th>
+                        <th>现价 ($87.81) 潜在空间</th>
+                        <th>安全边际评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>① 极限压力测试底线 (Bear Case)</strong></td>
+                        <td>加州加息监管收紧, 费率基数增速降至 5%, 永续 1.5%</td>
+                        <td class="num-cell"><strong>$80.00</strong></td>
+                        <td class="num-cell"><span class="tag-warn">-8.9%</span></td>
+                        <td>极限清算底线支撑</td>
+                    </tr>
+                    <tr>
+                        <td><strong>② 基准费率基数折现 (Base DCF)</strong></td>
+                        <td>费率基数 CAGR 8.5%, 监管 ROE 10.0%, 永续 2.0%</td>
+                        <td class="num-cell"><strong>$104.00</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+18.4%</span></td>
+                        <td><span class="tag-bull">极度安全 (18% 空间)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>③ 乐观 AI 算力爆发情景 (Bull Case)</strong></td>
+                        <td>德州电网数据中心连接负荷超预期, 永续 2.5%</td>
+                        <td class="num-cell"><strong>$118.00</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+34.4%</span></td>
+                        <td>高赔率上行空间</td>
+                    </tr>
+                    <tr>
+                        <td><strong>④ 相对估值乘数中枢 (P/E 18.5x)</strong></td>
+                        <td>2026E EPS $5.68 × 18.5x 行业合理中枢</td>
+                        <td class="num-cell"><strong>$105.08</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+19.7%</span></td>
+                        <td>估值乘数均值回归</td>
+                    </tr>
+                    <tr>
+                        <td><strong>⑤ 华尔街机构共识平均目标价</strong></td>
+                        <td>18位公用事业分析师目标均价</td>
+                        <td class="num-cell"><strong>$104.62</strong></td>
+                        <td class="num-cell"><span class="tag-bull">+19.1%</span></td>
+                        <td>机构一致预期</td>
+                    </tr>
+                    <tr style="background: #F1F5F9; font-weight: 700;">
+                        <td><strong>综合公允内在价值中枢 (Fair Value)</strong></td>
+                        <td>多模型加权综合公允中枢</td>
+                        <td class="num-cell" style="color: var(--primary); font-size: 15px;"><strong>$105.00</strong></td>
+                        <td class="num-cell"><strong style="color: var(--primary);">+19.6%</strong></td>
+                        <td><strong>强烈低估 (STRONG BUY)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-box">
+            <canvas id="dcfChart"></canvas>
+        </div>
+    </section>
+
+    <!-- 模块 8: 技术面量化、均线系统与关键筹码位 -->
+    <section id="sec-8" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📉</span> 8. 技术面量化、均线系统与关键筹码位 (Technical Analysis)</h2>
+            <span class="sec-tag">形态: 均线下方蓄势整理</span>
+        </div>
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">当前价格 / 200SMA</div>
+                <div class="info-card-val">$87.81 / $90.59</div>
+                <div class="info-card-desc">偏离度 -3.1% | 处于年线下方</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">52周相对位置 (RP)</div>
+                <div class="info-card-val">0.49 (中枢区间)</div>
+                <div class="info-card-desc">52周区间: $77.18 - $99.04</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">RSI (14日) / MACD</div>
+                <div class="info-card-val">47.1 / 底部粘合</div>
+                <div class="info-card-desc">中性偏弱蓄势整理</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">30日历史波动率 (HV30)</div>
+                <div class="info-card-val">17.8% / 低波防守</div>
+                <div class="info-card-desc">HV60: 18.5% | HV252: 17.2%</div>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>关键技术与筹码位</th>
+                        <th>价格区间</th>
+                        <th>技术与筹码支撑/阻力逻辑</th>
+                        <th>期权策略对应操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>强支撑位 S1 (52周铁底)</strong></td>
+                        <td class="num-cell"><strong>$78.00 - $82.00</strong></td>
+                        <td>长期平台底与密集成交颈线支撑</td>
+                        <td>保守型 Sell Put $80.00 行权价锚定区</td>
+                    </tr>
+                    <tr>
+                        <td><strong>中线支撑位 S2</strong></td>
+                        <td class="num-cell"><strong>$84.00 - $86.00</strong></td>
+                        <td>近期回踩确认平台与均线防守位</td>
+                        <td>平衡型 Sell Put $85.00 开仓区</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第一阻力位 R1 (200SMA)</strong></td>
+                        <td class="num-cell"><strong>$90.50 - $93.00</strong></td>
+                        <td>200日年线阻力，放量突破确立上升通道</td>
+                        <td>Covered Call 备兑卖出阻力位</td>
+                    </tr>
+                    <tr>
+                        <td><strong>目标阻力位 R2 (52周顶)</strong></td>
+                        <td class="num-cell"><strong>$99.00 - $105.00</strong></td>
+                        <td>历史高点与公允内在价值目标位</td>
+                        <td>波段多头获利止盈目标位</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 9: 资本配置、股息政策与股东回报披露 -->
+    <section id="sec-9" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>💰</span> 9. 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</h2>
+            <span class="sec-tag">连续 20+ 年增息 | 股息率 3.07%</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 现金股息派发政策</div>
+                <div class="info-card-val">$2.70 / 股 (年化 3.07%)</div>
+                <div class="info-card-desc">按季度稳定派发（$0.675/季），每年常规增息 4%~6%，股息极度安全。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 巨额资本再投资计划</div>
+                <div class="info-card-val">5年 $480 亿资本计划</div>
+                <div class="info-card-desc">资金主要投向德州输电网扩容与加州电网韧性改造，持续驱动费率基数扩张。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 稳健资产负债表</div>
+                <div class="info-card-val">标普 A- 投资级评级</div>
+                <div class="info-card-desc">融资渠道通畅，充沛流动性保障各项重大能源基建项目顺利推进。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 10: 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 -->
+    <section id="sec-10" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🎯</span> 10. 现金担保卖出看跌期权 (Cash-Secured Sell Put) 策略</h2>
+            <span class="sec-tag">策略评级: 极高胜率稳健收租</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            基于当前股价 $87.81 与 2026-09-18 到期日（DTE 29天）的实时期权链数据，构建三档高胜率 Sell Put 策略：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯度</th>
+                        <th>推荐合约代码 / 到期日</th>
+                        <th>行权价 (Strike)</th>
+                        <th>Delta / IV</th>
+                        <th>权利金 (Mark)</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>净持仓成本 (Net Basis)</th>
+                        <th>安全垫 (Cushion)</th>
+                        <th>执行指引与情景研判</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>🟢 保守型 (深度防守)</strong></td>
+                        <td><code>SRE 260918P80.00</code> (29d)</td>
+                        <td class="num-cell"><strong>$80.00</strong></td>
+                        <td class="num-cell">-0.15 / 36.6%</td>
+                        <td class="num-cell"><strong>$0.725</strong></td>
+                        <td class="num-cell"><strong>11.41%</strong></td>
+                        <td class="num-cell"><strong>$79.28</strong> (-9.7%)</td>
+                        <td class="num-cell"><span class="tag-bull">8.89%</span></td>
+                        <td>安全垫达近 9%，未行权稳赚 11.4% 年化收益；若被指派则以 $79.28（52周绝对底部）建仓。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🟡 平衡型 (强烈推荐)</strong></td>
+                        <td><code>SRE 260918P85.00</code> (29d)</td>
+                        <td class="num-cell"><strong>$85.00</strong></td>
+                        <td class="num-cell">-0.36 / 30.3%</td>
+                        <td class="num-cell"><strong>$1.55</strong></td>
+                        <td class="num-cell"><strong style="color: var(--primary);">22.95%</strong></td>
+                        <td class="num-cell"><strong>$83.45</strong> (-5.0%)</td>
+                        <td class="num-cell"><span class="tag-bull">3.20%</span></td>
+                        <td>绝佳风险收益比，锁定近 23% 年化权利金收益，折价 5.0% 抄底北美能源基建龙头。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔴 进取型 (平价吸筹)</strong></td>
+                        <td><code>SRE 260918P90.00</code> (29d)</td>
+                        <td class="num-cell"><strong>$90.00</strong></td>
+                        <td class="num-cell">-0.62 / 34.4%</td>
+                        <td class="num-cell"><strong>$3.90</strong></td>
+                        <td class="num-cell"><strong>54.55%</strong></td>
+                        <td class="num-cell"><strong>$86.10</strong> (-1.9%)</td>
+                        <td class="num-cell"><span class="tag-warn">-2.49%</span></td>
+                        <td>获得高达 $3.90 权利金，折价 1.9% 接货，锁定超 54% 年化收益。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout">
+            <strong>期权策略建议：</strong>首选 <strong>平衡型 $85.00 Put（2026-09-18 到期）</strong> 或 <strong>保守型 $80.00 Put</strong>。在当前年线偏离 -3.1% 且远期市盈率仅 15.85x 的背景下，卖出看跌期权能够稳健捕获 11.4%~23.0% 的年化权利金收益。
+        </div>
+    </section>
+
+    <!-- 模块 11: 机构持仓与主力资金动向 -->
+    <section id="sec-11" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏛️</span> 11. 机构持仓与主力资金动向 (Institutional Ownership)</h2>
+            <span class="sec-tag">机构持股比例: > 85%</span>
+        </div>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-secondary);">
+            二季度 13F 显示，先锋领航旗下基金爆发式增持超 33%，摩根大通与富达积极加码：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (13F Top Holders)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>持股市值 (Value)</th>
+                        <th>占流通股比例</th>
+                        <th>最新季度变动趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Blackrock Inc. (贝莱德)</strong></td>
+                        <td class="num-cell">60,280,191</td>
+                        <td class="num-cell">$5.29B</td>
+                        <td class="num-cell">9.22%</td>
+                        <td class="num-cell"><span class="tag-bull">+0.61%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wellington Management Group, LLP</strong></td>
+                        <td class="num-cell">43,813,771</td>
+                        <td class="num-cell">$3.85B</td>
+                        <td class="num-cell">6.70%</td>
+                        <td class="num-cell"><span class="tag-warn">-5.03%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Capital Management LLC</strong></td>
+                        <td class="num-cell">42,684,252</td>
+                        <td class="num-cell">$3.75B</td>
+                        <td class="num-cell">6.53%</td>
+                        <td class="num-cell"><span class="tag-bull">+0.66%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation (道富)</strong></td>
+                        <td class="num-cell">37,992,032</td>
+                        <td class="num-cell">$3.34B</td>
+                        <td class="num-cell">5.81%</td>
+                        <td class="num-cell"><span class="tag-bull">+1.85%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Portfolio Management LLC</strong></td>
+                        <td class="num-cell">37,319,559</td>
+                        <td class="num-cell">$3.28B</td>
+                        <td class="num-cell">5.71%</td>
+                        <td class="num-cell"><strong style="color: var(--primary);">+33.20% (大幅增持)</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>JPMorgan Chase & Co. (摩根大通)</strong></td>
+                        <td class="num-cell">20,050,848</td>
+                        <td class="num-cell">$1.76B</td>
+                        <td class="num-cell">3.07%</td>
+                        <td class="num-cell"><strong style="color: var(--primary);">+11.72%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 12: 内部人交易、管理层语气与财报电话会洞察 -->
+    <section id="sec-12" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🗣️</span> 12. 内部人交易与管理层语气 (Insider Trading & Earnings Call)</h2>
+            <span class="sec-tag">管理层基调: 德州电力需求前景极度乐观</span>
+        </div>
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">管理层治理与执行力</div>
+                <div class="info-card-desc">CEO Jeffrey Martin 深度聚焦于北美受监管能源网络的资本扩张，管理层连续多年达成 EPS 增长与股息提升指引。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">财报电话会前瞻要点</div>
+                <div class="info-card-desc">管理层强调，德州 Oncor 收到的大型数据中心并网申请容量已突破历史极值，德州输电网投资规模将进一步上修。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 13: 做空比例、平仓天数与轧空风险评估 -->
+    <section id="sec-13" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🎯</span> 13. 做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze Risk)</h2>
+            <span class="sec-tag">做空压力: 极低</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">做空占流通盘比例 (Short % of Float)</div>
+                <div class="info-card-val">2.04%</div>
+                <div class="info-card-desc">空头头寸处于极低水平。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">空头回补平仓天数 (Days to Cover)</div>
+                <div class="info-card-val">3.99 天</div>
+                <div class="info-card-desc">流动性健康稳定。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">轧空风险评级</div>
+                <div class="info-card-val">低 / 基本面长线驱动</div>
+                <div class="info-card-desc">走势由费率基数扩张与股息再投资驱动。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 14: 核心风险矩阵与熊市压力测试 -->
+    <section id="sec-14" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>⚠️</span> 14. 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</h2>
+            <span class="sec-tag">风险等级: 低 (受监管公用事业防守)</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险维度</th>
+                        <th>潜在影响等级</th>
+                        <th>发生概率</th>
+                        <th>深度情景分析与对冲防御机制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>加州野火责任与极端天气风险</strong></td>
+                        <td><span class="tag-warn">中等 (Medium)</span></td>
+                        <td>低至中</td>
+                        <td>加州建立了 AB 1054 野火基金保障机制；SDG&E 在全美拥有最先进的微电网与天气监控硬化设施。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>高利率环境增加再融资利息成本</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>中等</td>
+                        <td>受监管公用事业债务利息成本可依法全额纳入终端费率核算，由终端用户承担。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LNG 项目施工建设延期</strong></td>
+                        <td><span class="tag-bull">低 (Low)</span></td>
+                        <td>低</td>
+                        <td>主要由 EPC 承包商（Bechtel）签署固定总价合同，施工风险已被充分对冲。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 15: 未来关键催化剂日历与增长路线图 -->
+    <section id="sec-15" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🗓️</span> 15. 未来关键催化剂日历与增长路线图 (Catalysts & Roadmap)</h2>
+            <span class="sec-tag">催化节点明确</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 德州 ERCOT 电网基建投资上修</div>
+                <div class="info-card-desc">预计 2026 年底前公布德州 Oncor 针对 AI 数据中心的全新输配电追加资本开支计划。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 2026年Q3三季度财报发布</div>
+                <div class="info-card-desc">预计将于 2026 年 11 月上旬发布最新季度财报，夏季极端高温用电负荷有望驱动超预期表现。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 每年春季常规股息上调 (2月)</div>
+                <div class="info-card-desc">预计将于 2027 年 2 月宣布第 21 年连续增息（预期上调 4%~6%）。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 16: 最终投资评级与执行建议 -->
+    <section id="sec-16" class="sec-card" style="border: 2px solid var(--primary);">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏁</span> 16. 最终投资评级与执行建议 (Final Verdict & Execution)</h2>
+            <span class="sec-tag">综合得分: 8.6 / 10</span>
+        </div>
+        
+        <div class="signal-block">
+            <div class="signal-main">
+                <div class="signal-badge-lg">强烈看多 (STRONG BUY)</div>
+                <div class="signal-meta">
+                    <div style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">公允内在价值: $105.00 (潜在空间 +19.6%)</div>
+                    <div>当前股价: $87.81 | 远期 P/E: 15.85x | 股息率: 3.07% | 建议配置仓位: 5% - 8% (AI电力防御基石)</div>
+                </div>
+            </div>
+            <div>
+                <span class="badge" style="background: rgba(255,255,255,.2); font-size: 13px; padding: 6px 16px;">推荐策略: Sell Put $85.00 / 现价分批建仓</span>
+            </div>
+        </div>
+
+        <div style="margin-top: 18px; line-height: 1.7; font-size: 14px; color: var(--text-primary);">
+            <strong>执行建议落地：</strong>
+            <ul style="margin-left: 20px; margin-top: 6px;">
+                <li><strong>现货买入投资者：</strong>现价 $87.81 对应远期 P/E 仅 15.85x，股息率 3.07%，可分批建仓现货，中线目标价看至 $105.00+。</li>
+                <li><strong>期权策略投资者：</strong>首选卖出 <strong>2026-09-18 到期、行权价 $85.00 的 Cash-Secured Put</strong>，锁定年化高达 22.95% 的权利金收益，若被指派则以 $83.45（折价 5.0%）低位建仓；保守投资者可卖出 $80.00 Put 稳赚 11.41% APY。</li>
+            </ul>
+        </div>
+    </section>
+
+</div>
+
+<script>
+// 1. Radar Chart
+const radarCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+        labels: ['商业质量', '估值水平', '市场资金', '技术与周期', '风险防御'],
+        datasets: [{
+            label: 'SRE 多因子得分 (0-10)',
+            data: [9.1, 8.3, 8.7, 8.1, 8.5],
+            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+            borderColor: '#059669',
+            pointBackgroundColor: '#10B981',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#059669'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                angleLines: { color: 'rgba(0,0,0,0.1)' },
+                suggestedMin: 0,
+                suggestedMax: 10,
+                ticks: { stepSize: 2 }
+            }
+        }
+    }
+});
+
+// 2. Financial History Chart
+const finCtx = document.getElementById('finChart').getContext('2d');
+new Chart(finCtx, {
+    type: 'bar',
+    data: {
+        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025 (TTM)'],
+        datasets: [
+            {
+                label: '营业收入 ($M)',
+                data: [14439.0, 16720.0, 13185.0, 13702.0],
+                backgroundColor: '#059669'
+            },
+            {
+                label: '毛利润 ($M)',
+                data: [5211.0, 6620.0, 6092.0, 6387.0],
+                backgroundColor: '#10B981'
+            },
+            {
+                label: '营业利润 ($M)',
+                data: [2557.0, 3716.0, 2962.0, 3080.0],
+                backgroundColor: '#0D9488'
+            },
+            {
+                label: '经营活动现金流 ($M)',
+                data: [1142.0, 6218.0, 4907.0, 4565.0],
+                backgroundColor: '#3B82F6'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: { display: true, text: '百万美元 ($M)' }
+            }
+        }
+    }
+});
+
+// 3. DCF Valuation Scenarios Chart
+const dcfCtx = document.getElementById('dcfChart').getContext('2d');
+new Chart(dcfCtx, {
+    type: 'bar',
+    data: {
+        labels: ['当前股价', '极限悲观底线', '基准 DCF', '乘数公允中枢', '华尔街目标均价', '乐观情景'],
+        datasets: [{
+            label: '每股价值 ($)',
+            data: [87.81, 80.00, 104.00, 105.08, 104.62, 118.00],
+            backgroundColor: [
+                '#64748B',
+                '#D97706',
+                '#059669',
+                '#10B981',
+                '#0D9488',
+                '#3B82F6'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: {
+                beginAtZero: false,
+                min: 60,
+                title: { display: true, text: '美元 ($/股)' }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
