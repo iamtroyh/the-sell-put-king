@@ -399,6 +399,9 @@ def atomic_write_json(filepath: str, data: Any, indent: int = 2) -> None:
         os.replace(tmp_file, filepath)
 
 
+MAX_STOCK_PRICE = 1000.0
+
+
 def get_scan_parameters() -> Dict[str, Any]:
     """Retrieve full scanning and filtering parameters from scan_config.json."""
     cfg = load_json_config(SCAN_CONFIG_PATH)
@@ -406,6 +409,7 @@ def get_scan_parameters() -> Dict[str, Any]:
         "dte_min": cfg.get("dte_min", 15),
         "dte_max": cfg.get("dte_max", 60),
         "cc_dte_max": cfg.get("cc_dte_max", 45),
+        "max_stock_price": cfg.get("max_stock_price", 1000.0),
         "batch_size": cfg.get("batch_size", 40),
         "long_bull_dev_threshold": cfg.get("long_bull_dev_threshold", 0.03),
         "high_vol_rp_threshold": cfg.get("high_vol_rp_threshold", 0.25),

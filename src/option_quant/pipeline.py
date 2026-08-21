@@ -249,6 +249,7 @@ def get_scan_targets(max_workers: int = 20) -> Dict[str, Any]:
     dte_min = params["dte_min"]
     dte_max = params["dte_max"]
     cc_dte_max = params["cc_dte_max"]
+    max_stock_price = float(params.get("max_stock_price", 1000.0))
 
     # Load positions
     positions_file = os.path.join(DATA_DIR, "current_positions.json")
@@ -262,6 +263,8 @@ def get_scan_targets(max_workers: int = 20) -> Dict[str, Any]:
                 current_positions = json.load(f).get("positions", [])
         except Exception:
             pass
+
+    held_symbols: Set[str] = {to_display_symbol(pos["symbol"]) for pos in current_positions}
 
     equity_info_map: Dict[str, Dict[str, float]] = {}
     if os.path.exists(equity_positions_file):
@@ -335,6 +338,9 @@ def get_scan_targets(max_workers: int = 20) -> Dict[str, Any]:
             if hist is None or hist.empty:
                 continue
             curr_p = float(hist['Close'].iloc[-1])
+            # Filter out stocks with share price > max_stock_price ($1000)
+            if curr_p > max_stock_price and display_name not in held_symbols:
+                continue
             fund_info = fund_cache.get(display_name, {}).get("info")
             if check_is_low_position(display_name, hist, fund_info=fund_info):
                 active_tickers[display_name] = yf_symbol
@@ -351,6 +357,10 @@ def get_scan_targets(max_workers: int = 20) -> Dict[str, Any]:
 
     for display_name, yf_symbol in active_tickers.items():
         try:
+            p = ticker_prices.get(display_name, 0.0)
+            # Filter out single share price > max_stock_price ($1000) unless actively held
+            if p > max_stock_price and display_name not in held_symbols:
+                continue
             _, hist, expirations = get_history_and_obj(yf_symbol)
             valid_exps = []
             for exp in expirations:
@@ -366,7 +376,7 @@ def get_scan_targets(max_workers: int = 20) -> Dict[str, Any]:
                 fund_info = fund_cache.get(display_name, {}).get("info")
                 is_low = check_is_low_position(display_name, hist, fund_info=fund_info) if hist is not None else False
                 targets["sell_put"][display_name] = {
-                    "current_price": ticker_prices.get(display_name, 0.0),
+                    "current_price": p,
                     "is_low_position": is_low,
                     "expirations": valid_exps,
                 }

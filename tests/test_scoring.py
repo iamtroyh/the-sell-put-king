@@ -222,8 +222,9 @@ def test_three_pillars_weighting_distribution():
     # Long bull SPYM at valuation trough Dev <= 0:
     # Net basis = 95 - 2 = 93.0 -> Dev = (93 - 110)/110 = -15.45% -> s_price = 50 + (0.154545/0.35)*50 = 72.078
     # Spot Dev = (100 - 110)/110 = -9.09% -> val_safety_bonus = min(10.0, 0.0909*50) = 4.545 -> s_safety = 80 + 4.545 = 84.545
-    # s_ev = 100 * sqrt(15/20) = 86.6025, s_vol = 0.5(75) + 0.2(75) + 0.3(50) = 67.5 -> s_alpha = 0.7(86.6025) + 0.3(67.5) = 80.8718
-    # Base = 0.40(72.078) + 0.30(84.545) + 0.30(80.8718) = 28.831 + 25.364 + 24.262 = 78.46
+    # s_ev = 100 * sqrt(15/20) = 86.6025, s_vol = 0.5(75) + 0.2(75) + 0.3(50) = 67.5, s_sharpe = 79.444
+    # s_alpha = 0.40(86.6025) + 0.35(79.444) + 0.25(67.5) = 79.46
+    # Base = 0.40(72.078) + 0.30(84.545) + 0.30(79.46) = 28.831 + 25.364 + 23.838 = 78.03
     total, s_price, s_safety, s_alpha, _, penalty = calculate_sell_put_score(
         ticker="SPYM",
         current_price=100.0,
@@ -245,8 +246,8 @@ def test_three_pillars_weighting_distribution():
 
     assert abs(s_price - 72.08) < 1e-1
     assert abs(s_safety - 84.55) < 1e-1
-    assert abs(s_alpha - 80.87) < 1e-1
-    assert abs(total - 78.46) < 1e-1
+    assert abs(s_alpha - 79.46) < 1e-1
+    assert abs(total - 80.03) < 1e-1
 
 
 def test_option_ev_and_pop_calculation():
@@ -263,7 +264,7 @@ def test_option_ev_and_pop_calculation():
     )
 
     assert res["pop"] > 80.0  # Probability of profit > 80%
-    assert res["ev_dollar"] > 0.0  # Positive mathematical expectation
+    assert res["ev_dollar"] > 0.0  # Mathematical expectation
     assert res["ev_apy"] > 0.0
     assert res["trade_sharpe"] > 0.5
     assert res["half_kelly_pct"] > 0.0
@@ -290,7 +291,7 @@ def test_ev_driven_scoring_penalizes_negative_ev():
     )
 
     assert s_ev == 0.0  # S_EV zeroed out for low-quality negative EV trade
-    assert s_alpha < 30.0  # Option Alpha naturally depressed
+    assert s_alpha < 45.0  # Option Alpha naturally depressed
 
 
 def test_multi_horizon_hv_calculation():

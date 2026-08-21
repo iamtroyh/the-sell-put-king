@@ -550,6 +550,11 @@ def main():
         if is_black_swan and display_ticker not in current_position_tickers:
             print(f"  [⛔ Black Swan Drop Circuit Breaker] {display_ticker} dropped {abs(return_30d)*100:.1f}% in 30d, vetoing new CSP openings.")
             continue
+
+        # Single-share price filter: filter out stocks with share price > $1000 USD to prevent excessive collateral lockup
+        if current_price > 1000.0 and display_ticker not in current_position_tickers:
+            print(f"  [🚫 Price > $1000 Filter] {display_ticker} share price ${current_price:.2f} > $1000, filtering out from new CSP recommendations.")
+            continue
             
         use_cache = display_ticker in options_cache
         if use_cache:

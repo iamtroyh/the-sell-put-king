@@ -59,6 +59,7 @@ Conduct multi-factor quantitative screening across the market:
      - Tighten Delta to `0.10 ~ 0.20` (`[-0.20, -0.10]`) with safety cushion >= 10.0%.
 8. **Sector Concentration Limit**: In the top 10 recommended ranking, allow a maximum of 3 tickers per GICS sector, deferring additional same-sector tickers downward to ensure diversification.
 9. **Collateral & Budget Calculation**: Calculate Cash Secured Put collateral requirements for top 5 and top 10 positions against available unleveraged cash, highlighting purchasing power surplus or shortfall.
+10. **Single-Share Price Cap (单股股价过滤铁律 - Price <= $1,000 USD)**: Directly filter out all underlying candidates with a single share price exceeding $1,000 USD (`Price > $1,000.00`, e.g. `AZO`, `MELI`, `TDG`, `FICO`), preventing single-contract collateral requirements from exceeding $100,000+ and ensuring portfolio capital efficiency.
 
 ### 4-Tier Smooth Liquidity & Conservative Pricing Gatekeeper
 1. **Tier 1 (🟢 Prime Liquidity - Spread <= 20% & OI >= 50)**: 0 penalty, executed at 100% Mark.
