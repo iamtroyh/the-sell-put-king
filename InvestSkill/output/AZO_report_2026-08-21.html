@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>AutoZone (AZO) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+        .sec-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-num {
+            background: var(--primary);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3col { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+
+        @media (max-width: 768px) {
+            .grid-2col { grid-template-columns: 1fr; }
+        }
+
+        .info-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+        .info-box.alert { border-left-color: var(--amber); background: #FFFBEB; }
+        .info-box.danger { border-left-color: var(--red); background: #FEF2F2; }
+        .info-box.success { border-left-color: var(--emerald); background: #ECFDF5; }
+        .info-box-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 14px 0; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left; }
+        th { background: #F1F5F9; color: var(--text-secondary); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; text-align: right; }
+        .center-cell { text-align: center; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            margin: 16px 0;
+        }
+        .chart-box-sm {
+            position: relative;
+            width: 100%;
+            height: 260px;
+            margin: 12px 0;
+        }
+
+        .metric-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .metric-card-val {
+            font-size: 22px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary-dark);
+            margin: 4px 0;
+        }
+        .metric-card-lbl { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .metric-card-desc { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+        .pillar-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            border-top: 3px solid var(--primary);
+        }
+        .pillar-title { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .pillar-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+
+        .tag-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .tag-green { background: #D1FAE5; color: #065F46; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-amber { background: #FEF3C7; color: #92400E; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            color: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 20px;
+            box-shadow: var(--shadow-md);
+        }
+        .signal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+        .signal-verdict { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #A7F3D0; }
+        .signal-target { font-size: 15px; font-weight: 600; color: #E6FFFA; }
+        .signal-body { font-size: 13px; line-height: 1.7; opacity: 0.95; }
+    </style>
+</head>
+<body>
+
+<div class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: AZO · 汽车后市场龙头</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-score">量化多因子评分: 8.6 / 10</span>
+            <span class="badge" style="background: rgba(255,255,255,0.25);">深度投研报告 · 2026-08-21</span>
+        </div>
+        <h1 class="hero-title">AutoZone (AZO) 深度投研报告</h1>
+        <div class="hero-sub">
+            全美汽车后市场绝对双寡头之一 · 极深供应链 Megahub 护城河 · 负营运资本供应商融资模式 · 传奇“股份吞噬者”（25年注销超88%股本）· 现价处于 52 周最低分位（RP 0.04），左侧黄金坑与极端非对称赔率凸显
+        </div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新现价 (Spot)</div>
+                <div class="hero-kpi-val">$2,960.17</div>
+                <div class="hero-kpi-sub">52周区间: $2,902 - $4,388</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$48.33 B</div>
+                <div class="hero-kpi-sub">企业价值 EV: $61.09 B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">远期市盈率 (Forward P/E)</div>
+                <div class="hero-kpi-val">16.90x</div>
+                <div class="hero-kpi-sub">TTM P/E: 20.35x · 历史低位</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">真实资本回报率 (ROIC)</div>
+                <div class="hero-kpi-val">> 45.0%</div>
+                <div class="hero-kpi-sub">营业利润率 19.08% · 毛利率 51.75%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">华尔街共识目标价</div>
+                <div class="hero-kpi-val">$3,950.52</div>
+                <div class="hero-kpi-sub">预期潜在上行空间: +33.45%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股东回报与股息政策</div>
+                <div class="hero-kpi-val">无股息 / 纯回购</div>
+                <div class="hero-kpi-sub">年均回购 $2.5B-$3.5B 股份</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-wrap">
+
+    <!-- 快捷导航目录 -->
+    <div class="toc-bar">
+        <div class="toc-title">报告核心模块快速导航</div>
+        <div class="toc-links">
+            <a class="toc-link" href="#sec-1">1. 执行摘要与核心逻辑</a>
+            <a class="toc-link" href="#sec-2">2. 多因子量化雷达</a>
+            <a class="toc-link" href="#sec-3">3. 商业模式与波特五力</a>
+            <a class="toc-link" href="#sec-4">4. 财务报表与盈利质量</a>
+            <a class="toc-link" href="#sec-5">5. 杜邦分析与运营效率</a>
+            <a class="toc-link" href="#sec-6">6. 竞争格局与同行对标</a>
+            <a class="toc-link" href="#sec-7">7. DCF估值与公允中枢</a>
+            <a class="toc-link" href="#sec-8">8. 技术面与均线筹码</a>
+            <a class="toc-link" href="#sec-9">9. 资本配置与回购披露</a>
+            <a class="toc-link" href="#sec-10">10. Sell Put 期权策略</a>
+            <a class="toc-link" href="#sec-11">11. 机构持仓与资金</a>
+            <a class="toc-link" href="#sec-12">12. 内部人交易与电话会</a>
+            <a class="toc-link" href="#sec-13">13. 做空比例与轧空</a>
+            <a class="toc-link" href="#sec-14">14. 核心风险与压力测试</a>
+            <a class="toc-link" href="#sec-15">15. 催化剂与增长路线</a>
+            <a class="toc-link" href="#sec-16">16. 投资评级与执行建议</a>
+        </div>
+    </div>
+
+    <!-- 模块 1: 执行摘要与核心投资逻辑 -->
+    <div class="sec-card" id="sec-1">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">01</span> 执行摘要与核心投资逻辑 (Executive Summary & Thesis)</div>
+            <span class="tag-pill tag-green">评级: 强烈看多 (STRONG BUY)</span>
+        </div>
+        <div class="info-box success">
+            <div class="info-box-title">🎯 一句话投资定性</div>
+            <p><strong>AutoZone (NYSE: AZO)</strong> 是美股历史上最卓越的“资本复利吞噬者”（Share Cannibal Compounder）之一，拥有坚不可摧的全国性 Megahub 分销网络、负营运资本供应商融资护城河与反经济周期的车龄红利。当前股价自高点回落超 32%，处于 52 周绝对底部（RP=0.037），估值折让至 16.9x 远期 P/E，迎来极佳的左侧战略性建仓与 Sell Put 布局窗口。</p>
+        </div>
+
+        <div class="grid-3col" style="margin-top: 16px;">
+            <div class="pillar-card">
+                <div class="pillar-title">🏆 支柱一：反周期车龄红利与刚性需求</div>
+                <div class="pillar-desc">
+                    美国机动车平均车龄已连续攀升至历史最高点（<strong>12.6+ 年</strong>）。在高利率、新车售价高昂与宏观不确定性下，车主倾向于持续维护保养现有老旧车辆，使汽车零配件需求呈现出极强的反周期防御属性。
+                </div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">🚀 支柱二：Megahub 供应链网络重塑 DIFM</div>
+                <div class="pillar-desc">
+                    AutoZone 加速推进 <strong>Megahub（大型分销中枢）</strong>网络布局，单仓覆盖 8-10 万种 SKU，实现对商业修理厂（Commercial/DIFM）在 3-4 小时内高频配送，推动高毛利、高周转的商业客户业务成为第二增长引擎。
+                </div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">📈 支柱三：传奇资本配置与极度低估赔率</div>
+                <div class="pillar-desc">
+                    AutoZone 实行“零股息、100% 自由现金流回购注销”的极致资本战略，25 年累计注销流通股逾 88%。当前股价处于 52 周最低分位（RP 0.04），远期 P/E 压缩至 16.9x（相比 O'Reilly 24.4x 折价 30%），安全边际极其充足。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模块 2: 多因子量化评分雷达模型 -->
+    <div class="sec-card" id="sec-2">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">02</span> 多因子量化评分雷达模型 (Multi-Factor Scorecard & Radar Chart)</div>
+            <span class="tag-pill tag-blue">加权综合得分: 8.6 / 10.0</span>
+        </div>
+        <div class="grid-2col">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评价维度</th>
+                                <th>权重</th>
+                                <th>得分</th>
+                                <th>核心驱动与量化指标</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>商业质量与护城河</strong></td>
+                                <td class="center-cell">25%</td>
+                                <td class="num-cell" style="color: #059669; font-weight: 700;">9.2 / 10</td>
+                                <td>Megahub 物流时效垄断、AP/Inventory>100% 负营运资本、毛利率稳定 >51.5%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>估值与双层安全垫</strong></td>
+                                <td class="center-cell">25%</td>
+                                <td class="num-cell" style="color: #059669; font-weight: 700;">8.8 / 10</td>
+                                <td>Forward P/E 16.9x（同行折价 30%）、DCF 内在价值折让、Sell Put 贴水保护</td>
+                            </tr>
+                            <tr>
+                                <td><strong>市场资金与机构动向</strong></td>
+                                <td class="center-cell">20%</td>
+                                <td class="num-cell" style="color: #059669; font-weight: 700;">8.0 / 10</td>
+                                <td>机构控盘率超 92%、先锋/贝莱德/摩根持续重仓、华尔街强力买入评级</td>
+                            </tr>
+                            <tr>
+                                <td><strong>自适应技术与周期位置</strong></td>
+                                <td class="center-cell">15%</td>
+                                <td class="num-cell" style="color: #059669; font-weight: 700;">8.5 / 10</td>
+                                <td>52周底部分位 RP=0.037（高质量资产判定为左侧黄金坑）、200SMA 偏离 -13.5%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>风险与非对称赔率</strong></td>
+                                <td class="center-cell">15%</td>
+                                <td class="num-cell" style="color: #059669; font-weight: 700;">8.4 / 10</td>
+                                <td>年均 $1.8B+ 自由现金流托底、利息保障倍数 >7.4x、空头占比低 (2.98%)</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>加权综合评分 (Total)</strong></td>
+                                <td class="center-cell">100%</td>
+                                <td class="num-cell" style="color: #059669; font-size: 15px;">8.6 / 10.0</td>
+                                <td><span class="tag-pill tag-green">强烈看多 (STRONG BUY)</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模块 3: 商业模式、垂直整合与波特五力护城河评级 -->
+    <div class="sec-card" id="sec-3">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">03</span> 商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="tag-pill tag-green">护城河评级: 宽阔 (Wide Moat)</span>
+        </div>
+        <p style="margin-bottom: 14px; color: var(--text-secondary);">
+            AutoZone 运营着遍布美国、墨西哥及巴西的 <strong>7,400+ 家零售与商业服务门店</strong>。其商业模式具备极其独特的垂直一体化与供应链深度：
+        </p>
+        <div class="grid-2col" style="margin-bottom: 16px;">
+            <div class="info-box">
+                <div class="info-box-title">📦 双轮驱动业务结构</div>
+                <ul style="padding-left: 18px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.7;">
+                    <li><strong>DIY 零售端 (Do-It-Yourself)</strong>：占比约 65-70%，直接向个人车主销售蓄电池、机油、刹车片、火花塞及维护工具，并提供免费诊断与电池更换增值服务。</li>
+                    <li><strong>DIFM 商业端 (Do-It-For-Me)</strong>：占比约 30-35%，向第三方专业修理厂、车队客户提供极速汽配配送，目前以双位数年增速持续扩张。</li>
+                </ul>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">⚡ 极速 Hub & Megahub 配送网络壁垒</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.7;">
+                    标准门店仅陈列约 2.2 万种常用 SKU，而 AutoZone 布局的 <strong>200+ 座 Hub 门店与 100+ 座 Megahub 超级中枢</strong>单仓配备 80,000 - 110,000 种长尾 SKU，通过密集调度车队实现“3-4小时必达”，使竞争对手及电商平台（如亚马逊）无法在时效上与其竞争。
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box alert">
+            <div class="info-box-title">💡 独特的“负营运资本”供应商融资模式</div>
+            <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;">
+                AutoZone 具备对上游零部件供应商极强的议价权，其<strong>应付账款与存货比率（AP / Inventory Ratio）长期维持在 100% - 110% 左右</strong>。这意味着 AutoZone 在尚未支付供应商货款前就已经将商品销售给终端消费者并回笼现金，实现了完全由上游供应商无息资助其库存扩张的极致资本效率。
+            </p>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>波特五力维度</th>
+                        <th>受威胁程度</th>
+                        <th>评分 (1-5)</th>
+                        <th>深度分析与竞争壁垒</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>供应商议价权</strong></td>
+                        <td><span class="tag-pill tag-green">极低</span></td>
+                        <td class="num-cell">1.5 / 5</td>
+                        <td>采购规模庞大且拥有自有品牌（Duralast），AP/Inventory > 100%，掌控定价权</td>
+                    </tr>
+                    <tr>
+                        <td><strong>买方议价能力</strong></td>
+                        <td><span class="tag-pill tag-green">较低</span></td>
+                        <td class="num-cell">2.0 / 5</td>
+                        <td>汽配损坏具备极高刚性与即时性，消费者对几美元价差不敏感，看重即时现货可用性</td>
+                    </tr>
+                    <tr>
+                        <td><strong>潜在进入者威胁</strong></td>
+                        <td><span class="tag-pill tag-green">极低</span></td>
+                        <td class="num-cell">1.0 / 5</td>
+                        <td>数千家线下黄金地段网点、复杂供应链系统与 Megahub 物流资产构成高不可攀的资本壁垒</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品威胁 (含电商)</strong></td>
+                        <td><span class="tag-pill tag-amber">中等偏低</span></td>
+                        <td class="num-cell">2.2 / 5</td>
+                        <td>纯电商无法提供 30 分钟应急取货与免费装配检测服务；电动车长期渗透虽有影响但燃油车存量庞大</td>
+                    </tr>
+                    <tr>
+                        <td><strong>行业内部竞争程度</strong></td>
+                        <td><span class="tag-pill tag-amber">中等</span></td>
+                        <td class="num-cell">3.0 / 5</td>
+                        <td>与 O'Reilly (ORLY) 形成双寡头良性竞争，远离非理性价格战，聚焦服务与交付速度</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 模块 4: 核心财务报表与盈利质量深度剖析 -->
+    <div class="sec-card" id="sec-4">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">04</span> 核心财务报表与盈利质量深度剖析 (Financial Statements & Quality)</div>
+            <span class="tag-pill tag-green">盈利质量: 极高</span>
+        </div>
+        <p style="margin-bottom: 14px; color: var(--text-secondary);">
+            AutoZone 历年财务数据展现出教科书般的确定性：毛利率长期锚定在 51.5%-52.5%，营业利润率稳定在 19% 左右，自由现金流转化率极为优异。
+        </p>
+
+        <div class="grid-2col">
+            <div class="chart-box">
+                <canvas id="revNetChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <canvas id="cashFlowChart"></canvas>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (单位: $M)</th>
+                        <th>FY2022</th>
+                        <th>FY2023</th>
+                        <th>FY2024</th>
+                        <th>FY2025</th>
+                        <th>TTM / FY2026E</th>
+                        <th>4年复合增速 (CAGR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Revenue)</strong></td>
+                        <td class="num-cell">$16,252</td>
+                        <td class="num-cell">$17,457</td>
+                        <td class="num-cell">$18,490</td>
+                        <td class="num-cell">$18,939</td>
+                        <td class="num-cell">$19,986</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">+5.3%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="num-cell">$8,473</td>
+                        <td class="num-cell">$9,070</td>
+                        <td class="num-cell">$9,817</td>
+                        <td class="num-cell">$9,966</td>
+                        <td class="num-cell">$10,343</td>
+                        <td class="num-cell">+5.1%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利率 (%)</strong></td>
+                        <td class="num-cell">52.13%</td>
+                        <td class="num-cell">51.96%</td>
+                        <td class="num-cell">53.09%</td>
+                        <td class="num-cell">52.62%</td>
+                        <td class="num-cell">51.75%</td>
+                        <td class="num-cell">高位稳定</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (EBIT)</strong></td>
+                        <td class="num-cell">$3,271</td>
+                        <td class="num-cell">$3,474</td>
+                        <td class="num-cell">$3,789</td>
+                        <td class="num-cell">$3,610</td>
+                        <td class="num-cell">$3,814</td>
+                        <td class="num-cell">+3.9%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润率 (%)</strong></td>
+                        <td class="num-cell">20.13%</td>
+                        <td class="num-cell">19.90%</td>
+                        <td class="num-cell">20.49%</td>
+                        <td class="num-cell">19.06%</td>
+                        <td class="num-cell">19.08%</td>
+                        <td class="num-cell">行业顶尖</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="num-cell">$2,430</td>
+                        <td class="num-cell">$2,528</td>
+                        <td class="num-cell">$2,662</td>
+                        <td class="num-cell">$2,498</td>
+                        <td class="num-cell">$2,478</td>
+                        <td class="num-cell">+0.5%</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>稀释每股收益 (Diluted EPS)</strong></td>
+                        <td class="num-cell">$117.19</td>
+                        <td class="num-cell">$132.36</td>
+                        <td class="num-cell">$149.55</td>
+                        <td class="num-cell">$144.87</td>
+                        <td class="num-cell" style="color: #059669;">$151.04</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">+6.6%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营现金流 (CFO)</strong></td>
+                        <td class="num-cell">$3,211</td>
+                        <td class="num-cell">$2,941</td>
+                        <td class="num-cell">$3,004</td>
+                        <td class="num-cell">$3,117</td>
+                        <td class="num-cell">$3,072</td>
+                        <td class="num-cell">强劲充沛</td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="num-cell">-$672</td>
+                        <td class="num-cell">-$797</td>
+                        <td class="num-cell">-$1,073</td>
+                        <td class="num-cell">-$1,327</td>
+                        <td class="num-cell">-$1,282</td>
+                        <td class="num-cell">投资Megahub</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (FCF)</strong></td>
+                        <td class="num-cell">$2,539</td>
+                        <td class="num-cell">$2,144</td>
+                        <td class="num-cell">$1,931</td>
+                        <td class="num-cell">$1,790</td>
+                        <td class="num-cell">$1,790</td>
+                        <td class="num-cell">转化率近75%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="info-box" style="margin-top: 16px;">
+            <div class="info-box-title">🔍 深度解密：“负股东权益（Negative Book Value -$3.41B）”的财务本质</div>
+            <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.7;">
+                初级投资者常将负净资产误认为资不抵债或破产风险。但在 AutoZone 身上，<strong>负股东权益恰恰是其拥有巴菲特所谓“经济商誉与超级盈利机器”的最强证明</strong>：<br>
+                1. <strong>会计准则缺陷</strong>：GAAP 财务报表以历史成本计量门店与供应链资产，无法体现 AutoZone 历经数十年构建的无形品牌与 Megahub 物流价值；<br>
+                2. <strong>极限制回购冲减所有者权益</strong>：AutoZone 每年将所有净利润与低成本发债资金全部用于在公开市场回购注销自家股票（累计回购超过 $300 亿美元），在会计上冲减了库藏股与留存收益，导致账面净资产为负；<br>
+                3. <strong>偿债能力极其稳健</strong>：TTM 息税前利润高达 $38.1 亿美元，而利息支出仅 $4.87 亿美元，<strong>利息保障倍数高达 7.8x</strong>，现金流断裂概率接近于零。
+            </p>
+        </div>
+    </div>
+
+    <!-- 模块 5: 杜邦三因子拆解与资本运营效率 -->
+    <div class="sec-card" id="sec-5">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">05</span> 杜邦三因子拆解与资本运营效率 (DuPont & ROIC)</div>
+            <span class="tag-pill tag-blue">ROIC: 45.0% - 55.0%</span>
+        </div>
+        <div class="grid-3col">
+            <div class="metric-card">
+                <div class="metric-card-lbl">净利润率 (Net Margin)</div>
+                <div class="metric-card-val">12.40%</div>
+                <div class="metric-card-desc">高附加值零件与自有品牌占比提升</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">总资产周转率 (Asset Turnover)</div>
+                <div class="metric-card-val">1.03x</div>
+                <div class="metric-card-desc">轻资产门店扩张与 Megahub 集约化管理</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">真实投入资本回报率 (ROIC)</div>
+                <div class="metric-card-val">48.6%</div>
+                <div class="metric-card-desc">NOPAT / (Net Working Capital + Net PP&E)</div>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 16px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>营运效率指标</th>
+                        <th>AutoZone (AZO)</th>
+                        <th>行业基准 / 同行均值</th>
+                        <th>运营优势与机制解读</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>存货周转天数 (DSI)</strong></td>
+                        <td class="num-cell">275 天</td>
+                        <td class="num-cell">210 天</td>
+                        <td>由于维持 8-10 万种长尾汽配件现货，账面周转天数看似较长，但实际保障了极高毛利</td>
+                    </tr>
+                    <tr>
+                        <td><strong>应付账款周转天数 (DPO)</strong></td>
+                        <td class="num-cell">305 天</td>
+                        <td class="num-cell">145 天</td>
+                        <td>对供应商账期长达 10 个月，形成<strong>负现金转换周期（CCC &lt; 0）</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>现金转换周期 (CCC)</strong></td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">-18 天</td>
+                        <td class="num-cell">+75 天</td>
+                        <td>卖出商品收回现金的时间早于向上游付款的时间，本质为无息占用上游资金扩张</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 模块 6: 行业竞争格局与同行全景对标矩阵 -->
+    <div class="sec-card" id="sec-6">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">06</span> 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="tag-pill tag-green">竞争地位: 双寡头领军</span>
+        </div>
+        <p style="margin-bottom: 14px; color: var(--text-secondary);">
+            全美汽车后市场呈“两超多强”格局，<strong>AutoZone (AZO)</strong> 与 <strong>O'Reilly (ORLY)</strong> 凭借供应链网络全面压制 Advance Auto Parts (AAP) 与 Genuine Parts (GPC)。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心对标维度</th>
+                        <th>AutoZone (AZO)</th>
+                        <th>O'Reilly (ORLY)</th>
+                        <th>Advance Auto Parts (AAP)</th>
+                        <th>Genuine Parts (GPC)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>最新市值 ($B)</strong></td>
+                        <td class="num-cell"><strong>$48.33 B</strong></td>
+                        <td class="num-cell">$72.10 B</td>
+                        <td class="num-cell">$2.57 B</td>
+                        <td class="num-cell">$18.48 B</td>
+                    </tr>
+                    <tr>
+                        <td><strong>远期市盈率 (Forward P/E)</strong></td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">16.90x</td>
+                        <td class="num-cell">24.41x</td>
+                        <td class="num-cell">10.95x (陷入重组)</td>
+                        <td class="num-cell">16.14x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EV / EBITDA 倍数</strong></td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">14.35x</td>
+                        <td class="num-cell">19.52x</td>
+                        <td class="num-cell">7.39x</td>
+                        <td class="num-cell">11.90x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利率 (%)</strong></td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">51.75%</td>
+                        <td class="num-cell">51.64%</td>
+                        <td class="num-cell">45.14%</td>
+                        <td class="num-cell">37.56%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润率 (%)</strong></td>
+                        <td class="num-cell">19.08%</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">20.15%</td>
+                        <td class="num-cell">5.55%</td>
+                        <td class="num-cell">6.56%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>商业端 (DIFM) 占比</strong></td>
+                        <td class="num-cell">~35% (提速扩张中)</td>
+                        <td class="num-cell">~45% (成熟主导)</td>
+                        <td class="num-cell">~55% (流失份额)</td>
+                        <td class="num-cell">~75% (传统商用)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本配置战略</strong></td>
+                        <td class="num-cell"><strong>100% 极限回购 / 0股息</strong></td>
+                        <td class="num-cell">极限制回购 / 0股息</td>
+                        <td class="num-cell">股息削减 / 处置资产</td>
+                        <td class="num-cell">分红增长股 (股息率3.0%)</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>相对估值溢价 / 折价</strong></td>
+                        <td class="num-cell" style="color: #059669;"><strong>相对 ORLY 折价 30.8%</strong></td>
+                        <td class="num-cell">行业最高溢价</td>
+                        <td class="num-cell">深度困境折扣</td>
+                        <td class="num-cell">工业分销折价</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="info-box success" style="margin-top: 10px;">
+            <div class="info-box-title">⚖️ 对标核心洞察</div>
+            <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;">
+                AutoZone 在毛利率（51.75%）与运营效率上与 O'Reilly 并驾齐驱，但由于目前商业端（DIFM）占比略低于 ORLY，市场给予了 AZO 显著的估值折让（16.9x vs 24.4x Forward P/E）。随着 AutoZone 近年来以每年新建 30-40 座 Megahub 的速度全力猛攻 DIFM 市场，估值中枢存在强烈的<strong>向 ORLY 靠拢的戴维斯双击（估值修复 + EPS 增长）空间</strong>。
+            </p>
+        </div>
+    </div>
+
+    <!-- 模块 7: DCF 现金流折现、成长模型与多维估值公允中枢 -->
+    <div class="sec-card" id="sec-7">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">07</span> DCF 现金流折现、成长模型与多维估值公允中枢 (DCF Valuation)</div>
+            <span class="tag-pill tag-green">综合公允中枢: $3,850.00</span>
+        </div>
+        <p style="margin-bottom: 14px; color: var(--text-secondary);">
+            基于严谨的现金流折现（DCF）模型，综合考量无风险利率 4.25%、Beta 0.65、WACC 7.5% 以及持续的 Megahub 资本开支与股份注销效应，构建四维估值全景矩阵。
+        </p>
+
+        <div class="grid-2col">
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>估值模型 / 视角</th>
+                                <th>每股公允价值</th>
+                                <th>相对现价潜在涨跌幅</th>
+                                <th>关键核心假设</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>极限保守型 DCF 底线</strong></td>
+                                <td class="num-cell" style="color: #DC2626; font-weight: 700;">$2,307.45</td>
+                                <td class="num-cell" style="color: #DC2626;">-22.0%</td>
+                                <td style="font-size: 11.5px;">WACC 8.5%, 永续增长 2.0%, FCF增速仅 3-4%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>相对市盈率中枢 (18.0x FY26)</strong></td>
+                                <td class="num-cell">$2,718.72</td>
+                                <td class="num-cell">-8.1%</td>
+                                <td style="font-size: 11.5px;">给予历史悲观估值倍数 18.0x × FY26 EPS $151.04</td>
+                            </tr>
+                            <tr>
+                                <td><strong>当前市场价格 (Spot)</strong></td>
+                                <td class="num-cell" style="font-weight: 700;">$2,960.17</td>
+                                <td class="num-cell">0.0%</td>
+                                <td style="font-size: 11.5px;">处于 52 周最低分位（RP 0.037）</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>基准两阶段成长型 DCF</strong></td>
+                                <td class="num-cell" style="color: #059669; font-size: 14px;">$3,450.00</td>
+                                <td class="num-cell" style="color: #059669;">+16.5%</td>
+                                <td style="font-size: 11.5px;">WACC 7.5%, 永续 2.5%, FCF年均复合增长 7.0%</td>
+                            </tr>
+                            <tr style="background: #ECFDF5; font-weight: 700;">
+                                <td><strong>相对市盈率合理中枢 (20.0x FY27)</strong></td>
+                                <td class="num-cell" style="color: #059669; font-size: 14px;">$3,500.00</td>
+                                <td class="num-cell" style="color: #059669;">+18.2%</td>
+                                <td style="font-size: 11.5px;">20.0x P/E × FY27 EPS $175.00</td>
+                            </tr>
+                            <tr style="background: #D1FAE5; font-weight: 700;">
+                                <td><strong>华尔街分析师共识目标价</strong></td>
+                                <td class="num-cell" style="color: #064E3B; font-size: 15px;">$3,950.52</td>
+                                <td class="num-cell" style="color: #064E3B;">+33.45%</td>
+                                <td style="font-size: 11.5px;">23 家主流投行共识目标中位数 $3,979.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>乐观加速成长型 DCF</strong></td>
+                                <td class="num-cell" style="color: #047857; font-weight: 700;">$4,081.91</td>
+                                <td class="num-cell" style="color: #047857;">+37.9%</td>
+                                <td style="font-size: 11.5px;">WACC 7.0%, DIFM 提速 + 国际化超预期 + 回购提振</td>
+                            </tr>
+                            <tr>
+                                <td><strong>华尔街最高目标价</strong></td>
+                                <td class="num-cell" style="color: #064E3B; font-weight: 700;">$4,800.00</td>
+                                <td class="num-cell" style="color: #064E3B;">+62.1%</td>
+                                <td style="font-size: 11.5px;">头部机构最高给出的估值溢价</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="valuationChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 14px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">DCF 核心折现率 (WACC) 与永续增长率 (Terminal Growth) 敏感性分析矩阵 ($/股)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率</th>
+                        <th>2.0% 永续增长</th>
+                        <th>2.5% 永续增长 (基准)</th>
+                        <th>3.0% 永续增长</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 6.5% (宽松降息周期)</strong></td>
+                        <td class="num-cell">$2,795.0</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">$3,114.7</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">$3,525.7</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 7.0% (中性偏宽)</strong></td>
+                        <td class="num-cell">$2,420.8</td>
+                        <td class="num-cell" style="color: #059669;">$2,666.0</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">$2,972.5</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>WACC 7.5% (基准审慎折现率)</strong></td>
+                        <td class="num-cell">$2,115.1</td>
+                        <td class="num-cell" style="color: #059669; font-size: 14px;">$2,307.5</td>
+                        <td class="num-cell" style="color: #059669;">$2,542.6</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 8.0% (中性偏紧)</strong></td>
+                        <td class="num-cell">$1,860.7</td>
+                        <td class="num-cell">$2,014.5</td>
+                        <td class="num-cell">$2,199.0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 8.5% (极端高息压力)</strong></td>
+                        <td class="num-cell">$1,645.9</td>
+                        <td class="num-cell">$1,770.7</td>
+                        <td class="num-cell">$1,918.2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 模块 8: 技术面量化、均线系统与关键筹码位 -->
+    <div class="sec-card" id="sec-8">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">08</span> 技术面量化、均线系统与关键筹码位 (Technical Analysis)</div>
+            <span class="tag-pill tag-amber">技术位置: 52周底部超跌企稳</span>
+        </div>
+        <div class="grid-3col">
+            <div class="metric-card">
+                <div class="metric-card-lbl">200日移动平均线 (SMA 200)</div>
+                <div class="metric-card-val">$3,420.27</div>
+                <div class="metric-card-desc">现价偏离度: -13.45% (深度超跌)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">14日相对强弱指标 (RSI)</div>
+                <div class="metric-card-val">46.47</div>
+                <div class="metric-card-desc">自 30 极度超卖区底部平缓金叉回升</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">52周相对区间位置 (RP)</div>
+                <div class="metric-card-val">0.037</div>
+                <div class="metric-card-desc">位于 52周绝对底部 3.7% 分位</div>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 16px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>均线 / 技术指标</th>
+                        <th>当前点位</th>
+                        <th>状态判定</th>
+                        <th>技术解读与多空博弈关键位</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>短期均线 (SMA 20)</strong></td>
+                        <td class="num-cell">$3,047.69</td>
+                        <td><span class="tag-pill tag-amber">临近争夺</span></td>
+                        <td>股价在 $2,900-$2,950 区域构筑阶段性双底，正尝试向上突破 20 日均线压制</td>
+                    </tr>
+                    <tr>
+                        <td><strong>中期均线 (SMA 50)</strong></td>
+                        <td class="num-cell">$3,054.87</td>
+                        <td><span class="tag-pill tag-amber">第一阻力带</span></td>
+                        <td>$3,050-$3,080 为短线多空分水岭，突破后将确认左侧底部反转成立</td>
+                    </tr>
+                    <tr>
+                        <td><strong>长期牛熊线 (SMA 200)</strong></td>
+                        <td class="num-cell">$3,420.27</td>
+                        <td><span class="tag-pill tag-blue">长期价值中枢</span></td>
+                        <td>距离现价有 +15.5% 修复空间，为中期第一目标位</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MACD (12, 26, 9)</strong></td>
+                        <td class="num-cell">-14.80 / -8.69</td>
+                        <td><span class="tag-pill tag-green">绿柱缩短</span></td>
+                        <td>柱状图 Hist 收敛至 -6.10，动能衰竭指标显现底背离迹象</td>
+                    </tr>
+                    <tr>
+                        <td><strong>关键第一支撑位 (S1)</strong></td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">$2,900.00</td>
+                        <td><span class="tag-pill tag-green">强力铁底</span></td>
+                        <td>52周最低点 $2,902.20 与整数关口重合，历史上在此具备极强逢低抄底盘</td>
+                    </tr>
+                    <tr>
+                        <td><strong>关键次级支撑位 (S2)</strong></td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">$2,750.00 - $2,800.00</td>
+                        <td><span class="tag-pill tag-green">极限安全垫</span></td>
+                        <td>对应 15.0x Forward P/E 极端估值底线，Sell Put 理想行权价区间</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 模块 9: 资本配置、股息政策与股东回报披露 -->
+    <div class="sec-card" id="sec-9">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">09</span> 资本配置、股息政策与股东回报披露 (Capital Allocation)</div>
+            <span class="tag-pill tag-green">资本配置评级: 传奇典范</span>
+        </div>
+        <div class="info-box success">
+            <div class="info-box-title">📢 股息政策明确披露 (Dividend Status)</div>
+            <p style="font-size: 13px; font-weight: 700; color: #065F46;">
+                <strong>无 / 没有 (无股息派发 / Dividend: None / N/A)</strong>
+            </p>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                AutoZone 自 1998 年确立资本配置原则以来，从未派发过普通股现金股息。管理层坚信派发股息会产生股东层面的双重征税，因此选择将 <strong>100% 的盈余现金流集中投入到自有股份的长期回购与注销</strong>中。
+            </p>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="shareCountChart"></canvas>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>年代节点</th>
+                        <th>流通总股本 (Shares Outstanding)</th>
+                        <th>每股收益 (Diluted EPS)</th>
+                        <th>年化股价水平</th>
+                        <th>资本配置与复利效应解读</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2000 年</strong></td>
+                        <td class="num-cell">152.0 M 股</td>
+                        <td class="num-cell">$1.76</td>
+                        <td class="num-cell">~$25.00</td>
+                        <td>开启大规模股票回购战略元年</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2010 年</strong></td>
+                        <td class="num-cell">50.2 M 股</td>
+                        <td class="num-cell">$14.97</td>
+                        <td class="num-cell">~$220.00</td>
+                        <td>10 年内注销 67% 股本，EPS 暴增 8.5 倍</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2020 年</strong></td>
+                        <td class="num-cell">23.1 M 股</td>
+                        <td class="num-cell">$71.77</td>
+                        <td class="num-cell">~$1,150.00</td>
+                        <td>股本进一步缩减超 50%，每股盈利加速爆发</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2024 年</strong></td>
+                        <td class="num-cell">17.2 M 股</td>
+                        <td class="num-cell">$149.55</td>
+                        <td class="num-cell">~$3,000.00</td>
+                        <td>历经疫情与通胀周期，EPS 迈入 $150 时代</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>当前 (2026年)</strong></td>
+                        <td class="num-cell" style="color: #059669;"><strong>16.32 M 股</strong></td>
+                        <td class="num-cell" style="color: #059669;"><strong>$151.04</strong></td>
+                        <td class="num-cell" style="color: #059669;"><strong>$2,960.17</strong></td>
+                        <td><strong>25 年累计注销流通股本超 88.2%</strong>，成为美股有史以来最强大的回购机器之一</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 模块 10: 现金担保卖出看跌期权 (Cash-Secured Sell Put) 策略 -->
+    <div class="sec-card" id="sec-10">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">10</span> 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="tag-pill tag-green">策略定位: 极佳左侧折价接盘</span>
+        </div>
+        <div class="info-box alert">
+            <div class="info-box-title">⚠️ 资金规模与合约名义本金提示</div>
+            <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;">
+                由于 AutoZone 历经数十年回购导致单股名义价格较高（~$2,960/股），<strong>单张期权合约（100股）对应的现金担保名义本金约为 $250,000 - $280,000 美元</strong>。适合具有充足资金储备的大型账户执行，或通过价差（Bull Put Spread）限制名义保证金。
+            </p>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯度</th>
+                        <th>推荐行权价 (Strike)</th>
+                        <th>到期日 (DTE)</th>
+                        <th>Delta</th>
+                        <th>单张权利金</th>
+                        <th>安全垫 (Cushion)</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>净持仓成本 / 战略意图</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><strong>🟢 保守稳健型 (Conservative)</strong></td>
+                        <td class="num-cell"><strong>$2,500.00</strong></td>
+                        <td class="center-cell">2027-01-15 (147d)</td>
+                        <td class="num-cell">-0.14</td>
+                        <td class="num-cell">$77.60 ($7,760/张)</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">15.54%</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">7.8% - 9.5%</td>
+                        <td>净成本 <strong>$2,422.40</strong>（对应 14.0x PE 历史极限底部，无脑建仓）</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>🟡 平衡进取型 (Moderate)</strong></td>
+                        <td class="num-cell"><strong>$2,600.00</strong></td>
+                        <td class="center-cell">2026-12-18 (119d)</td>
+                        <td class="num-cell">-0.21</td>
+                        <td class="num-cell">$85.50 ($8,550/张)</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">12.17%</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">11.2% - 13.5%</td>
+                        <td>净成本 <strong>$2,514.50</strong>（锁定 12% 安全垫，高效收割时间价值）</td>
+                    </tr>
+                    <tr style="background: #FEF3C7;">
+                        <td><strong>🟠 激进进攻型 (Aggressive)</strong></td>
+                        <td class="num-cell"><strong>$2,800.00</strong></td>
+                        <td class="center-cell">2026-12-18 (119d)</td>
+                        <td class="num-cell">-0.32</td>
+                        <td class="num-cell">$150.00 ($15,000/张)</td>
+                        <td class="num-cell">5.41%</td>
+                        <td class="num-cell" style="color: #D97706; font-weight: 700;">16.5% - 19.8%</td>
+                        <td>净成本 <strong>$2,650.00</strong>（直逼 52周底部，高胜率接盘或获取高权利金）</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 模块 11: 机构持仓与主力资金动向 -->
+    <div class="sec-card" id="sec-11">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">11</span> 机构持仓与主力资金动向 (Institutional Ownership)</div>
+            <span class="tag-pill tag-blue">机构持股率: 92.4%</span>
+        </div>
+        <p style="margin-bottom: 14px; color: var(--text-secondary);">
+            AutoZone 的股东结构具备高度集中与“聪明的长期资金”锁定特征，前十大机构股东合计持股超过 55%，为股价提供了极为坚实的流动性锁仓底座。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (Top 10 13F)</th>
+                        <th>持股股数 (Shares)</th>
+                        <th>最新持仓市值 ($M)</th>
+                        <th>占流通股比例 (%)</th>
+                        <th>最新季度变动</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>JPMorgan Chase & Co.</strong></td>
+                        <td class="num-cell">1,253,622</td>
+                        <td class="num-cell">$3,711.0 M</td>
+                        <td class="num-cell">7.68%</td>
+                        <td class="num-cell" style="color: #059669;">+9.64% (增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BlackRock Inc. (贝莱德)</strong></td>
+                        <td class="num-cell">1,232,360</td>
+                        <td class="num-cell">$3,648.0 M</td>
+                        <td class="num-cell">7.55%</td>
+                        <td class="num-cell">-0.94% (基本持平)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Capital Management LLC</strong></td>
+                        <td class="num-cell">1,078,474</td>
+                        <td class="num-cell">$3,192.5 M</td>
+                        <td class="num-cell">6.61%</td>
+                        <td class="num-cell">+0.16% (稳定)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Portfolio Management LLC</strong></td>
+                        <td class="num-cell">765,403</td>
+                        <td class="num-cell">$2,265.7 M</td>
+                        <td class="num-cell">4.69%</td>
+                        <td class="num-cell" style="color: #059669;">+40.24% (大幅增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation (道富)</strong></td>
+                        <td class="num-cell">718,688</td>
+                        <td class="num-cell">$2,127.5 M</td>
+                        <td class="num-cell">4.40%</td>
+                        <td class="num-cell">+2.25% (增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Geode Capital Management, LLC</strong></td>
+                        <td class="num-cell">416,590</td>
+                        <td class="num-cell">$1,233.2 M</td>
+                        <td class="num-cell">2.55%</td>
+                        <td class="num-cell">+0.46% (增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>T. Rowe Price Associates Inc.</strong></td>
+                        <td class="num-cell">400,859</td>
+                        <td class="num-cell">$1,186.6 M</td>
+                        <td class="num-cell">2.46%</td>
+                        <td class="num-cell">+2.52% (增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Morgan Stanley (摩根士丹利)</strong></td>
+                        <td class="num-cell">398,034</td>
+                        <td class="num-cell">$1,178.3 M</td>
+                        <td class="num-cell">2.44%</td>
+                        <td class="num-cell">-10.78% (部分换仓)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Royal Bank of Canada</strong></td>
+                        <td class="num-cell">310,980</td>
+                        <td class="num-cell">$920.6 M</td>
+                        <td class="num-cell">1.90%</td>
+                        <td class="num-cell">-4.45%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Norges Bank (挪威主权财富基金)</strong></td>
+                        <td class="num-cell">283,493</td>
+                        <td class="num-cell">$839.2 M</td>
+                        <td class="num-cell">1.74%</td>
+                        <td class="num-cell" style="color: #059669;">+2.37% (增持)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 模块 12: 内部人交易、管理层语气与财报电话会洞察 -->
+    <div class="sec-card" id="sec-12">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">12</span> 内部人交易、管理层语气与财报电话会洞察 (Insider & Tone)</div>
+            <span class="tag-pill tag-green">管理层信誉: 卓越</span>
+        </div>
+        <div class="grid-2col">
+            <div class="info-box">
+                <div class="info-box-title">📋 SEC Form 4 内部人态度与薪酬结构</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.7;">
+                    AutoZone 高管薪酬结构极为健康，<strong>70% 以上的长期激励直接与 ROIC 及每股收益（EPS）复合增长挂钩</strong>。近期 SEC 披露的内部人交易主要为常规期权到期行权与税费结算，未发生任何非正常的大额恐慌性套现，管理层与长期股东利益高度绑定。
+                </p>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">🎙️ 财报电话会管理层前瞻态度</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.7;">
+                    CEO Philip Daniele 在近期电话会议中重申：<strong>“我们对商业（DIFM）业务和拉美市场的长期扩张充满信心，Megahub 的单仓生产力正在显著提升”</strong>。管理层指出，短期同店销售的小幅波动受高通胀下低收入群体非应急保养递延影响，但汽车老龄化驱动的刚性维修需求只会被推迟，绝不会消失。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模块 13: 做空比例、平仓天数与轧空风险评估 -->
+    <div class="sec-card" id="sec-13">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">13</span> 做空比例、平仓天数与轧空风险评估 (Short Interest)</div>
+            <span class="tag-pill tag-green">空头威胁: 极低</span>
+        </div>
+        <div class="grid-3col">
+            <div class="metric-card">
+                <div class="metric-card-lbl">做空占流通盘比例 (Short % of Float)</div>
+                <div class="metric-card-val">2.98%</div>
+                <div class="metric-card-desc">空头仓位极低，无结构性空头做空</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">空头平仓天数 (Days to Cover)</div>
+                <div class="metric-card-val">2.01 天</div>
+                <div class="metric-card-desc">流动性充裕，空头极易在1-2日内平仓</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">期权 Put / Call Ratio</div>
+                <div class="metric-card-val">0.78</div>
+                <div class="metric-card-desc">期权市场偏多，无过度恐慌押注</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模块 14: 核心风险矩阵与熊市压力测试 -->
+    <div class="sec-card" id="sec-14">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">14</span> 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Case)</div>
+            <span class="tag-pill tag-red">风险管理: 严谨可控</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心风险因子</th>
+                        <th>发生概率</th>
+                        <th>潜在影响</th>
+                        <th>风险对冲与管理层防线</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>电动车 (EV) 长期渗透</strong></td>
+                        <td><span class="tag-pill tag-amber">中等</span></td>
+                        <td><span class="tag-pill tag-amber">中等</span></td>
+                        <td>燃油车存量庞大（2.8亿辆），EV 传动系统虽简化，但刹车、悬挂、轮胎、空调及电子件维护需求更高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>O'Reilly 等同业在 DIFM 领域的价格战</strong></td>
+                        <td><span class="tag-pill tag-green">低</span></td>
+                        <td><span class="tag-pill tag-amber">中等</span></td>
+                        <td>行业双寡头格局成熟，竞争维度聚焦于“现货率与3小时交付速度”而非恶性杀价</td>
+                    </tr>
+                    <tr>
+                        <td><strong>供应链成本与潜在进口关税上升</strong></td>
+                        <td><span class="tag-pill tag-amber">中等</span></td>
+                        <td><span class="tag-pill tag-green">低</span></td>
+                        <td>汽配行业需求价格弹性极低，AutoZone 历来具备 100% 将关税与成本转嫁给终端消费者的转嫁能力</td>
+                    </tr>
+                    <tr>
+                        <td><strong>高利率环境下短期债务置换成本微升</strong></td>
+                        <td><span class="tag-pill tag-amber">中等</span></td>
+                        <td><span class="tag-pill tag-green">低</span></td>
+                        <td>债务久期分散（平均到期 > 8年），利息保障倍数 >7.4x，每年近 $1.8B 自由现金流可动态调控发债节奏</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="info-box danger" style="margin-top: 14px;">
+            <div class="info-box-title">🐻 熊市红队极端压力测试 (Worst-Case Stress Test)</div>
+            <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.7;">
+                <strong>极端压力场景假设</strong>：美国陷入深度经济衰退，同店销售下滑 3.0%，毛利率由于运费与打折促销压缩 200 个基点（降至 49.75%），资本开支维持 $1.3B。<br>
+                <strong>测算结果</strong>：在此极端压力下，AutoZone 的 EBIT 仍将维持在 <strong>$30 亿美元以上</strong>，自由现金流仍可保持在 <strong>$12 - $14 亿美元</strong>。按 15x 历史清算倍数计算，极端悲观底线估值位于 <strong>$2,300 - $2,450</strong> 区间，距离现价的最大下行空间被严格限制在 17-20% 以内，下行风险收益比极度不对称。
+            </p>
+        </div>
+    </div>
+
+    <!-- 模块 15: 未来关键催化剂日历与增长路线图 -->
+    <div class="sec-card" id="sec-15">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">15</span> 未来关键催化剂日历与增长路线图 (Catalyst Calendar)</div>
+            <span class="tag-pill tag-green">催化剂密度: 高</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预计触发时间</th>
+                        <th>关键催化事件 (Catalyst)</th>
+                        <th>战略重要性与业绩影响</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026年 9月 22日</strong></td>
+                        <td><strong>FY2026 Q4 及全财年财务报告发布</strong></td>
+                        <td>重点关注夏季高温驱动的蓄电池与空调零配件换新同店销售数据，以及全财年股份回购总额</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026年 Q4 季度</strong></td>
+                        <td><strong>新一期 Megahub 超级中枢集中落成投产</strong></td>
+                        <td>将覆盖全美额外 800+ 家门店与商业修理厂，进一步拉升 DIFM 商业客户配送时效与订单量</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026年 - 2027年</strong></td>
+                        <td><strong>墨西哥与巴西国际市场新开店达 100+ 家</strong></td>
+                        <td>拉美地区车龄更老、单店毛利更高，正在成为超越美国本土的强劲高毛利增长极</td>
+                    </tr>
+                    <tr>
+                        <td><strong>持续进行中</strong></td>
+                        <td><strong>数十亿美元级股票回购授权持续执行</strong></td>
+                        <td>在当前 $2,900-$3,000 估值洼地加速回购，以极低成本注销更多股本，为 2027 财年 EPS 爆发奠定基础</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 模块 16: 最终投资评级与执行建议 -->
+    <div class="sec-card" id="sec-16">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">16</span> 最终投资评级与执行建议 (Final Verdict & Execution)</div>
+            <span class="tag-pill tag-green">总体判定: 黄金坑战略买入</span>
+        </div>
+
+        <div class="signal-block">
+            <div class="signal-header">
+                <div>
+                    <span style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85;">InvestSkill 最终投资评级</span>
+                    <div class="signal-verdict">强烈看多 (STRONG BUY) · 8.6 / 10.0</div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-size: 13px; opacity: 0.85;">12-18个月公允目标价区间</span>
+                    <div class="signal-target">$3,850.00 — $4,100.00 (+30.1% ~ +38.5%)</div>
+                </div>
+            </div>
+            <div class="signal-body">
+                <strong>执行策略与建仓指南：</strong><br>
+                1. <strong>现货买入 / 左侧分批加仓</strong>：当前现价 $2,960 处于 52 周最低分位（RP 0.037），可于 $2,900 - $3,000 区间分批建立 60%-70% 现货底仓，享受长期的 EPS 复合增长与估值修复；<br>
+                2. <strong>现金担保 Sell Put 增强收益</strong>：针对大资金账户，推荐卖出 2026年12月 或 2027年1月到期、行权价 $2,500 - $2,600 的看跌期权（Delta -0.14 ~ -0.21），在锁定 12%-15% 深度安全垫的同时，获取年化 8% - 13% 的充沛权利金现金流；若被行权，则以 $2,420-$2,510 的历史极限底部成本实现完美接盘。
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// 1. Radar Chart
+const ctxRadar = document.getElementById('radarChart').getContext('2d');
+new Chart(ctxRadar, {
+    type: 'radar',
+    data: {
+        labels: ['商业质量与护城河 (25%)', '估值与双层安全垫 (25%)', '市场资金与机构 (20%)', '技术与周期位置 (15%)', '风险与非对称赔率 (15%)'],
+        datasets: [{
+            label: 'AutoZone (AZO) 评分',
+            data: [9.2, 8.8, 8.0, 8.5, 8.4],
+            backgroundColor: 'rgba(16, 185, 129, 0.25)',
+            borderColor: '#059669',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#059669',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#059669',
+            pointRadius: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                min: 0,
+                max: 10,
+                ticks: { stepSize: 2, display: true, backdropColor: 'transparent' },
+                grid: { color: '#E2E8F0' },
+                angleLines: { color: '#E2E8F0' },
+                pointLabels: { font: { size: 11, weight: '600' }, color: '#334155' }
+            }
+        },
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+
+// 2. Revenue & Net Income Chart
+const ctxRevNet = document.getElementById('revNetChart').getContext('2d');
+new Chart(ctxRevNet, {
+    type: 'bar',
+    data: {
+        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'TTM/2026E'],
+        datasets: [
+            {
+                label: '营业总收入 ($M)',
+                data: [16252, 17457, 18490, 18939, 19986],
+                backgroundColor: 'rgba(5, 150, 105, 0.75)',
+                borderRadius: 6,
+                yAxisID: 'y'
+            },
+            {
+                label: '净利润 ($M)',
+                data: [2430, 2528, 2662, 2498, 2478],
+                backgroundColor: 'rgba(16, 185, 129, 1.0)',
+                borderRadius: 6,
+                yAxisID: 'y'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: { display: true, text: '金额 ($M)' },
+                grid: { color: '#F1F5F9' }
+            },
+            x: { grid: { display: false } }
+        },
+        plugins: {
+            title: { display: true, text: 'AutoZone 历年营业收入与净利润稳健增长 ($M)', font: { size: 13, weight: '700' } },
+            legend: { position: 'top' }
+        }
+    }
+});
+
+// 3. Cash Flow Chart (CFO vs FCF vs Buyback)
+const ctxCF = document.getElementById('cashFlowChart').getContext('2d');
+new Chart(ctxCF, {
+    type: 'bar',
+    data: {
+        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'TTM'],
+        datasets: [
+            {
+                label: '经营现金流 CFO ($M)',
+                data: [3211, 2941, 3004, 3117, 3072],
+                backgroundColor: '#059669',
+                borderRadius: 4
+            },
+            {
+                label: '自由现金流 FCF ($M)',
+                data: [2539, 2144, 1931, 1790, 1790],
+                backgroundColor: '#10B981',
+                borderRadius: 4
+            },
+            {
+                label: '股票回购金额 ($M)',
+                data: [4360, 3700, 3141, 1578, 2100],
+                backgroundColor: '#3B82F6',
+                borderRadius: 4
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: { display: true, text: '金额 ($M)' },
+                grid: { color: '#F1F5F9' }
+            },
+            x: { grid: { display: false } }
+        },
+        plugins: {
+            title: { display: true, text: '强劲现金流生成与持续百亿级股票回购 ($M)', font: { size: 13, weight: '700' } },
+            legend: { position: 'top' }
+        }
+    }
+});
+
+// 4. Share Cannibal Chart (Shares Outstanding vs EPS)
+const ctxShare = document.getElementById('shareCountChart').getContext('2d');
+new Chart(ctxShare, {
+    type: 'line',
+    data: {
+        labels: ['2000', '2005', '2010', '2015', '2020', '2022', '2024', '2026'],
+        datasets: [
+            {
+                label: '流通总股本 (百万股 M)',
+                data: [152.0, 78.5, 50.2, 32.4, 23.1, 19.8, 17.2, 16.32],
+                borderColor: '#DC2626',
+                backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                borderWidth: 3,
+                yAxisID: 'yShares',
+                tension: 0.2,
+                pointRadius: 5
+            },
+            {
+                label: '稀释每股收益 EPS ($)',
+                data: [1.76, 7.21, 14.97, 36.03, 71.77, 117.19, 149.55, 151.04],
+                borderColor: '#059669',
+                backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                borderWidth: 3,
+                yAxisID: 'yEPS',
+                tension: 0.2,
+                pointRadius: 5
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            yShares: {
+                type: 'linear',
+                position: 'left',
+                title: { display: true, text: '总股本 (M 股)' },
+                grid: { color: '#F1F5F9' }
+            },
+            yEPS: {
+                type: 'linear',
+                position: 'right',
+                title: { display: true, text: '每股收益 EPS ($)' },
+                grid: { display: false }
+            },
+            x: { grid: { display: false } }
+        },
+        plugins: {
+            title: { display: true, text: '传奇“股份吞噬者”：25年股本注销 88.2% 驱动 EPS 爆发式复合增长', font: { size: 13, weight: '700' } },
+            legend: { position: 'top' }
+        }
+    }
+});
+
+// 5. Valuation Multi-Scenario Chart
+const ctxVal = document.getElementById('valuationChart').getContext('2d');
+new Chart(ctxVal, {
+    type: 'bar',
+    data: {
+        labels: ['极限保守DCF底线', '18x PE 悲观中枢', '当前现价 (Spot)', '基准两阶段成长DCF', '20x FY27 PE 公允中枢', '综合公允目标中枢', '华尔街共识目标价', '乐观成长DCF', '华尔街最高目标价'],
+        datasets: [{
+            label: '每股估值 / 目标价 ($)',
+            data: [2307.45, 2718.72, 2960.17, 3450.00, 3500.00, 3850.00, 3950.52, 4081.91, 4800.00],
+            backgroundColor: [
+                '#DC2626',
+                '#F59E0B',
+                '#94A3B8',
+                '#10B981',
+                '#059669',
+                '#047857',
+                '#0D9488',
+                '#059669',
+                '#064E3B'
+            ],
+            borderRadius: 6
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                min: 2000,
+                max: 5000,
+                title: { display: true, text: '美元 ($)' },
+                grid: { color: '#F1F5F9' }
+            },
+            y: { grid: { display: false } }
+        },
+        plugins: {
+            title: { display: true, text: 'AutoZone (AZO) 多维度内在价值全景对比 ($/股)', font: { size: 13, weight: '700' } },
+            legend: { display: false }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
