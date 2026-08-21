@@ -95,7 +95,7 @@ def fetch_chart_df(symbol, range_str='1y'):
 
 
 DTE_MIN = 15
-DTE_MAX = 60
+DTE_MAX = 100
 
 GLOBAL_FUNDAMENTAL_CACHE = {}
 
@@ -606,20 +606,13 @@ def main():
             if _is_monthly_exp(exp_date)
         ]
 
-        # If earnings are scheduled within 30 days, smart buffer defense:
-        # Prioritize expirations that have at least 14 days post-earnings buffer (DTE >= dte_earnings + 14)
-        if dte_earnings is not None and 0 <= dte_earnings <= 30:
-            min_buf_dte = max(DTE_MIN, dte_earnings + 14)
-            buffered_exps = [x for x in valid_exp_dates if x[2] >= min_buf_dte]
-            if buffered_exps:
-                target_exp_dates = [x for x in buffered_exps if x in monthly_exp_dates] + [x for x in buffered_exps if x not in monthly_exp_dates]
-            else:
-                target_exp_dates = monthly_exp_dates if monthly_exp_dates else valid_exp_dates
-        else:
-            target_exp_dates = monthly_exp_dates if monthly_exp_dates else valid_exp_dates
+        # Prioritize standard monthly expirations first, followed by non-monthly (weekly) expirations
+        target_exp_dates = monthly_exp_dates + [x for x in valid_exp_dates if x not in monthly_exp_dates]
 
         ticker_options = []
         for exp_str, exp_date, dte in target_exp_dates:
+            is_monthly = _is_monthly_exp(exp_date)
+
             # Earnings-DTE Smart Buffer defense rules
             is_earnings_crosser = False
             if dte_earnings is not None and 0 <= dte_earnings <= 30:
@@ -655,42 +648,94 @@ def main():
                 abs_spread = ask - bid
                 is_low_dollar_tight = (abs_spread <= 0.15 and mark <= 0.60)
 
-                # Refined 4-Tier Smooth Liquidity Model (Conservative Pricing + Non-Punitive Spread Handling)
-                # Tier 1 (🟢 极佳流动性): Spread <= 20% & OI >= 50 -> 100% Mark price, 0 penalty
-                # Tier 2 (🟡 标准流动性): (Spread <= 35% or is_low_dollar_tight) & OI >= 20 -> Conservative min(Mark, Bid*1.15), 0 penalty
-                # Tier 3 (🟠 中度点差): (Spread <= 50% or abs_spread <= 0.25) & OI >= 10 -> Conservative min(Mark, Bid*1.10), 0 penalty (price already discounted, limit order recommended)
-                # Tier 4 (🔴 宽幅点差): Spread > 50% or OI < 10 (with Bid > 0) -> Conservative min(Mark, Bid*1.05), modest -4.0 pt penalty
-                # Tier 5 (⛔ 零买盘): Bid <= 0 -> 0 price, -15.0 pt penalty
-                if (spread_ratio <= 0.20 and oi >= 50) or (abs_spread <= 0.10 and mark <= 0.60):
-                    liq_tier = 1
-                    liq_penalty = 0.0
-                    passed_gatekeeper = True
-                    liq_warning = ""
-                    exec_price = mark
-                elif (spread_ratio <= 0.35 or is_low_dollar_tight) and (oi >= 20):
-                    liq_tier = 2
-                    liq_penalty = 0.0
-                    passed_gatekeeper = True
-                    liq_warning = ""
-                    exec_price = min(mark, bid * 1.15) if spread_ratio > 0.15 and bid > 0 else mark
-                elif (spread_ratio <= 0.50 or (abs_spread <= 0.25 and mark <= 0.80)) and (oi >= 10):
-                    liq_tier = 3
-                    liq_penalty = 0.0
-                    passed_gatekeeper = True
-                    liq_warning = "中度点差 (建议限价单)"
-                    exec_price = min(mark, bid * 1.10) if bid > 0 else mark
-                elif bid > 0:
-                    liq_tier = 4
-                    liq_penalty = 4.0
-                    passed_gatekeeper = False
-                    liq_warning = "宽点差 (建议限价单)"
-                    exec_price = min(mark, bid * 1.05) if bid > 0 else mark
+                # Adaptive Dual-Tier Liquidity Gatekeeper:
+                # - Monthly (标准月度): Standard 4-tier model (OI >= 20, Spread <= 35%)
+                # - Non-Monthly / Weekly (周度期权): Strict liquidity gatekeeper (Zero bid banned, Near-month OI >= 50, Next-month OI >= 100)
+                if is_monthly:
+                    if (spread_ratio <= 0.20 and oi >= 50) or (abs_spread <= 0.10 and mark <= 0.60):
+                        liq_tier = 1
+                        liq_penalty = 0.0
+                        passed_gatekeeper = True
+                        liq_warning = ""
+                        exec_price = mark
+                    elif (spread_ratio <= 0.35 or is_low_dollar_tight) and (oi >= 20):
+                        liq_tier = 2
+                        liq_penalty = 0.0
+                        passed_gatekeeper = True
+                        liq_warning = ""
+                        exec_price = min(mark, bid * 1.15) if spread_ratio > 0.15 and bid > 0 else mark
+                    elif (spread_ratio <= 0.50 or (abs_spread <= 0.25 and mark <= 0.80)) and (oi >= 10):
+                        liq_tier = 3
+                        liq_penalty = 0.0
+                        passed_gatekeeper = True
+                        liq_warning = "中度点差 (建议限价单)"
+                        exec_price = min(mark, bid * 1.10) if bid > 0 else mark
+                    elif bid > 0:
+                        liq_tier = 4
+                        liq_penalty = 4.0
+                        passed_gatekeeper = False
+                        liq_warning = "宽点差 (建议限价单)"
+                        exec_price = min(mark, bid * 1.05) if bid > 0 else mark
+                    else:
+                        liq_tier = 5
+                        liq_penalty = 15.0
+                        passed_gatekeeper = False
+                        liq_warning = "零买盘匮乏"
+                        exec_price = 0.0
                 else:
-                    liq_tier = 5
-                    liq_penalty = 15.0
-                    passed_gatekeeper = False
-                    liq_warning = "零买盘匮乏"
-                    exec_price = 0.0
+                    # Weekly / Non-Monthly
+                    if bid <= 0.0:
+                        liq_tier = 5
+                        liq_penalty = 25.0
+                        passed_gatekeeper = False
+                        liq_warning = "周度零买盘 (严禁推荐)"
+                        exec_price = 0.0
+                    elif dte <= 40:
+                        # Near-Month Weekly (近月周度)
+                        if (spread_ratio <= 0.15 and oi >= 80) or (abs_spread <= 0.08 and mark <= 0.60):
+                            liq_tier = 1
+                            liq_penalty = 0.0
+                            passed_gatekeeper = True
+                            liq_warning = ""
+                            exec_price = mark
+                        elif (spread_ratio <= 0.20 or (abs_spread <= 0.10 and mark <= 0.60)) and (oi >= 50):
+                            liq_tier = 2
+                            liq_penalty = 0.0
+                            passed_gatekeeper = True
+                            liq_warning = ""
+                            exec_price = min(mark, bid * 1.12) if spread_ratio > 0.15 and bid > 0 else mark
+                        elif (spread_ratio <= 0.35 and oi >= 30):
+                            liq_tier = 3
+                            liq_penalty = 8.0
+                            passed_gatekeeper = False
+                            liq_warning = "周度点差偏宽 (流动性不足)"
+                            exec_price = min(mark, bid * 1.05) if bid > 0 else mark
+                        else:
+                            liq_tier = 4
+                            liq_penalty = 18.0
+                            passed_gatekeeper = False
+                            liq_warning = "周度流动性匮乏"
+                            exec_price = min(mark, bid * 1.05) if bid > 0 else mark
+                    else:
+                        # Next-Month Defense Weekly (次月周度 DTE > 40) - Extremely strict!
+                        if (spread_ratio <= 0.12 and oi >= 120):
+                            liq_tier = 1
+                            liq_penalty = 0.0
+                            passed_gatekeeper = True
+                            liq_warning = ""
+                            exec_price = mark
+                        elif (spread_ratio <= 0.15 and oi >= 100):
+                            liq_tier = 2
+                            liq_penalty = 0.0
+                            passed_gatekeeper = True
+                            liq_warning = ""
+                            exec_price = min(mark, bid * 1.10) if spread_ratio > 0.10 and bid > 0 else mark
+                        else:
+                            liq_tier = 4
+                            liq_penalty = 22.0
+                            passed_gatekeeper = False
+                            liq_warning = "次月周度流动性匮乏 (极力避免)"
+                            exec_price = min(mark, bid * 1.05) if bid > 0 else mark
                 
                 t_years = dte / 365.0
                 raw_delta = put.get('delta')
@@ -736,21 +781,21 @@ def main():
                     elif 0.13 <= abs_delta <= 0.15:
                         risk_profile = "激进"
                 elif macro_circuit_breaker or is_earnings_crosser:
-                    if 0.10 <= abs_delta < 0.14:
+                    if 0.08 <= abs_delta < 0.14:
                         risk_profile = "保守"
                     elif 0.14 <= abs_delta < 0.17:
                         risk_profile = "平衡"
                     elif 0.17 <= abs_delta <= 0.20:
                         risk_profile = "激进"
                 elif is_low_position:
-                    if 0.10 <= abs_delta < 0.20:
+                    if 0.08 <= abs_delta < 0.20:
                         risk_profile = "保守"
                     elif 0.20 <= abs_delta < 0.30:
                         risk_profile = "平衡"
                     elif 0.30 <= abs_delta <= 0.40:
                         risk_profile = "激进"
                 else:
-                    if 0.10 <= abs_delta < 0.17:
+                    if 0.08 <= abs_delta < 0.17:
                         risk_profile = "保守"
                     elif 0.17 <= abs_delta < 0.24:
                         risk_profile = "平衡"
@@ -843,6 +888,7 @@ def main():
                     fcf_margin=ticker_market_data[display_ticker].get('fcf_margin'),
                     return_30d=ticker_market_data[display_ticker].get('return_30d'),
                     is_wash_sale_risk=(display_ticker in wash_sale_history_map),
+                    is_monthly=is_monthly,
                 )
                     
                 opt_info = {
@@ -889,53 +935,100 @@ def main():
                     'is_heavy_debt': is_heavy_debt,
                     'f_score': f_score,
                     'is_high_qual': is_etf_symbol(display_ticker) or (f_score is not None and f_score >= 7) or (insider_sent == 'net_buying'),
+                    'is_monthly': is_monthly,
                 }
                 ticker_options.append(opt_info)
                 
-        by_profile = {"保守": [], "平衡": [], "激进": []}
-        for opt in ticker_options:
-            prof = opt['risk_profile']
-            if prof in by_profile:
-                by_profile[prof].append(opt)
-                
+        # Dual-Horizon Candidate Selection: Separate into Month 1 (DTE <= 40) and Month 2 (DTE > 40)
+        m1_opts = [opt for opt in ticker_options if opt['dte'] <= 40]
+        m2_opts = [opt for opt in ticker_options if opt['dte'] > 40]
+
         selected_ticker_options = []
-        for prof in ["保守", "平衡", "激进"]:
-            opts_in_prof = by_profile[prof]
-            if not opts_in_prof:
+        for horizon_opts in [m1_opts, m2_opts]:
+            if not horizon_opts:
                 continue
-            passed = [o for o in opts_in_prof if o['passed_gatekeeper']]
-            failed = [o for o in opts_in_prof if not o['passed_gatekeeper']]
-            if passed:
-                passed.sort(key=lambda x: x['total_score'], reverse=True)
-                selected_ticker_options.append(passed[0])
-            elif failed:
-                # Rank failed options by lowest penalty tier, then tightest spread, then highest score
-                failed.sort(key=lambda x: (x.get('liq_penalty', 15.0), x['spread_ratio'], -x['total_score']))
-                fallback_opt = failed[0]
-                pen = fallback_opt.get('liq_penalty', 5.0)
-                fallback_opt['warning'] = (pen > 0)
-                fallback_opt['total_score'] = max(0.0, fallback_opt['total_score'] - pen)
-                selected_ticker_options.append(fallback_opt)
+            by_profile = {"保守": [], "平衡": [], "激进": []}
+            for opt in horizon_opts:
+                prof = opt['risk_profile']
+                if prof in by_profile:
+                    by_profile[prof].append(opt)
+
+            for prof in ["保守", "平衡", "激进"]:
+                opts_in_prof = by_profile[prof]
+                if not opts_in_prof:
+                    continue
+                passed = [o for o in opts_in_prof if o['passed_gatekeeper']]
+                failed = [o for o in opts_in_prof if not o['passed_gatekeeper']]
+                if passed:
+                    passed_monthly = [o for o in passed if o.get('is_monthly', False)]
+                    passed_weekly = [o for o in passed if not o.get('is_monthly', False)]
+
+                    if passed_monthly and not passed_weekly:
+                        passed_monthly.sort(key=lambda x: x['total_score'], reverse=True)
+                        selected_ticker_options.append(passed_monthly[0])
+                    elif passed_weekly and not passed_monthly:
+                        passed_weekly.sort(key=lambda x: x['total_score'], reverse=True)
+                        selected_ticker_options.append(passed_weekly[0])
+                    else:
+                        # Tournament Selection: Monthly preferred by default unless weekly has a significant structural or score advantage
+                        best_m = max(passed_monthly, key=lambda x: x['total_score'])
+                        best_w = max(passed_weekly, key=lambda x: x['total_score'])
+                        # Super-superiority override: Weekly must beat monthly by >= 2.5 pts, or solve an earnings crosser
+                        if (best_w['total_score'] >= best_m['total_score'] + 2.5) or (best_m.get('is_earnings_crosser') and not best_w.get('is_earnings_crosser')):
+                            selected_ticker_options.append(best_w)
+                        else:
+                            selected_ticker_options.append(best_m)
+                elif failed:
+                    # Prefer failed monthly over failed weekly
+                    failed_m = [o for o in failed if o.get('is_monthly', False)]
+                    failed_w = [o for o in failed if not o.get('is_monthly', False)]
+                    candidate_failed = failed_m if failed_m else failed_w
+                    candidate_failed.sort(key=lambda x: (x.get('liq_penalty', 15.0), x['spread_ratio'], -x['total_score']))
+                    fallback_opt = candidate_failed[0]
+                    pen = fallback_opt.get('liq_penalty', 5.0)
+                    fallback_opt['warning'] = (pen > 0)
+                    fallback_opt['total_score'] = max(0.0, fallback_opt['total_score'] - pen)
+                    selected_ticker_options.append(fallback_opt)
+
         all_options.extend(selected_ticker_options)
-        
+
     all_options.sort(key=lambda x: x['total_score'], reverse=True)
-    
+
     unique_tickers = []
     for opt in all_options:
         t = opt['ticker']
         if t in low_position_tickers and t not in unique_tickers:
             unique_tickers.append(t)
-            
+
+    # Compute Month 1 score, Month 2 score, and composite average score for each ticker
     ticker_balanced_score = {}
+    ticker_m1_score = {}
+    ticker_m2_score = {}
+
     for t in unique_tickers:
         t_opts = [opt for opt in all_options if opt['ticker'] == t]
-        bal_opts = [opt for opt in t_opts if opt.get('risk_profile') == '平衡']
-        if bal_opts:
-            best_opt = max(bal_opts, key=lambda x: x['total_score'])
-            ticker_balanced_score[t] = best_opt['total_score']
-        elif t_opts:
-            best_opt = max(t_opts, key=lambda x: x['total_score'])
-            ticker_balanced_score[t] = best_opt['total_score']
+        t_m1 = [opt for opt in t_opts if opt['dte'] <= 40]
+        t_m2 = [opt for opt in t_opts if opt['dte'] > 40]
+
+        # Scheme 1: Dual-Horizon Adaptive Max-Opportunity Scoring
+        # Automatically pick the highest opportunity passed contract in each horizon
+        p_m1 = [opt for opt in t_m1 if opt.get('passed_gatekeeper', False)]
+        s_m1 = max(p_m1, key=lambda x: x['total_score'])['total_score'] if p_m1 else (max(t_m1, key=lambda x: x['total_score'])['total_score'] if t_m1 else None)
+
+        p_m2 = [opt for opt in t_m2 if opt.get('passed_gatekeeper', False)]
+        s_m2 = max(p_m2, key=lambda x: x['total_score'])['total_score'] if p_m2 else (max(t_m2, key=lambda x: x['total_score'])['total_score'] if t_m2 else None)
+
+        ticker_m1_score[t] = s_m1
+        ticker_m2_score[t] = s_m2
+
+        if s_m1 is not None and s_m2 is not None:
+            # Both Month 1 and Month 2 available: 50/50 Dual-Horizon Average
+            ticker_balanced_score[t] = (s_m1 + s_m2) / 2.0
+        elif s_m1 is not None:
+            # Single horizon available (e.g. Cycle 3 stocks with no CBOE listing in next 100 days): 100% Month 1 score
+            ticker_balanced_score[t] = s_m1
+        elif s_m2 is not None:
+            ticker_balanced_score[t] = s_m2
         else:
             ticker_balanced_score[t] = -999.0
 
@@ -1616,19 +1709,24 @@ def main():
         "激进": "<span style='padding: 2px 6px; border-radius: 4px; background-color: #78350f; color: #fcd34d; font-size: 11px; font-weight: 600;'>激进</span>"
     }
 
-    # Generate Candidate Watchlist Table (Grouped by Ticker & Valuation Monitor)
-    tv_formatted_tickers = [format_tradingview_ticker(t) for t in ordered_watchlist]
+    # Generate Candidate Watchlist Table (Grouped by Ticker & Valuation Monitor - Top 100 Truncated with Active Positions Guaranteed)
+    display_watchlist = list(ordered_watchlist[:100])
+    for pt in current_position_tickers:
+        if pt in ordered_watchlist and pt not in display_watchlist:
+            display_watchlist.append(pt)
+            
+    tv_formatted_tickers = [format_tradingview_ticker(t) for t in display_watchlist]
     tv_copy_str = ", ".join(tv_formatted_tickers)
-    tv_plain_copy_str = ", ".join([to_rh_symbol(t) for t in ordered_watchlist])
+    tv_plain_copy_str = ", ".join([to_rh_symbol(t) for t in display_watchlist])
     
     tv_card_html = f"""
     <div style="margin-bottom: 16px; padding: 16px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
         <span style="font-size: 14px; font-weight: 600; color: #60a5fa; display: flex; align-items: center; gap: 8px;">
-          <span>📈</span> TradingView 一键复制自选股 (Watchlist Sync String)
+          <span>📈</span> TradingView 一键复制自选股 (Top 100 精选 · Watchlist Sync String)
         </span>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button onclick="navigator.clipboard.writeText('{tv_plain_copy_str}'); alert('✅ 纯代码文本已复制！直接在 TradingView 粘贴即可 100% 自动识别，零前缀错误！');" style="background: rgba(52, 211, 153, 0.2); border: 1px solid rgba(52, 211, 153, 0.5); color: #34d399; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+          <button onclick="navigator.clipboard.writeText('{tv_plain_copy_str}'); alert('✅ Top 100 纯代码文本已复制！直接在 TradingView 粘贴即可 100% 自动识别，零前缀错误！');" style="background: rgba(52, 211, 153, 0.2); border: 1px solid rgba(52, 211, 153, 0.5); color: #34d399; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
             📋 一键复制纯代码 (推荐·零前缀错误)
           </button>
           <button onclick="navigator.clipboard.writeText('{tv_copy_str}'); alert('TradingView 带交易所前缀文本已复制！');" style="background: rgba(96, 165, 250, 0.15); border: 1px solid rgba(96, 165, 250, 0.4); color: #60a5fa; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
@@ -1661,17 +1759,18 @@ def main():
       <table style="border-collapse: collapse; width: 100%; text-align: left; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #f4f4f5;">
         <thead style="background-color: #18181b; color: #ffffff; border-bottom: 2px solid #27272a;">
           <tr>
-            <th style="padding: 12px 14px; font-weight: 600; text-align: center; width: 45px; white-space: nowrap;">排名</th>
-            <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">标的名称</th>
-            <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">当前股价</th>
-            <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">下次财报日</th>
-            <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">财务健康度</th>
-            <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">52周区间与位置 (RP)</th>
-            <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">200日均线偏离度</th>
-            <th style="padding: 12px 14px; font-weight: 600; white-space: nowrap;">首选行权价 (平衡型)</th>
-            <th style="padding: 12px 14px; font-weight: 600; text-align: center; white-space: nowrap;" title="252日真实历史隐含波动率百分位 (IVP)">IVP</th>
-            <th style="padding: 12px 14px; font-weight: 600; text-align: center; white-space: nowrap;">InvestSkill 研报信号</th>
-            <th style="padding: 12px 14px; font-weight: 600; text-align: center; white-space: nowrap;" title="三支柱多因子打分: 估值底 (40%) / 接股安全 (30%) / 期权Alpha (30%)">期权评分 (平衡型)<br><span style="font-size: 10px; font-weight: normal; color: #a1a1aa;">(估值 / 安全 / Alpha)</span></th>
+            <th style="padding: 12px 8px; font-weight: 600; text-align: center; width: 45px; min-width: 45px; white-space: nowrap;">排名</th>
+            <th style="padding: 12px 14px; font-weight: 600; min-width: 320px; width: 340px;">标的名称与业务定位</th>
+            <th style="padding: 12px 10px; font-weight: 600; min-width: 75px; white-space: nowrap;">当前股价</th>
+            <th style="padding: 12px 10px; font-weight: 600; min-width: 90px; white-space: nowrap;">下次财报日</th>
+            <th style="padding: 12px 10px; font-weight: 600; min-width: 95px; white-space: nowrap;">财务健康度</th>
+            <th style="padding: 12px 10px; font-weight: 600; min-width: 105px; white-space: nowrap;">52周位置 (RP)</th>
+            <th style="padding: 12px 10px; font-weight: 600; min-width: 95px; white-space: nowrap;">200日均线偏离</th>
+            <th style="padding: 12px 12px; font-weight: 600; text-align: center; min-width: 135px; white-space: nowrap; background: rgba(16, 185, 129, 0.08); border-left: 1px solid rgba(16, 185, 129, 0.3); border-right: 1px solid rgba(16, 185, 129, 0.3);">🟢 近月主力档<br><span style="font-size: 10px; font-weight: normal; color: #34d399;">(DTE 25~40天 · 高Theta)</span></th>
+            <th style="padding: 12px 12px; font-weight: 600; text-align: center; min-width: 135px; white-space: nowrap; background: rgba(14, 165, 233, 0.08); border-right: 1px solid rgba(14, 165, 233, 0.3);">🔵 次月防御档<br><span style="font-size: 10px; font-weight: normal; color: #38bdf8;">(DTE 45~75天 · 深安全垫)</span></th>
+            <th style="padding: 12px 8px; font-weight: 600; text-align: center; min-width: 55px; white-space: nowrap;" title="252日真实历史隐含波动率百分位 (IVP)">IVP</th>
+            <th style="padding: 12px 10px; font-weight: 600; text-align: center; min-width: 95px; white-space: nowrap;">InvestSkill 研报</th>
+            <th style="padding: 12px 10px; font-weight: 600; text-align: center; min-width: 110px; white-space: nowrap;" title="双周期综合均分: (近月分 + 次月分)/2">综合均分 (平衡型)<br><span style="font-size: 10px; font-weight: normal; color: #a1a1aa;">(近月 / 次月)</span></th>
           </tr>
         </thead>
         <tbody>"""
@@ -1704,7 +1803,7 @@ def main():
     else:
         print(f"✅ [InvestSkill Status] 100% 个股标的均具备 7 天以内的最新深度研报 ({len(report_stock_tickers)} 只个股已全量覆盖)")
 
-    for idx, t in enumerate(ordered_watchlist):
+    for idx, t in enumerate(display_watchlist):
         bg_c = "#09090b" if idx % 2 == 0 else "#18181b"
         mdata = ticker_market_data.get(t, {})
         tinfo = ticker_info_map.get(t, {})
@@ -1787,29 +1886,94 @@ def main():
             disc_cell = "<span style='color: #a1a1aa;'>N/A</span>"
             
         t_opts = [o for o in all_options if o['ticker'] == t]
-        bal_opts = [o for o in t_opts if o.get('risk_profile') == '平衡']
-        if bal_opts:
-            best_opt = max(bal_opts, key=lambda x: x['total_score'])
-        else:
-            best_opt = max(t_opts, key=lambda x: x['total_score']) if t_opts else None
-        if best_opt:
-            b_strike = best_opt['strike']
-            b_score = best_opt['total_score']
-            cushion = (b_strike - curr_p) / curr_p * 100.0 if curr_p > 0 else 0.0
-            cush_color = "#34d399" if cushion <= -5.0 else "#fbbf24"
-            
-            if t == 'IBIT' and btc_price:
-                b_strike_btc = b_strike * (btc_price / curr_p) if curr_p > 0 else 0
-                strike_cell = f"<strong style='color: #ffffff; font-size: 14px;'>${b_strike:.2f}</strong> <span style='font-size: 10px; color: #a1a1aa;'>(BTC ${b_strike_btc:,.0f})</span><br><span style='color: {cush_color}; font-size: 11px; font-weight: 600;'>接股缓冲: {cushion:+.1f}%</span>"
+        t_m1 = [o for o in t_opts if o['dte'] <= 40]
+        t_m2 = [o for o in t_opts if o['dte'] > 40]
+
+        # Scheme 1: Pick the highest opportunity passed contract for each horizon
+        p_m1 = [o for o in t_m1 if o.get('passed_gatekeeper', False)]
+        best_m1 = max(p_m1, key=lambda x: x['total_score'], default=None) if p_m1 else (max(t_m1, key=lambda x: x['total_score'], default=None) if t_m1 else None)
+
+        p_m2 = [o for o in t_m2 if o.get('passed_gatekeeper', False)]
+        best_m2 = max(p_m2, key=lambda x: x['total_score'], default=None) if p_m2 else (max(t_m2, key=lambda x: x['total_score'], default=None) if t_m2 else None)
+
+        best_opt = best_m1 or best_m2 or (t_opts[0] if t_opts else None)
+        comp_score = ticker_balanced_score.get(t, 80.0)
+        s_m1_val = ticker_m1_score.get(t)
+        s_m2_val = ticker_m2_score.get(t)
+
+        if best_m1:
+            k1 = best_m1['strike']
+            cush1 = (k1 - curr_p) / curr_p * 100.0 if curr_p > 0 else 0.0
+            cush1_col = "#34d399" if cush1 <= -5.0 else "#fbbf24"
+            exp1 = best_m1['expiration']
+            apy1 = best_m1['annualized_yield']
+            delta1 = best_m1['delta']
+            is_m1_monthly = best_m1.get('is_monthly', True)
+            if is_m1_monthly:
+                w_tag1 = ""
             else:
-                strike_cell = f"<strong style='color: #ffffff; font-size: 14px;'>${b_strike:.2f}</strong><br><span style='color: {cush_color}; font-size: 11px; font-weight: 600;'>接股缓冲: {cushion:+.1f}%</span>"
-            score_s = "color: #4ade80; font-weight: bold;" if b_score >= 80 else "color: #e4e4e7; font-weight: bold;"
+                m1_oi = best_m1.get('open_interest', 0)
+                m1_spr = best_m1.get('spread_ratio', 0.0) * 100.0
+                w_tag1 = f"<span style='font-size: 9.5px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 3px; padding: 0 3px; margin-left: 2px;' title='周度优质流动性 (OI: {m1_oi}, 价差: {m1_spr:.1f}%)'>周</span>"
+            btc1_str = f"<br><span style='font-size: 9.5px; color: #a1a1aa;'>(BTC ${(k1 * (btc_price / curr_p)):,.0f})</span>" if (t == 'IBIT' and btc_price and curr_p > 0) else ""
+            m1_cell = (
+                f"<div style='text-align: center;'>"
+                f"<strong style='color: #ffffff; font-size: 13.5px;'>${k1:.2f}</strong>{btc1_str}"
+                f"<div style='font-size: 11px; margin-top: 2px;'>"
+                f"<span style='color: #34d399; font-weight: 600;'>{exp1[5:]} ({best_m1['dte']}D){w_tag1}</span> "
+                f"<span style='color: {cush1_col}; font-weight: 600;'>垫 {cush1:+.1f}%</span>"
+                f"</div>"
+                f"<div style='font-size: 11px; color: #e4e4e7; margin-top: 2px;'>"
+                f"<span style='color: #a1a1aa;'>Δ {delta1:.2f}</span> | <strong style='color: #34d399;'>{apy1:.1f}% APY</strong>"
+                f"</div>"
+                f"</div>"
+            )
+        else:
+            m1_cell = "<div style='text-align: center; color: #71717a; font-size: 11px;'>--</div>"
+
+        if best_m2:
+            k2 = best_m2['strike']
+            cush2 = (k2 - curr_p) / curr_p * 100.0 if curr_p > 0 else 0.0
+            cush2_col = "#34d399" if cush2 <= -5.0 else "#fbbf24"
+            exp2 = best_m2['expiration']
+            apy2 = best_m2['annualized_yield']
+            delta2 = best_m2['delta']
+            is_m2_monthly = best_m2.get('is_monthly', True)
+            if is_m2_monthly:
+                w_tag2 = ""
+            else:
+                m2_oi = best_m2.get('open_interest', 0)
+                m2_spr = best_m2.get('spread_ratio', 0.0) * 100.0
+                w_tag2 = f"<span style='font-size: 9.5px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 3px; padding: 0 3px; margin-left: 2px;' title='次月周度高流动性 (OI: {m2_oi}, 价差: {m2_spr:.1f}%)'>周</span>"
+            btc2_str = f"<br><span style='font-size: 9.5px; color: #a1a1aa;'>(BTC ${(k2 * (btc_price / curr_p)):,.0f})</span>" if (t == 'IBIT' and btc_price and curr_p > 0) else ""
+            m2_cell = (
+                f"<div style='text-align: center;'>"
+                f"<strong style='color: #ffffff; font-size: 13.5px;'>${k2:.2f}</strong>{btc2_str}"
+                f"<div style='font-size: 11px; margin-top: 2px;'>"
+                f"<span style='color: #38bdf8; font-weight: 600;'>{exp2[5:]} ({best_m2['dte']}D){w_tag2}</span> "
+                f"<span style='color: {cush2_col}; font-weight: 600;'>垫 {cush2:+.1f}%</span>"
+                f"</div>"
+                f"<div style='font-size: 11px; color: #e4e4e7; margin-top: 2px;'>"
+                f"<span style='color: #a1a1aa;'>Δ {delta2:.2f}</span> | <strong style='color: #38bdf8;'>{apy2:.1f}% APY</strong>"
+                f"</div>"
+                f"</div>"
+            )
+        else:
+            m2_cell = "<div style='text-align: center; color: #71717a; font-size: 11px;'>--</div>"
+
+        score_s = "color: #4ade80; font-weight: bold;" if comp_score >= 80 else "color: #e4e4e7; font-weight: bold;"
+
+        m1_str = f"近{s_m1_val:.1f}" if s_m1_val is not None else "近-"
+        m2_str = f"次{s_m2_val:.1f}" if s_m2_val is not None else "次-"
+        m_breakdown = f"<div style='font-size: 10px; color: #a1a1aa; margin-top: 2px;' title='近月与次月综合均分: (近月 + 次月)/2'><span style='color: #34d399;'>{m1_str}</span> <span style='color: #52525b;'>/</span> <span style='color: #38bdf8;'>{m2_str}</span></div>"
+
+        if best_opt:
             s_p_val = best_opt.get('s_price', 0.0)
             s_s_val = best_opt.get('s_safety', 0.0)
             s_a_val = best_opt.get('s_option_alpha', 0.0)
             pen_val = best_opt.get('trend_penalty', 0.0)
             pen_str = f"<span style='color: #ef4444; font-size: 10px;'> -{pen_val:.0f}</span>" if pen_val > 0 else ""
-            
+
             ev_d_val = best_opt.get('ev_dollar', 0.0)
             b_ivp = best_opt.get('ivp', 50.0)
             is_high_qual_best = best_opt.get('is_high_qual', is_high_qual_t)
@@ -1826,7 +1990,8 @@ def main():
 
             score_cell = (
                 f"<div style='text-align: center;'>"
-                f"<strong style='{score_s} font-size: 15px;'>{b_score:.1f}</strong>"
+                f"<strong style='{score_s} font-size: 15px;'>{comp_score:.1f}</strong>"
+                f"{m_breakdown}"
                 f"<div style='font-size: 10.5px; display: flex; gap: 2px; align-items: center; justify-content: center; margin-top: 2px; font-family: monospace;' "
                 f"title='三支柱得分: 估值底 (50%) {s_p_val:.0f} / 接股安全 (30%) {s_s_val:.0f} / 期权Alpha (20%) {s_a_val:.0f}'>"
                 f"<span style='color: #60a5fa;' title='Pillar 1: 估值底 (50%)'>估{s_p_val:.0f}</span>"
@@ -1839,23 +2004,23 @@ def main():
                 f"{neg_ev_tag}"
                 f"</div>"
             )
-            
+
             # IVP Single Number Cell for Master Row
             ivp_val = best_opt.get('ivp', 50.0)
             iv_val = best_opt.get('iv', 0.0)
             ivr_val = best_opt.get('ivr')
             has_t_iv = best_opt.get('has_true_iv', False)
-            
+
             if ivp_val >= 75:
                 ivp_color = "#c084fc"  # High IVP (purple)
             elif ivp_val <= 25:
                 ivp_color = "#f87171"  # Low IVP (red)
             else:
                 ivp_color = "#38bdf8"  # Normal IVP (cyan)
-                
+
             ivr_title_str = f", IVR: {ivr_val:.0f}%" if ivr_val is not None else ""
             t_tag = "真 252d IVP" if has_t_iv else "IVP"
-            
+
             iv_cell_master = (
                 f"<div style='text-align: center;'>"
                 f"<strong style='color: {ivp_color}; font-size: 14px;' "
@@ -1863,7 +2028,6 @@ def main():
                 f"</div>"
             )
         else:
-            strike_cell = "<span style='color: #a1a1aa;'>暂无推荐</span>"
             score_cell = "<span style='color: #a1a1aa;'>N/A</span>"
             iv_cell_master = "<div style='text-align: center;'><span style='color: #a1a1aa;'>--</span></div>"
             
@@ -1935,7 +2099,13 @@ def main():
         tv_url = get_tradingview_url(t)
         t_link = f"<a href='{tv_url}' target='_blank' onclick='event.stopPropagation();' style='color: #ffffff; text-decoration: none; border-bottom: 1px dashed #60a5fa;' title='打开 {t} TradingView 图表'><strong style='color: #ffffff; font-size: 14.5px;'>{t}</strong> <span style='font-size: 11.5px; color: #60a5fa;'>📈</span></a>"
         safe_intro_t = html.escape(intro_t)
-        name_cell = f"{t_link}{badge_str} <span style='color: #a1a1aa; font-size: 11.5px; margin-left: 4px;'>({cname})</span><br><span style='font-size: 11.5px; color: #60a5fa; font-weight: 500;'>💡 {safe_intro_t}</span><br><span style='font-size: 11px; color: #34d399;'>🎯 准入理由：{reason_str}</span>"
+        name_cell = (
+            f"<div style='min-width: 320px; max-width: 420px; line-height: 1.35;'>"
+            f"<div style='display: flex; align-items: center; flex-wrap: wrap; gap: 4px;'>{t_link}{badge_str} <span style='color: #a1a1aa; font-size: 11.5px;'>({cname})</span></div>"
+            f"<div style='font-size: 11px; color: #60a5fa; font-weight: 500; margin-top: 3px; line-height: 1.35;'>💡 {safe_intro_t}</div>"
+            f"<div style='font-size: 10.5px; color: #34d399; margin-top: 2px; line-height: 1.35;'>🎯 准入理由：{reason_str}</div>"
+            f"</div>"
+        )
         
         # Construct InvestSkill Signal Cell for Master Row
         if investskill_info:
@@ -1984,17 +2154,18 @@ def main():
 
         table_grouped += f"""
           <tr id="{master_id}" data-ticker="{t.upper()}" data-search="{safe_search_terms}" onclick="toggleDetails('{row_id}', '{master_id}')" style="background-color: {bg_c}; border-bottom: 1px solid #27272a; cursor: pointer; transition: background-color 0.15s;">
-            <td style="padding: 10px 14px; text-align: center; color: #a1a1aa; font-weight: 500;">
+            <td style="padding: 10px 8px; text-align: center; color: #a1a1aa; font-weight: 500;">
               <span style="font-family: monospace; font-size: 12.5px;">{idx+1}</span>
               <br><span class="collapse-toggle-btn" style="font-size: 10.5px; color: #60a5fa; cursor: pointer; font-weight: 600;">▼ 展开</span>
             </td>
-            <td style="padding: 10px 14px;">{name_cell}</td>
+            <td style="padding: 10px 14px; min-width: 320px; width: 340px;">{name_cell}</td>
             <td style="padding: 10px 14px;">{price_cell}</td>
             <td style="padding: 10px 14px;">{earnings_cell}</td>
             <td style="padding: 10px 14px;">{health_cell}</td>
             <td style="padding: 10px 14px;">{rp_cell}</td>
             <td style="padding: 10px 14px;">{dev_cell}</td>
-            <td style="padding: 10px 14px;">{strike_cell}</td>
+            <td style="padding: 10px 14px; background: rgba(16, 185, 129, 0.03); border-left: 1px solid rgba(16, 185, 129, 0.15); border-right: 1px solid rgba(16, 185, 129, 0.15);">{m1_cell}</td>
+            <td style="padding: 10px 14px; background: rgba(14, 165, 233, 0.03); border-right: 1px solid rgba(14, 165, 233, 0.15);">{m2_cell}</td>
             <td style="padding: 10px 14px; text-align: center;">{iv_cell_master}</td>
             <td style="padding: 10px 14px; text-align: center;">{investskill_cell}</td>
             <td style="padding: 10px 14px; text-align: center;">{score_cell}</td>
@@ -2084,11 +2255,17 @@ def main():
                 else:
                     yield_cell2 = f"<span style='color: #f4f4f5;'>{opt['annualized_yield']:.1f}%</span>"
                     
+                is_m_opt = opt.get('is_monthly', True)
+                if is_m_opt:
+                    w_tag_opt = ""
+                else:
+                    opt_oi = opt.get('open_interest', 0)
+                    w_tag_opt = f"<span style='font-size: 9px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 3px; padding: 0 3px; margin-left: 2px;' title='周度优质流动性 (OI: {opt_oi})'>周</span>"
                 opts_table_html += f"""
                   <tr style="background-color: {o_bg}; border-bottom: 1px solid #27272a;">
                     <td style="padding: 8px 12px; text-align: center; color: #a1a1aa;">{o_idx+1}</td>
                     <td style="padding: 8px 12px;">{prof_tag2}</td>
-                    <td style="padding: 8px 12px;"><span style='color: #f4f4f5;'>{opt['expiration']}<br><span style='font-size: 10px; color: #a1a1aa;'>({opt['dte']}D)</span></span></td>
+                    <td style="padding: 8px 12px;"><span style='color: #f4f4f5;'>{opt['expiration']}{w_tag_opt}<br><span style='font-size: 10px; color: #a1a1aa;'>({opt['dte']}D)</span></span></td>
                     <td style="padding: 8px 12px;">{strike_cell2}</td>
                     <td style="padding: 8px 12px;"><span style='color: #f4f4f5;'>{opt['delta']:.2f}</span></td>
                     <td style="padding: 8px 12px;"><span style='color: #f4f4f5;'>${opt['mark']:.2f}</span></td>
@@ -2167,7 +2344,7 @@ def main():
         
         table_grouped += f"""
           <tr id="{row_id}" style="display: none; background-color: #000000; border-bottom: 2px solid #3b82f6;">
-            <td colspan="11" style="padding: 20px 24px; background: linear-gradient(180deg, #0b0b0f 0%, #000000 100%);">
+            <td colspan="12" style="padding: 20px 24px; background: linear-gradient(180deg, #0b0b0f 0%, #000000 100%);">
               <div style="max-width: 1300px; margin: 0 auto;">
                 
                 <!-- Details Header Bar with Collapse Button -->
@@ -2214,8 +2391,15 @@ def main():
               </div>
             </td>
           </tr>"""
-          
-    table_grouped += "\n        </tbody>\n      </table>\n    </div>\n"
+
+    truncation_notice = ""
+    if len(ordered_watchlist) > len(display_watchlist):
+        truncation_notice = f"""
+        <div style="text-align: center; padding: 12px; font-size: 11.5px; color: #a1a1aa; background: #18181b; border-top: 1px solid #27272a; border-radius: 0 0 10px 10px;">
+          📊 <strong>已展示全市场精选 Top 100 标的</strong>（总全量扫描池共 {len(ordered_watchlist)} 只标的，其余低分标的已自动截断以保持看板极速加载与高信噪比）
+        </div>
+        """
+    table_grouped += f"\n        </tbody>\n      </table>\n      {truncation_notice}\n    </div>\n"
 
     # 3. Generate Covered Call Table
     cc_html = ""

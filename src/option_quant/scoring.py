@@ -339,6 +339,7 @@ def calculate_sell_put_score(
     fcf_margin: Optional[float] = None,
     return_30d: Optional[float] = None,
     is_wash_sale_risk: bool = False,
+    is_monthly: bool = True,
 ) -> Tuple[float, float, float, float, float, float]:
     """
     Calculate the Institutional Multi-Factor Quantitative Score for Sell Put (0-100 scale).
@@ -408,6 +409,12 @@ def calculate_sell_put_score(
         adj_annualized_yield = c_yield / (1.0 + 1.5 * hv_factor)
         s_ev = min(100.0, max(0.0, 100.0 * math.sqrt(max(0.0, adj_annualized_yield) / 20.0)))
 
+    # Trade Sharpe Sub-Component (S_Sharpe): Risk-adjusted return per unit of volatility (Collateral simultaneously earns cash sweep interest)
+    eff_hv = max(12.0, c_hv)  # Volatility protection floor (12.0%) to prevent divide-by-near-zero distortion
+    trade_sharpe = max(0.0, c_yield) / eff_hv
+    # Concave power law mapping: Sharpe 0.50 -> ~60 pts, Sharpe 0.70 -> ~80 pts, Sharpe 0.85 -> ~92 pts, Sharpe >= 1.0 -> 100 pts
+    s_sharpe = min(100.0, 100.0 * math.pow(trade_sharpe / 0.90, 0.75)) if trade_sharpe > 0 else 0.0
+
     # Volatility / Skew sub-component (S_Vol)
     if put_skew is not None and put_skew > 0 and not np.isnan(float(put_skew)):
         s_skew = float(np.clip(50.0 + (float(put_skew) - 1.10) * 200.0, 0.0, 100.0))
@@ -425,8 +432,8 @@ def calculate_sell_put_score(
     else:
         s_vol = float(np.clip(safe_ivp, 0.0, 100.0))
 
-    # Unified Option Alpha Factor
-    s_option_alpha = float(np.clip(0.70 * s_ev + 0.30 * s_vol, 0.0, 100.0))
+    # Unified Option Alpha Factor: 40% BS EV + 35% Trade Sharpe + 25% Vol/Skew
+    s_option_alpha = float(np.clip(0.40 * s_ev + 0.35 * s_sharpe + 0.25 * s_vol, 0.0, 100.0))
 
     # 2. Base Safety & Price Factors (S_Price - 40%, S_Safety - 30%, S_OptionAlpha - 30%)
     # Net Acquisition Basis = Strike - Premium (Actual net cost if assigned)
@@ -648,7 +655,11 @@ def calculate_sell_put_score(
     if has_pullback and is_vol_compressed and is_high_quality and not is_toxic_knife:
         vol_bottom_bonus = min(3.5, max(1.5, ((30.0 - min(30.0, safe_ivp)) / 30.0) * 2.0 + 1.5))
 
-    total_score = max(0.0, base_score - trend_penalty + f_score_bonus + insider_bonus + pcr_bonus + earnings_safety_bonus + pop_bonus + contrarian_gold_bonus + vol_bottom_bonus)
+    # 6. Monthly Liquidity Aggregation Preference (+2.0 pts)
+    # Rewards standard monthly options for primary market-maker liquidity concentration
+    monthly_bonus = 2.0 if is_monthly else 0.0
+
+    total_score = max(0.0, base_score - trend_penalty + f_score_bonus + insider_bonus + pcr_bonus + earnings_safety_bonus + pop_bonus + contrarian_gold_bonus + vol_bottom_bonus + monthly_bonus)
     return total_score, s_price, s_safety, s_option_alpha, s_ev, trend_penalty
 
 

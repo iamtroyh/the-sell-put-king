@@ -67,10 +67,10 @@ def run_fast_scan(symbols: List[str] = None) -> Dict[str, Any]:
         cands = get_filtered_csp_candidates(
             symbol=sym,
             min_dte=15,
-            max_dte=60,
+            max_dte=100,
             delta_min=-0.40,
             delta_max=-0.08,
-            min_oi=15,
+            min_oi=5,
             client=client,
         )
         return sym, cands

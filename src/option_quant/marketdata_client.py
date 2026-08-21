@@ -406,105 +406,158 @@ def get_true_ivp_and_ivr(
     return res
 
 
-# ==================== FAST CSP SCANNER & ROLL CALCULATOR ====================
+def is_standard_monthly(exp_val: Any) -> bool:
+    """
+    Standard monthly option expiration: 3rd Friday of the month (day 15-21),
+    or 3rd Thursday (day 14-20) if Friday is a market holiday.
+    """
+    try:
+        if isinstance(exp_val, (int, float)):
+            d = datetime.datetime.fromtimestamp(exp_val).date()
+        elif isinstance(exp_val, datetime.date):
+            d = exp_val
+        elif isinstance(exp_val, datetime.datetime):
+            d = exp_val.date()
+        else:
+            d = datetime.datetime.strptime(str(exp_val)[:10], "%Y-%m-%d").date()
+        is_friday = (d.weekday() == 4 and 15 <= d.day <= 21)
+        is_thursday_holiday = (d.weekday() == 3 and 14 <= d.day <= 20)
+        return is_friday or is_thursday_holiday
+    except Exception:
+        return False
+
 
 def get_filtered_csp_candidates(
     symbol: str,
     min_dte: int = 15,
-    max_dte: int = 60,
+    max_dte: int = 75,
     delta_min: float = -0.40,
     delta_max: float = -0.08,
-    min_oi: int = 20,
+    min_oi: int = 0,
     client: Optional[MarketDataClient] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Fetch pre-filtered Sell Put (CSP) candidates directly from Market Data API in 1 call.
+    Fetch pre-filtered Sell Put (CSP) candidates directly from Market Data API in dual-horizon cycles (Month 1 ~30DTE and Month 2 ~60DTE).
     """
     sym = normalize_symbol(symbol)
     c = client or MarketDataClient()
 
-    chain = c.get_option_chain(
-        symbol=sym,
-        side="put",
-        range_type="otm",
-        min_open_interest=min_oi,
-        strike_limit=14,
-    )
-    if not chain or chain.get("s") != "ok":
-        return []
-
-    strikes = chain.get("strike", [])
-    dtes = chain.get("dte", [])
-    expirations = chain.get("expiration", [])
-    bids = chain.get("bid", [])
-    asks = chain.get("ask", [])
-    mids = chain.get("mid", [])
-    ois = chain.get("openInterest", [])
-    deltas = chain.get("delta", [])
-    gammas = chain.get("gamma", [])
-    thetas = chain.get("theta", [])
-    vegas = chain.get("vega", [])
-    ivs = chain.get("iv", [])
-    spots = chain.get("underlyingPrice", [])
-
     candidates: List[Dict[str, Any]] = []
-    n = len(strikes)
+    seen_contracts = set()
 
-    for i in range(n):
-        dte = int(dtes[i] or 0) if i < len(dtes) else 0
-        if not (min_dte <= dte <= max_dte):
+    # Query both Near Month (~30 DTE) and Next Month (~60 DTE) option chains
+    target_dtes = [30, 60]
+    for req_dte in target_dtes:
+        chain = c.get_option_chain(
+            symbol=sym,
+            side="put",
+            range_type="all",
+            dte=req_dte,
+            strike_limit=25,
+        )
+        if not chain or chain.get("s") != "ok":
+            # Fallback to atm query if all range is empty
+            chain = c.get_option_chain(
+                symbol=sym,
+                side="put",
+                range_type="atm",
+                dte=req_dte,
+                strike_limit=14,
+            )
+
+        if not chain or chain.get("s") != "ok":
             continue
 
-        strike = float(strikes[i] or 0.0)
-        spot = float(spots[i] or 0.0) if i < len(spots) and spots[i] else strike
-        bid = float(bids[i] or 0.0) if i < len(bids) and bids[i] else 0.0
-        ask = float(asks[i] or 0.0) if i < len(asks) and asks[i] else 0.0
-        mark = float(mids[i] or 0.0) if i < len(mids) and mids[i] else (bid + ask) / 2.0
-        oi = int(ois[i] or 0) if i < len(ois) and ois[i] else 0
-        exp_raw = expirations[i] if i < len(expirations) else ""
-        exp_str = datetime.datetime.fromtimestamp(exp_raw).strftime("%Y-%m-%d") if isinstance(exp_raw, (int, float)) else str(exp_raw)[:10]
+        strikes = chain.get("strike", [])
+        dtes = chain.get("dte", [])
+        expirations = chain.get("expiration", [])
+        bids = chain.get("bid", [])
+        asks = chain.get("ask", [])
+        mids = chain.get("mid", [])
+        ois = chain.get("openInterest", [])
+        deltas = chain.get("delta", [])
+        gammas = chain.get("gamma", [])
+        thetas = chain.get("theta", [])
+        vegas = chain.get("vega", [])
+        ivs = chain.get("iv", [])
+        spots = chain.get("underlyingPrice", [])
 
-        if mark <= 0.05 or strike <= 0:
-            continue
+        n = len(strikes)
+        for i in range(n):
+            dte = int(dtes[i] or 0) if i < len(dtes) else 0
+            if not (min_dte <= dte <= max_dte):
+                continue
 
-        spread_ratio = (ask - bid) / mark if mark > 0 else 1.0
-        passed_gatekeeper = (spread_ratio <= 0.35) and (oi >= min_oi)
+            strike = float(strikes[i] or 0.0)
+            spot = float(spots[i] or 0.0) if i < len(spots) and spots[i] else strike
+            bid = float(bids[i] or 0.0) if i < len(bids) and bids[i] else 0.0
+            ask = float(asks[i] or 0.0) if i < len(asks) and asks[i] else 0.0
+            mark = float(mids[i] or 0.0) if i < len(mids) and mids[i] else (bid + ask) / 2.0
+            oi = int(ois[i] or 0) if i < len(ois) and ois[i] else 0
+            exp_raw = expirations[i] if i < len(expirations) else ""
+            exp_str = datetime.datetime.fromtimestamp(exp_raw).strftime("%Y-%m-%d") if isinstance(exp_raw, (int, float)) else str(exp_raw)[:10]
 
-        raw_delta = deltas[i] if i < len(deltas) and deltas[i] is not None else None
-        iv_val = float(ivs[i] or 0.25) if i < len(ivs) and ivs[i] else 0.25
-        if raw_delta is not None:
-            delta = float(raw_delta)
-        else:
-            t_yr = dte / 365.0
-            from option_quant.scoring import calculate_put_delta
-            delta = calculate_put_delta(spot, strike, t_yr, 0.05, iv_val)
+            if mark <= 0.05 or strike <= 0:
+                continue
 
-        abs_delta = abs(delta)
-        if not (abs(delta_max) <= abs_delta <= abs(delta_min)):
-            continue
+            contract_key = (exp_str, strike)
+            if contract_key in seen_contracts:
+                continue
 
-        gamma = float(gammas[i] or 0.0) if i < len(gammas) and gammas[i] is not None else 0.0
-        theta = float(thetas[i] or 0.0) if i < len(thetas) and thetas[i] is not None else 0.0
-        vega = float(vegas[i] or 0.0) if i < len(vegas) and vegas[i] is not None else 0.0
+            is_monthly = is_standard_monthly(exp_raw if exp_raw else exp_str)
+            abs_spread = ask - bid
+            spread_ratio = (abs_spread / mark) if mark > 0 else 1.0
 
-        candidates.append({
-            "ticker": sym,
-            "strike": strike,
-            "expiration": exp_str,
-            "dte": dte,
-            "bid": bid,
-            "ask": ask,
-            "mark": mark,
-            "open_interest": oi,
-            "spread_ratio": spread_ratio,
-            "delta": delta,
-            "gamma": gamma,
-            "theta": theta,
-            "vega": vega,
-            "iv": iv_val * 100.0 if iv_val < 10.0 else iv_val,
-            "current_price": spot,
-            "passed_gatekeeper": passed_gatekeeper,
-        })
+            # Adaptive Dual-Tier Gatekeeper:
+            # - Monthly: Standard gatekeeper (OI >= 5/10/20, Spread <= 35% or abs_spread <= 0.15)
+            # - Non-Monthly (Weekly): Strict liquidity gatekeeper (Zero bid banned, Near-month OI >= 50, Next-month OI >= 100)
+            if is_monthly:
+                passed_gatekeeper = (spread_ratio <= 0.35 or abs_spread <= 0.15) and (oi >= max(5, min_oi))
+            else:
+                if bid <= 0.0:
+                    passed_gatekeeper = False
+                elif dte <= 40:
+                    passed_gatekeeper = (spread_ratio <= 0.20 or abs_spread <= 0.10) and (oi >= 50)
+                else:
+                    passed_gatekeeper = (spread_ratio <= 0.15 or abs_spread <= 0.08) and (oi >= 100)
+
+            raw_delta = deltas[i] if i < len(deltas) and deltas[i] is not None else None
+            iv_val = float(ivs[i] or 0.25) if i < len(ivs) and ivs[i] else 0.25
+            if raw_delta is not None:
+                delta = float(raw_delta)
+            else:
+                t_yr = dte / 365.0
+                from option_quant.scoring import calculate_put_delta
+                delta = calculate_put_delta(spot, strike, t_yr, 0.05, iv_val)
+
+            abs_delta = abs(delta)
+            if not (abs(delta_max) <= abs_delta <= abs(delta_min)):
+                continue
+
+            seen_contracts.add(contract_key)
+            gamma = float(gammas[i] or 0.0) if i < len(gammas) and gammas[i] is not None else 0.0
+            theta = float(thetas[i] or 0.0) if i < len(thetas) and thetas[i] is not None else 0.0
+            vega = float(vegas[i] or 0.0) if i < len(vegas) and vegas[i] is not None else 0.0
+
+            candidates.append({
+                "ticker": sym,
+                "strike": strike,
+                "expiration": exp_str,
+                "dte": dte,
+                "bid": bid,
+                "ask": ask,
+                "mark": mark,
+                "open_interest": oi,
+                "spread_ratio": spread_ratio,
+                "delta": delta,
+                "gamma": gamma,
+                "theta": theta,
+                "vega": vega,
+                "iv": iv_val * 100.0 if iv_val < 10.0 else iv_val,
+                "current_price": spot,
+                "passed_gatekeeper": passed_gatekeeper,
+                "is_monthly": is_monthly,
+            })
 
     return candidates
 
