@@ -132,5 +132,9 @@ Whenever executing `research <TICKER>` or `@InvestSkill/prompts/full-report.md`,
    - **Concise & Direct Institutional Tone (极简、专业、客观、零废话风格)**: Language style must be clean, rigorous, data-dense, and professional. Eliminate conversational filler, redundant padding, and verbose rhetorical phrases.
 8. **Auto Commit & Push on InvestSkill Output (研报输出自动提交与推送规范)**:
    - 凡是仅涉及 `InvestSkill/output/` 目录内的文件变更（新增/更新研报 HTML 或重新生成 `index.html`），且工作区无其他代码文件变动时，AI Agent **无需等待用户手动输入 `commit`，直接自动执行 `git add InvestSkill/output/`、精准语义 Commit 并立即执行 `git push`** 同步至远程仓库。
+9. **Epistemic Independence & Clean-Slate Analysis Iron Rule (独立思考与样式内容严格隔离铁律)**:
+   - **格式与样式可借鉴，内容绝对零污染**：在读取历史已有研报时，**仅学习其 CSS 视觉风格、Chart.js 交互图表骨架、HTML 布局与排版规范**；
+   - **严禁内容与逻辑互相影响**：每一只标的的深度投研必须基于第一性原理，从零开始抓取该公司的最新一手财务报表（10-K/10-Q）、实时市场行情、期权链、具体商业模式、护城河特征与精准 DCF/量化模型，**严格做到独立思考、实事求是，绝不套用、迁移或受任何其他标的研报观点的先入为主影响**。
+
 
 
