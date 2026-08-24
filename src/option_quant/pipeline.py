@@ -47,6 +47,7 @@ from option_quant.config import (
     mask_account_id,
     normalize_symbol,
     to_display_symbol,
+    to_rh_equity_symbol,
     to_rh_symbol,
     to_yf_symbol,
 )
@@ -633,14 +634,25 @@ def sync_watchlist(client: Optional[RobinhoodMCPClient] = None) -> bool:
 
         existing = c.get_watchlist_items(list_id)
         if existing:
-            c.remove_from_watchlist(list_id, existing)
-            time.sleep(0.5)
+            batch_size = 30
+            for i in range(0, len(existing), batch_size):
+                chunk = existing[i:i + batch_size]
+                c.remove_from_watchlist(list_id, chunk)
+                time.sleep(0.3)
+
+            remaining = c.get_watchlist_items(list_id)
+            if remaining:
+                c.remove_from_watchlist(list_id, remaining)
+                time.sleep(0.5)
 
         # Reverse order for LIFO insertion
-        reversed_tickers = [to_rh_symbol(t) for t in tickers[::-1]]
-        for sym in reversed_tickers:
-            c.add_to_watchlist(list_id, [sym])
-            time.sleep(0.2)
+        equity_symbols = [to_rh_equity_symbol(t) for t in tickers]
+        reversed_tickers = equity_symbols[::-1]
+        batch_size = 30
+        for i in range(0, len(reversed_tickers), batch_size):
+            chunk = reversed_tickers[i:i + batch_size]
+            c.add_to_watchlist(list_id, chunk)
+            time.sleep(0.3)
 
         logger.info(f"Successfully synced {len(tickers)} tickers to Robinhood '{target_name}'.")
         return True

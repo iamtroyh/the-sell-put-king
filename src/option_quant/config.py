@@ -221,6 +221,20 @@ def to_rh_symbol(symbol: Optional[str]) -> str:
     return norm
 
 
+def to_rh_equity_symbol(symbol: Optional[str]) -> str:
+    """
+    Convert symbol to Robinhood equity instrument format for watchlists and quotes (e.g. BRKB -> BRK.B).
+
+    Args:
+        symbol: Input symbol.
+
+    Returns:
+        Robinhood equity instrument symbol string.
+    """
+    return to_display_symbol(symbol)
+
+
+
 # Non-equity, cyclical, fixed-income, commodity, and crypto ETFs that follow macro/52w RP cycles rather than compounding long bull SMA200
 CYCLICAL_MACRO_ETF_TICKERS: Set[str] = {
     'TLT', 'IBIT', 'SLV', 'GLD', 'ASHR', 'KWEB', 'URA', 'GDX', 'GDXJ', 'XLE', 'VNQ', 'XLRE', 'CTA'

@@ -53,9 +53,58 @@ class RobinhoodMCPClient:
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.close()
 
+    @staticmethod
+    def _ensure_auth_tokens_synced() -> None:
+        """
+        Ensure OAuth tokens and client_info are copied to any newly created or existing
+        mcp-remote version directories under ~/.mcp-auth to prevent browser re-auth prompts
+        when mcp-remote package version updates.
+        """
+        import glob
+        import shutil
+
+        auth_base = os.path.expanduser("~/.mcp-auth")
+        if not os.path.exists(auth_base):
+            return
+
+        dirs = [
+            os.path.join(auth_base, d)
+            for d in os.listdir(auth_base)
+            if os.path.isdir(os.path.join(auth_base, d)) and d.startswith("mcp-remote")
+        ]
+        if not dirs:
+            return
+
+        # Find the directory with the most recently modified tokens
+        latest_dir = None
+        latest_mtime = 0.0
+        for d in dirs:
+            tf = glob.glob(os.path.join(d, "*_tokens.json"))
+            if tf:
+                mt = os.path.getmtime(tf[0])
+                if mt > latest_mtime:
+                    latest_mtime = mt
+                    latest_dir = d
+
+        if not latest_dir:
+            return
+
+        # Sync latest tokens and client_info across all other mcp-remote directories
+        for d in dirs:
+            if d != latest_dir:
+                for f in glob.glob(os.path.join(latest_dir, "*.*")):
+                    fname = os.path.basename(f)
+                    if fname.endswith("_tokens.json") or fname.endswith("_client_info.json"):
+                        target_file = os.path.join(d, fname)
+                        try:
+                            shutil.copy2(f, target_file)
+                        except Exception:
+                            pass
+
     def start(self) -> None:
         """Start the MCP subprocess and complete the handshake."""
-        cmd = ["npx", "-y", "mcp-remote", self.remote_url]
+        self._ensure_auth_tokens_synced()
+        cmd = ["npx", "-y", "mcp-remote@0.2.1", self.remote_url]
         logger.info(f"Launching Robinhood MCP bridge: {' '.join(cmd)}")
         self.proc = subprocess.Popen(
             cmd,

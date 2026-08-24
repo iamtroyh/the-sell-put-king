@@ -19,6 +19,7 @@ from option_quant.config import (
     TICKER_METADATA_PATH,
     format_tradingview_ticker,
     load_json_config,
+    to_rh_equity_symbol,
     to_rh_symbol,
 )
 from option_quant.mcp_client import RobinhoodMCPClient
@@ -68,15 +69,39 @@ def main():
 
         print(f"Target Watchlist '{target_name}' ID: {list_id}")
 
+        # 1. Thoroughly clear all existing items in batches
         existing = client.get_watchlist_items(list_id)
         if existing:
-            print(f"Clearing {len(existing)} existing items...")
-            client.remove_from_watchlist(list_id, existing)
+            print(f"Clearing {len(existing)} existing items in batches...")
+            batch_size = 30
+            for i in range(0, len(existing), batch_size):
+                chunk = existing[i:i + batch_size]
+                client.remove_from_watchlist(list_id, chunk)
+                time.sleep(0.3)
 
-        reversed_tickers = [to_rh_symbol(t) for t in tickers[::-1]]
-        print(f"Adding {len(reversed_tickers)} symbols in reverse order (LIFO)...")
-        for sym in reversed_tickers:
-            client.add_to_watchlist(list_id, [sym])
+            # Double-check if any residual items remain
+            remaining = client.get_watchlist_items(list_id)
+            if remaining:
+                print(f"Clearing {len(remaining)} residual items...")
+                client.remove_from_watchlist(list_id, remaining)
+                time.sleep(0.5)
+
+        # 2. Add symbols in reverse order (LIFO) in batches
+        equity_symbols = [to_rh_equity_symbol(t) for t in tickers]
+        reversed_tickers = equity_symbols[::-1]
+        print(f"Adding {len(reversed_tickers)} symbols in reverse order (LIFO) in batches...")
+        batch_size = 30
+        for i in range(0, len(reversed_tickers), batch_size):
+            chunk = reversed_tickers[i:i + batch_size]
+            client.add_to_watchlist(list_id, chunk)
+            time.sleep(0.3)
+
+        # 3. Verification
+        final_items = client.get_watchlist_items(list_id)
+        print(f"Sync complete! Watchlist '{target_name}' currently contains {len(final_items)} items.")
+        if final_items:
+            print(f"Top 5 in RH: {final_items[:5]}")
+
 
     print(f"Successfully completed Watchlist '{target_name}' synchronization!")
 

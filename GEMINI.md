@@ -137,6 +137,12 @@ Whenever executing `research <TICKER>` or `@InvestSkill/prompts/full-report.md`,
    - **严禁内容与逻辑互相影响**：每一只标的的深度投研必须基于第一性原理，从零开始抓取该公司的最新一手财务报表（10-K/10-Q）、实时市场行情、期权链、具体商业模式、护城河特征与精准 DCF/量化模型，**严格做到独立思考、实事求是，绝不套用、迁移或受任何其他标的研报观点的先入为主影响**。
 10. **Single-Share Price Cap Iron Rule (单股股价 > $1,000 USD 过滤铁律)**:
    - 全市场扫描、期权推荐与观察列表过滤时，**直接自动过滤掉单股股价超过 $1,000 美元的标的（Price > $1,000.00，如 `AZO`、`MELI`、`TDG`、`FICO`）**，避免单张看跌期权名义本金与现金担保保证金过大（> $100,000+）挤占账户流动性，仅针对当前实际持仓标的予以保留。
+11. **Cross-Report Delta & Significant Shift Tracking Rule (跨期报告边际重大异动追踪铁律)**:
+   - 每次用户执行 `research`（全量流水线或主看板研判）时，AI Agent **必须自动与前一份 report / 历史扫描基线进行深度对齐，显式 Highlight 出变化较大的关键标的并深度剖析原因**：
+     * **新晋入选标的 (Newly Entered Top Candidates)**：新进入 Watchlist 与 Top 30 精选榜的标的及触发条件；
+     * **排名大幅跃升标的 (Major Rank Gainers)**：排名显著上升（+15位以上）的标的及核心驱动（如超跌触底、IV 爆发、基本面修复）；
+     * **排名大幅下滑 / 跌出标的 (Major Rank Losers & Drops)**：排名显著下滑或被移出的标的及归因（如触发 30d 暴跌熔断、单股股价 > $1,000 过滤、隐波压缩或财报黑天鹅）；
+     * **板块轮动与宏观归因 (Macro & Sector Attribution)**：宏观防线、GICS 行业偏好与资金风格切换深度总结。
 
 
 
