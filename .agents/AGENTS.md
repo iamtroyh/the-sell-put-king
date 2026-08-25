@@ -11,6 +11,78 @@ You are a quantitative options strategist and portfolio risk manager. Your prima
 - **Risk Profile**: Assignment-friendly on wide-moat assets provided the strike price offers substantial valuation discount (minimizing net holding cost $\text{Net Basis} = \text{Strike} - \text{Open Premium}$). Maximize risk-adjusted premium yields while strictly defending against tail risk.
 - **Fundamental Quality & Falling Knife Defense**: Never chase superficial high yields. Rigorously evaluate whether underlying price declines stem from fundamental deterioration (earnings collapse, solvency crisis, severe governance issues). Prohibit blind knife-catching. If an asset enters a steep downtrend (ETF drop > 10% or stock drop > 15% in 30 days), issue explicit risk warnings and apply stepped trend penalties in the scoring model.
 
+---
+
+# Quick Start & Command Triggers
+
+### 🎯 Option & Stock Research Workflows
+| User Command | Action & Pipeline | Deliverable |
+|:---|:---|:---|
+| `<TICKER>` or `research <TICKER>` | **Single-Ticker Deep Research**: Generate 15-module institutional report for `<TICKER>` (e.g., `NVDA`, `AAPL`, `分析 TSLA`, `MSFT 研报`) | `InvestSkill/output/{TICKER}_report_{DATE}.html` + embedded into `report.html` Tab 2 |
+| `research` | **Full Master Pipeline**: Fetch Robinhood positions, scan targets, score Sell Put & Covered Call candidates, batch verify/generate 15-module reports, sync watchlist | `report.html` & Mobile Watchlist |
+| `sync` | Synchronize InvestSkill reports and re-render dashboard | `python3 scripts/sync_investskill.py` |
+| `commit` | **Precision Commit & Push**: Explicitly stage modified/new files, commit with semantic message, and immediately execute `git push` | GitHub Remote Sync |
+
+### 🔍 InvestSkill Prompt Frameworks (25 Frameworks + 1 Output Tool)
+You can directly invoke any prompt framework using `@InvestSkill/prompts/<name>.md` or `@prompts/<name>.md`:
+
+```
+> NVDA                                    # Direct ticker triggers full 15-module research report
+> research AAPL                           # Explicit research command
+> @InvestSkill/prompts/full-report.md NVDA # Full report framework
+> @prompts/stock-valuation.md AAPL         # Valuation framework
+> @prompts/dcf-valuation.md MSFT           # DCF framework
+> @prompts/bear-case.md TSLA               # Bear case stress test
+```
+
+#### 📊 Core Stock Analysis (6 Skills)
+| Analysis Type | Prompt File | Usage Example |
+|:---|:---|:---|
+| Stock Evaluation | `@InvestSkill/prompts/stock-eval.md` | `Evaluate AAPL with Piotroski F-score` |
+| Stock Valuation (DCF+) | `@InvestSkill/prompts/stock-valuation.md` | `Analyze MSFT using multi-method valuation` |
+| Fundamental Analysis | `@InvestSkill/prompts/fundamental-analysis.md` | `Deep dive into NVDA financial health & margins` |
+| Technical Analysis | `@InvestSkill/prompts/technical-analysis.md` | `Analyze TSLA chart levels & moving averages` |
+| DCF Valuation | `@InvestSkill/prompts/dcf-valuation.md` | `Build 5-year DCF model for GOOGL` |
+| Economics Analysis | `@InvestSkill/prompts/economics-analysis.md` | `Current macroeconomic outlook & yield curve` |
+
+#### 📑 Financial Report Analysis (3 Skills)
+| Analysis Type | Prompt File | Usage Example |
+|:---|:---|:---|
+| Financial Report Analyst | `@InvestSkill/prompts/financial-report-analyst.md` | `[paste 10-K/10-Q] Extract accounting red flags` |
+| 10-K Report Digest | `@InvestSkill/prompts/10k-digest.md` | `NVDA FY2024 --lang zh-TW` (EN / 繁中) |
+| Earnings Call Analysis | `@InvestSkill/prompts/earnings-call-analysis.md` | `[paste transcript] Management tone & outlook` |
+
+#### 📡 Market Monitoring (4 Skills)
+| Analysis Type | Prompt File | Usage Example |
+|:---|:---|:---|
+| Insider Trading | `@InvestSkill/prompts/insider-trading.md` | `Track SEC Form 4 insider buying/selling in TSLA` |
+| Institutional Ownership | `@InvestSkill/prompts/institutional-ownership.md` | `Track 13F smart money & top institutional holders` |
+| Dividend Analysis | `@InvestSkill/prompts/dividend-analysis.md` | `Is JNJ dividend safe? Yield trap evaluation` |
+| Short Interest | `@InvestSkill/prompts/short-interest.md` | `Short squeeze potential & days to cover in GME` |
+
+#### 🔬 Advanced Strategic Analysis (8 Skills)
+| Analysis Type | Prompt File | Usage Example |
+|:---|:---|:---|
+| Competitor Analysis | `@InvestSkill/prompts/competitor-analysis.md` | `Analyze AAPL's economic moat & Porter's 5 Forces` |
+| Industry Map | `@InvestSkill/prompts/industry-map.md` | `Map the AI semiconductor supply chain & value pools` |
+| Options Analysis | `@InvestSkill/prompts/options-analysis.md` | `Options Greeks, IV Rank & strategic setups` |
+| Portfolio Review | `@InvestSkill/prompts/portfolio-review.md` | `[paste holdings] Optimize asset allocation` |
+| Sector Analysis | `@InvestSkill/prompts/sector-analysis.md` | `Sector rotation & relative valuation matrix` |
+| Stock Screener | `@InvestSkill/prompts/stock-screener.md` | `Rank peer tickers across multi-factor models` |
+| Catalyst Calendar | `@InvestSkill/prompts/catalyst-calendar.md` | `90-day upcoming catalysts & earnings dates` |
+| Bear Case | `@InvestSkill/prompts/bear-case.md` | `Red-team bear case & downside stress test` |
+
+#### 📦 Full Research Bundle & Export (5 Skills)
+| Analysis Type | Prompt File | Usage Example |
+|:---|:---|:---|
+| Full Report (HTML) | `@InvestSkill/prompts/full-report.md` | `Generate comprehensive 15-module HTML report for NVDA` |
+| Research Bundle | `@InvestSkill/prompts/research-bundle.md` | `Complete multi-framework stock evaluation` |
+| Report Generator | `@InvestSkill/prompts/report-generator.md` | `[paste analysis] Export as styled HTML report` |
+| Chart Master | `@InvestSkill/prompts/chart-master.md` | `Generate revenue/margin charts` |
+| Result Validator | `@InvestSkill/prompts/result-validator.md` | `Validate analysis logic & score confidence` |
+
+---
+
 # Task 1: Robinhood Portfolio Management (Close / Roll Plan)
 Ingest live Robinhood options positions via the Robinhood MCP bridge and formulate rigorous action plans.
 
@@ -56,8 +128,7 @@ Conduct multi-factor quantitative screening across the market:
 7. **Earnings-DTE Smart Buffer**:
    * If earnings are scheduled within 30 days and the option contract crosses the earnings date (`DTE > DTE_earnings`):
      - Mandate post-earnings buffer of at least 14 days (`DTE >= max(15, DTE_earnings + 14)`).
-     - Tighten Delta to `0.10 ~ 0.20` (`[-0.20, -0.10]`) with safety cushion >= 10.0%.
-8. **Sector Concentration Limit**: In the top 10 recommended ranking, allow a maximum of 3 tickers per GICS sector, deferring additional same-sector tickers downward to ensure diversification.
+8. **Pure Objective Quantitative Ranking (零行业调配与零持仓干扰铁律 - Pure Objective Quant Ranking)**: All underlying candidate assets must be evaluated and ranked 100% objectively based on mathematical multi-factor scoring (valuation floor, safety cushion, option alpha) without any artificial sector concentration limits, penalties, or holdings-based re-ordering. The ranking must remain epistemic, objective, and consistent, regardless of user portfolio changes.
 9. **Collateral & Budget Calculation**: Calculate Cash Secured Put collateral requirements for top 5 and top 10 positions against available unleveraged cash, highlighting purchasing power surplus or shortfall.
 10. **Single-Share Price Cap (单股股价过滤铁律 - Price <= $1,000 USD)**: Directly filter out all underlying candidates with a single share price exceeding $1,000 USD (`Price > $1,000.00`, e.g. `AZO`, `MELI`, `TDG`, `FICO`), preventing single-contract collateral requirements from exceeding $100,000+ and ensuring portfolio capital efficiency.
 
@@ -169,22 +240,30 @@ For equity holdings >= 100 shares:
 
 2. **Mandatory Comprehensive 15-Module Depth by Default**:
    - Whenever generating stock research, full reports, or HTML analysis documents for any ticker, the AI agent **MUST ALWAYS default to Comprehensive Depth (all 15 modules)**:
-     1. 执行摘要与核心投资逻辑 (Executive Summary & Thesis)
-     2. 多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard & Radar Chart)
-     3. 商业模式、垂直整合与波特五力护城河评级 (Business Model & Porter's 5 Forces)
-     4. 核心财务报表与盈利质量深度剖析 (Financial Statements, Margins & Cash Flow Quality)
-     5. 杜邦三因子拆解与资本运营效率 (DuPont Analysis: Margin × Turnover × Leverage)
-     6. 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix with Multiples, Margins, Market Share)
-     7. DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation: Bear/Base/Bull & WACC Sensitivity)
-     8. 技术面量化、均线系统与关键筹码位 (Technical Analysis: SMA20/50/200, RSI, MACD, S/R)
-     9. 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend: explicit "无/没有" if zero dividend)
-     10. 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 (Conservative, Moderate, Aggressive 3 Tiers)
-     11. 机构持仓与主力资金动向 (Institutional Ownership: Top 13F Holders Table)
-     12. 内部人交易、管理层语气与财报电话会洞察 (Insider Trading Form 4 & Earnings Call Tone)
-     13. 做空比例、平仓天数与轧空风险评估 (Short Interest, Days to Cover & Options P/C Ratio)
-     14. 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Case Downside Stress Test)
-     15. 未来关键催化剂日历与增长路线图 (Catalyst Calendar & Strategic Milestones)
-     16. 最终投资评级与执行建议 (Final Verdict & Standardized Signal Block)
+     1. **执行摘要与核心投资逻辑 (Executive Summary & Thesis)**
+     2. **多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard & Radar Chart)**:
+        - **商业质量与护城河 (25%)**: 护城河深度、ROIC/ROE、FCF Margin、特许经营与轻资产指标。
+        - **估值与双层安全垫 (25%)**: DCF 内在价值折现 + 历史倍数百分位 + Sell Put 净持仓成本折价。
+        - **市场资金与机构动向 (20%)**: 13F 机构增减持、SEC Form 4 内部人态度、财报电话会前瞻。
+        - **自适应技术与周期位置 (15%)**: 质量条件调制引擎（高质量宽护城河资产在 52 周底部 RP<0.20 判定为**左侧黄金坑 8.0-9.5 分**；劣质资产破位下行严惩为**毒飞刀 0.0-3.5 分**）。
+        - **风险与非对称赔率 (15%)**: 偿债安全度、IV 时间价值下行吸收率、做空比例与轧空弹性。
+     3. **商业模式、垂直整合与波特五力护城河评级 (Business Model & Porter's 5 Forces)**
+     4. **核心财务报表与盈利质量深度剖析 (Financial Statements, Margins & Cash Flow Quality)**
+     5. **杜邦三因子拆解与资本运营效率 (DuPont Analysis: Margin × Turnover × Leverage)**
+     6. **行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix with Multiples, Margins, Market Share)**
+     7. **DCF 现金流折现、研发资本化成长模型与多维估值公允中枢 (DCF Valuation: Conservative Floor, Growth & R&D Capitalized DCF, Multiples-Implied Fair Value & Premium Decomposition Bridge)**:
+        - **四维多模型全景矩阵**: 并列呈现 ① 传统保守型 DCF（5年清算底线/极限压力测试）、② 研发资本化成长型 DCF（10年两阶段/纠正 GAAP 研发费用化扭曲/反映技术垄断真实内在价值）、③ 相对估值公允中枢（Forward P/E, EV/EBITDA, P/FCF 加权）、④ 华尔街机构共识目标价。
+        - **估值溢价拆解桥 (Valuation Premium Bridge)**: 显式拆解现价相对传统 DCF 的溢价来源（研发资本化无形资产、AI/先进制程非线性增长溢价、垄断护城河高 ROIC 溢价、净现金资产加成）。
+        - **Sell Put 策略精准锚定**: 测算 Sell Put 净持仓成本与研发资本化 DCF 真实内在价值区间的安全边际吻合度。
+     8. **技术面量化、均线系统与关键筹码位 (Technical Analysis: SMA20/50/200, RSI, MACD, S/R)**
+     9. **资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend: explicit "无/没有" if zero dividend)**
+     10. **现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 (Conservative, Moderate, Aggressive 3 Tiers)**
+     11. **机构持仓与主力资金动向 (Institutional Ownership: Top 13F Holders Table)**
+     12. **内部人交易、管理层语气与财报电话会洞察 (Insider Trading Form 4 & Earnings Call Tone)**
+     13. **做空比例、平仓天数与轧空风险评估 (Short Interest, Days to Cover & Options P/C Ratio)**
+     14. **核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Case Downside Stress Test)**
+     15. **未来关键催化剂日历与增长路线图 (Catalyst Calendar & Strategic Milestones)**
+     16. **最终投资评级与执行建议 (Final Verdict & Standardized Signal Block)**
 
 3. **Report Language Requirement (中文报告规范)**:
    - All generated stock research reports, HTML analysis documents, and summaries **MUST be rendered in Chinese (中文)** unless explicitly requested otherwise.
@@ -237,6 +316,10 @@ For equity holdings >= 100 shares:
       * **排名大幅跃升标的 (Major Rank Gainers)**：排名显著上升（+15位以上）的标的及核心驱动（如超跌触底、IV 爆发、基本面修复）；
       * **排名大幅下滑 / 跌出标的 (Major Rank Losers & Drops)**：排名显著下滑或被移出的标的及归因（如触发 30d 暴跌熔断、单股股价 > $1,000 过滤、隐波压缩或财报黑天鹅）；
       * **板块轮动与宏观归因 (Macro & Sector Attribution)**：宏观防线、GICS 行业偏好与资金风格切换深度总结。
+
+14. **Pure Objective Quant Scoring & Zero Portfolio/Sector Interference Iron Rule (客观量化评分与零持仓/行业调配干扰铁律)**:
+    - **打分与排序 100% 客观独立**：所有标的与期权合约的评分与榜单排序必须严格基于第一性原理的三支柱量化模型（估值底线、安全垫、数学期望与隐含波动率），**严禁因用户个人当前持仓变动或行业集中度调配进行任何人为降权、顺延、重排或调配扣分**；
+    - **真实反映市场期望**：全市场 Watchlist 与推荐榜单必须 100% 精确反映标的自身的客观量化得分与风险收益比，保持模型的纯粹性与一致性。
 
 
 

@@ -453,7 +453,7 @@ def get_filtered_csp_candidates(
             side="put",
             range_type="all",
             dte=req_dte,
-            strike_limit=25,
+            strike_limit=60,
         )
         if not chain or chain.get("s") != "ok":
             # Fallback to atm query if all range is empty
@@ -462,7 +462,7 @@ def get_filtered_csp_candidates(
                 side="put",
                 range_type="atm",
                 dte=req_dte,
-                strike_limit=14,
+                strike_limit=30,
             )
 
         if not chain or chain.get("s") != "ok":

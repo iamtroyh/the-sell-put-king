@@ -8,6 +8,7 @@ Sync Recommended Candidates to Robinhood Watchlist
 import json
 import os
 import sys
+import time
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_DIR = os.path.join(BASE_DIR, "src")

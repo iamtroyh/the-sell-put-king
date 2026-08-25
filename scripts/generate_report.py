@@ -106,6 +106,53 @@ def get_fundamental_info(ticker_symbol):
     return {}
 
 
+def format_gics_sector_badge(ticker_symbol: str, fund_info: Optional[dict] = None) -> str:
+    if is_etf_symbol(ticker_symbol):
+        return "<span style='padding: 2px 7px; border-radius: 4px; background: rgba(168, 85, 247, 0.15); color: #c084fc; font-size: 11px; font-weight: 600; border: 1px solid rgba(168, 85, 247, 0.3); white-space: nowrap;'>指数 / ETF</span>"
+    
+    raw_sec = SECTOR_MAP.get(ticker_symbol) or SECTOR_MAP.get(ticker_symbol.replace('.', '-')) or (fund_info.get("sector") if fund_info else None) or GLOBAL_FUNDAMENTAL_CACHE.get(ticker_symbol, {}).get("info", {}).get("sector") or "Other"
+    
+    gics_map = {
+        "Technology": ("信息技术", "rgba(59, 130, 246, 0.15)", "#60a5fa", "rgba(59, 130, 246, 0.3)"),
+        "Information Technology": ("信息技术", "rgba(59, 130, 246, 0.15)", "#60a5fa", "rgba(59, 130, 246, 0.3)"),
+        "Semiconductors": ("半导体", "rgba(99, 102, 241, 0.15)", "#818cf8", "rgba(99, 102, 241, 0.3)"),
+        "SaaS & Cyber": ("云与安全", "rgba(56, 189, 248, 0.15)", "#38bdf8", "rgba(56, 189, 248, 0.3)"),
+        "Consumer Cyclical": ("可选消费", "rgba(251, 146, 60, 0.15)", "#fb923c", "rgba(251, 146, 60, 0.3)"),
+        "Consumer Discretionary": ("可选消费", "rgba(251, 146, 60, 0.15)", "#fb923c", "rgba(251, 146, 60, 0.3)"),
+        "Consumer Defensive": ("必需消费", "rgba(52, 211, 153, 0.15)", "#34d399", "rgba(52, 211, 153, 0.3)"),
+        "Consumer Staples": ("必需消费", "rgba(52, 211, 153, 0.15)", "#34d399", "rgba(52, 211, 153, 0.3)"),
+        "Consumer & Staples": ("消费零售", "rgba(251, 191, 36, 0.15)", "#fbbf24", "rgba(251, 191, 36, 0.3)"),
+        "Healthcare": ("医疗健康", "rgba(236, 72, 153, 0.15)", "#f472b6", "rgba(236, 72, 153, 0.3)"),
+        "Healthcare & MedTech": ("医疗健康", "rgba(236, 72, 153, 0.15)", "#f472b6", "rgba(236, 72, 153, 0.3)"),
+        "Financial Services": ("金融服务", "rgba(34, 197, 94, 0.15)", "#4ade80", "rgba(34, 197, 94, 0.3)"),
+        "Financials": ("金融服务", "rgba(34, 197, 94, 0.15)", "#4ade80", "rgba(34, 197, 94, 0.3)"),
+        "Financials & Crypto": ("金融/加密", "rgba(34, 197, 94, 0.15)", "#4ade80", "rgba(34, 197, 94, 0.3)"),
+        "Communication Services": ("通信服务", "rgba(14, 165, 233, 0.15)", "#38bdf8", "rgba(14, 165, 233, 0.3)"),
+        "Industrials": ("工业制造", "rgba(161, 161, 170, 0.15)", "#d4d4d8", "rgba(161, 161, 170, 0.3)"),
+        "Industrials & Aerospace": ("工业航天", "rgba(161, 161, 170, 0.15)", "#d4d4d8", "rgba(161, 161, 170, 0.3)"),
+        "Energy": ("能源化工", "rgba(245, 158, 11, 0.15)", "#f59e0b", "rgba(245, 158, 11, 0.3)"),
+        "Energy & Commodities": ("能源大宗", "rgba(245, 158, 11, 0.15)", "#f59e0b", "rgba(245, 158, 11, 0.3)"),
+        "Utilities": ("公用事业", "rgba(20, 184, 166, 0.15)", "#2dd4bf", "rgba(20, 184, 166, 0.3)"),
+        "Real Estate": ("房地产", "rgba(168, 85, 247, 0.15)", "#c084fc", "rgba(168, 85, 247, 0.3)"),
+        "Basic Materials": ("基础材料", "rgba(217, 119, 6, 0.15)", "#d97706", "rgba(217, 119, 6, 0.3)"),
+        "Materials": ("基础材料", "rgba(217, 119, 6, 0.15)", "#d97706", "rgba(217, 119, 6, 0.3)"),
+        "China ADR": ("中概互联", "rgba(239, 68, 68, 0.15)", "#f87171", "rgba(239, 68, 68, 0.3)"),
+    }
+    
+    info_tuple = gics_map.get(raw_sec)
+    if not info_tuple:
+        for k, v in gics_map.items():
+            if k.lower() in str(raw_sec).lower():
+                info_tuple = v
+                break
+                
+    if info_tuple:
+        name_zh, bg, fg, border = info_tuple
+        return f"<span style='padding: 2px 7px; border-radius: 4px; background: {bg}; color: {fg}; font-size: 11px; font-weight: 600; border: 1px solid {border}; white-space: nowrap;'>{name_zh}</span>"
+    else:
+        return f"<span style='padding: 2px 7px; border-radius: 4px; background: rgba(255,255,255,0.06); color: #d4d4d8; font-size: 11px; font-weight: 500; border: 1px solid rgba(255,255,255,0.15); white-space: nowrap;'>{str(raw_sec)[:8]}</span>"
+
+
 
 
 def main():
@@ -1063,25 +1110,10 @@ def main():
     raw_sorted = sorted(unique_tickers, key=lambda t: (-ticker_balanced_score.get(t, -999.0), get_relative_price_position(t)))
 
     
-    # Apply sector concentration limit ONLY to the top 10 items
-    ordered_watchlist = []
-    sector_counts = {}
-    
-    # Pass 1: try to fill the top 10 while keeping each sector's count in the top 10 <= 3
-    for t in raw_sorted:
-        if len(ordered_watchlist) >= 10:
-            break
-        sec = SECTOR_MAP.get(t) or GLOBAL_FUNDAMENTAL_CACHE.get(t, {}).get("info", {}).get("sector") or ('ETF' if is_etf_symbol(t) else 'Other')
-        if sector_counts.get(sec, 0) < 3:
-            ordered_watchlist.append(t)
-            sector_counts[sec] = sector_counts.get(sec, 0) + 1
+    # Pure objective multi-factor quantitative ranking (100% objective, no artificial sector concentration re-ranking or holding-based adjustments)
+    ordered_watchlist = list(raw_sorted)
             
-    # Pass 2: append all other tickers in their raw sorted order
-    for t in raw_sorted:
-        if t not in ordered_watchlist:
-            ordered_watchlist.append(t)
-            
-    # Pass 3: Guarantee all current position tickers are included in ordered_watchlist (append at end if not ranked)
+    # Guarantee all current position tickers are included in ordered_watchlist (append at end if not ranked)
     for p_ticker in current_position_tickers:
         if p_ticker not in ordered_watchlist:
             ordered_watchlist.append(p_ticker)
@@ -1089,7 +1121,7 @@ def main():
     try:
         with open(os.path.join(BASE_DIR, "data", "watchlist_tickers.json"), "w") as f:
             json.dump({"tickers": ordered_watchlist}, f, indent=2)
-        print(f"Generated ordered watchlist tickers (sector diversified): {ordered_watchlist}")
+        print(f"Generated ordered watchlist tickers (pure objective quant ranking): {ordered_watchlist}")
     except Exception as e:
         print(f"Error writing watchlist_tickers.json: {e}")
 
@@ -1774,6 +1806,7 @@ def main():
             <th style="padding: 12px 12px; font-weight: 600; text-align: center; min-width: 135px; white-space: nowrap; background: rgba(16, 185, 129, 0.08); border-left: 1px solid rgba(16, 185, 129, 0.3); border-right: 1px solid rgba(16, 185, 129, 0.3);">🟢 近月主力档<br><span style="font-size: 10px; font-weight: normal; color: #34d399;">(DTE 25~40天 · 高Theta)</span></th>
             <th style="padding: 12px 12px; font-weight: 600; text-align: center; min-width: 135px; white-space: nowrap; background: rgba(14, 165, 233, 0.08); border-right: 1px solid rgba(14, 165, 233, 0.3);">🔵 次月防御档<br><span style="font-size: 10px; font-weight: normal; color: #38bdf8;">(DTE 45~75天 · 深安全垫)</span></th>
             <th style="padding: 12px 8px; font-weight: 600; text-align: center; min-width: 55px; white-space: nowrap;" title="252日真实历史隐含波动率百分位 (IVP)">IVP</th>
+            <th style="padding: 12px 10px; font-weight: 600; text-align: center; min-width: 85px; white-space: nowrap;">GICS 板块</th>
             <th style="padding: 12px 10px; font-weight: 600; text-align: center; min-width: 95px; white-space: nowrap;">InvestSkill 研报</th>
             <th style="padding: 12px 10px; font-weight: 600; text-align: center; min-width: 110px; white-space: nowrap;" title="双周期综合均分: (近月分 + 次月分)/2">综合均分 (平衡型)<br><span style="font-size: 10px; font-weight: normal; color: #a1a1aa;">(近月 / 次月)</span></th>
           </tr>
@@ -2156,6 +2189,7 @@ def main():
 
         search_terms = f"{t.upper()} {to_yf_symbol(t)} {to_display_symbol(t)} {cname} {intro_t} {'持仓' if t in current_position_tickers else ''}"
         safe_search_terms = html.escape(search_terms, quote=True)
+        gics_sector_cell = f"<div style='text-align: center;'>{format_gics_sector_badge(t, fund_info)}</div>"
 
         table_grouped += f"""
           <tr id="{master_id}" data-ticker="{t.upper()}" data-search="{safe_search_terms}" onclick="toggleDetails('{row_id}', '{master_id}')" style="background-color: {bg_c}; border-bottom: 1px solid #27272a; cursor: pointer; transition: background-color 0.15s;">
@@ -2172,6 +2206,7 @@ def main():
             <td style="padding: 10px 14px; background: rgba(16, 185, 129, 0.03); border-left: 1px solid rgba(16, 185, 129, 0.15); border-right: 1px solid rgba(16, 185, 129, 0.15);">{m1_cell}</td>
             <td style="padding: 10px 14px; background: rgba(14, 165, 233, 0.03); border-right: 1px solid rgba(14, 165, 233, 0.15);">{m2_cell}</td>
             <td style="padding: 10px 14px; text-align: center;">{iv_cell_master}</td>
+            <td style="padding: 10px 14px; text-align: center;">{gics_sector_cell}</td>
             <td style="padding: 10px 14px; text-align: center;">{investskill_cell}</td>
             <td style="padding: 10px 14px; text-align: center;">{score_cell}</td>
           </tr>"""
@@ -2349,7 +2384,7 @@ def main():
         
         table_grouped += f"""
           <tr id="{row_id}" style="display: none; background-color: #000000; border-bottom: 2px solid #3b82f6;">
-            <td colspan="12" style="padding: 20px 24px; background: linear-gradient(180deg, #0b0b0f 0%, #000000 100%);">
+            <td colspan="13" style="padding: 20px 24px; background: linear-gradient(180deg, #0b0b0f 0%, #000000 100%);">
               <div style="max-width: 1300px; margin: 0 auto;">
                 
                 <!-- Details Header Bar with Collapse Button -->
