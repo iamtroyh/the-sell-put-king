@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Intel Corporation (INTC) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:        #0068B5; /* Intel Blue */
+            --primary-dark:   #003C71;
+            --primary-light:  #E6F2FA;
+            --accent:         #00C7FD;
+            --accent-light:   #E0F7FE;
+            --emerald:        #10B981;
+            --emerald-light:  #ECFDF5;
+            --teal:           #0D9488;
+            --teal-light:     #CCFBF1;
+            --red:            #DC2626;
+            --red-light:      #FEE2E2;
+            --amber:          #D97706;
+            --amber-light:    #FEF3C7;
+            --blue:           #2563EB;
+            --blue-light:     #EFF6FF;
+            --purple:         #7C3AED;
+            --purple-light:   #F5F3FF;
+            --slate:          #64748B;
+            --slate-light:    #F8FAFC;
+            --border:         #E2E8F0;
+            --text-primary:   #0F172A;
+            --text-secondary: #475569;
+            --text-muted:     #94A3B8;
+            --grad-hero:      linear-gradient(135deg, #003C71 0%, #0068B5 50%, #0093EE 100%);
+            --grad-accent:    linear-gradient(90deg, #0068B5, #00C7FD);
+            --shadow-sm:      0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:      0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:      0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 28px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14px; opacity: 0.95; margin-bottom: 22px; max-width: 1050px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #BAE6FD; font-weight: 600; }
+        .hero-kpi-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-num {
+            background: var(--primary);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+        .info-box.alert { border-left-color: var(--amber); background: #FFFBEB; }
+        .info-box.danger { border-left-color: var(--red); background: #FEF2F2; }
+        .info-box.success { border-left-color: var(--emerald); background: #ECFDF5; }
+        .info-box-title { font-size: 13.5px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; color: var(--primary-dark); }
+
+        .metric-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .metric-card-val {
+            font-size: 22px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary-dark);
+            margin: 4px 0;
+        }
+        .metric-card-lbl { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .metric-card-desc { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+        .pillar-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            border-top: 3px solid var(--primary);
+        }
+        .pillar-title { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .pillar-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 14px 0; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background: #F1F5F9; color: var(--text-secondary); font-weight: 700; padding: 10px 12px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        tr:hover td { background: #F8FAFC; }
+        .num-font { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        .val-pos { color: #059669; font-weight: 600; }
+        .val-neg { color: #DC2626; font-weight: 600; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin: 14px 0;
+        }
+
+        .score-pill { display: inline-block; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11.5px; }
+        .pill-green { background: var(--emerald-light); color: #065F46; }
+        .pill-blue { background: var(--blue-light); color: var(--blue); }
+        .pill-amber { background: var(--amber-light); color: var(--amber); }
+        .pill-purple { background: var(--purple-light); color: var(--purple); }
+
+        .signal-block {
+            background: var(--grad-hero);
+            color: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 16px;
+            box-shadow: var(--shadow-md);
+        }
+        .signal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+        .signal-verdict { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #BAE6FD; }
+        .signal-body { font-size: 13.5px; line-height: 1.7; opacity: 0.95; }
+    </style>
+</head>
+<body>
+
+<div class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: INTC</span>
+            <span class="badge badge-hero-signal">🟢 看多 (BULLISH) · 极品左侧期权建仓与现金流收割标的</span>
+            <span class="badge badge-hero-score">价值量化总评分: 7.38 / 10.0</span>
+            <span class="badge" style="background: rgba(255,255,255,.2);">研报日期: 2026-08-26</span>
+        </div>
+        <h1 class="hero-title">Intel Corporation (INTC) 全球半导体巨头 18A 节点战略反转与芯片法案核心支柱</h1>
+        <div class="hero-sub">全球 PC 与数据中心 x86 架构基石，全球唯一兼具先进制程制造（Intel Foundry Services）与顶尖架构设计的 IDM 2.0 巨头。历经 2023-2024 年沉重资本开支洗礼与治理重组，Intel 18A 制程（RibbonFET 全环绕栅极与 PowerVia 背面供电）正式进入量产爬坡期，Q2 2026 自由现金流实现单季 +$4.45B 强劲正向转折，毛利率重回 40.4%。当前股价在自 $140 冲高回落后于 $86.78 企稳整理，获得 200 SMA ($72.25) 强劲技术与估值支撑。期权隐含波动率维持在 58%~60% 丰厚区间，为 Sell Put 策略提供了兼具高年化收益率 (16.2%~44.3%) 与充沛安全垫 (8%~20%) 的优质建仓机会。</div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新现价 (Spot)</div>
+                <div class="hero-kpi-val">$86.78</div>
+                <div class="hero-kpi-sub">52周区间: $24.00 - $140.94</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">200日均线 (200 SMA)</div>
+                <div class="hero-kpi-val">$72.25</div>
+                <div class="hero-kpi-sub">均线偏离: +20.1% (回调企稳)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">单季自由现金流 (Q2 FCF)</div>
+                <div class="hero-kpi-val">+$4.45B</div>
+                <div class="hero-kpi-sub">经营现金流: $7.01B (逆转回正)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">毛利率 (Gross Margin)</div>
+                <div class="hero-kpi-val">40.40%</div>
+                <div class="hero-kpi-sub">较2024谷底(32.7%)大幅修复</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">期权隐含波动率 (IV)</div>
+                <div class="hero-kpi-val">58.8%</div>
+                <div class="hero-kpi-sub">Sell Put 权利金极其丰厚</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">Damodaran DCF 公允价值</div>
+                <div class="hero-kpi-val">$86.19</div>
+                <div class="hero-kpi-sub">华尔街高盛/大摩目标: $82.50</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-wrap">
+
+    <!-- 目录导览 -->
+    <div class="toc-bar">
+        <div class="toc-title">研报深度导览 (长线价值投资 15 模块完整架构)</div>
+        <div class="toc-links">
+            <a href="#sec-01" class="toc-link">01 执行摘要</a>
+            <a href="#sec-02" class="toc-link">02 价值量化雷达</a>
+            <a href="#sec-03" class="toc-link">03 商业模式与护城河</a>
+            <a href="#sec-04" class="toc-link">04 财务报表剖析</a>
+            <a href="#sec-05" class="toc-link">05 杜邦三因子拆解</a>
+            <a href="#sec-06" class="toc-link">06 同行全景对标</a>
+            <a href="#sec-07" class="toc-link">07 DCF估值与敏感性</a>
+            <a href="#sec-08" class="toc-link">08 价值击球时机与筹码</a>
+            <a href="#sec-09" class="toc-link">09 资本配置与资产质量</a>
+            <a href="#sec-10" class="toc-link">10 Sell Put 期权策略</a>
+            <a href="#sec-11" class="toc-link">11 机构持仓动向</a>
+            <a href="#sec-12" class="toc-link">12 内部人与电话会语气</a>
+            <a href="#sec-13" class="toc-link">13 做空比例与期权异动</a>
+            <a href="#sec-14" class="toc-link">14 风险矩阵与熊市测试</a>
+            <a href="#sec-15" class="toc-link">15 催化剂日历</a>
+            <a href="#sec-16" class="toc-link">16 投资评级与执行</a>
+        </div>
+    </div>
+
+    <!-- 01 执行摘要 -->
+    <div class="sec-card" id="sec-01">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">01</span> 执行摘要与核心投资逻辑 (Executive Summary & Thesis)</div>
+            <span class="score-pill pill-green">综合评级: 7.38 / 10.0</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="info-box">
+                    <div class="info-box-title">🎯 核心价值论点: 18A 量产反转 + 现金流造血回正 + 极品期权波动率溢价</div>
+                    <p style="font-size: 13px; line-height: 1.7;">
+                        Intel 正在经历半导体历史上最具战略意义的涅槃重生：18A 制程领先台积电量产 RibbonFET 与背面供电技术，Panther Lake 与 Xeon 6 规模商用，代工（IFS）成为独立子公司并获 AWS/微软等重量级客户采纳；美国芯片法案（CHIPS Act）直补与税收抵免提供数百亿美元资本兜底。Q2 2026 自由现金流跃升至 +$4.45B，印证资本开支高峰已过、进入丰收周期的拐点。
+                    </p>
+                </div>
+            </div>
+            <div>
+                <div class="info-box success">
+                    <div class="info-box-title">🛡️ 期权 Cash Secured Put 战略定位</div>
+                    <div style="font-size: 13px; line-height: 1.7;">
+                        <div>• <strong>主推合约</strong>: INTC 2026-10-16 $75.00 Put (50 DTE) / 2026-09-25 $75.00 Put (29 DTE)</div>
+                        <div>• <strong>安全垫</strong>: 13.6% 虚值缓冲 (行权价 $75.00 紧贴 200 SMA $72.25 铁底)</div>
+                        <div>• <strong>年化收益率 (APY)</strong>: <span class="val-pos">26.6% ~ 40.6% 年化现金流</span></div>
+                        <div>• <strong>轮动防守</strong>: 净持仓成本低至 <strong>$72.27</strong> (低于当前公允价值 16%)。到期若不破则稳收丰厚权利金；若被指派则在 200 日线黄金底盘扎实建仓，启动 Covered Call 轮动！</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 02 价值量化雷达模型 -->
+    <div class="sec-card" id="sec-02">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">02</span> 长线价值多因子量化评分雷达模型 (Long-Term Value Multi-Factor Scorecard)</div>
+            <span class="score-pill pill-blue">价值总分: 7.38</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr><th>评价维度</th><th>评分</th><th>权重</th><th>价值投资核心驱动与量化事实</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>商业模式与产品护城河</strong></td>
+                                <td><span class="num-font val-pos">7.2 / 10</span></td>
+                                <td>25%</td>
+                                <td>x86 双寡头垄断，先进封装 Foveros/EMIB，18A 工艺先发优势，国家安全战略级资产</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DCF估值折价与安全边际</strong></td>
+                                <td><span class="num-font val-pos">6.8 / 10</span></td>
+                                <td>25%</td>
+                                <td>基准公允价值 $86.19，当前现价 $86.78 处于合理中枢；$70-$75 Put 净成本具深厚折扣</td>
+                            </tr>
+                            <tr>
+                                <td><strong>自由现金流造血力 (FCF)</strong></td>
+                                <td><span class="num-font val-pos">7.4 / 10</span></td>
+                                <td>20%</td>
+                                <td>Q2 2026 FCF 转正至 +$4.45B，经营现金流 $7.01B，Piotroski F-Score 达 7 分稳健级</td>
+                            </tr>
+                            <tr>
+                                <td><strong>期权 Alpha 与权利金厚度</strong></td>
+                                <td><span class="num-font val-pos">8.8 / 10</span></td>
+                                <td>15%</td>
+                                <td>IV 保持 58%+，持仓量数十万手，Sell Put 具备 26%~44% 超高年化收割效率</td>
+                            </tr>
+                            <tr>
+                                <td><strong>主力资金与内部人信号</strong></td>
+                                <td><span class="num-font val-pos">7.0 / 10</span></td>
+                                <td>10%</td>
+                                <td>机构持股 63.8%，管理层聚焦 18A 关键里程碑考核，空头回补平仓周期短</td>
+                            </tr>
+                            <tr>
+                                <td><strong>质量调制逆向击球时机</strong></td>
+                                <td><span class="num-font val-pos">7.5 / 10</span></td>
+                                <td>5%</td>
+                                <td>股价自 $140 冲高回落 -38%，RSI 38.5 充分释放超买情绪，在 200 SMA 上方构筑坚实右侧底</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 03 商业模式与护城河 -->
+    <div class="sec-card" id="sec-03">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">03</span> 商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="score-pill pill-green">护城河: 宽广 (Wide Moat)</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="pillar-card">
+                <div class="pillar-title">💻 Client & Data Center x86 根基</div>
+                <div class="pillar-desc">全球 PC 处理器市场份额超 70%，企业级服务器与云数据中心依托 Xeon 6 (Granite Rapids / Sierra Forest) 构筑起庞大的软件生态兼容性壁垒。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">🔬 18A 先进制程与背面供电</div>
+                <div class="pillar-desc">全球率先商用 RibbonFET (GAA) 与 PowerVia 技术，功耗比大幅跃升，打破台积电在 3nm/2nm 节点的绝对技术垄断，抢占 AI PC 与定制芯片制造高地。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">🏛️ 芯片法案与地缘战略护城河</div>
+                <div class="pillar-desc">美国《芯片与科学法案》最大获益者（$8.5B 直接资助 + $11B 贷款 + 25% 投资税收减免），奠定美国本土半导体自主供应链不可或缺的核心地位。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 04 财务报表剖析 (含双交互图表) -->
+    <div class="sec-card" id="sec-04">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">04</span> 核心财务报表、现金流与盈利质量深度剖析 (Financial Statements & Margins)</div>
+            <span class="score-pill pill-blue">造血拐点确立</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="revNetChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>报告期</th><th>总营收 ($B)</th><th>毛利润 ($B)</th><th>毛利率</th><th>营业利润 ($B)</th><th>经营现金流 ($B)</th><th>资本开支 ($B)</th><th>自由现金流 ($B)</th></tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #EFF6FF; font-weight: 700;">
+                        <td><strong>Q2 2026 (最新季)</strong></td>
+                        <td class="num-font">$16.13</td>
+                        <td class="num-font">$6.51</td>
+                        <td class="num-font val-pos">40.36%</td>
+                        <td class="num-font val-pos">$1.97</td>
+                        <td class="num-font val-pos">$7.01</td>
+                        <td class="num-font">-$2.56</td>
+                        <td class="num-font val-pos">+$4.45</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025</strong></td>
+                        <td class="num-font">$52.85</td>
+                        <td class="num-font">$18.38</td>
+                        <td class="num-font">34.78%</td>
+                        <td class="num-font">-$0.02</td>
+                        <td class="num-font val-pos">$9.70</td>
+                        <td class="num-font">-$14.65</td>
+                        <td class="num-font val-neg">-$4.95</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td class="num-font">$53.10</td>
+                        <td class="num-font">$17.34</td>
+                        <td class="num-font">32.66%</td>
+                        <td class="num-font val-neg">-$4.71</td>
+                        <td class="num-font val-pos">$8.29</td>
+                        <td class="num-font">-$23.94</td>
+                        <td class="num-font val-neg">-$15.66</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td class="num-font">$54.23</td>
+                        <td class="num-font">$21.71</td>
+                        <td class="num-font">40.03%</td>
+                        <td class="num-font">$0.03</td>
+                        <td class="num-font val-pos">$11.47</td>
+                        <td class="num-font">-$25.75</td>
+                        <td class="num-font val-neg">-$14.28</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2022</strong></td>
+                        <td class="num-font">$63.05</td>
+                        <td class="num-font">$26.87</td>
+                        <td class="num-font">42.62%</td>
+                        <td class="num-font val-pos">$2.34</td>
+                        <td class="num-font val-pos">$15.43</td>
+                        <td class="num-font">-$24.84</td>
+                        <td class="num-font val-neg">-$9.41</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 05 杜邦三因子拆解 -->
+    <div class="sec-card" id="sec-05">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">05</span> 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+            <span class="score-pill pill-purple">运营效率修复中</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="metric-card">
+                <div class="metric-card-lbl">毛利与营业利润率</div>
+                <div class="metric-card-val">40.4% / 12.2%</div>
+                <div class="metric-card-desc">Q2 营业利润 $1.97B，重返盈利轨道</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">总资产周转率 (Asset Turnover)</div>
+                <div class="metric-card-val">0.34x</div>
+                <div class="metric-card-desc">重资产晶圆厂建设周期进入产能爬坡期</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">权益乘数 (Leverage Multiplier)</div>
+                <div class="metric-card-val">1.68x</div>
+                <div class="metric-card-desc">净资产 $114.3B，资产负债率仅 40.8%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 06 同行对标 -->
+    <div class="sec-card" id="sec-06">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">06</span> 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="score-pill pill-green">半导体全景对标</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>公司代码 / 名称</th><th>市值 ($B)</th><th>前瞻 P/E</th><th>P/S</th><th>毛利率</th><th>单季 FCF</th><th>52W 相对位置 (RP)</th><th>业务核心驱动</th></tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #EFF6FF; font-weight: 700;">
+                        <td><strong>INTC (Intel Corp.)</strong></td>
+                        <td>$443.0B</td>
+                        <td class="num-font">24.5x</td>
+                        <td class="num-font">7.2x</td>
+                        <td class="num-font val-pos">40.4%</td>
+                        <td class="num-font val-pos">+$4.45B</td>
+                        <td class="num-font">0.54 (回调整理)</td>
+                        <td>18A 制程量产、x86 龙头、IFS 代工独立</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AMD (Advanced Micro Devices)</strong></td>
+                        <td>$280.0B</td>
+                        <td class="num-font">32.0x</td>
+                        <td class="num-font">10.5x</td>
+                        <td class="num-font">52.0%</td>
+                        <td class="num-font">+$1.20B</td>
+                        <td class="num-font">0.62</td>
+                        <td>EPYC 服务器与 MI300 AI 加速芯片</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NVDA (NVIDIA Corp.)</strong></td>
+                        <td>$3,150.0B</td>
+                        <td class="num-font">38.5x</td>
+                        <td class="num-font">24.0x</td>
+                        <td class="num-font val-pos">75.0%</td>
+                        <td class="num-font val-pos">+$13.50B</td>
+                        <td class="num-font">0.78</td>
+                        <td>全球 AI 算力 GPU 与 CUDA 生态绝对垄断</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TSM (Taiwan Semiconductor)</strong></td>
+                        <td>$950.0B</td>
+                        <td class="num-font">22.0x</td>
+                        <td class="num-font">11.8x</td>
+                        <td class="num-font">54.0%</td>
+                        <td class="num-font val-pos">+$8.60B</td>
+                        <td class="num-font">0.70</td>
+                        <td>全球纯晶圆代工霸主，3nm/2nm 产能王者</td>
+                    </tr>
+                    <tr>
+                        <td><strong>QCOM (Qualcomm Inc.)</strong></td>
+                        <td>$190.0B</td>
+                        <td class="num-font">16.5x</td>
+                        <td class="num-font">5.2x</td>
+                        <td class="num-font">56.0%</td>
+                        <td class="num-font">+$3.10B</td>
+                        <td class="num-font">0.45</td>
+                        <td>骁龙智能手机与 ARM 架构 AI PC 芯片</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 07 DCF 估值与敏感性 -->
+    <div class="sec-card" id="sec-07">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">07</span> DCF 现金流折现、内在价值与多维估值公允中枢 (DCF Valuation & Sensitivity)</div>
+            <span class="score-pill pill-blue">基准公允值: $86.19</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="valuationChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr><th>估值模型 / 场景</th><th>每股公允估值</th><th>隐含企业价值 (EV)</th><th>较现价空间</th><th>模型核心假设</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>5年保守清算底线 (Bear Floor)</strong></td>
+                                <td class="num-font val-pos">$44.41</td>
+                                <td>$233.8B</td>
+                                <td class="val-neg">-48.8%</td>
+                                <td>Foundry 盈亏平衡延后，FCF 维持 $4B-$10B，WACC 9.5%</td>
+                            </tr>
+                            <tr style="background: #ECFDF5; font-weight: 700;">
+                                <td><strong>10年 Damodaran R&D 资本化基准</strong></td>
+                                <td class="num-font val-pos">$86.19</td>
+                                <td>$445.0B</td>
+                                <td class="val-pos">-0.7% (合理)</td>
+                                <td>18A 顺利爬坡，年均 FCF $12B-$18B，WACC 8.75%，g=2.5%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>华尔街分析师共识目标均价</strong></td>
+                                <td class="num-font val-pos">$82.50</td>
+                                <td>$428.0B</td>
+                                <td class="val-pos">-4.9%</td>
+                                <td>主流大行（高盛/大摩/瑞银）12个月平均目标价</td>
+                            </tr>
+                            <tr>
+                                <td><strong>乐观多头情景 (Bull Target)</strong></td>
+                                <td class="num-font val-pos">$125.00</td>
+                                <td>$640.0B</td>
+                                <td class="val-pos">+44.0%</td>
+                                <td>IFS 获取外部顶级大单，AI PC 全面普及，毛利达 48%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="info-box" style="margin-top: 10px;">
+            <div class="info-box-title">📊 WACC 贴现率与永续增长率 (g) 敏感性矩阵 (每股公允价值 $)</div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr><th>WACC \ g</th><th>1.5%</th><th>2.0%</th><th>2.5% (基准)</th><th>3.0%</th><th>3.5%</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>7.5%</strong></td>
+                            <td class="num-font">$96.40</td>
+                            <td class="num-font">$104.20</td>
+                            <td class="num-font val-pos" style="font-weight:700;">$113.80</td>
+                            <td class="num-font">$125.60</td>
+                            <td class="num-font">$140.80</td>
+                        </tr>
+                        <tr>
+                            <td><strong>8.25%</strong></td>
+                            <td class="num-font">$82.10</td>
+                            <td class="num-font">$87.80</td>
+                            <td class="num-font">$94.60</td>
+                            <td class="num-font">$102.80</td>
+                            <td class="num-font">$112.90</td>
+                        </tr>
+                        <tr>
+                            <td><strong>8.75% (基准)</strong></td>
+                            <td class="num-font">$75.30</td>
+                            <td class="num-font">$80.20</td>
+                            <td class="num-font val-pos" style="background: #D1FAE5; font-weight:700;">$86.19</td>
+                            <td class="num-font">$93.10</td>
+                            <td class="num-font">$101.40</td>
+                        </tr>
+                        <tr>
+                            <td><strong>9.5%</strong></td>
+                            <td class="num-font">$64.80</td>
+                            <td class="num-font">$68.40</td>
+                            <td class="num-font">$72.60</td>
+                            <td class="num-font">$77.50</td>
+                            <td class="num-font">$83.30</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 08 价值击球时机与技术形态 -->
+    <div class="sec-card" id="sec-08">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">08</span> 质量调制之逆向价值击球时机与均线筹码 (Contrarian Value Timing)</div>
+            <span class="score-pill pill-green">右侧企稳击球点</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-box">
+                <div class="info-box-title">均线系统 (Moving Averages)</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <div>• 现价 (Spot): <strong>$86.78</strong></div>
+                    <div>• 30日均线 (30 SMA): <strong>$95.51</strong></div>
+                    <div>• 50日均线 (50 SMA): <strong>$106.02</strong></div>
+                    <div>• 200日均线 (200 SMA): <strong>$72.25</strong> (偏离: +20.1%)</div>
+                </div>
+            </div>
+            <div class="info-box success">
+                <div class="info-box-title">逆向超买出清与技术指标</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <div>• 14日 RSI: <strong>38.50</strong> (超买完全释放)</div>
+                    <div>• 52周位置 (RP): <strong>0.54</strong> (中枢良性整理)</div>
+                    <div>• 30日实际波动率 (HV30): <strong>72.2%</strong> (期权高溢价)</div>
+                </div>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">核心支撑与阻力位 (S/R Levels)</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <div>• 强阻力位 (R1): <strong>$105.00</strong></div>
+                    <div>• 核心第一支撑 (S1): <strong>$75.00 (主推行权底)</strong></div>
+                    <div>• 铁底极值支撑 (S2): <strong>$70.00 - $72.25 (200 SMA)</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 09 资本配置与资产质量 -->
+    <div class="sec-card" id="sec-09">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">09</span> 资本配置、资产负债表健康度与资本支出周期 (Capital Allocation)</div>
+            <span class="score-pill pill-green">资产负债表坚固</span>
+        </div>
+        <p style="font-size: 13px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 14px;">
+            Intel 资产负债表极其扎实，拥有超过 $240 亿美元现金与高流动性短期投资，股东权益（Net Equity）高达 $114.28B。通过引入 Apollo 财团联合投资爱尔兰 Fab 34 晶圆厂（释放 $11B 流动性）及芯片法案直接拨款，Intel 成功在不大幅增加债务杠杆的前提下渡过了资本开支最严峻的高峰期。
+        </p>
+        <div class="data-grid-3">
+            <div class="metric-card">
+                <div class="metric-card-lbl">现金及短期投资储备</div>
+                <div class="metric-card-val">$24.0B+</div>
+                <div class="metric-card-desc">具备极强的流动性防御缓冲垫</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">股东权益 (Book Value)</div>
+                <div class="metric-card-val">$114.3B</div>
+                <div class="metric-card-desc">每股净资产约 $22.40，底盘扎实</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">Piotroski F-Score 健康分</div>
+                <div class="metric-card-val">7 / 9 分</div>
+                <div class="metric-card-desc">经营现金流与毛利率全面回升</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10 Sell Put 期权策略 -->
+    <div class="sec-card" id="sec-10">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">10</span> 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="score-pill pill-green">期权量化策略</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>风险偏好梯队</th><th>行权价 (Strike)</th><th>到期日 / DTE</th><th>权利金 (Bid/Ask)</th><th>安全垫</th><th>Delta</th><th>年化收益率 (APY)</th><th>净持仓成本</th><th>持仓量 (OI)</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🟢 保守型 (Conservative)</strong></td>
+                        <td class="num-font font-bold">$70.00</td>
+                        <td>2026-10-16 (50d)</td>
+                        <td class="num-font">$1.53 / $1.58</td>
+                        <td class="num-font val-pos">19.34%</td>
+                        <td class="num-font">-0.132</td>
+                        <td class="num-font val-pos">16.2%</td>
+                        <td class="num-font">$68.44</td>
+                        <td class="num-font">20,009 手</td>
+                    </tr>
+                    <tr style="background: #EFF6FF; font-weight: 700;">
+                        <td><strong>🟡 平衡型 (Balanced - 主推)</strong></td>
+                        <td class="num-font font-bold">$75.00</td>
+                        <td>2026-10-16 (50d)</td>
+                        <td class="num-font">$2.69 / $2.78</td>
+                        <td class="num-font val-pos">13.57%</td>
+                        <td class="num-font">-0.209</td>
+                        <td class="num-font val-pos">26.6%</td>
+                        <td class="num-font">$72.27</td>
+                        <td class="num-font">14,204 手</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🟠 进取型 (Aggressive)</strong></td>
+                        <td class="num-font font-bold">$80.00</td>
+                        <td>2026-09-25 (29d)</td>
+                        <td class="num-font">$2.74 / $2.89</td>
+                        <td class="num-font val-pos">7.81%</td>
+                        <td class="num-font">-0.272</td>
+                        <td class="num-font val-pos">44.3%</td>
+                        <td class="num-font">$77.18</td>
+                        <td class="num-font">2,565 手</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="info-box success" style="margin-top: 10px;">
+            <strong>⚡ 轮动执行指南 (The Wheel Strategy):</strong><br>
+            强烈主推卖出 <strong>INTC 2026-10-16 $75.00 Put (50 DTE)</strong>。以 13.57% 极高安全垫收割 <strong>26.6% 年化现金流</strong>；若到期被指派，则在 <strong>$72.27 (完美贴合 200 SMA 均线铁底)</strong> 扎实建仓，随后立即针对持仓卖出 $85.00 / $90.00 Covered Call 展开双向收割！
+        </div>
+    </div>
+
+    <!-- 11 机构持仓 -->
+    <div class="sec-card" id="sec-11">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">11</span> 机构持仓与主力资金动向 (Institutional Ownership & 13F)</div>
+            <span class="score-pill pill-blue">机构持股 63.8%</span>
+        </div>
+        <p style="font-size: 13px; line-height: 1.7; color: var(--text-secondary);">
+            Vanguard Group ($38.5B, 8.9%), BlackRock ($35.2B, 8.1%), State Street ($18.4B, 4.2%), Geode Capital 等全球顶尖被动与主动基金长线重仓。随着 18A 节点良率突破与现金流回正，主权财富基金与科技价值型基金正在持续增持。
+        </p>
+    </div>
+
+    <!-- 12 内部人与语气 -->
+    <div class="sec-card" id="sec-12">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">12</span> 内部人交易、管理层语气与财报电话会洞察 (Insider & Tone)</div>
+            <span class="score-pill pill-green">电话会信心坚定</span>
+        </div>
+        <p style="font-size: 13px; line-height: 1.7; color: var(--text-secondary);">
+            管理层在最新财报电话会中明确强调：“Intel 18A 的研发与量产进度完全符合预期，Intel Foundry 将在 2027 年实现独立运营与运营利润盈亏平衡”。高管团队薪酬与 18A 关键外部代工签约金额及自由现金流增长深度绑定。
+        </p>
+    </div>
+
+    <!-- 13 做空分析 -->
+    <div class="sec-card" id="sec-13">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">13</span> 做空比例、平仓天数与期权持仓结构 (Short Interest & PCR)</div>
+            <span class="score-pill pill-green">空头压力温和</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-box">
+                <div class="info-box-title">空头占流通盘比例 (Short % Float)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 6px 0;">2.48%</div>
+                <div style="font-size: 11px; color: var(--text-muted);">空头头寸约 1.08 亿股</div>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">平仓所需天数 (Days to Cover)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 6px 0;">2.80 天</div>
+                <div style="font-size: 11px; color: var(--text-muted);">日均成交量流动性极佳</div>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">期权沽购比 (Put/Call Ratio)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--primary); margin: 6px 0;">0.82</div>
+                <div style="font-size: 11px; color: var(--text-muted);">多空博弈均衡，下行恐慌可控</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 14 风险矩阵 -->
+    <div class="sec-card" id="sec-14">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">14</span> 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Case)</div>
+            <span class="score-pill pill-amber">压力测试</span>
+        </div>
+        <div class="info-box alert">
+            <strong>🐻 极度熊市压力测试场景:</strong><br>
+            假设外部代工客户签约不及预期、且 PC 市场需求出现双位数萎缩，Intel 单季 FCF 回落至 $1.0B 甚至微幅亏损，每股内在清算价值底线约为 <strong>$44.40</strong>。但由于其账面拥有 $114B 净资产与 $24B 现金，破产风险为 0。选择在 <strong>$70.00 / $75.00 行权价卖出 Put（净成本 $68.44 / $72.27）</strong>，拥有极其雄厚的技术与财务安全纵深。
+        </div>
+    </div>
+
+    <!-- 15 催化剂日历 -->
+    <div class="sec-card" id="sec-15">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">15</span> 未来关键催化剂日历与增长路线图 (Catalyst Calendar)</div>
+            <span class="score-pill pill-blue">三大里程碑</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="pillar-card">
+                <div class="pillar-title">18A 旗舰产品量产交付</div>
+                <div class="pillar-desc">Panther Lake (Client AI PC) 与 Clearwater Forest (Server Xeon) 规模量产发货。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">Intel Foundry 重大客户签约</div>
+                <div class="pillar-desc">宣布顶级科技巨头（如苹果、高通或英伟达非核心芯片）采用 18A/14A 工艺。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">芯片法案资金全额落袋</div>
+                <div class="pillar-desc">俄亥俄与亚利桑那晶圆厂达到建设里程碑，联邦直接补贴资金注入。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 16 投资评级与执行 -->
+    <div class="sec-card" id="sec-16" style="border: 2px solid var(--primary);">
+        <div class="sec-head" style="border-bottom-color: var(--primary);">
+            <div class="sec-title" style="color: var(--primary-dark);"><span class="sec-num">16</span> 最终投资评级与执行建议 (Final Verdict & Execution)</div>
+            <span class="score-pill pill-green" style="font-size: 13px;">评级: 🟢 看多 (BULLISH) · 极品期权现金流收割标的</span>
+        </div>
+        <div class="signal-block">
+            <div class="signal-header">
+                <div class="signal-verdict">🟢 看多 (BULLISH) · 顶级期权收割与左侧建仓标的 · 价值总分 7.38 / 10.0</div>
+            </div>
+            <div class="signal-body">
+                Intel Corporation (INTC) 凭借 <strong>“18A 先进制程量产反转 + 单季 FCF 强劲回正 + 美国半导体国家战略支柱”</strong>，已彻底走出最困难的资本重组泥潭。虽然股价自 $140 高位经历理性回调，但当前 $86.78 现价获得了 200 SMA ($72.25) 的强有力支撑。期权隐含波动率高达 58%~60%，极其适合卖方策略！建议以 <strong>Sell Put INTC 2026-10-16 $75.00 (50 DTE, APY 26.6%)</strong> 或 <strong>2026-09-25 $75.00 (29 DTE, APY 23.7%)</strong> 作为核心策略，以 $72.27 极致安全成本捕获超额现金流！
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Chart.js Scripts (4 Full Interactive Charts) -->
+<script>
+    // 1. Radar Chart
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['商业护城河', 'DCF估值安全垫', 'FCF造血力', '期权Alpha', '主力资金信号', '逆向击球时机'],
+            datasets: [{
+                label: 'INTC 价值评分',
+                data: [7.2, 6.8, 7.4, 8.8, 7.0, 7.5],
+                backgroundColor: 'rgba(0, 104, 181, 0.2)',
+                borderColor: 'rgba(0, 104, 181, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(0, 104, 181, 1)',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#E2E8F0' },
+                    grid: { color: '#F1F5F9' },
+                    pointLabels: { font: { size: 11, weight: '600' }, color: '#475569' },
+                    suggestedMin: 0,
+                    suggestedMax: 10
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 2. Revenue & Net Income Dual Chart
+    const ctxRevNet = document.getElementById('revNetChart').getContext('2d');
+    new Chart(ctxRevNet, {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'FY2026 (RunRate)'],
+            datasets: [
+                {
+                    type: 'bar',
+                    label: '总营收 ($B)',
+                    data: [63.05, 54.23, 53.10, 52.85, 60.50],
+                    backgroundColor: 'rgba(0, 104, 181, 0.75)',
+                    borderRadius: 4
+                },
+                {
+                    type: 'line',
+                    label: '营业利润 ($B)',
+                    data: [2.34, 0.03, -4.71, -0.02, 5.80],
+                    borderColor: '#10B981',
+                    backgroundColor: '#10B981',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+            scales: {
+                y: { grid: { color: '#F1F5F9' }, ticks: { callback: v => '$' + v + 'B' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 3. Cash Flow Chart (OCF vs CapEx vs FCF)
+    const ctxCash = document.getElementById('cashFlowChart').getContext('2d');
+    new Chart(ctxCash, {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'Q2 2026'],
+            datasets: [
+                {
+                    label: '经营现金流 OCF ($B)',
+                    data: [15.43, 11.47, 8.29, 9.70, 7.01],
+                    backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                    borderRadius: 4
+                },
+                {
+                    label: '自由现金流 FCF ($B)',
+                    data: [-9.41, -14.28, -15.66, -4.95, 4.45],
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+            scales: {
+                y: { grid: { color: '#F1F5F9' }, ticks: { callback: v => '$' + v + 'B' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 4. Valuation Scenarios Waterfall/Bar
+    const ctxVal = document.getElementById('valuationChart').getContext('2d');
+    new Chart(ctxVal, {
+        type: 'bar',
+        data: {
+            labels: ['保守清算底线', '华尔街均价', '当前现价', '基准DCF公允', '乐观多头目标'],
+            datasets: [{
+                label: '每股公允估值 ($)',
+                data: [44.41, 82.50, 86.78, 86.19, 125.00],
+                backgroundColor: ['rgba(220, 38, 38, 0.7)', 'rgba(37, 99, 235, 0.7)', 'rgba(100, 116, 139, 0.8)', 'rgba(0, 104, 181, 0.8)', 'rgba(16, 185, 129, 0.7)'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) } }
+            },
+            scales: {
+                y: { beginAtZero: false, grid: { color: '#F1F5F9' }, ticks: { callback: v => '$' + v } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
