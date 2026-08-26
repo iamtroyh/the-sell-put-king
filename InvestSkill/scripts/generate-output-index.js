@@ -77,13 +77,13 @@ function generateIndex() {
 
     const combinedStr = `${verdictStr} ${actionStr} ${heroStr}`;
 
-    if (/强烈看多|strong buy|强烈买入|strong bullish/i.test(verdictStr) ||
-        /强烈看多|strong buy|强烈买入|strong bullish/i.test(actionStr) ||
-        /强烈看多|strong buy|强烈买入|strong bullish/i.test(heroStr)) {
+    if (/强烈看多|strong buy|强烈买入|strong bullish|强力买入/i.test(verdictStr) ||
+        /强烈看多|strong buy|强烈买入|strong bullish|强力买入/i.test(actionStr) ||
+        /强烈看多|strong buy|强烈买入|strong bullish|强力买入/i.test(heroStr)) {
       signalType = 'STRONG_BUY';
       signalText = '强烈看多 (STRONG BUY)';
-    } else if (/看多|bullish/i.test(verdictStr) || /买入|buy/i.test(verdictStr) ||
-               /看多|bullish/i.test(actionStr) || /买入|buy/i.test(actionStr)) {
+    } else if (/看多|bullish|买入|buy/i.test(verdictStr) ||
+               /看多|bullish|买入|buy/i.test(actionStr)) {
       signalType = 'BULLISH';
       signalText = '看多 (BULLISH)';
     } else if (/强烈看空|strong sell|强烈卖出|strong bearish/i.test(verdictStr) ||
@@ -97,18 +97,36 @@ function generateIndex() {
     } else if (/中立|neutral|持有|hold/i.test(verdictStr) || /中立|neutral|持有|hold/i.test(actionStr)) {
       signalType = 'NEUTRAL';
       signalText = '中立 (NEUTRAL)';
-    } else if (/strong buy|强烈看多|强烈买入/i.test(combinedStr)) {
+    } else if (/strong buy|强烈看多|强烈买入|强力买入/i.test(combinedStr)) {
       signalType = 'STRONG_BUY';
       signalText = '强烈看多 (STRONG BUY)';
-    } else if (/bullish|看多/i.test(combinedStr)) {
-      signalType = 'BULLISH';
-      signalText = '看多 (BULLISH)';
+    } else if (/bullish|看多|买入|黄金坑|超卖/i.test(combinedStr)) {
+      signalType = (score !== null && score >= 8.0) ? 'STRONG_BUY' : 'BULLISH';
+      signalText = signalType === 'STRONG_BUY' ? '强烈看多 (STRONG BUY)' : '看多 (BULLISH)';
     } else if (/strong sell|强烈看空|强烈卖出/i.test(combinedStr)) {
       signalType = 'STRONG_SELL';
       signalText = '强烈看空 (STRONG SELL)';
     } else if (/bearish|看空/i.test(combinedStr)) {
       signalType = 'BEARISH';
       signalText = '看空 (BEARISH)';
+    } else if (score !== null) {
+      // Quantitative Score Fallback
+      if (score >= 8.0) {
+        signalType = 'STRONG_BUY';
+        signalText = '强烈看多 (STRONG BUY)';
+      } else if (score >= 6.5) {
+        signalType = 'BULLISH';
+        signalText = '看多 (BULLISH)';
+      } else if (score <= 3.5) {
+        signalType = 'STRONG_SELL';
+        signalText = '强烈看空 (STRONG SELL)';
+      } else if (score < 5.0) {
+        signalType = 'BEARISH';
+        signalText = '看空 (BEARISH)';
+      } else {
+        signalType = 'NEUTRAL';
+        signalText = '中立 (NEUTRAL)';
+      }
     }
 
     // Extract Date

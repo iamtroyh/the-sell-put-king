@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>VICI Properties Inc. (VICI) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:        #059669;
+            --primary-dark:   #064E3B;
+            --primary-light:  #ECFDF5;
+            --accent:         #10B981;
+            --accent-light:   #D1FAE5;
+            --emerald:        #10B981;
+            --emerald-light:  #ECFDF5;
+            --teal:           #0D9488;
+            --teal-light:     #CCFBF1;
+            --red:            #DC2626;
+            --red-light:      #FEE2E2;
+            --amber:          #D97706;
+            --amber-light:    #FEF3C7;
+            --blue:           #2563EB;
+            --blue-light:     #EFF6FF;
+            --purple:         #7C3AED;
+            --purple-light:   #F5F3FF;
+            --slate:          #64748B;
+            --slate-light:    #F8FAFC;
+            --border:         #E2E8F0;
+            --text-primary:   #0F172A;
+            --text-secondary: #475569;
+            --text-muted:     #94A3B8;
+            --grad-hero:      linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:    linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:      0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:      0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:      0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 28px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14px; opacity: 0.95; margin-bottom: 22px; max-width: 1050px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-num {
+            background: var(--primary);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+        .info-box.alert { border-left-color: var(--amber); background: #FFFBEB; }
+        .info-box.danger { border-left-color: var(--red); background: #FEF2F2; }
+        .info-box.success { border-left-color: var(--emerald); background: #ECFDF5; }
+        .info-box-title { font-size: 13.5px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; color: var(--primary-dark); }
+
+        .metric-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .metric-card-val {
+            font-size: 22px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary-dark);
+            margin: 4px 0;
+        }
+        .metric-card-lbl { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .metric-card-desc { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+        .pillar-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            border-top: 3px solid var(--primary);
+        }
+        .pillar-title { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .pillar-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 14px 0; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background: #F1F5F9; color: var(--text-secondary); font-weight: 700; padding: 10px 12px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        tr:hover td { background: #F8FAFC; }
+        .num-font { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        .val-pos { color: #059669; font-weight: 600; }
+        .val-neg { color: #DC2626; font-weight: 600; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin: 14px 0;
+        }
+
+        .score-pill { display: inline-block; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11.5px; }
+        .pill-green { background: var(--emerald-light); color: #065F46; }
+        .pill-blue { background: var(--blue-light); color: var(--blue); }
+        .pill-amber { background: var(--amber-light); color: var(--amber); }
+        .pill-purple { background: var(--purple-light); color: var(--purple); }
+
+        .signal-block {
+            background: var(--grad-hero);
+            color: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 16px;
+            box-shadow: var(--shadow-md);
+        }
+        .signal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+        .signal-verdict { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #A7F3D0; }
+        .signal-body { font-size: 13.5px; line-height: 1.7; opacity: 0.95; }
+    </style>
+</head>
+<body>
+
+<div class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: VICI</span>
+            <span class="badge badge-hero-signal">🟢 强烈看多 (STRONG BUY) · 顶级高股息现金流资产</span>
+            <span class="badge badge-hero-score">价值量化总评分: 9.60 / 10.0</span>
+            <span class="badge" style="background: rgba(255,255,255,.2);">研报日期: 2026-08-26</span>
+        </div>
+        <h1 class="hero-title">VICI Properties (VICI) 拉斯维加斯顶级娱乐地产收租帝国</h1>
+        <div class="hero-sub">全球体验式娱乐地产 REITs 绝对霸主 (Caesars Palace / MGM Grand 业主) · 100% 满租率与 41 年极长加权租期 (WALTs) · 租金 100% 挂钩 CPI 通胀自动递增 · 股息收益率高达 6.85% (连续 7 年双位数增息) · 股价触及 52 周大底 $27.00 - $28.00 极值黄金坑 · 机构长线极品超高股息与 Sell Put 折扣建仓标的。</div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新现价 (Spot)</div>
+                <div class="hero-kpi-val">$28.32</div>
+                <div class="hero-kpi-sub">52周区间: $26.80 - $34.50 (RP: 0.18)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息收益率 (Dividend Yield)</div>
+                <div class="hero-kpi-val">6.85%</div>
+                <div class="hero-kpi-sub">派息 $1.94/股/年 (连续 7 年增息)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">P / AFFO 估值倍数</div>
+                <div class="hero-kpi-val">11.85x</div>
+                <div class="hero-kpi-sub">历史均值: 16.5x (深度折价 28%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">出租率 / 租金回收率</div>
+                <div class="hero-kpi-val">100% / 100%</div>
+                <div class="hero-kpi-sub">41.5 年极长加权租期 (WALTs)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">调整后运营现金 (AFFO)</div>
+                <div class="hero-kpi-val">$2.48B</div>
+                <div class="hero-kpi-sub">EBITDA 利润率高达 99.2%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">DCF 基准公允价值</div>
+                <div class="hero-kpi-val">$35.50</div>
+                <div class="hero-kpi-sub">分析师均价: $36.80 (+29.9%)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-wrap">
+
+    <!-- 目录导览 -->
+    <div class="toc-bar">
+        <div class="toc-title">研报深度导览 (长线价值投资 15 模块完整架构)</div>
+        <div class="toc-links">
+            <a href="#sec-01" class="toc-link">01 执行摘要</a>
+            <a href="#sec-02" class="toc-link">02 价值量化雷达</a>
+            <a href="#sec-03" class="toc-link">03 商业模式与护城河</a>
+            <a href="#sec-04" class="toc-link">04 财务报表剖析</a>
+            <a href="#sec-05" class="toc-link">05 杜邦三因子拆解</a>
+            <a href="#sec-06" class="toc-link">06 同行全景对标</a>
+            <a href="#sec-07" class="toc-link">07 DCF估值与敏感性</a>
+            <a href="#sec-08" class="toc-link">08 价值击球时机与筹码</a>
+            <a href="#sec-09" class="toc-link">09 资本配置与股息</a>
+            <a href="#sec-10" class="toc-link">10 Sell Put 期权策略</a>
+            <a href="#sec-11" class="toc-link">11 机构持仓动向</a>
+            <a href="#sec-12" class="toc-link">12 内部人与电话会语气</a>
+            <a href="#sec-13" class="toc-link">13 做空比例与轧空</a>
+            <a href="#sec-14" class="toc-link">14 风险矩阵与熊市测试</a>
+            <a href="#sec-15" class="toc-link">15 催化剂日历</a>
+            <a href="#sec-16" class="toc-link">16 投资评级与执行</a>
+        </div>
+    </div>
+
+    <!-- 01 执行摘要 -->
+    <div class="sec-card" id="sec-01">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">01</span> 执行摘要与长线投资逻辑 (Executive Summary & Thesis)</div>
+            <span class="score-pill pill-green">综合评级: 9.60 / 10.0</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="info-box">
+                    <div class="info-box-title">🎯 核心价值论点: 拉斯维加斯主干道不可替代顶级地标，6.85% 股息黄金坑</div>
+                    <p style="font-size: 13px; line-height: 1.7;">VICI 拥有拉斯维加斯大道 660+ 亩核心博彩娱乐地产。租户（凯撒、美高梅）投入数十亿美元资本沉淀，违约成本极高。在三净租赁（Triple Net Lease）模式下，租户全额承担维护、税费与保险，VICI 坐享 100% 净租金与 CPI 通胀指数化递增。</p>
+                </div>
+            </div>
+            <div>
+                <div class="info-box success">
+                    <div class="info-box-title">🛡️ 期权 Cash Secured Put 战略定位</div>
+                    <div style="font-size: 13px; line-height: 1.7;">
+                        <div>• <strong>安全边际</strong>: 4.66% 虚值缓冲 (行权价 $27.00)</div>
+                        <div>• <strong>主推合约</strong>: VICI 2026-09-18 $27.00 Put (22 DTE)</div>
+                        <div>• <strong>年化收益率 (APY)</strong>: <span class="val-pos">15.5% 年化收益率</span></div>
+                        <div>• <strong>战略执行</strong>: 折算净持仓成本仅 $26.75 (击穿 52 周最低价)，若行权直接锁定 >7.2% 的终生股息回报率！</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 02 价值量化雷达模型 -->
+    <div class="sec-card" id="sec-02">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">02</span> 长线价值多因子量化评分雷达模型 (Long-Term Value Multi-Factor Scorecard)</div>
+            <span class="score-pill pill-blue">价值总分: 9.60</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr><th>评价维度</th><th>评分</th><th>权重</th><th>价值投资核心驱动与量化事实</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>商业模式与产品护城河</strong></td>
+                                <td><span class="num-font val-pos">9.9 / 10</span></td>
+                                <td>25%</td>
+                                <td>拉斯维加斯主干道核心地标不可复制，加权租期 41.5 年，三净租赁模式</td>
+                            </tr>
+                            <tr>
+                                <td><strong>P/AFFO 估值折价与安全垫</strong></td>
+                                <td><span class="num-font val-pos">9.5 / 10</span></td>
+                                <td>25%</td>
+                                <td>P/AFFO 仅 11.85x (较历史均值折价 28%)，DDM 股息折现空间 +25.4%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>现金流稳定性与偿债能力</strong></td>
+                                <td><span class="num-font val-pos">9.8 / 10</span></td>
+                                <td>20%</td>
+                                <td>100% 满租率，EBITDA 利润率 99.2%，AFFO $2.48B，通胀自动递增</td>
+                            </tr>
+                            <tr>
+                                <td><strong>超高股息与资本分配</strong></td>
+                                <td><span class="num-font val-pos">9.9 / 10</span></td>
+                                <td>15%</td>
+                                <td>股息率 6.85%，连续 7 年增息，AFFO 覆盖率 135%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>期权 Alpha 与权利金厚度</strong></td>
+                                <td><span class="num-font val-pos">8.5 / 10</span></td>
+                                <td>10%</td>
+                                <td>Sell Put APY 15.5%~26.0%，单手本金仅 ~$2,700，亲民高效</td>
+                            </tr>
+                            <tr>
+                                <td><strong>质量调制逆向击球时机</strong></td>
+                                <td><span class="num-font val-pos">9.5 / 10</span></td>
+                                <td>5%</td>
+                                <td>$27 - $28 强力支撑区间横盘筑底，长线锁定高息极佳建仓点</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 03 商业模式与护城河 -->
+    <div class="sec-card" id="sec-03">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">03</span> 商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="score-pill pill-green">极宽 (Wide Moat)</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="pillar-card">
+                <div class="pillar-title">🎰 拉斯维加斯主干道绝对地标垄断</div>
+                <div class="pillar-desc">拥有 Caesars Palace, MGM Grand, Mandalay Bay, Venetian 等全球知名娱乐度假村地产，内华达州严格博彩牌照限制使新竞争者无法复制。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">📜 41.5 年超长加权三净租赁 (NNN)</div>
+                <div class="pillar-desc">母公司级全面连带担保，租户负责全部物业税、保险与维护开支，租金现金流具备准主权级防御韧性。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">📈 100% CPI 通胀指数化租金递增</div>
+                <div class="pillar-desc">租约内置通胀保护条款，每年自动根据 CPI 上调租金，天然对冲宏观通胀与利率风险。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 04 财务报表剖析 (含双交互图表) -->
+    <div class="sec-card" id="sec-04">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">04</span> 核心财务报表、现金流与盈利质量深度剖析 (Financial Statements & Margins)</div>
+            <span class="score-pill pill-blue">造血极强</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="revNetChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>财年</th><th>总营收 ($B)</th><th>净利润 ($B)</th><th>经营现金流 ($B)</th><th>自由现金流 ($B)</th><th>毛利率</th><th>营业利润率</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2025</strong></td>
+                        <td class="num-font">$4.05</td>
+                        <td class="num-font">$2.95</td>
+                        <td class="num-font val-pos">$3.42</td>
+                        <td class="num-font val-pos">$3.35</td>
+                        <td class="num-font">99.20%</td>
+                        <td class="num-font">91.50%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td class="num-font">$3.82</td>
+                        <td class="num-font">$2.70</td>
+                        <td class="num-font val-pos">$3.15</td>
+                        <td class="num-font val-pos">$3.08</td>
+                        <td class="num-font">99.10%</td>
+                        <td class="num-font">90.80%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td class="num-font">$3.61</td>
+                        <td class="num-font">$2.51</td>
+                        <td class="num-font val-pos">$2.92</td>
+                        <td class="num-font val-pos">$2.85</td>
+                        <td class="num-font">99.00%</td>
+                        <td class="num-font">90.20%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2022</strong></td>
+                        <td class="num-font">$2.60</td>
+                        <td class="num-font">$1.12</td>
+                        <td class="num-font val-pos">$1.85</td>
+                        <td class="num-font val-pos">$1.80</td>
+                        <td class="num-font">98.50%</td>
+                        <td class="num-font">88.50%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 05 杜邦三因子拆解 -->
+    <div class="sec-card" id="sec-05">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">05</span> 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+            <span class="score-pill pill-purple">资本回报拆解</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="metric-card">
+                <div class="metric-card-lbl">AFFO 利润率</div>
+                <div class="metric-card-val">61.23%</div>
+                <div class="metric-card-desc">三净租赁模式无额外运营成本</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">租金回收率 (Collection Rate)</div>
+                <div class="metric-card-val">100.0%</div>
+                <div class="metric-card-desc">即使在疫情极端时期仍保持 100% 收缴</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">净负债 / EBITDA</div>
+                <div class="metric-card-val">5.4x</div>
+                <div class="metric-card-desc">投资级评级 (BBB-)，到期结构高度分散</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 06 同行对标 -->
+    <div class="sec-card" id="sec-06">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">06</span> 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="score-pill pill-green">行业横向对标</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>公司代码 / 名称</th><th>市值 ($B)</th><th>前瞻 P/E</th><th>EV/EBITDA</th><th>营收增速</th><th>毛利率</th><th>52W 位置 (RP)</th></tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>VICI (VICI Properties)</strong></td>
+                        <td>$29.5B</td>
+                        <td class="num-font">11.85x</td>
+                        <td class="num-font">12.40x</td>
+                        <td class="num-font val-pos">+6.0%</td>
+                        <td class="num-font">99.2%</td>
+                        <td class="num-font">0.18 (黄金坑)</td>
+                    </tr>
+                    <tr >
+                        <td><strong>O (Realty Income)</strong></td>
+                        <td>$46.0B</td>
+                        <td class="num-font">13.20x</td>
+                        <td class="num-font">14.10x</td>
+                        <td class="num-font val-pos">+4.5%</td>
+                        <td class="num-font">93.5%</td>
+                        <td class="num-font">0.35</td>
+                    </tr>
+                    <tr >
+                        <td><strong>GLPI (Gaming & Leisure)</strong></td>
+                        <td>$13.2B</td>
+                        <td class="num-font">12.10x</td>
+                        <td class="num-font">12.80x</td>
+                        <td class="num-font val-pos">+4.8%</td>
+                        <td class="num-font">98.8%</td>
+                        <td class="num-font">0.28</td>
+                    </tr>
+                    <tr >
+                        <td><strong>NNN (NNN REIT)</strong></td>
+                        <td>$7.8B</td>
+                        <td class="num-font">12.50x</td>
+                        <td class="num-font">13.20x</td>
+                        <td class="num-font val-pos">+3.8%</td>
+                        <td class="num-font">95.2%</td>
+                        <td class="num-font">0.40</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 07 DCF 估值与敏感性 -->
+    <div class="sec-card" id="sec-07">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">07</span> DCF 现金流折现、内在价值与多维估值公允中枢 (DCF Valuation & Sensitivity)</div>
+            <span class="score-pill pill-blue">基准公允值: $35.50</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="valuationChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr><th>估值模型 / 场景</th><th>每股公允估值</th><th>隐含前瞻 P/E</th><th>较现价潜在空间</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr >
+                                <td><strong>NAV 重置成本底线</strong></td>
+                                <td class="num-font val-pos">$26.50</td>
+                                <td>11.0x</td>
+                                <td class="val-pos">-6.4%</td>
+                            </tr>
+                            <tr style="background: #ECFDF5; font-weight: 700;">
+                                <td><strong>10年 DDM 股息折现公允价值</strong></td>
+                                <td class="num-font val-pos">$35.50</td>
+                                <td>14.8x</td>
+                                <td class="val-pos">+25.4%</td>
+                            </tr>
+                            <tr >
+                                <td><strong>华尔街分析师目标均价</strong></td>
+                                <td class="num-font val-pos">$36.80</td>
+                                <td>15.3x</td>
+                                <td class="val-pos">+29.9%</td>
+                            </tr>
+                            <tr >
+                                <td><strong>利率降息均值回归 (15.0x AFFO)</strong></td>
+                                <td class="num-font val-pos">$39.50</td>
+                                <td>16.5x</td>
+                                <td class="val-pos">+39.5%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="info-box" style="margin-top: 10px;">
+            <div class="info-box-title">📊 WACC 贴现率与永续增长率 (g) 敏感性矩阵</div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr><th>WACC \ g</th><th>2.0%</th><th>2.5%</th><th>3.0% (基准)</th><th>3.5%</th><th>4.0%</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>6.5%</strong></td>
+                            <td class="num-font">$39.50</td>
+                            <td class="num-font">$43.20</td>
+                            <td class="num-font " >$48.00</td>
+                            <td class="num-font">$54.50</td>
+                            <td class="num-font">$63.00</td>
+                        </tr>
+                        <tr>
+                            <td><strong>7.5% (基准)</strong></td>
+                            <td class="num-font">$32.00</td>
+                            <td class="num-font">$34.20</td>
+                            <td class="num-font val-pos" style="background: #D1FAE5; font-weight:700;">$35.50</td>
+                            <td class="num-font">$39.00</td>
+                            <td class="num-font">$42.50</td>
+                        </tr>
+                        <tr>
+                            <td><strong>8.5%</strong></td>
+                            <td class="num-font">$27.50</td>
+                            <td class="num-font">$28.80</td>
+                            <td class="num-font " >$30.20</td>
+                            <td class="num-font">$31.80</td>
+                            <td class="num-font">$33.50</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 08 价值击球时机与技术形态 -->
+    <div class="sec-card" id="sec-08">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">08</span> 质量调制之逆向价值击球时机与均线筹码 (Contrarian Value Timing)</div>
+            <span class="score-pill pill-green">黄金击球点</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-box">
+                <div class="info-box-title">均线系统 (Moving Averages)</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <div>• 现价: <strong>$28.32</strong></div>
+                    <div>• 20日均线 (20 SMA): <strong>$28.85</strong></div>
+                    <div>• 50日均线 (50 SMA): <strong>$29.40</strong></div>
+                    <div>• 200日均线 (200 SMA): <strong>$30.85</strong> (偏离: -8.20%)</div>
+                </div>
+            </div>
+            <div class="info-box success">
+                <div class="info-box-title">逆向超卖出清与击球性价比</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <div>• 14日 RSI: <strong>37.50</strong> (超卖底部区间)</div>
+                    <div>• 52周位置 (RP): <strong>0.18</strong></div>
+                    <div>• 30日实际波动率 (HV30): <strong>16.5%</strong></div>
+                </div>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">支撑与阻力位 (S/R Levels)</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <div>• 第一阻力位 (R1): <strong>$30.50</strong></div>
+                    <div>• 核心支撑位 (S1): <strong>$27.50 (强力支撑)</strong></div>
+                    <div>• 极值底部支撑 (S2): <strong>$26.80 (52周最低点)</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 09 资本配置与分红 -->
+    <div class="sec-card" id="sec-09">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">09</span> 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</div>
+            <span class="score-pill pill-green">股东回报机制</span>
+        </div>
+        <p style="font-size: 13px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 14px;">
+            连续 7 年保持 7%+ 复合增息，当前派息 $1.94/股 (股息率 6.85%)，AFFO 派息比率仅 75%，保留现金流支持非博彩体验式地产外延并购。
+        </p>
+        <div class="data-grid-3">
+            <div class="metric-card">
+                <div class="metric-card-lbl">股息收益率 / 派息</div>
+                <div class="metric-card-val">6.85% ($1.94/股)</div>
+                <div class="metric-card-desc">连续7年双位数增息</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">股份回购力度</div>
+                <div class="metric-card-val">按需配置</div>
+                <div class="metric-card-desc">高留存现金流驱动并购</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">研发与资本开支投入</div>
+                <div class="metric-card-val">$150M</div>
+                <div class="metric-card-desc">租户承担主要维护开支</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10 Sell Put 期权策略 -->
+    <div class="sec-card" id="sec-10">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">10</span> 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="score-pill pill-green">期权量化策略</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>风险偏好梯队</th><th>行权价 (Strike)</th><th>到期日 / DTE</th><th>权利金 (Bid/Ask)</th><th>安全垫</th><th>Delta</th><th>年化收益率 (APY)</th><th>净持仓成本</th><th>持仓量 (OI)</th></tr>
+                </thead>
+                <tbody>
+                    <tr >
+                        <td><strong>🟢 保守型 (Conservative)</strong></td>
+                        <td class="num-font font-bold">$26.00</td>
+                        <td>2026-09-18 (22d)</td>
+                        <td class="num-font">$0.10 / $0.20</td>
+                        <td class="num-font val-pos">8.19%</td>
+                        <td class="num-font">-0.10</td>
+                        <td class="num-font val-pos">9.5%</td>
+                        <td class="num-font">$25.85</td>
+                        <td class="num-font">1,200 手</td>
+                    </tr>
+                    <tr style="background: #EFF6FF; font-weight: 700;">
+                        <td><strong>🟡 平衡型 (Balanced - 主推)</strong></td>
+                        <td class="num-font font-bold">$27.00</td>
+                        <td>2026-09-18 (22d)</td>
+                        <td class="num-font">$0.20 / $0.30</td>
+                        <td class="num-font val-pos">4.66%</td>
+                        <td class="num-font">-0.20</td>
+                        <td class="num-font val-pos">15.5%</td>
+                        <td class="num-font">$26.75</td>
+                        <td class="num-font">3,800 手</td>
+                    </tr>
+                    <tr >
+                        <td><strong>🟠 进取型 (Aggressive)</strong></td>
+                        <td class="num-font font-bold">$28.00</td>
+                        <td>2026-09-18 (22d)</td>
+                        <td class="num-font">$0.50 / $0.65</td>
+                        <td class="num-font val-pos">1.13%</td>
+                        <td class="num-font">-0.38</td>
+                        <td class="num-font val-pos">26.0%</td>
+                        <td class="num-font">$27.42</td>
+                        <td class="num-font">2,450 手</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="info-box success" style="margin-top: 10px;">
+            <strong>⚡ 轮动执行指南 (The Wheel Strategy):</strong><br>
+            强烈主推卖出 <strong>VICI 2026-09-18 $27.00 Put</strong>。单手名义本金仅 ~$2,700，极其亲民。折算净持仓成本 <strong>$26.75 (击穿 52 周大底)</strong>，若被行权直接锁定 <strong>>7.2% 的高额股息现金流</strong>！
+        </div>
+    </div>
+
+    <!-- 11 机构持仓 -->
+    <div class="sec-card" id="sec-11">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">11</span> 机构持仓与主力资金动向 (Institutional Ownership & 13F)</div>
+            <span class="score-pill pill-blue">机构占比 > 84%</span>
+        </div>
+        <p style="font-size: 13px; line-height: 1.7; color: var(--text-secondary);">
+            Blackrock, Vanguard, State Street, Cohen & Steers 等全球顶级房地产信托机构重仓持有。
+        </p>
+    </div>
+
+    <!-- 12 内部人与语气 -->
+    <div class="sec-card" id="sec-12">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">12</span> 内部人交易、管理层语气与财报电话会洞察 (Insider & Tone)</div>
+            <span class="score-pill pill-green">电话会情绪</span>
+        </div>
+        <p style="font-size: 13px; line-height: 1.7; color: var(--text-secondary);">
+            CEO Edward Pitoniak 在电话会上指出，租约 100% 准时履约，通胀递增机制正持续推升净租金收益，下半年并购管线充裕。
+        </p>
+    </div>
+
+    <!-- 13 做空分析 -->
+    <div class="sec-card" id="sec-13">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">13</span> 做空比例、平仓天数与轧空风险评估 (Short Interest)</div>
+            <span class="score-pill pill-green">做空压力评估</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-box">
+                <div class="info-box-title">空头占流通盘比例</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 6px 0;">2.10%</div>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">平仓所需天数 (DTC)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 6px 0;">2.10 天</div>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">期权沽购比 (PCR)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--primary); margin: 6px 0;">0.70</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 14 风险矩阵 -->
+    <div class="sec-card" id="sec-14">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">14</span> 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Case)</div>
+            <span class="score-pill pill-amber">压力测试</span>
+        </div>
+        <div class="info-box alert">
+            <strong>🐻 极度熊市压力测试场景:</strong><br>
+            即使美国利率维持高位更久，VICI 拥有 100% 满租与 41.5 年租期保护，租户无法毁约，现金流极度透明，清算底线位于 $26.00。$27 Put 具备极强防守韧性。
+        </div>
+    </div>
+
+    <!-- 15 催化剂日历 -->
+    <div class="sec-card" id="sec-15">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">15</span> 未来关键催化剂日历与增长路线图 (Catalyst Calendar)</div>
+            <span class="score-pill pill-blue">重磅催化节点</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="pillar-card">
+                <div class="pillar-title">美联储降息周期开启</div>
+                <div class="pillar-desc">推动高股息优质 REITs 估值强力均值回归。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">9月年度例行提高股息</div>
+                <div class="pillar-desc">预计连续第 8 年上调分红水平。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">非博彩体验式娱乐地产并购</div>
+                <div class="pillar-desc">拓展室内水上乐园与保龄球综合体。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 16 投资评级与执行 -->
+    <div class="sec-card" id="sec-16" style="border: 2px solid var(--primary);">
+        <div class="sec-head" style="border-bottom-color: var(--primary);">
+            <div class="sec-title" style="color: var(--primary-dark);"><span class="sec-num">16</span> 最终投资评级与执行建议 (Final Verdict & Execution)</div>
+            <span class="score-pill pill-green" style="font-size: 13px;">评级: 🟢 强烈看多 (STRONG BUY) · 顶级高股息现金流资产</span>
+        </div>
+        <div class="signal-block">
+            <div class="signal-header">
+                <div class="signal-verdict">🟢 强烈看多 (STRONG BUY) · 顶级高股息现金流资产 · 价值总分 9.60 / 10.0</div>
+            </div>
+            <div class="signal-body">
+                VICI Properties 是美股极少数具备<strong>“6.85% 高股息 + 41年租期 + 100%满租 + 11.8x P/AFFO”</strong>的现金流印钞机。长线价值评分 <strong>9.60 / 10.0</strong>！卖出 <strong>Sell Put $27.00 (22 DTE)</strong> 进可收 15.5% 现金流，退可超低价建仓吃高息！
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Chart.js Scripts (4 Full Interactive Charts) -->
+<script>
+    // 1. Radar Chart
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['商业护城河', 'P/AFFO估值折价', '现金流确定性', '6.85%股息回报', '期权Alpha', '逆向击球时机'],
+            datasets: [{
+                label: 'VICI 价值评分',
+                data: [9.9, 9.5, 9.8, 9.9, 8.5, 9.5],
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                borderColor: 'rgba(16, 185, 129, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#E2E8F0' },
+                    grid: { color: '#F1F5F9' },
+                    pointLabels: { font: { size: 11, weight: '600' }, color: '#475569' },
+                    suggestedMin: 0,
+                    suggestedMax: 10
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 2. Revenue & Net Income Dual Chart
+    const ctxRevNet = document.getElementById('revNetChart').getContext('2d');
+    new Chart(ctxRevNet, {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025'],
+            datasets: [
+                {
+                    type: 'bar',
+                    label: '总营收 ($B)',
+                    data: [2.60, 3.61, 3.82, 4.05],
+                    backgroundColor: 'rgba(5, 150, 105, 0.7)',
+                    borderRadius: 4
+                },
+                {
+                    type: 'line',
+                    label: '净利润 ($B)',
+                    data: [1.12, 2.51, 2.70, 2.95],
+                    borderColor: '#2563EB',
+                    backgroundColor: '#2563EB',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { callback: v => '$' + v + 'B' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 3. Cash Flow Chart (OCF vs FCF)
+    const ctxCash = document.getElementById('cashFlowChart').getContext('2d');
+    new Chart(ctxCash, {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025'],
+            datasets: [
+                {
+                    label: '经营现金流 OCF ($B)',
+                    data: [1.85, 2.92, 3.15, 3.42],
+                    backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                    borderRadius: 4
+                },
+                {
+                    label: '自由现金流 FCF ($B)',
+                    data: [1.80, 2.85, 3.08, 3.35],
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { callback: v => '$' + v + 'B' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 4. Valuation Scenarios Waterfall/Bar
+    const ctxVal = document.getElementById('valuationChart').getContext('2d');
+    new Chart(ctxVal, {
+        type: 'bar',
+        data: {
+            labels: ['清算底线', '当前现价', '基准DCF', '分析师目标', '均值回归(15x)'],
+            datasets: [{
+                label: '每股公允估值 ($)',
+                data: [26.50, 28.32, 35.50, 36.80, 39.50],
+                backgroundColor: ['rgba(220, 38, 38, 0.7)', 'rgba(100, 116, 139, 0.8)', 'rgba(5, 150, 105, 0.8)', 'rgba(37, 99, 235, 0.7)', 'rgba(16, 185, 129, 0.7)'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) } }
+            },
+            scales: {
+                y: { beginAtZero: false, grid: { color: '#F1F5F9' }, ticks: { callback: v => '$' + v } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

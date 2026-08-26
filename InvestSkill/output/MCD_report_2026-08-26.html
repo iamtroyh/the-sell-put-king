@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>McDonald's Corporation (MCD) 深度投研报告 - InvestSkill 15模块全景版</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+        :root {
+            --primary: #059669;
+            --primary-dark: #064E3B;
+            --primary-light: #ECFDF5;
+            --accent: #10B981;
+            --accent-light: #D1FAE5;
+            --border: #E2E8F0;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --grad-hero: linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.65; color: var(--text-primary); background: #F8FAFC; font-size: 14px; }
+        .report-hero { background: var(--grad-hero); padding: 44px 24px; color: #FFFFFF; }
+        .hero-inner { max-width: 1200px; margin: 0 auto; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); }
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 1050px; }
+        .hero-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+        .hero-kpi-card { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); border-radius: 10px; padding: 12px 14px; backdrop-filter: blur(6px); }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+        .toc-bar { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-decoration: none; background: #F1F5F9; padding: 4px 10px; border-radius: 6px; }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+        .sec-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 24px 26px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+        .sec-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 18px; flex-wrap: wrap; gap: 8px; }
+        .sec-title { font-size: 17.5px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+        .sec-num { background: var(--primary); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .info-box { background: #F8FAFC; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+        .info-box.alert { border-left-color: #D97706; background: #FFFBEB; }
+        .info-box.success { border-left-color: #10B981; background: #ECFDF5; }
+        .info-box.danger { border-left-color: #DC2626; background: #FEF2F2; }
+        .info-box-title { font-size: 13.5px; font-weight: 700; margin-bottom: 6px; color: var(--primary-dark); }
+        .metric-card { background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; }
+        .metric-card-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--primary-dark); margin: 4px 0; }
+        .metric-card-lbl { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .metric-card-desc { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+        .pillar-card { background: #FFFFFF; border: 1px solid var(--border); border-radius: 10px; padding: 16px; box-shadow: var(--shadow-sm); border-top: 3px solid var(--primary); }
+        .pillar-title { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .pillar-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+        .table-scroll { overflow-x: auto; margin: 14px 0; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background: #F1F5F9; color: var(--text-secondary); font-weight: 700; padding: 10px 12px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        tr:hover td { background: #F8FAFC; }
+        .num-font { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        .val-pos { color: #059669; font-weight: 600; }
+        .val-neg { color: #DC2626; font-weight: 600; }
+        .chart-box { position: relative; width: 100%; height: 300px; margin: 14px 0; }
+        .score-pill { display: inline-block; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11.5px; }
+        .pill-green { background: #ECFDF5; color: #065F46; }
+        .pill-blue { background: #EFF6FF; color: #2563EB; }
+        .pill-amber { background: #FEF3C7; color: #D97706; }
+        .signal-block { background: var(--grad-hero); color: #FFFFFF; border-radius: 12px; padding: 24px; margin-top: 16px; box-shadow: var(--shadow-md); }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: MCD • McDonald's Corporation</span>
+            <span class="badge badge-hero-signal">🟢 强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-stock">长线价值量化评分: 9.42 / 10.0</span>
+            <span class="badge" style="background: rgba(255,255,255,.2);">研报日期: 2026-08-26</span>
+        </div>
+        <h1 class="hero-title">McDonald's (MCD) 全球快餐连锁与商业地产收租绝对霸主</h1>
+        <p class="hero-sub">全球快餐连锁与商业地产绝对垄断龙头 (41,000+ 家门店，95% 特许经营) · 营业利润率高达 46.5% · TTM 经营现金流突破 $11.35B · 连续 47 年提高股息之传奇股息贵族 · 股价触及 52 周相对位置 0.06 历史极值黄金坑底 (现价 $267.20 紧贴 52 周低点 $262.80) · 极佳的现金担保卖出看跌期权 (Sell Put) 防御性收租标的。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                <div class="hero-kpi-val">$267.20</div>
+                <div class="hero-kpi-sub">52周区间: $262.80 - $317.90 (RP: 0.06)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Fwd P/E)</div>
+                <div class="hero-kpi-val">19.45x</div>
+                <div class="hero-kpi-sub">历史均值: 26.5x (深度折价 26.6%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">营业利润率 (Op Margin)</div>
+                <div class="hero-kpi-val">46.48%</div>
+                <div class="hero-kpi-sub">商业地产收租模式极高利润</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 经营现金流 / FCF</div>
+                <div class="hero-kpi-val">$11.35B / $8.45B</div>
+                <div class="hero-kpi-sub">净利润现金转化率高达 96.5%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股息派发与收益率</div>
+                <div class="hero-kpi-val">2.78% ($7.08/年)</div>
+                <div class="hero-kpi-sub">连续 47 年提高股息 (传奇股息贵族)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">DCF 公允价值 / 分析师均价</div>
+                <div class="hero-kpi-val">$318.50 / $325.40</div>
+                <div class="hero-kpi-sub">潜在安全边际: +19.2% ~ +21.8%</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+    
+    <div class="toc-bar">
+        <div class="toc-title">研报深度导览 (长线价值投资 15 模块完整架构)</div>
+        <div class="toc-links">
+            <a href="#sec-01" class="toc-link">01 执行摘要</a>
+            <a href="#sec-02" class="toc-link">02 价值量化雷达</a>
+            <a href="#sec-03" class="toc-link">03 商业模式与护城河</a>
+            <a href="#sec-04" class="toc-link">04 财务报表剖析</a>
+            <a href="#sec-05" class="toc-link">05 杜邦三因子拆解</a>
+            <a href="#sec-06" class="toc-link">06 同行全景对标</a>
+            <a href="#sec-07" class="toc-link">07 DCF估值与敏感性</a>
+            <a href="#sec-08" class="toc-link">08 价值击球时机与筹码</a>
+            <a href="#sec-09" class="toc-link">09 资本配置与股息</a>
+            <a href="#sec-10" class="toc-link">10 Sell Put 期权策略</a>
+            <a href="#sec-11" class="toc-link">11 机构持仓动向</a>
+            <a href="#sec-12" class="toc-link">12 内部人与电话会语气</a>
+            <a href="#sec-13" class="toc-link">13 做空比例与轧空</a>
+            <a href="#sec-14" class="toc-link">14 风险矩阵与熊市测试</a>
+            <a href="#sec-15" class="toc-link">15 催化剂日历</a>
+            <a href="#sec-16" class="toc-link">16 投资评级与执行</a>
+        </div>
+    </div>
+
+    <!-- 01 执行摘要 -->
+    <div class="sec-card" id="sec-01">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">01</span> 执行摘要与长线投资逻辑 (Executive Summary & Thesis)</div>
+            <span class="score-pill pill-green">价值量化评分: 9.42 / 10.0</span>
+        </div>
+        <p style="font-size: 14px; line-height: 1.7; margin-bottom: 16px;">
+            <strong>公司基本盘：</strong>McDonald's Corporation (NYSE: MCD) 是全球规模最大、品牌价值最高的餐饮连锁帝国。其商业模式本质上是一家以快餐为前端流量入口的<strong>全球顶级商业地产收租公司</strong>。麦当劳在全球拥有超过 41,000 家门店，其中 95% 为特许经营模式。公司拥有大部分门店的土地与建筑物产权，向加盟商收取固定租金与营业额抽成，现金流极其坚韧。
+        </p>
+        <div class="data-grid-3">
+            <div class="pillar-card">
+                <div class="pillar-title">🏢 商业地产收租与特许权抽成</div>
+                <div class="pillar-desc">95% 特许经营门店缴纳固定底租 + 4%~5% 营业额分成，无论经济繁荣或衰退，地产租金现金流均近乎零违约风险。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">🍔 全球供应链极致规模压价权</div>
+                <div class="pillar-desc">全球每日服务近 7,000 万消费者，在上游农产品、肉类与物流包装上拥有不可动摇的议价权，营业利润率高达 46.5%。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">👑 连续 47 年增息之传奇股息贵族</div>
+                <div class="pillar-desc">每年稳定产生 $113 亿经营现金流与 $84.5 亿自由现金流，连续 47 年提高股息，历经多次经济周期检验。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 02 价值量化雷达模型 -->
+    <div class="sec-card" id="sec-02">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">02</span> 长线价值多因子量化评分雷达模型 (Long-Term Value Multi-Factor Scorecard)</div>
+            <span class="score-pill pill-blue">价值总分: 9.42 / 10.0</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box"><canvas id="radarChart"></canvas></div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr><th>评价维度</th><th>评分</th><th>权重</th><th>价值投资核心驱动与量化事实</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>商业模式与护城河</strong></td><td><span class="num-font val-pos">9.8 / 10</span></td><td>25%</td><td>全球 4.1 万家门店，95% 特许经营地产收租模式坚不可摧</td></tr>
+                            <tr><td><strong>DCF估值与安全边际</strong></td><td><span class="num-font val-pos">9.0 / 10</span></td><td>25%</td><td>52W RP 0.06 极值底，Forward P/E 19.45x 较历史中枢折价 26.6%</td></tr>
+                            <tr><td><strong>盈利质量与自由现金流</strong></td><td><span class="num-font val-pos">9.6 / 10</span></td><td>20%</td><td>营业利润率 46.5%，TTM 经营现金流达 $11.35B，现金转化率 96.5%</td></tr>
+                            <tr><td><strong>股息贵族与股东回报</strong></td><td><span class="num-font val-pos">9.9 / 10</span></td><td>15%</td><td>连续 47 年提升股息，年分红+回购超 $8B</td></tr>
+                            <tr><td><strong>期权 Alpha 与权利金</strong></td><td><span class="num-font val-pos">8.6 / 10</span></td><td>10%</td><td>Sell Put APY 16.6%~28.0%，持仓量超 4,500 手</td></tr>
+                            <tr><td><strong>质量调制逆向击球时机</strong></td><td><span class="num-font val-pos">9.4 / 10</span></td><td>5%</td><td>紧贴 52 周最低价 $262.80，下行风险被极度封死</td></tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;"><td><strong>综合价值加权总分</strong></td><td><span class="num-font val-pos" style="font-size: 14px;">9.42 / 10</span></td><td>100%</td><td><strong>🟢 强烈看多 (STRONG BUY) · 52周底部黄金收租标的</strong></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 03 商业模式与护城河 -->
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>波特五力维度</th><th>竞争压力评级</th><th>护城河与竞争优势支撑深度解析</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>供应商议价能力 (农产品/物流)</strong></td><td><span class="tag-bull">极低 (Very Low)</span></td><td>全球每日近 7000 万消费者规模，对牛肉、土豆、面包及冷链物流拥有全球绝对垄断压价权。</td></tr>
+                    <tr><td><strong>买方议价能力 (消费者)</strong></td><td><span class="tag-warn">中等 (Medium)</span></td><td>快餐受大众钱包厚度影响，但麦当劳通过“5美元超值套餐”和极佳性价比迅速拉动客流回流。</td></tr>
+                    <tr><td><strong>潜在进入者威胁</strong></td><td><span class="tag-bull">极低 (Very Low)</span></td><td>全球 4.1 万家黄金地段门店商业地产与极致自动化厨房标准，重构成本不可逾越。</td></tr>
+                    <tr><td><strong>替代品竞争威胁</strong></td><td><span class="tag-warn">中等 (Medium)</span></td><td>便利店与预制菜具备一定替代性，但在出餐速度、全球一致性与品牌信任上麦当劳无出其右。</td></tr>
+                    <tr><td><strong>行业内现有竞争 (百胜/星巴克/汉堡王)</strong></td><td><span class="tag-warn">中等 (Medium)</span></td><td>麦当劳在单店平均销售额（AUV）和 46.5% 营业利润率上全面碾压所有快餐同行。</td></tr>
+                </tbody>
+            </table>
+        </div>
+    
+    <div class="sec-card" id="sec-03">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">03</span> 商业模式、业务拆分与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="score-pill pill-green">护城河: 极宽 (Wide Moat / 9.8分)</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>业务类别</th><th>收入构成模式</th><th>商业逻辑与抗风险机制</th><th>营收占比</th><th>营业利润贡献</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>特许加盟租金与抽成 (Franchised)</strong></td><td>固定底租 + 销售额抽成 + 初装费</td><td>公司作为地主坐收租金，无人工与食材通胀负担</td><td class="num-font val-pos">61.5%</td><td class="num-font val-pos">88.5%</td></tr>
+                    <tr><td><strong>直营门店销售 (Company-operated)</strong></td><td>自营餐厅全部商品零售额</td><td>作为新产品研发试验田与运营标杆</td><td class="num-font">38.5%</td><td class="num-font">11.5%</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 04 财务报表剖析 -->
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>财务科目 (单位: 百万美元)</th><th>FY2022 (12/22)</th><th>FY2023 (12/23)</th><th>FY2024 (12/24)</th><th>FY2025 (E)</th><th>TTM 表现</th><th>4年复合趋势</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>营业总收入 (Total Revenue)</strong></td><td class="num-font">$23,182.6</td><td class="num-font">$25,493.7</td><td class="num-font">$25,902.0</td><td class="num-font">$26,850.0</td><td class="num-font"><strong>$26,850.0</strong></td><td><span class="val-pos">+5.0% CAGR</span></td></tr>
+                    <tr><td><strong>特许加盟租金与抽成</strong></td><td class="num-font">$14,105.8</td><td class="num-font">$15,432.0</td><td class="num-font">$15,920.0</td><td class="num-font">$16,512.0</td><td class="num-font"><strong>$16,512.0</strong></td><td><span class="val-pos">占比 61.5%</span></td></tr>
+                    <tr><td><strong>直营门店销售收入</strong></td><td class="num-font">$8,741.0</td><td class="num-font">$9,742.0</td><td class="num-font">$9,610.0</td><td class="num-font">$9,950.0</td><td class="num-font"><strong>$9,950.0</strong></td><td>占比 37.1%</td></tr>
+                    <tr><td><strong>营业利润 (Operating Income)</strong></td><td class="num-font">$10,371.4</td><td class="num-font">$11,646.9</td><td class="num-font">$11,940.0</td><td class="num-font">$12,480.0</td><td class="num-font"><strong>$12,480.0</strong></td><td><span class="val-pos">利润率 46.5%</span></td></tr>
+                    <tr><td><strong>净利润 (Net Income)</strong></td><td class="num-font">$6,177.4</td><td class="num-font">$8,468.8</td><td class="num-font">$8,220.0</td><td class="num-font">$8,750.0</td><td class="num-font"><strong>$8,750.0</strong></td><td>净利率 32.6%</td></tr>
+                    <tr><td><strong>经营活动现金流 (OCF)</strong></td><td class="num-font">$7,386.7</td><td class="num-font">$9,611.9</td><td class="num-font">$10,200.0</td><td class="num-font">$11,350.0</td><td class="num-font"><strong>$11,350.0</strong></td><td><span class="val-pos">+15.4% CAGR</span></td></tr>
+                    <tr><td><strong>资本开支 (CapEx)</strong></td><td class="num-font">-$1,899.2</td><td class="num-font">-$2,357.2</td><td class="num-font">-$2,600.0</td><td class="num-font">-$2,900.0</td><td class="num-font">-$2,900.0</td><td>全球门店数字化</td></tr>
+                    <tr><td><strong>自由现金流 (Free Cash Flow)</strong></td><td class="num-font">$5,487.5</td><td class="num-font">$7,254.7</td><td class="num-font">$7,600.0</td><td class="num-font">$8,450.0</td><td class="num-font"><strong>$8,450.0</strong></td><td><span class="val-pos">FCF Margin 31.5%</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    
+    <div class="sec-card" id="sec-04">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">04</span> 核心财务报表、现金流与盈利质量深度剖析 (Financial Statements & Margins)</div>
+            <span class="score-pill pill-blue">造血极强 · OCF $11.35B</span>
+        </div>
+        <div class="data-grid-2">
+            <div><div class="chart-box"><canvas id="revNetChart"></canvas></div></div>
+            <div><div class="chart-box"><canvas id="cashFlowChart"></canvas></div></div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>财年</th><th>总营收 ($B)</th><th>净利润 ($B)</th><th>经营现金流 ($B)</th><th>自由现金流 ($B)</th><th>毛利率</th><th>营业利润率</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>FY2025 (E)</strong></td><td class="num-font">$26.85</td><td class="num-font">$8.75</td><td class="num-font val-pos">$11.35</td><td class="num-font val-pos">$8.45</td><td class="num-font">57.20%</td><td class="num-font val-pos">46.48%</td></tr>
+                    <tr><td><strong>FY2024</strong></td><td class="num-font">$25.90</td><td class="num-font">$8.22</td><td class="num-font val-pos">$10.20</td><td class="num-font val-pos">$7.60</td><td class="num-font">57.00%</td><td class="num-font val-pos">46.10%</td></tr>
+                    <tr><td><strong>FY2023</strong></td><td class="num-font">$25.49</td><td class="num-font">$8.47</td><td class="num-font val-pos">$9.61</td><td class="num-font val-pos">$7.26</td><td class="num-font">57.10%</td><td class="num-font val-pos">46.10%</td></tr>
+                    <tr><td><strong>FY2022</strong></td><td class="num-font">$23.18</td><td class="num-font">$6.18</td><td class="num-font val-pos">$7.39</td><td class="num-font val-pos">$5.49</td><td class="num-font">56.80%</td><td class="num-font val-pos">44.60%</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 05 杜邦三因子拆解 -->
+    <div class="sec-card" id="sec-05">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">05</span> 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+            <span class="score-pill pill-green">资本回报拆解</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="metric-card"><div class="metric-card-lbl">营业净利率 (Net Margin)</div><div class="metric-card-val">32.58%</div><div class="metric-card-desc">商业地产租金的高纯度现金流</div></div>
+            <div class="metric-card"><div class="metric-card-lbl">资产周转率 (Asset Turnover)</div><div class="metric-card-val">0.52x</div><div class="metric-card-desc">重资产持有全球黄金地段地产</div></div>
+            <div class="metric-card"><div class="metric-card-lbl">自由现金流转化率</div><div class="metric-card-val">96.5%</div><div class="metric-card-desc">净利润几乎 100% 转化为自由现金流</div></div>
+        </div>
+    </div>
+
+    <!-- 06 同行对标 -->
+    <div class="sec-card" id="sec-06">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">06</span> 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="score-pill pill-green">行业横向对标</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>公司代码 / 名称</th><th>市值 ($B)</th><th>前瞻 P/E</th><th>EV/EBITDA</th><th>营收增速</th><th>毛利率</th><th>52W 位置 (RP)</th></tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;"><td><strong>MCD (McDonald's)</strong></td><td>$192.5B</td><td class="num-font val-pos">19.45x</td><td class="num-font val-pos">14.80x</td><td class="num-font">+3.7%</td><td class="num-font">57.2%</td><td class="num-font val-pos">0.06 (极值大底)</td></tr>
+                    <tr><td><strong>YUM (Yum! Brands)</strong></td><td>$38.0B</td><td class="num-font">21.50x</td><td class="num-font">16.20x</td><td class="num-font">+4.2%</td><td class="num-font">48.5%</td><td class="num-font">0.42</td></tr>
+                    <tr><td><strong>SBUX (Starbucks)</strong></td><td>$108.0B</td><td class="num-font">26.80x</td><td class="num-font">17.50x</td><td class="num-font">+2.5%</td><td class="num-font">28.2%</td><td class="num-font">0.65</td></tr>
+                    <tr><td><strong>QSR (Restaurant Brands)</strong></td><td>$24.0B</td><td class="num-font">17.80x</td><td class="num-font">13.50x</td><td class="num-font">+5.0%</td><td class="num-font">40.5%</td><td class="num-font">0.35</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 07 DCF 估值与敏感性 -->
+    <div class="sec-card" id="sec-07">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">07</span> DCF 现金流折现、内在价值与多维估值公允中枢 (DCF Valuation & Sensitivity)</div>
+            <span class="score-pill pill-blue">基准公允值: $318.50 (+19.2%)</span>
+        </div>
+        <div class="data-grid-2">
+            <div><div class="chart-box"><canvas id="valuationChart"></canvas></div></div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr><th>估值模型 / 场景</th><th>每股公允估值</th><th>隐含前瞻 P/E</th><th>较现价 ($267.20) 空间</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>5年保守 DCF 清算底线</strong></td><td class="num-font">$255.00</td><td>18.5x</td><td class="val-neg">-4.6%</td></tr>
+                            <tr style="background: #ECFDF5; font-weight: 700;"><td><strong>10年 Damodaran 基准公允价值</strong></td><td class="num-font val-pos">$318.50</td><td>23.1x</td><td class="val-pos">+19.2%</td></tr>
+                            <tr><td><strong>华尔街分析师目标均价</strong></td><td class="num-font val-pos">$325.40</td><td>23.6x</td><td class="val-pos">+21.8%</td></tr>
+                            <tr><td><strong>历史中枢均值回归 (24.0x P/E)</strong></td><td class="num-font val-pos">$345.00</td><td>24.0x</td><td class="val-pos">+29.1%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="info-box" style="margin-top: 10px;">
+            <div class="info-box-title">📊 WACC 贴现率与永续增长率 (g) 敏感性矩阵</div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr><th>WACC \ g</th><th>2.0%</th><th>2.5%</th><th>3.0% (基准)</th><th>3.5%</th><th>4.0%</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>6.5%</strong></td><td class="num-font">$355.00</td><td class="num-font">$385.00</td><td class="num-font">$425.00</td><td class="num-font">$480.00</td><td class="num-font">$550.00</td></tr>
+                        <tr style="background: #D1FAE5; font-weight: 700;"><td><strong>7.5% (基准)</strong></td><td class="num-font">$285.00</td><td class="num-font">$302.00</td><td class="num-font val-pos" style="background: #A7F3D0;">$318.50</td><td class="num-font">$342.00</td><td class="num-font">$375.00</td></tr>
+                        <tr><td><strong>8.5%</strong></td><td class="num-font">$245.00</td><td class="num-font">$255.00</td><td class="num-font">$268.00</td><td class="num-font">$282.00</td><td class="num-font">$300.00</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 08 价值击球时机与技术形态 -->
+    <div class="sec-card" id="sec-08">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">08</span> 质量调制之逆向价值击球时机与均线筹码 (Contrarian Value Timing)</div>
+            <span class="score-pill pill-green">黄金击球点 9.4 / 10</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-box">
+                <div class="info-box-title">均线系统 (Moving Averages)</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <div>• 现价: <strong>$267.20</strong></div>
+                    <div>• 20日均线 (20 SMA): <strong>$271.40</strong></div>
+                    <div>• 50日均线 (50 SMA): <strong>$278.20</strong></div>
+                    <div>• 200日均线 (200 SMA): <strong>$288.65</strong> (偏离: -7.43%)</div>
+                </div>
+            </div>
+            <div class="info-box success">
+                <div class="info-box-title">逆向超卖出清与击球性价比</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <div>• 14日 RSI: <strong>38.90</strong> (大底蓄势)</div>
+                    <div>• 52周位置 (RP): <strong style="color: #059669;">0.06 (极值底)</strong></div>
+                    <div>• 30日实际波动率 (HV30): <strong>14.8%</strong></div>
+                </div>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">支撑与阻力位 (S/R Levels)</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <div>• 第一阻力位 (R1): <strong>$280.00</strong></div>
+                    <div>• 核心支撑位 (S1): <strong>$262.80</strong> (52周最低点)</div>
+                    <div>• 极值底部支撑 (S2): <strong>$255.00</strong> (历史铁底)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 09 资本配置与分红 -->
+    <div class="sec-card" id="sec-09">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">09</span> 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</div>
+            <span class="score-pill pill-green">股东回报机制</span>
+        </div>
+        <p style="font-size: 13px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 14px;">
+            连续 47 年提高股息，派息比率约 52%，年派息 $7.08/股 (股息率 2.78%)；每年稳定回购 $3B~$4B 股份，股东总现金回报极其可靠。
+        </p>
+        <div class="data-grid-3">
+            <div class="metric-card"><div class="metric-card-lbl">股息收益率 / 派息</div><div class="metric-card-val">2.78% ($7.08/股)</div><div class="metric-card-desc">连续47年增息 (股息贵族)</div></div>
+            <div class="metric-card"><div class="metric-card-lbl">股份回购力度</div><div class="metric-card-val">$3.5B/年</div><div class="metric-card-desc">稳步注销流通股增厚EPS</div></div>
+            <div class="metric-card"><div class="metric-card-lbl">数字化与门店升级</div><div class="metric-card-val">$2.8B</div><div class="metric-card-desc">全球门店数字化与翻新改造</div></div>
+        </div>
+    </div>
+
+    <!-- 10 Sell Put 期权策略 -->
+    <div class="sec-card" id="sec-10">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">10</span> 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="score-pill pill-green">期权量化策略</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>风险偏好梯队</th><th>行权价 (Strike)</th><th>到期日 / DTE</th><th>权利金 (Bid/Ask)</th><th>安全垫</th><th>Delta</th><th>年化收益率 (APY)</th><th>净持仓成本</th><th>持仓量 (OI)</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>🟢 保守型 (Conservative)</strong></td><td class="num-font font-bold">$255.00</td><td>2026-09-18 (22d)</td><td class="num-font">$1.10 / $1.35</td><td class="num-font val-pos">4.57%</td><td class="num-font">-0.14</td><td class="num-font val-pos">8.0%</td><td class="num-font">$253.75</td><td class="num-font">2,140 手</td></tr>
+                    <tr style="background: #EFF6FF; font-weight: 700;"><td><strong>🟡 平衡型 (Balanced - 主推)</strong></td><td class="num-font font-bold">$260.00</td><td>2026-09-18 (22d)</td><td class="num-font">$2.45 / $2.75</td><td class="num-font val-pos">2.70%</td><td class="num-font">-0.25</td><td class="num-font val-pos">16.6%</td><td class="num-font">$257.40</td><td class="num-font">4,516 手</td></tr>
+                    <tr><td><strong>🟠 进取型 (Aggressive)</strong></td><td class="num-font font-bold">$265.00</td><td>2026-09-18 (22d)</td><td class="num-font">$4.30 / $4.70</td><td class="num-font val-pos">0.82%</td><td class="num-font">-0.40</td><td class="num-font val-pos">28.0%</td><td class="num-font">$260.50</td><td class="num-font">3,210 手</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="info-box success" style="margin-top: 10px;">
+            <strong>⚡ 轮动执行指南 (The Wheel Strategy):</strong><br>
+            强烈主推卖出 <strong>MCD 2026-09-18 $260.00 Put</strong> (持仓量 4,516 手)。折算净持仓成本 <strong>$257.40 (直接击穿 52 周最低价 $262.80)</strong>，在极值大底从容收获 16.6% 年化现金流！
+        </div>
+    </div>
+
+    <!-- 11 机构持仓 -->
+    <div class="sec-card" id="sec-11">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">11</span> 机构持仓与 13F 主力资金动向 (Institutional Ownership & 13F)</div>
+            <span class="score-pill pill-blue">机构持股 72.5%</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>机构投资者名称</th><th>持股总数 (股)</th><th>持股市值 ($B)</th><th>占总股本比例</th><th>季度调仓动向</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>Vanguard Group Inc.</strong></td><td class="num-font">66,540,100</td><td class="num-font">$17.78B</td><td class="num-font">9.24%</td><td><span class="val-pos">+0.8% (稳步增持)</span></td></tr>
+                    <tr><td><strong>Blackrock Inc.</strong></td><td class="num-font">52,110,400</td><td class="num-font">$13.92B</td><td class="num-font">7.23%</td><td><span class="val-pos">+1.1% (长线锁定)</span></td></tr>
+                    <tr><td><strong>State Street Corp</strong></td><td class="num-font">34,800,000</td><td class="num-font">$9.30B</td><td class="num-font">4.83%</td><td>持平 (指数底仓)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 12 内部人与语气 -->
+    <div class="sec-card" id="sec-12">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">12</span> 内部人交易、管理层语气与财报电话会洞察 (Insider & Tone)</div>
+            <span class="score-pill pill-green">电话会情绪回暖</span>
+        </div>
+        <div class="info-box">
+            <div class="info-box-title">🎙️ CEO Chris Kempczinski 在最新财报电话会要点：</div>
+            <p style="font-size: 13px; line-height: 1.7; font-style: italic;">
+                “Our $5 Meal Deal is delivering exactly what we intended: driving incremental traffic back into our restaurants, particularly among lower-income consumers. With our digital loyalty members now surpassing 150 million, we have unprecedented visibility and pricing power to sustain our industry-leading franchise profitability.”
+            </p>
+        </div>
+    </div>
+
+    <!-- 13 做空分析 -->
+    <div class="sec-card" id="sec-13">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">13</span> 做空比例、平仓天数与轧空风险评估 (Short Interest)</div>
+            <span class="score-pill pill-green">做空压力极低</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-box"><div class="info-box-title">空头占流通盘比例</div><div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono'; margin: 6px 0;">1.15%</div><div>无做空压力</div></div>
+            <div class="info-box"><div class="info-box-title">平仓所需天数 (DTC)</div><div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono'; margin: 6px 0;">1.20 天</div><div>流动性极其充裕</div></div>
+            <div class="info-box"><div class="info-box-title">期权沽购比 (PCR)</div><div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary); margin: 6px 0;">0.82</div><div>看跌期权定价充分</div></div>
+        </div>
+    </div>
+
+    <!-- 14 风险矩阵 -->
+    <div class="sec-card" id="sec-14">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">14</span> 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Case)</div>
+            <span class="score-pill pill-amber">压力测试</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>压力测试情景</th><th>主要负面假设</th><th>EPS 潜在影响</th><th>清算每股估值底线</th><th>对 $260 Put 策略影响</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>情景 A: 全球宏观衰退消费降级</strong></td><td>同店销售额暂时下滑 4%</td><td>EPS 下降 6%</td><td>$255.00</td><td><span class="val-pos">安全 (紧贴大底)</span></td></tr>
+                    <tr><td><strong>情景 B: 汇率强美元拖累海外结算</strong></td><td>国际特许权收益折算减少 8%</td><td>EPS 下降 4%</td><td>$250.00</td><td><span class="val-pos">行权即买入极品大底</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 15 催化剂日历 -->
+    <div class="sec-card" id="sec-15">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">15</span> 未来关键催化剂日历与增长路线图 (Catalyst Calendar)</div>
+            <span class="score-pill pill-blue">重磅节点</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="pillar-card"><div class="pillar-title">🍔 5 美元超值套餐全球常态化</div><div class="pillar-desc">持续拉动客流量与进店转化率，同店销售重回正增长。</div></div>
+            <div class="pillar-card"><div class="pillar-title">📊 Q3 季度同店销售额披露</div><div class="pillar-desc">验证低收入客群回流与国际特许经营市场企稳。</div></div>
+            <div class="pillar-card"><div class="pillar-title">👑 12月年度例行提高股息</div><div class="pillar-desc">迈向第 48 年连续增息里程碑，强化股息贵族吸引力。</div></div>
+        </div>
+    </div>
+
+    <!-- 16 投资评级与执行 -->
+    <div class="sec-card" id="sec-16" style="border: 2px solid var(--primary);">
+        <div class="sec-head" style="border-bottom-color: var(--primary);">
+            <div class="sec-title" style="color: var(--primary-dark);"><span class="sec-num">16</span> 最终投资评级与执行建议 (Final Verdict & Execution)</div>
+            <span class="score-pill pill-green" style="font-size: 13px;">评级: 🟢 强烈看多</span>
+        </div>
+        <div class="signal-block">
+            <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; margin-bottom: 12px; color: #A7F3D0;">
+                🟢 强烈看多 (STRONG BUY) · 价值量化总评分 9.42 / 10.0
+            </div>
+            <p style="font-size: 13.5px; line-height: 1.7; opacity: 0.95;">
+                McDonald's 是美股稀缺的<strong>“46.5% 营业利润率 + 连续 47 年股息贵族 + 52周极值大底”</strong>的防御性资产。卖出 <strong>Sell Put $260.00 (22 DTE)</strong> 在 $257.40 历史大底建仓，安全系数极高！
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // 1. Radar Chart
+    new Chart(document.getElementById('radarChart').getContext('2d'), {
+        type: 'radar',
+        data: {
+            labels: ['商业护城河', 'DCF估值折价', '现金流造血力', '股息与资本分配', '期权Alpha', '逆向击球时机'],
+            datasets: [{
+                label: 'MCD 价值评分',
+                data: [9.8, 9.0, 9.6, 9.9, 8.6, 9.4],
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                borderColor: 'rgba(16, 185, 129, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: { r: { suggestedMin: 0, suggestedMax: 10, grid: { color: '#F1F5F9' } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 2. Revenue & Net Income Dual Chart
+    new Chart(document.getElementById('revNetChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025(E)'],
+            datasets: [
+                { type: 'bar', label: '总营收 ($B)', data: [23.18, 25.49, 25.90, 26.85], backgroundColor: 'rgba(5, 150, 105, 0.7)', borderRadius: 4 },
+                { type: 'line', label: '净利润 ($B)', data: [6.18, 8.47, 8.22, 8.75], borderColor: '#2563EB', backgroundColor: '#2563EB', borderWidth: 2, tension: 0.3, pointRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v + 'B' } } }
+        }
+    });
+
+    // 3. Cash Flow Chart
+    new Chart(document.getElementById('cashFlowChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025(E)'],
+            datasets: [
+                { label: '经营现金流 OCF ($B)', data: [7.39, 9.61, 10.20, 11.35], backgroundColor: 'rgba(37, 99, 235, 0.7)', borderRadius: 4 },
+                { label: '自由现金流 FCF ($B)', data: [5.49, 7.26, 7.60, 8.45], backgroundColor: 'rgba(16, 185, 129, 0.8)', borderRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v + 'B' } } }
+        }
+    });
+
+    // 4. Valuation Waterfall
+    new Chart(document.getElementById('valuationChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['清算底线', '当前现价', '基准DCF', '分析师目标', '均值回归(24x)'],
+            datasets: [{
+                label: '每股公允估值 ($)',
+                data: [255.00, 267.20, 318.50, 325.40, 345.00],
+                backgroundColor: ['rgba(220, 38, 38, 0.7)', 'rgba(100, 116, 139, 0.8)', 'rgba(5, 150, 105, 0.8)', 'rgba(37, 99, 235, 0.7)', 'rgba(16, 185, 129, 0.7)'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: false, ticks: { callback: v => '$' + v } } }
+        }
+    });
+</script>
+
+</body>
+</html>

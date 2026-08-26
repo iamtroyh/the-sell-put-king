@@ -113,18 +113,19 @@ Output: **Risk & Asymmetric Payoff Score (0–10)** — High score (8–10) = Lo
 
 ---
 
-## Composite Scoring Framework
+## Composite Scoring Framework (Long-Term Value & Cash Flow Focus)
 
 ```
 Full Report Score = Weighted Composite
 
 Component                         Weight    Sub-Score (0-10)
 ─────────────────────────────────────────────────────────────────────────────
-1. Business Quality & Moat         25%      [Phase 1: Franchise, ROIC, FCF]
+1. Business Quality & Moat         25%      [Phase 1: Franchise, ROIC, Pricing Power]
 2. Valuation & Margin of Safety    25%      [Phase 2: DCF, Multiples, Net Basis]
-3. Market & Institutional Signals  20%      [Phase 3: 13F, Insider, Guidance]
-4. Technical & Regime Position     15%      [Phase 4: Golden Pit vs Trend]
-5. Risk & Asymmetric Payoff        15%      [Phase 5: Solvency, IV Buffer, Squeeze]
+3. FCF Engine & Financial Health   20%      [Phase 1/5: FCF Margin, Balance Sheet, Debt]
+4. Option Alpha & Premium Yield    15%      [Phase 5: Sell Put APY, IV Rank, Theta]
+5. Smart Money & Market Signals    10%      [Phase 3: 13F Institutional, Form 4 Insider]
+6. Contrarian Value Timing          5%      [Phase 4: Quality-Conditioned Timing]
 ─────────────────────────────────────────────────────────────────────────────
 COMPOSITE SCORE                   100%      X.X / 10
 
@@ -137,11 +138,12 @@ Composite Interpretation:
 ```
 
 Sub-score derivation:
-- **Business Quality (25%)**: Average of economic moat rating (0-10) + capital return efficiency (ROIC/ROE/FCF Margin).
+- **Business Quality (25%)**: Average of economic moat rating (0-10) + capital return efficiency (ROIC/ROE/Pricing Power).
 - **Valuation & Margin of Safety (25%)**: Weighted blend of DCF base-case discount + 5-year historical multiple percentile + Sell Put net basis discount.
-- **Market Signals (20%)**: Weighted average of SEC Form 4 insider sentiment + 13F institutional accumulation + management earnings call tone.
-- **Technical & Regime Position (15%)**: Conditioned on business quality. High quality + 52W bottom (RP < 0.20) = 8.0~9.5 (Golden Pit); Low quality + breakdown = 0.0~3.5 (Falling Knife).
-- **Risk & Asymmetric Payoff (15%)**: Solvency safety (Interest coverage, Net debt/EBITDA) + IV time-decay downside cushion rate + Short squeeze asymmetry.
+- **FCF Engine & Financial Health (20%)**: Structural FCF Margin (>20% = 9.0+), Piotroski F-Score (>=7 = 9.0+), Debt-to-Equity / Interest Coverage solvency safety.
+- **Option Alpha & Premium Yield (15%)**: Sell Put executable APY yield rate + Black-Scholes EV expectation + IV Rank / Skew buffer.
+- **Smart Money & Market Signals (10%)**: Weighted average of SEC Form 4 insider sentiment + 13F institutional accumulation + management earnings call tone.
+- **Contrarian Value Timing (5%)**: Quality-Conditioned Timing. High quality fortress + deep oversold (RSI < 25, 52W RP < 0.20, Dev200 < -20%) = 9.2~10.0 (Prime Contrarian Golden Pit); Low quality + breakdown = 1.0~3.5 (Toxic Falling Knife).
 
 When running quick or standard depth, scores for missing modules default to neutral (5.0) and are flagged as "not assessed" in the scorecard.
 

@@ -515,8 +515,9 @@ def calculate_sell_put_score(
         or (f_score is not None and f_score <= 3)
         or (insider_sentiment == "heavy_selling")
     )
+    is_high_fcf_quality = (fcf_margin is not None and fcf_margin >= 0.15 and not is_fcf_negative)
     is_contrarian_candidate = is_etf or (
-        (f_score is not None and f_score >= 7 and not is_toxic_knife)
+        (f_score is not None and f_score >= 6 and not is_toxic_knife and (f_score >= 7 or is_high_fcf_quality))
         or (insider_sentiment == "net_buying")
     )
 

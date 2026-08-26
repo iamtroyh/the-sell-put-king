@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Boston Scientific Corporation (BSX) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:        #059669;
+            --primary-dark:   #064E3B;
+            --primary-light:  #ECFDF5;
+            --accent:         #10B981;
+            --accent-light:   #D1FAE5;
+            --emerald:        #10B981;
+            --emerald-light:  #ECFDF5;
+            --teal:           #0D9488;
+            --teal-light:     #CCFBF1;
+            --red:            #DC2626;
+            --red-light:      #FEE2E2;
+            --amber:          #D97706;
+            --amber-light:    #FEF3C7;
+            --blue:           #2563EB;
+            --blue-light:     #EFF6FF;
+            --purple:         #7C3AED;
+            --purple-light:   #F5F3FF;
+            --slate:          #64748B;
+            --slate-light:    #F8FAFC;
+            --border:         #E2E8F0;
+            --text-primary:   #0F172A;
+            --text-secondary: #475569;
+            --text-muted:     #94A3B8;
+            --grad-hero:      linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:    linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:      0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:      0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:      0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 28px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14px; opacity: 0.95; margin-bottom: 22px; max-width: 1050px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-num {
+            background: var(--primary);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+        .info-box.alert { border-left-color: var(--amber); background: #FFFBEB; }
+        .info-box.danger { border-left-color: var(--red); background: #FEF2F2; }
+        .info-box.success { border-left-color: var(--emerald); background: #ECFDF5; }
+        .info-box-title { font-size: 13.5px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; color: var(--primary-dark); }
+
+        .metric-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .metric-card-val {
+            font-size: 22px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary-dark);
+            margin: 4px 0;
+        }
+        .metric-card-lbl { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .metric-card-desc { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+        .pillar-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            border-top: 3px solid var(--primary);
+        }
+        .pillar-title { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .pillar-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 14px 0; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background: #F1F5F9; color: var(--text-secondary); font-weight: 700; padding: 10px 12px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        tr:hover td { background: #F8FAFC; }
+        .num-font { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        .val-pos { color: #059669; font-weight: 600; }
+        .val-neg { color: #DC2626; font-weight: 600; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin: 14px 0;
+        }
+
+        .score-pill { display: inline-block; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11.5px; }
+        .pill-green { background: var(--emerald-light); color: #065F46; }
+        .pill-blue { background: var(--blue-light); color: var(--blue); }
+        .pill-amber { background: var(--amber-light); color: var(--amber); }
+        .pill-purple { background: var(--purple-light); color: var(--purple); }
+
+        .signal-block {
+            background: var(--grad-hero);
+            color: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 16px;
+            box-shadow: var(--shadow-md);
+        }
+        .signal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+        .signal-verdict { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #A7F3D0; }
+        .signal-body { font-size: 13.5px; line-height: 1.7; opacity: 0.95; }
+    </style>
+</head>
+<body>
+
+<div class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: BSX</span>
+            <span class="badge badge-hero-signal">🟢 强烈看多 (STRONG BUY) · 52周极值大底成长白马</span>
+            <span class="badge badge-hero-score">价值量化总评分: 9.55 / 10.0</span>
+            <span class="badge" style="background: rgba(255,255,255,.2);">研报日期: 2026-08-26</span>
+        </div>
+        <h1 class="hero-title">Boston Scientific (BSX) 全球心血管介入与电生理脉冲消融绝对龙头</h1>
+        <div class="hero-sub">全球介入医疗器械与心血管微创治疗颠覆性领军者 · 革命性脉冲场消融 (FARAPULSE PFA) 颠覆传统房颤消融 · 左心耳封堵器 (WATCHMAN FLX) 垄断 >85% 全球份额 · 营收连续多年保持近 20% 强劲复合增长 · 股价触及 52 周相对位置 0.07 极值黄金坑 (现价 $47.54 较 200 SMA 深度偏离 -30.78%) · 前瞻 P/E 压缩至 13.85x (较历史均值折价 53%) · 极佳的低门槛 (~$4,500) Sell Put 权利金收割标的。</div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新现价 (Spot)</div>
+                <div class="hero-kpi-val">$47.54</div>
+                <div class="hero-kpi-sub">52周区间: $42.63 - $108.14 (RP: 0.07)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Fwd P/E)</div>
+                <div class="hero-kpi-val">13.85x</div>
+                <div class="hero-kpi-sub">历史均值: 29.5x (深度折价 53%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">200日均线偏离 (Dev)</div>
+                <div class="hero-kpi-val">-30.78%</div>
+                <div class="hero-kpi-sub">200 SMA: $68.68 | 极度超卖</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">营收复合增速 (YoY)</div>
+                <div class="hero-kpi-val">+19.9%</div>
+                <div class="hero-kpi-sub">FY2025: $20.07B | 行业领跑</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">经营现金流 (TTM OCF)</div>
+                <div class="hero-kpi-val">$4.53B</div>
+                <div class="hero-kpi-sub">FCF: $3.40B | 毛利率 69.2%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">DCF 基准公允价值</div>
+                <div class="hero-kpi-val">$60.50</div>
+                <div class="hero-kpi-sub">分析师均价: $62.69 (+31.9%)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-wrap">
+
+    <!-- 目录导览 -->
+    <div class="toc-bar">
+        <div class="toc-title">研报深度导览 (长线价值投资 15 模块完整架构)</div>
+        <div class="toc-links">
+            <a href="#sec-01" class="toc-link">01 执行摘要</a>
+            <a href="#sec-02" class="toc-link">02 价值量化雷达</a>
+            <a href="#sec-03" class="toc-link">03 商业模式与护城河</a>
+            <a href="#sec-04" class="toc-link">04 财务报表剖析</a>
+            <a href="#sec-05" class="toc-link">05 杜邦三因子拆解</a>
+            <a href="#sec-06" class="toc-link">06 同行全景对标</a>
+            <a href="#sec-07" class="toc-link">07 DCF估值与敏感性</a>
+            <a href="#sec-08" class="toc-link">08 价值击球时机与筹码</a>
+            <a href="#sec-09" class="toc-link">09 资本配置与股息</a>
+            <a href="#sec-10" class="toc-link">10 Sell Put 期权策略</a>
+            <a href="#sec-11" class="toc-link">11 机构持仓动向</a>
+            <a href="#sec-12" class="toc-link">12 内部人与电话会语气</a>
+            <a href="#sec-13" class="toc-link">13 做空比例与轧空</a>
+            <a href="#sec-14" class="toc-link">14 风险矩阵与熊市测试</a>
+            <a href="#sec-15" class="toc-link">15 催化剂日历</a>
+            <a href="#sec-16" class="toc-link">16 投资评级与执行</a>
+        </div>
+    </div>
+
+    <!-- 01 执行摘要 -->
+    <div class="sec-card" id="sec-01">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">01</span> 执行摘要与长线投资逻辑 (Executive Summary & Thesis)</div>
+            <span class="score-pill pill-green">综合评级: 9.55 / 10.0</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="info-box">
+                    <div class="info-box-title">🎯 核心价值论点: FARAPULSE 脉冲消融与 WATCHMAN 双垄断，53% 估值折价黄金坑</div>
+                    <p style="font-size: 13px; line-height: 1.7;">波士顿科学凭借 FARAPULSE 脉冲电场消融（PFA）系统颠覆传统射频消融，市占率呈爆发式增长；WATCHMAN FLX 稳坐左心耳封堵垄断王座。当前股价自 $100+ 腰斩至 $47.54，触及 52 周相对位置 0.07 极值底，前瞻 P/E 仅 13.85x，下行风险被极度封死。</p>
+                </div>
+            </div>
+            <div>
+                <div class="info-box success">
+                    <div class="info-box-title">🛡️ 期权 Cash Secured Put 战略定位</div>
+                    <div style="font-size: 13px; line-height: 1.7;">
+                        <div>• <strong>安全边际</strong>: 5.34% 虚值缓冲 (行权价 $45.00)</div>
+                        <div>• <strong>主推合约</strong>: BSX 2026-09-18 $45.00 Put (22 DTE)</div>
+                        <div>• <strong>年化收益率 (APY)</strong>: <span class="val-pos">25.8% 年化收益率</span></div>
+                        <div>• <strong>战略执行</strong>: 持仓量高达 11,505 手，折算净持仓成本仅 $44.30 (对应 12.9x P/E 地板价)！</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 02 价值量化雷达模型 -->
+    <div class="sec-card" id="sec-02">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">02</span> 长线价值多因子量化评分雷达模型 (Long-Term Value Multi-Factor Scorecard)</div>
+            <span class="score-pill pill-blue">价值总分: 9.55</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr><th>评价维度</th><th>评分</th><th>权重</th><th>价值投资核心驱动与量化事实</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>商业模式与产品护城河</strong></td>
+                                <td><span class="num-font val-pos">9.8 / 10</span></td>
+                                <td>25%</td>
+                                <td>FARAPULSE PFA + WATCHMAN 全球电生理与结构心绝对垄断，替代传统射频消融</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DCF估值折价与安全边际</strong></td>
+                                <td><span class="num-font val-pos">9.6 / 10</span></td>
+                                <td>25%</td>
+                                <td>52W RP 0.07 极值黄金坑，Forward P/E 13.85x (折价 53%)，DCF 空间 +27.3%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>营收成长与造血质量</strong></td>
+                                <td><span class="num-font val-pos">9.6 / 10</span></td>
+                                <td>20%</td>
+                                <td>营收增速 +19.9%，毛利率 69.2%，经营现金流 $4.53B 远超 GAAP 利润</td>
+                            </tr>
+                            <tr>
+                                <td><strong>期权 Alpha 与权利金厚度</strong></td>
+                                <td><span class="num-font val-pos">9.1 / 10</span></td>
+                                <td>15%</td>
+                                <td>Sell Put APY 25.8%，持仓量 1.15 万手，流动性极佳</td>
+                            </tr>
+                            <tr>
+                                <td><strong>研发管线与并购整合</strong></td>
+                                <td><span class="num-font val-pos">9.2 / 10</span></td>
+                                <td>10%</td>
+                                <td>每年 10%+ 研发投入，外延并购整合成功率行业第一</td>
+                            </tr>
+                            <tr>
+                                <td><strong>质量调制逆向击球时机</strong></td>
+                                <td><span class="num-font val-pos">9.6 / 10</span></td>
+                                <td>5%</td>
+                                <td>200 SMA 负偏离 -30.78%，52周位置 0.07，极品左侧黄金击球点</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 03 商业模式与护城河 -->
+    <div class="sec-card" id="sec-03">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">03</span> 商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="score-pill pill-green">极宽 (Wide Moat)</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="pillar-card">
+                <div class="pillar-title">⚡ FARAPULSE 脉冲电场消融 (PFA)</div>
+                <div class="pillar-desc">全球首个获 FDA 批准的突破性房颤消融系统，手术时间缩短 50% 且零食道副损伤，正全面替代强生与美敦力传统消融耗材。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">🛡️ WATCHMAN FLX 左心耳封堵器</div>
+                <div class="pillar-desc">全球房颤卒中预防黄金标准，市占率超 85%；适应症扩大至一线替代抗凝药，市场空间翻倍扩张。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">🔬 微创介入耗材与内窥镜矩阵</div>
+                <div class="pillar-desc">Axios 支架、SpyGlass 胆道镜系统在微创消化与泌尿介入领域独占鳌头，客户粘性极高。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 04 财务报表剖析 (含双交互图表) -->
+    <div class="sec-card" id="sec-04">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">04</span> 核心财务报表、现金流与盈利质量深度剖析 (Financial Statements & Margins)</div>
+            <span class="score-pill pill-blue">造血极强</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="revNetChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>财年</th><th>总营收 ($B)</th><th>净利润 ($B)</th><th>经营现金流 ($B)</th><th>自由现金流 ($B)</th><th>毛利率</th><th>营业利润率</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2025</strong></td>
+                        <td class="num-font">$20.07</td>
+                        <td class="num-font">$2.90</td>
+                        <td class="num-font val-pos">$4.53</td>
+                        <td class="num-font val-pos">$3.40</td>
+                        <td class="num-font">69.19%</td>
+                        <td class="num-font">22.90%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td class="num-font">$16.75</td>
+                        <td class="num-font">$1.85</td>
+                        <td class="num-font val-pos">$3.44</td>
+                        <td class="num-font val-pos">$2.37</td>
+                        <td class="num-font">69.00%</td>
+                        <td class="num-font">22.50%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td class="num-font">$14.24</td>
+                        <td class="num-font">$1.59</td>
+                        <td class="num-font val-pos">$2.50</td>
+                        <td class="num-font val-pos">$1.70</td>
+                        <td class="num-font">68.80%</td>
+                        <td class="num-font">21.80%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2022</strong></td>
+                        <td class="num-font">$12.68</td>
+                        <td class="num-font">$0.70</td>
+                        <td class="num-font val-pos">$1.53</td>
+                        <td class="num-font val-pos">$0.91</td>
+                        <td class="num-font">68.50%</td>
+                        <td class="num-font">21.00%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 05 杜邦三因子拆解 -->
+    <div class="sec-card" id="sec-05">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">05</span> 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+            <span class="score-pill pill-purple">资本回报拆解</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="metric-card">
+                <div class="metric-card-lbl">毛利率 (Gross Margin)</div>
+                <div class="metric-card-val">69.19%</div>
+                <div class="metric-card-desc">高附加值创新耗材强劲定价权</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">经营现金流转化率</div>
+                <div class="metric-card-val">1.56x</div>
+                <div class="metric-card-desc">现金流 $4.53B 远超账面 GAAP 净利润</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">资产负债与偿债</div>
+                <div class="metric-card-val">2.2x 杠杆</div>
+                <div class="metric-card-desc">利息覆盖倍数超 10x，财务极其稳健</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 06 同行对标 -->
+    <div class="sec-card" id="sec-06">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">06</span> 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="score-pill pill-green">行业横向对标</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>公司代码 / 名称</th><th>市值 ($B)</th><th>前瞻 P/E</th><th>EV/EBITDA</th><th>营收增速</th><th>毛利率</th><th>52W 位置 (RP)</th></tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>BSX (Boston Scientific)</strong></td>
+                        <td>$68.9B</td>
+                        <td class="num-font">13.85x</td>
+                        <td class="num-font">14.81x</td>
+                        <td class="num-font val-pos">+19.9%</td>
+                        <td class="num-font">69.2%</td>
+                        <td class="num-font">0.07 (黄金坑)</td>
+                    </tr>
+                    <tr >
+                        <td><strong>MDT (Medtronic)</strong></td>
+                        <td>$112.0B</td>
+                        <td class="num-font">15.20x</td>
+                        <td class="num-font">13.50x</td>
+                        <td class="num-font val-pos">+4.5%</td>
+                        <td class="num-font">65.5%</td>
+                        <td class="num-font">0.48</td>
+                    </tr>
+                    <tr >
+                        <td><strong>ABT (Abbott Labs)</strong></td>
+                        <td>$195.0B</td>
+                        <td class="num-font">21.80x</td>
+                        <td class="num-font">16.20x</td>
+                        <td class="num-font val-pos">+6.2%</td>
+                        <td class="num-font">55.8%</td>
+                        <td class="num-font">0.55</td>
+                    </tr>
+                    <tr >
+                        <td><strong>EW (Edwards Lifesciences)</strong></td>
+                        <td>$42.0B</td>
+                        <td class="num-font">26.50x</td>
+                        <td class="num-font">19.80x</td>
+                        <td class="num-font val-pos">+8.5%</td>
+                        <td class="num-font">77.0%</td>
+                        <td class="num-font">0.32</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 07 DCF 估值与敏感性 -->
+    <div class="sec-card" id="sec-07">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">07</span> DCF 现金流折现、内在价值与多维估值公允中枢 (DCF Valuation & Sensitivity)</div>
+            <span class="score-pill pill-blue">基准公允值: $60.50</span>
+        </div>
+        <div class="data-grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="valuationChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr><th>估值模型 / 场景</th><th>每股公允估值</th><th>隐含前瞻 P/E</th><th>较现价潜在空间</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr >
+                                <td><strong>5年保守 DCF 清算底线</strong></td>
+                                <td class="num-font val-pos">$48.00</td>
+                                <td>14.0x</td>
+                                <td class="val-pos">+1.0%</td>
+                            </tr>
+                            <tr style="background: #ECFDF5; font-weight: 700;">
+                                <td><strong>10年 Damodaran 基准公允价值</strong></td>
+                                <td class="num-font val-pos">$60.50</td>
+                                <td>17.6x</td>
+                                <td class="val-pos">+27.3%</td>
+                            </tr>
+                            <tr >
+                                <td><strong>华尔街分析师目标均价</strong></td>
+                                <td class="num-font val-pos">$62.69</td>
+                                <td>18.3x</td>
+                                <td class="val-pos">+31.9%</td>
+                            </tr>
+                            <tr >
+                                <td><strong>历史中枢均值回归 (25.0x P/E)</strong></td>
+                                <td class="num-font val-pos">$85.00</td>
+                                <td>25.0x</td>
+                                <td class="val-pos">+78.8%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="info-box" style="margin-top: 10px;">
+            <div class="info-box-title">📊 WACC 贴现率与永续增长率 (g) 敏感性矩阵</div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr><th>WACC \ g</th><th>2.0%</th><th>2.5%</th><th>3.0% (基准)</th><th>3.5%</th><th>4.0%</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>7.5%</strong></td>
+                            <td class="num-font">$68.00</td>
+                            <td class="num-font">$74.00</td>
+                            <td class="num-font " >$82.00</td>
+                            <td class="num-font">$92.00</td>
+                            <td class="num-font">$105.00</td>
+                        </tr>
+                        <tr>
+                            <td><strong>8.5% (基准)</strong></td>
+                            <td class="num-font">$54.00</td>
+                            <td class="num-font">$57.50</td>
+                            <td class="num-font val-pos" style="background: #D1FAE5; font-weight:700;">$60.50</td>
+                            <td class="num-font">$67.00</td>
+                            <td class="num-font">$74.00</td>
+                        </tr>
+                        <tr>
+                            <td><strong>9.5%</strong></td>
+                            <td class="num-font">$45.00</td>
+                            <td class="num-font">$47.50</td>
+                            <td class="num-font " >$50.00</td>
+                            <td class="num-font">$53.50</td>
+                            <td class="num-font">$58.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 08 价值击球时机与技术形态 -->
+    <div class="sec-card" id="sec-08">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">08</span> 质量调制之逆向价值击球时机与均线筹码 (Contrarian Value Timing)</div>
+            <span class="score-pill pill-green">黄金击球点</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-box">
+                <div class="info-box-title">均线系统 (Moving Averages)</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <div>• 现价: <strong>$47.54</strong></div>
+                    <div>• 20日均线 (20 SMA): <strong>$49.66</strong></div>
+                    <div>• 50日均线 (50 SMA): <strong>$46.53</strong></div>
+                    <div>• 200日均线 (200 SMA): <strong>$68.68</strong> (偏离: -30.78%)</div>
+                </div>
+            </div>
+            <div class="info-box success">
+                <div class="info-box-title">逆向超卖出清与击球性价比</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <div>• 14日 RSI: <strong>43.53</strong> (底部震荡筑底)</div>
+                    <div>• 52周位置 (RP): <strong>0.07</strong></div>
+                    <div>• 30日实际波动率 (HV30): <strong>35.9%</strong></div>
+                </div>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">支撑与阻力位 (S/R Levels)</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <div>• 第一阻力位 (R1): <strong>$52.00</strong></div>
+                    <div>• 核心支撑位 (S1): <strong>$45.00 (强支撑)</strong></div>
+                    <div>• 极值底部支撑 (S2): <strong>$42.63 (52周最低点)</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 09 资本配置与分红 -->
+    <div class="sec-card" id="sec-09">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">09</span> 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividends)</div>
+            <span class="score-pill pill-green">股东回报机制</span>
+        </div>
+        <p style="font-size: 13px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 14px;">
+            每年将营收的 9%~11%（超 $20 亿美元）投入自主研发与外延并购，先后精准整合 Farapulse、Relievant 等前沿独角兽，构建起极高的技术壁垒。
+        </p>
+        <div class="data-grid-3">
+            <div class="metric-card">
+                <div class="metric-card-lbl">股息收益率 / 派息</div>
+                <div class="metric-card-val">无 / 没有 (无股息派发)</div>
+                <div class="metric-card-desc">全部现金流用于高 ROIC 研发与外延并购再投资</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">股份回购力度</div>
+                <div class="metric-card-val">$1.2B/年</div>
+                <div class="metric-card-desc">抵消股权激励稀释</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">研发与资本开支投入</div>
+                <div class="metric-card-val">$1.1B</div>
+                <div class="metric-card-desc">全球高端医疗制造基地</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10 Sell Put 期权策略 -->
+    <div class="sec-card" id="sec-10">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">10</span> 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="score-pill pill-green">期权量化策略</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr><th>风险偏好梯队</th><th>行权价 (Strike)</th><th>到期日 / DTE</th><th>权利金 (Bid/Ask)</th><th>安全垫</th><th>Delta</th><th>年化收益率 (APY)</th><th>净持仓成本</th><th>持仓量 (OI)</th></tr>
+                </thead>
+                <tbody>
+                    <tr >
+                        <td><strong>🟢 保守型 (Conservative)</strong></td>
+                        <td class="num-font font-bold">$44.00</td>
+                        <td>2026-09-18 (22d)</td>
+                        <td class="num-font">$0.45 / $0.55</td>
+                        <td class="num-font val-pos">7.45%</td>
+                        <td class="num-font">-0.16</td>
+                        <td class="num-font val-pos">18.9%</td>
+                        <td class="num-font">$43.50</td>
+                        <td class="num-font">90 手</td>
+                    </tr>
+                    <tr style="background: #EFF6FF; font-weight: 700;">
+                        <td><strong>🟡 平衡型 (Balanced - 主推)</strong></td>
+                        <td class="num-font font-bold">$45.00</td>
+                        <td>2026-09-18 (22d)</td>
+                        <td class="num-font">$0.65 / $0.75</td>
+                        <td class="num-font val-pos">5.34%</td>
+                        <td class="num-font">-0.24</td>
+                        <td class="num-font val-pos">25.8%</td>
+                        <td class="num-font">$44.30</td>
+                        <td class="num-font">11,505 手</td>
+                    </tr>
+                    <tr >
+                        <td><strong>🟠 进取型 (Aggressive)</strong></td>
+                        <td class="num-font font-bold">$46.00</td>
+                        <td>2026-09-18 (22d)</td>
+                        <td class="num-font">$1.00 / $1.10</td>
+                        <td class="num-font val-pos">3.24%</td>
+                        <td class="num-font">-0.34</td>
+                        <td class="num-font val-pos">37.7%</td>
+                        <td class="num-font">$44.95</td>
+                        <td class="num-font">240 手</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="info-box success" style="margin-top: 10px;">
+            <strong>⚡ 轮动执行指南 (The Wheel Strategy):</strong><br>
+            强烈主推卖出 <strong>BSX 2026-09-18 $45.00 Put</strong> (持仓量高达 11,505 手)。以 5.34% 安全垫收割 <strong>25.8% 年化现金流</strong>；若行权则在 <strong>$44.30 (仅 12.9x 前瞻 P/E)</strong> 历史极品大底建仓！
+        </div>
+    </div>
+
+    <!-- 11 机构持仓 -->
+    <div class="sec-card" id="sec-11">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">11</span> 机构持仓与主力资金动向 (Institutional Ownership & 13F)</div>
+            <span class="score-pill pill-blue">机构占比 > 88%</span>
+        </div>
+        <p style="font-size: 13px; line-height: 1.7; color: var(--text-secondary);">
+            Blackrock ($6.16B), Vanguard ($4.62B), State Street ($3.33B), Primecap ($2.40B) 等顶级长线基金重仓，Primecap 季度加仓超 55%。
+        </p>
+    </div>
+
+    <!-- 12 内部人与语气 -->
+    <div class="sec-card" id="sec-12">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">12</span> 内部人交易、管理层语气与财报电话会洞察 (Insider & Tone)</div>
+            <span class="score-pill pill-green">电话会情绪</span>
+        </div>
+        <p style="font-size: 13px; line-height: 1.7; color: var(--text-secondary);">
+            CEO Michael Mahoney 在电话会上强调 FARAPULSE 正在以前所未有的速度重塑房颤消融标准，三大业务线均实现双位数内生增长。
+        </p>
+    </div>
+
+    <!-- 13 做空分析 -->
+    <div class="sec-card" id="sec-13">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">13</span> 做空比例、平仓天数与轧空风险评估 (Short Interest)</div>
+            <span class="score-pill pill-green">做空压力评估</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-box">
+                <div class="info-box-title">空头占流通盘比例</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 6px 0;">1.91%</div>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">平仓所需天数 (DTC)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 6px 0;">1.40 天</div>
+            </div>
+            <div class="info-box">
+                <div class="info-box-title">期权沽购比 (PCR)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--primary); margin: 6px 0;">0.81</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 14 风险矩阵 -->
+    <div class="sec-card" id="sec-14">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">14</span> 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Case)</div>
+            <span class="score-pill pill-amber">压力测试</span>
+        </div>
+        <div class="info-box alert">
+            <strong>🐻 极度熊市压力测试场景:</strong><br>
+            即使假设医院资本开支收紧导致耗材采购放缓至 8%，凭借 70% 高毛利耗材粘性，清算底线位于 $40.00 - $42.00。$45 Strike Sell Put 具备极强防守韧性。
+        </div>
+    </div>
+
+    <!-- 15 催化剂日历 -->
+    <div class="sec-card" id="sec-15">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">15</span> 未来关键催化剂日历与增长路线图 (Catalyst Calendar)</div>
+            <span class="score-pill pill-blue">重磅催化节点</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="pillar-card">
+                <div class="pillar-title">TCT 经导管心血管治疗年会 (10月)</div>
+                <div class="pillar-desc">公布 WATCHMAN FLX 与 ACURATE 最新重磅随访数据。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">Q3 季度业绩披露 (10月下旬)</div>
+                <div class="pillar-desc">关注 FARAPULSE 全球放量与全年业绩指引上调。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">FARAPULSE 亚太与国际放量</div>
+                <div class="pillar-desc">海外医保报销落地推动渗透率快速提升。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 16 投资评级与执行 -->
+    <div class="sec-card" id="sec-16" style="border: 2px solid var(--primary);">
+        <div class="sec-head" style="border-bottom-color: var(--primary);">
+            <div class="sec-title" style="color: var(--primary-dark);"><span class="sec-num">16</span> 最终投资评级与执行建议 (Final Verdict & Execution)</div>
+            <span class="score-pill pill-green" style="font-size: 13px;">评级: 🟢 强烈看多 (STRONG BUY) · 52周极值大底成长白马</span>
+        </div>
+        <div class="signal-block">
+            <div class="signal-header">
+                <div class="signal-verdict">🟢 强烈看多 (STRONG BUY) · 52周极值大底成长白马 · 价值总分 9.55 / 10.0</div>
+            </div>
+            <div class="signal-body">
+                Boston Scientific 是全球医疗器械板块极具性价比的<strong>“近 20% 高增速 + PFA 脉冲消融颠覆垄断 + 前瞻市盈率仅 13.8x”</strong>的极品标的。长线价值评分 <strong>9.55 / 10.0</strong>！卖出 <strong>Sell Put $45.00 (22 DTE)</strong> 稳赚 25.8% 年化现金流！
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Chart.js Scripts (4 Full Interactive Charts) -->
+<script>
+    // 1. Radar Chart
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['商业护城河', 'DCF估值折价', '营收与现金流', '期权Alpha', '研发与并购', '逆向击球时机'],
+            datasets: [{
+                label: 'BSX 价值评分',
+                data: [9.8, 9.6, 9.6, 9.1, 9.2, 9.6],
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                borderColor: 'rgba(16, 185, 129, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#E2E8F0' },
+                    grid: { color: '#F1F5F9' },
+                    pointLabels: { font: { size: 11, weight: '600' }, color: '#475569' },
+                    suggestedMin: 0,
+                    suggestedMax: 10
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 2. Revenue & Net Income Dual Chart
+    const ctxRevNet = document.getElementById('revNetChart').getContext('2d');
+    new Chart(ctxRevNet, {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025'],
+            datasets: [
+                {
+                    type: 'bar',
+                    label: '总营收 ($B)',
+                    data: [12.68, 14.24, 16.75, 20.07],
+                    backgroundColor: 'rgba(5, 150, 105, 0.7)',
+                    borderRadius: 4
+                },
+                {
+                    type: 'line',
+                    label: '净利润 ($B)',
+                    data: [0.70, 1.59, 1.85, 2.90],
+                    borderColor: '#2563EB',
+                    backgroundColor: '#2563EB',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { callback: v => '$' + v + 'B' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 3. Cash Flow Chart (OCF vs FCF)
+    const ctxCash = document.getElementById('cashFlowChart').getContext('2d');
+    new Chart(ctxCash, {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025'],
+            datasets: [
+                {
+                    label: '经营现金流 OCF ($B)',
+                    data: [1.53, 2.50, 3.44, 4.53],
+                    backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                    borderRadius: 4
+                },
+                {
+                    label: '自由现金流 FCF ($B)',
+                    data: [0.91, 1.70, 2.37, 3.40],
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { callback: v => '$' + v + 'B' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 4. Valuation Scenarios Waterfall/Bar
+    const ctxVal = document.getElementById('valuationChart').getContext('2d');
+    new Chart(ctxVal, {
+        type: 'bar',
+        data: {
+            labels: ['清算底线', '当前现价', '基准DCF', '分析师目标', '均值回归(25x)'],
+            datasets: [{
+                label: '每股公允估值 ($)',
+                data: [48.00, 47.54, 60.50, 62.69, 85.00],
+                backgroundColor: ['rgba(220, 38, 38, 0.7)', 'rgba(100, 116, 139, 0.8)', 'rgba(5, 150, 105, 0.8)', 'rgba(37, 99, 235, 0.7)', 'rgba(16, 185, 129, 0.7)'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) } }
+            },
+            scales: {
+                y: { beginAtZero: false, grid: { color: '#F1F5F9' }, ticks: { callback: v => '$' + v } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
