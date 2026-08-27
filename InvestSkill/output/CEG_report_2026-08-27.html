@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>Constellation Energy (CEG) 深度投研与期权策略报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #0284C7;
+            --primary-dark:  #0369A1;
+            --primary-light: #F0F9FF;
+            --accent:        #0EA5E9;
+            --accent-light:  #E0F2FE;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #082F49 0%, #0369A1 50%, #0284C7 100%);
+            --grad-accent:   linear-gradient(90deg, #0284C7, #0EA5E9);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #BAE6FD; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(2,132,199,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #166534; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-amber { background: #FEF3C7; color: #92400E; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+
+        .prose-text { font-size: 13.5px; line-height: 1.7; color: #334155; margin-bottom: 12px; }
+        .prose-text strong { color: var(--text-primary); }
+        .prose-list { padding-left: 18px; margin-bottom: 14px; }
+        .prose-list li { font-size: 13px; color: #334155; margin-bottom: 6px; line-height: 1.5; }
+
+        .chart-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+            height: 320px;
+            position: relative;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-top: 10px;
+        }
+        .table-custom th {
+            background: #F1F5F9;
+            color: #475569;
+            font-weight: 700;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+        .table-custom td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: #1E293B;
+        }
+        .table-custom tr:hover { background: #F8FAFC; }
+
+        .callout-box {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+
+        .verdict-banner {
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            border: 1.5px solid #0284C7;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .verdict-left { max-width: 800px; }
+        .verdict-title { font-size: 20px; font-weight: 800; color: #0369A1; margin-bottom: 6px; }
+        .verdict-desc { font-size: 13.5px; color: #0284C7; line-height: 1.5; }
+        .verdict-score-badge {
+            background: #0284C7;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(2,132,199,.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO HEADER -->
+    <header class="report-hero">
+        <div class="hero-inner">
+            <div class="hero-badge-row">
+                <span class="badge badge-hero-stock">NASDAQ: CEG</span>
+                <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+                <span class="badge badge-hero-score">综合评分: 9.3 / 10</span>
+                <span class="badge badge-hero-stock">报告日期: 2026-08-27</span>
+            </div>
+            <h1 class="hero-title">Constellation Energy (CEG) 深度投研与期权策略报告</h1>
+            <p class="hero-sub">全美最大无碳核电运营巨头，AI 数据中心 7x24 小时零碳基荷电源绝对主导者。手握微软 20 年 Crane 洁能中心协议，IRA 法案 45U 条款筑牢电价底线，资产负债表极度清洁，200 日线黄金坑支撑强劲。</p>
+
+            <div class="hero-kpis">
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                    <div class="hero-kpi-val">$283.10</div>
+                    <div class="hero-kpi-sub">较 200SMA 偏离: -4.80%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Forward P/E</div>
+                    <div class="hero-kpi-val">21.22x</div>
+                    <div class="hero-kpi-sub">核电溢价与确定性溢价</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">资产负债率 (D/E)</div>
+                    <div class="hero-kpi-val">76.4%</div>
+                    <div class="hero-kpi-sub">公用事业板块极佳防御</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">分析师平均目标价</div>
+                    <div class="hero-kpi-val">$348.30</div>
+                    <div class="hero-kpi-sub">潜在上涨空间: +23.0%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Piotroski F-Score</div>
+                    <div class="hero-kpi-val">7 / 9 分</div>
+                    <div class="hero-kpi-sub">财务质量: 优质稳健</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrap">
+
+        <!-- VERDICT SUMMARY BANNER -->
+        <div class="verdict-banner">
+            <div class="verdict-left">
+                <div class="verdict-title">🌟 核心投资结论：强烈看多 (STRONG BUY) • 9.3/10</div>
+                <div class="verdict-desc">Constellation Energy (CEG) 拥有美国不可复制的 22 GW 商业核电机组资产，是科技巨头（微软、亚马逊、谷歌）构建零碳 AI 超级算力集群的唯一成熟规模化基荷电力供应商。公司不仅享受 IRA 45U 的保底电价补贴，更与微软锁定长达 20 年的溢价直供协议。股价自 300+ 美元回踩至 200 日均线支撑下方（-4.8%），是极佳的 Sell Put 收租与折价建仓黄金窗口。</div>
+            </div>
+            <div class="verdict-score-badge">
+                9.3<div style="font-size: 11px; font-weight: 500; opacity: 0.9;">/ 10 分</div>
+            </div>
+        </div>
+
+        <!-- QUICK TABLE OF CONTENTS -->
+        <nav class="toc-bar">
+            <div class="toc-title">报告核心导航 (15 模块全景框架)</div>
+            <div class="toc-links">
+                <a href="#sec-1" class="toc-link">1. 核心观点</a>
+                <a href="#sec-2" class="toc-link">2. 业务拆解</a>
+                <a href="#sec-3" class="toc-link">3. 护城河壁垒</a>
+                <a href="#sec-4" class="toc-link">4. 财务质量</a>
+                <a href="#sec-5" class="toc-link">5. 资本配置</a>
+                <a href="#sec-6" class="toc-link">6. 行业催化</a>
+                <a href="#sec-7" class="toc-link">7. 估值对比</a>
+                <a href="#sec-8" class="toc-link">8. DCF 模型</a>
+                <a href="#sec-9" class="toc-link">9. 逆向 DCF</a>
+                <a href="#sec-10" class="toc-link">10. 逆向压力测试</a>
+                <a href="#sec-11" class="toc-link">11. 催化剂清单</a>
+                <a href="#sec-12" class="toc-link">12. 风险矩阵</a>
+                <a href="#sec-13" class="toc-link">13. 期权定价与波动率</a>
+                <a href="#sec-14" class="toc-link">14. CSP / CC 实操方案</a>
+                <a href="#sec-15" class="toc-link">15. 决策矩阵</a>
+            </div>
+        </nav>
+
+        <!-- MODULE 1: 核心观点与投资摘要 -->
+        <section id="sec-1" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📌 模块 1：执行摘要与核心投资逻辑</div>
+                <span class="sec-tag">Executive Summary</span>
+            </div>
+            <div class="prose-text">
+                <strong>Constellation Energy Corporation (NASDAQ: CEG)</strong> 是全美最大的无碳电力生产商和领先的清洁能源零售服务商。公司自 Exelon 分拆后，凭借独一无二的核能发电资产库，成为全球 AI 军备竞赛中不可或缺的“能源水力/电力命脉”。
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">全美最大核电资产堆</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #0284C7;">22 GW 核电装机</div>
+                    <div class="info-card-desc">运营 21 台商用核反应堆，占全美核电总发电量超 20%，容量因子（Capacity Factor）高达 94%+，全天候不间断输出。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">微软 20 年 Crane PPA</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #059669;">835 MW 独家锁价</div>
+                    <div class="info-card-desc">重启三里岛 1 号机组（更名为 Crane Clean Energy Center），微软以显著高于市场均价的固定溢价全额包销 20 年电量。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">IRA 45U 政策铁底</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #D97706;">$43.75 / MWh 保底</div>
+                    <div class="info-card-desc">通胀削减法案核能生产税收抵免（PTC）提供电价托底保障，彻底消除核电机组在低电价周期的现金流下行风险。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 2: 业务模式与营收拆解 -->
+        <section id="sec-2" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏢 模块 2：业务模式与分部营收深度拆解</div>
+                <span class="sec-tag">Business Segments</span>
+            </div>
+            <div class="prose-text">
+                CEG 的业务主要由两大支柱构成：<strong>商用清洁能源发电 (Generation)</strong> 与 <strong>客户能源直供与零售 (Customer Facing / Retail)</strong>。
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>业务板块</th>
+                        <th>装机容量 / 运营规模</th>
+                        <th>主要客户群</th>
+                        <th>营收占比 (FY2026E)</th>
+                        <th>EBITDA 贡献率</th>
+                        <th>商业壁垒与优势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Nuclear Generation (核能发电)</strong></td>
+                        <td>~22,000 MW (21台机组)</td>
+                        <td>PJM / NYISO / ERCOT 电网、数据中心巨头</td>
+                        <td>~55%</td>
+                        <td>~70%</td>
+                        <td><span class="tag-pill tag-green">绝对稀缺 • 无法新建同等机组</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Renewable & Gas (气电与可再生)</strong></td>
+                        <td>~11,000 MW (天然气/风光水)</td>
+                        <td>区域电网调峰与工商业直供</td>
+                        <td>~20%</td>
+                        <td>~18%</td>
+                        <td><span class="tag-pill tag-blue">灵活调峰与辅助服务收益</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Commercial & Retail Energy</strong></td>
+                        <td>服务全美超 200 万企业与机构</td>
+                        <td>财富 100 强企业、大型制造业、政府公用</td>
+                        <td>~25%</td>
+                        <td>~12%</td>
+                        <td><span class="tag-pill tag-green">长期合约锁定度高</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- MODULE 3: 经济护城河与竞争优势 -->
+        <section id="sec-3" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏰 模块 3：经济护城河与竞争优势分析 (Economic Moat)</div>
+                <span class="sec-tag">Wide Moat Analysis</span>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">1. 不可复制的核电牌照与准入壁垒 (Regulatory & Asset Moat)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        在美国，由于极端严苛的 NRC（核管理委员会）审批流程、数十亿美元的建造成本以及长达 10~15 年的建设周期，新建大型核反应堆几乎不可能在短期内完成。CEG 拥有的存量机组拥有长达 60~80 年的延寿许可，构成了全球能源基础设施领域最高维度的实物资产护城河。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">2. 7x24 零碳基荷电力独占性 (24/7 Carbon-Free Power)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        风电和光伏受制于天气间歇性，平均容量因子仅 25%~35%；而核电容量因子超 94%。大模型训练与推理数据中心要求连续不断电的高密度供电，CEG 是全美唯一能够单点提供吉瓦级（GW）连续清洁绿电的供应商。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 4 & 5: 财务质量与资本配置 -->
+        <section id="sec-4" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📈 模块 4 & 5：财务质量、盈利能力与资本配置</div>
+                <span class="sec-tag">Financial Health</span>
+            </div>
+            <div class="data-grid-4">
+                <div class="info-card">
+                    <div class="info-card-title">资产负债率 (Debt to Equity)</div>
+                    <div class="info-card-val" style="color: #059669;">76.4%</div>
+                    <div class="info-card-desc">远低于公用事业行业均值 (180%+)</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">经营现金流 (Operating Cash Flow)</div>
+                    <div class="info-card-val" style="color: #0284C7;">$4.21B</div>
+                    <div class="info-card-desc">核心业务现金流极其充沛稳健</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">净资产收益率 (ROE)</div>
+                    <div class="info-card-val" style="color: #D97706;">15.06%</div>
+                    <div class="info-card-desc">超越传统公用事业 10%~12% 水平</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Piotroski F-Score</div>
+                    <div class="info-card-val" style="color: #10B981;">7 / 9 分</div>
+                    <div class="info-card-desc">享有 +5.0 分高质资产模型奖励</div>
+                </div>
+            </div>
+
+            <!-- CHART: CEG CAPACITY & EARNINGS -->
+            <div class="chart-box">
+                <canvas id="cegFinancialChart"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 6 & 7: 行业催化与相对估值 -->
+        <section id="sec-6" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">⚡ 模块 6 & 7：行业催化剂与同行相对估值 (Peer Valuation)</div>
+                <span class="sec-tag">Valuation Multiples</span>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>公司标的</th>
+                        <th>市值</th>
+                        <th>Forward P/E</th>
+                        <th>EV / EBITDA</th>
+                        <th>Debt / Equity</th>
+                        <th>核电装机占比</th>
+                        <th>财务安全性</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0F9FF; font-weight: 700;">
+                        <td><strong>Constellation Energy (CEG)</strong></td>
+                        <td>$100.3B</td>
+                        <td><span class="tag-pill tag-green">21.22x</span></td>
+                        <td>15.5x</td>
+                        <td><span class="tag-pill tag-green">76.4% (极安全)</span></td>
+                        <td>~65% (行业第一)</td>
+                        <td><span class="tag-pill tag-green">极高抗风险力</span></td>
+                    </tr>
+                    <tr>
+                        <td>Vistra Corp. (VST)</td>
+                        <td>$48.5B</td>
+                        <td>13.44x</td>
+                        <td>12.8x</td>
+                        <td><span class="tag-pill tag-red">373.3% (重负债)</span></td>
+                        <td>~15%</td>
+                        <td>高杠杆高波动</td>
+                    </tr>
+                    <tr>
+                        <td>NextEra Energy (NEE)</td>
+                        <td>$168.2B</td>
+                        <td>22.50x</td>
+                        <td>16.2x</td>
+                        <td>145.0%</td>
+                        <td>~10%</td>
+                        <td>稳健公用事业</td>
+                    </tr>
+                    <tr>
+                        <td>NRG Energy (NRG)</td>
+                        <td>$18.6B</td>
+                        <td>11.20x</td>
+                        <td>9.8x</td>
+                        <td>280.0%</td>
+                        <td>~5%</td>
+                        <td>气电为主周期标的</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout-box">
+                💡 <strong>为什么 CEG 享有更高估值倍数？</strong>：与纯火电或高负债发电商不同，CEG 拥有全美规模最大且资产负债率最低的核电资产。市场给予其溢价是为其在 AI 时代独特的“长期确定性现金流（如微软 20 年 PPA）”和极低的债务破产风险买单。
+            </div>
+        </section>
+
+        <!-- MODULE 8 & 9: DCF 内在价值与逆向 DCF -->
+        <section id="sec-8" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🧮 模块 8 & 9：DCF 绝对估值模型与逆向 DCF 压力检验</div>
+                <span class="sec-tag">DCF & Reverse DCF</span>
+            </div>
+            <div class="prose-text">
+                测算基于未来 20 年核电 PPA 提价曲线、IRA 45U 税收抵免补贴以及资本开支完成后的自由现金流释放（设定 WACC = 7.5%，永续增长率 g = 3.0%）：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>情景假设</th>
+                        <th>未来 5 年 OCF CAGR</th>
+                        <th>永续增长率 (g)</th>
+                        <th>折现率 (WACC)</th>
+                        <th>测算公允每股内在价值</th>
+                        <th>较现价 ($283.10) 溢价/折价</th>
+                        <th>投资建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>悲观情景 (Bear Case)</strong></td>
+                        <td>8.0%</td>
+                        <td>2.0%</td>
+                        <td>8.5%</td>
+                        <td>$268.00</td>
+                        <td>-5.3%</td>
+                        <td>安全垫厚，回踩即接</td>
+                    </tr>
+                    <tr style="background: #F0F9FF; font-weight: 700;">
+                        <td><strong>基准情景 (Base Case)</strong></td>
+                        <td>16.0%</td>
+                        <td>3.0%</td>
+                        <td>7.5%</td>
+                        <td><span style="color: #0284C7; font-size: 15px;">$358.50</span></td>
+                        <td><span class="tag-pill tag-green">+26.6%</span></td>
+                        <td>积极建仓 / 卖出 Put</td>
+                    </tr>
+                    <tr>
+                        <td><strong>乐观情景 (Bull Case)</strong></td>
+                        <td>24.0%</td>
+                        <td>3.5%</td>
+                        <td>7.0%</td>
+                        <td><span style="color: #059669; font-size: 15px;">$435.00</span></td>
+                        <td><span class="tag-pill tag-green">+53.7%</span></td>
+                        <td>多重数据中心 PPA 落地</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="prose-text" style="margin-top: 14px;">
+                🔄 <strong>逆向 DCF 检验</strong>：现价 $283.10 仅隐含市场预期未来 5 年复合经营利润增速为 <strong>9.5%</strong>，完全忽视了未来更多云厂商直接在 CEG 核电厂旁边“场内建算力中心（Co-location）”带来的超额电价溢价。
+            </div>
+        </section>
+
+        <!-- MODULE 10, 11 & 12: 红队压力测试、催化剂与风险 -->
+        <section id="sec-10" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🥊 模块 10, 11 & 12：红队压力测试 (Devil's Advocate) 与风险矩阵</div>
+                <span class="sec-tag">Stress Testing</span>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card" style="border-left: 4px solid #DC2626;">
+                    <div class="info-card-title" style="color: #DC2626;">🔴 核心做空与风险压力测试 (Bear Risks)</div>
+                    <ul class="prose-list">
+                        <li><strong>FERC / 区域电网监管阻力</strong>：PJM 等区域电网可能对数据中心“场内直连（Behind-the-Meter）”核电厂提出电网接入与费用分摊争议。</li>
+                        <li><strong>核电厂重启延期与 CapEx 超支</strong>：Crane 中心重启需要通过 NRC 严格核查，若延期至 2028 年后可能推迟现金流兑现。</li>
+                        <li><strong>宏观电价与天然气价格暴跌</strong>：虽然有 IRA 45U 托底，但若天然气价格长期低迷，商业零售部分电价溢价可能收窄。</li>
+                    </ul>
+                </div>
+                <div class="info-card" style="border-left: 4px solid #0284C7;">
+                    <div class="info-card-title" style="color: #0284C7;">🟢 确定性催化剂清单 (Bull Catalysts)</div>
+                    <ul class="prose-list">
+                        <li><strong>第二家科技巨头 (如 Amazon / Meta) PPA 合同落地</strong>：市场预期 CEG 正在就旗下其他核电机组谈判新的长期锁价合同。</li>
+                        <li><strong>NRC 延寿许可批准</strong>：现有 21 台机组陆续获得 80 年运营许可，大幅摊薄折旧。</li>
+                        <li><strong>PJM 区域容量电价（Capacity Auction）再创新高</strong>：电网供需缺口扩大，推升全网基荷电力估值。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 13 & 14: 期权定价与实操方案 -->
+        <section id="sec-13" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🎯 模块 13 & 14：期权衍生品定价与 CSP 策略配置</div>
+                <span class="sec-tag">Options Strategy</span>
+            </div>
+            <div class="prose-text">
+                当前 CEG 回踩 200 日均线支撑，期权 Max Pain 引力屏障位于 <strong>$270.00</strong>。卖出 $230 ~ $250 区间的 Put 能够获得极高的胜率（POP 93%~99%）与卓越的期权数学期望（EV）：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>策略定位</th>
+                        <th>推荐合约</th>
+                        <th>到期日 (DTE)</th>
+                        <th>行权价</th>
+                        <th>安全垫</th>
+                        <th>目标 Delta</th>
+                        <th>权利金报价</th>
+                        <th>静态年化 (APY)</th>
+                        <th>胜率 (POP)</th>
+                        <th>期望收益 (EV)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0F9FF;">
+                        <td><strong>🟢 保守收租 (极高胜率)</strong></td>
+                        <td>`CEG 2026-09-18 230.00 Put`</td>
+                        <td>22D</td>
+                        <td>$230.00</td>
+                        <td><span class="tag-pill tag-green">-18.8%</span></td>
+                        <td>-0.10</td>
+                        <td>$1.75</td>
+                        <td>12.4%</td>
+                        <td><strong>99%</strong></td>
+                        <td>+$163 / 张</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>🟡 平衡攻守 (主推首选)</strong></td>
+                        <td>`CEG 2026-09-18 250.00 Put`</td>
+                        <td>22D</td>
+                        <td>$250.00</td>
+                        <td><span class="tag-pill tag-green">-11.7%</span></td>
+                        <td>-0.20</td>
+                        <td>$3.75</td>
+                        <td><strong>24.9%</strong></td>
+                        <td><strong>93%</strong></td>
+                        <td><span style="color: #059669; font-size: 14px;">+$274 / 张</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>⚡ 远期稳健 (50天锁租)</strong></td>
+                        <td>`CEG 2026-10-16 250.00 Put`</td>
+                        <td>50D</td>
+                        <td>$250.00</td>
+                        <td><span class="tag-pill tag-green">-11.7%</span></td>
+                        <td>-0.20</td>
+                        <td>$5.30</td>
+                        <td>15.5%</td>
+                        <td><strong>84%</strong></td>
+                        <td>+$181 / 张</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔥 激进高租 (博弈接股)</strong></td>
+                        <td>`CEG 2026-09-18 260.00 Put`</td>
+                        <td>22D</td>
+                        <td>$260.00</td>
+                        <td><span class="tag-pill tag-amber">-8.2%</span></td>
+                        <td>-0.31</td>
+                        <td>$6.30</td>
+                        <td>35.8%</td>
+                        <td><strong>86%</strong></td>
+                        <td>+$314 / 张</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout-box">
+                🛡️ <strong>最差情况接股底线分析</strong>：若卖出 <strong>$250.00 Put</strong> 被行权接股，实际净买入成本为 <strong>$246.25</strong>（较现价折让 13.0%），对应的 Forward P/E 将进一步压缩至 <strong>18.4x</strong>。对于负债率仅 76.4%、垄断全美 22 GW 核电的清洁能源巨头，以 18.4 倍市盈率接股是极其稳健的长期底仓布局。
+            </div>
+        </section>
+
+        <!-- MODULE 15: 最终决策矩阵 -->
+        <section id="sec-15" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📋 模块 15：关键决策矩阵与行动指南</div>
+                <span class="sec-tag">Decision Matrix</span>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>决策维度</th>
+                        <th>评估结论</th>
+                        <th>实操执行指引</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>总投资评级</strong></td>
+                        <td><span class="tag-pill tag-green">强烈看多 (STRONG BUY) • 9.3分</span></td>
+                        <td>现货长线持有，期权推荐 Sell Put 平衡/保守型收租。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>目标买入区间</strong></td>
+                        <td><strong>$240.00 ~ $285.00 USD</strong></td>
+                        <td>处于 200 日线下方黄金坑位置，分批建仓。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>12-18个月目标价</strong></td>
+                        <td><strong>$358.00 USD (+26.5%)</strong></td>
+                        <td>基于 25x FY27 现金盈利预期。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sell Put 推荐合约</strong></td>
+                        <td><strong>CEG 2026-09-18 250.00 Put</strong></td>
+                        <td>年化 24.9% APY，安全垫 11.7%，EV 高达 +$274/张。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>止损与策略失效条件</strong></td>
+                        <td>跌破 200 日线 -15% ($250) 且 FERC 裁定禁止所有核电厂直连数据中心</td>
+                        <td>若发生转为接股并开启备兑 Call 策略降低持仓成本。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <!-- SCRIPT FOR INTERACTIVE CHART -->
+    <script>
+        const ctx = document.getElementById('cegFinancialChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025E', 'FY2026E', 'FY2027E'],
+                datasets: [
+                    {
+                        label: '营业收入 (Revenue $B)',
+                        data: [24.44, 24.92, 28.50, 31.27, 34.80, 39.50],
+                        backgroundColor: 'rgba(2, 132, 199, 0.65)',
+                        borderColor: '#0284C7',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '经营现金流 (OCF $B)',
+                        data: [2.15, 2.80, 3.65, 4.21, 5.30, 6.80],
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderColor: '#10B981',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '净资产收益率 (ROE %)',
+                        data: [1.8, 14.5, 15.1, 15.8, 17.5, 19.0],
+                        type: 'line',
+                        borderColor: '#D97706',
+                        backgroundColor: '#D97706',
+                        borderWidth: 2.5,
+                        pointRadius: 4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '金额 ($ Billion)' },
+                        grid: { color: '#E2E8F0' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        min: 0,
+                        max: 25,
+                        title: { display: true, text: 'ROE (%)' },
+                        grid: { drawOnChartArea: false }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.dataset.type === 'line') {
+                                    return context.dataset.label + ': ' + context.raw + '%';
+                                }
+                                return context.dataset.label + ': $' + context.raw + 'B';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

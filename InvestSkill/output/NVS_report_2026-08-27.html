@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>Novartis AG (NVS) 深度投研与期权策略报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #0284C7;
+            --primary-dark:  #0369A1;
+            --primary-light: #F0F9FF;
+            --accent:        #0EA5E9;
+            --accent-light:  #E0F2FE;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0284C7 100%);
+            --grad-accent:   linear-gradient(90deg, #0284C7, #0EA5E9);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #BAE6FD; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(2,132,199,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #166534; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-amber { background: #FEF3C7; color: #92400E; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+
+        .prose-text { font-size: 13.5px; line-height: 1.7; color: #334155; margin-bottom: 12px; }
+        .prose-text strong { color: var(--text-primary); }
+        .prose-list { padding-left: 18px; margin-bottom: 14px; }
+        .prose-list li { font-size: 13px; color: #334155; margin-bottom: 6px; line-height: 1.5; }
+
+        .chart-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+            height: 320px;
+            position: relative;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-top: 10px;
+        }
+        .table-custom th {
+            background: #F1F5F9;
+            color: #475569;
+            font-weight: 700;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+        .table-custom td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: #1E293B;
+        }
+        .table-custom tr:hover { background: #F8FAFC; }
+
+        .callout-box {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+
+        .verdict-banner {
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            border: 1.5px solid #0284C7;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .verdict-left { max-width: 800px; }
+        .verdict-title { font-size: 20px; font-weight: 800; color: #0369A1; margin-bottom: 6px; }
+        .verdict-desc { font-size: 13.5px; color: #0284C7; line-height: 1.5; }
+        .verdict-score-badge {
+            background: #0284C7;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(2,132,199,.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO HEADER -->
+    <header class="report-hero">
+        <div class="hero-inner">
+            <div class="hero-badge-row">
+                <span class="badge badge-hero-stock">NYSE: NVS</span>
+                <span class="badge badge-hero-signal">稳健看多 (BUY)</span>
+                <span class="badge badge-hero-score">综合评分: 8.8 / 10</span>
+                <span class="badge badge-hero-stock">报告日期: 2026-08-27</span>
+            </div>
+            <h1 class="hero-title">Novartis AG (NVS) 深度投研与期权策略报告</h1>
+            <p class="hero-sub">全球顶尖纯创新药超级药企，剥离仿制药（山德士）后全面聚焦高毛利原研药。心血管（Entresto, Leqvio）、放射性配体核药（Pluvicto, Lutathera）与免疫肿瘤多核驱动，Forward P/E 仅 15.8x，年化自由现金流超 119 亿美元，典型的高股息防御收租压舱石。</p>
+
+            <div class="hero-kpis">
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                    <div class="hero-kpi-val">$154.87</div>
+                    <div class="hero-kpi-sub">较 200SMA 偏离: +5.10%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Forward P/E</div>
+                    <div class="hero-kpi-val">15.79x</div>
+                    <div class="hero-kpi-sub">大型跨国药企低估中枢</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">年度自由现金流 (FCF)</div>
+                    <div class="hero-kpi-val">$11.90B</div>
+                    <div class="hero-kpi-sub">OCF: $18.39B (现金奶牛)</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">股息收益率 (Dividend)</div>
+                    <div class="hero-kpi-val">~3.5%</div>
+                    <div class="hero-kpi-sub">连续 27 年上调股息</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Piotroski F-Score</div>
+                    <div class="hero-kpi-val">8 / 9 分</div>
+                    <div class="hero-kpi-sub">财务健康度: 极高质</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrap">
+
+        <!-- VERDICT SUMMARY BANNER -->
+        <div class="verdict-banner">
+            <div class="verdict-left">
+                <div class="verdict-title">🌟 核心投资结论：稳健看多 (BUY) • 8.8/10</div>
+                <div class="verdict-desc">诺华制药 (Novartis) 成功完成了向“100% 纯创新药巨头 (Pure-play Innovative Medicines)”的战略转型。公司在放射性核素治疗 (RLT)、靶向降脂 RNAi (Leqvio)、心衰重磅 (Entresto) 以及免疫 (Cosentyx/Fabhalta) 领域构建了难以替代的多重管线护城河。Forward P/E 仅 15.8x，营业利润率超 34.6%，单年产生近 120 亿美元自由现金流。属于极具防守韧性与稳定股息回报的全球顶级医药资产。</div>
+            </div>
+            <div class="verdict-score-badge">
+                8.8<div style="font-size: 11px; font-weight: 500; opacity: 0.9;">/ 10 分</div>
+            </div>
+        </div>
+
+        <!-- QUICK TABLE OF CONTENTS -->
+        <nav class="toc-bar">
+            <div class="toc-title">报告核心导航 (15 模块全景框架)</div>
+            <div class="toc-links">
+                <a href="#sec-1" class="toc-link">1. 核心观点</a>
+                <a href="#sec-2" class="toc-link">2. 业务拆解</a>
+                <a href="#sec-3" class="toc-link">3. 护城河壁垒</a>
+                <a href="#sec-4" class="toc-link">4. 财务质量</a>
+                <a href="#sec-5" class="toc-link">5. 资本配置</a>
+                <a href="#sec-6" class="toc-link">6. 行业催化</a>
+                <a href="#sec-7" class="toc-link">7. 估值对比</a>
+                <a href="#sec-8" class="toc-link">8. DCF 模型</a>
+                <a href="#sec-9" class="toc-link">9. 逆向 DCF</a>
+                <a href="#sec-10" class="toc-link">10. 逆向压力测试</a>
+                <a href="#sec-11" class="toc-link">11. 催化剂清单</a>
+                <a href="#sec-12" class="toc-link">12. 风险矩阵</a>
+                <a href="#sec-13" class="toc-link">13. 期权定价与波动率</a>
+                <a href="#sec-14" class="toc-link">14. CSP / CC 实操方案</a>
+                <a href="#sec-15" class="toc-link">15. 决策矩阵</a>
+            </div>
+        </nav>
+
+        <!-- MODULE 1: 核心观点与投资摘要 -->
+        <section id="sec-1" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📌 模块 1：执行摘要与核心投资逻辑</div>
+                <span class="sec-tag">Executive Summary</span>
+            </div>
+            <div class="prose-text">
+                <strong>Novartis AG (NYSE: NVS)</strong> 总部位于瑞士巴塞尔，是全球市值排名前五的跨国制药旗舰。公司在过去三年完成了彻底的瘦身与重组（剥离爱尔康眼科与山德士仿制药），转型为专注于四大核心治疗领域和五大技术平台的纯创新药巨头。
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">核药放疗 (RLT) 绝对霸主</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #0284C7;">Pluvicto + Lutathera</div>
+                    <div class="info-card-desc">全球唯一建立起工业级核素生产、冷链配送与临床注射闭环的制药巨头，前列腺癌 RLT 疗法独享数十亿美元空间。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">心血管与慢病印钞机</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #059669;">Entresto + Leqvio</div>
+                    <div class="info-card-desc">Entresto 年销冲破 $60 亿，半年一针的降脂药 Leqvio（与 Alnylam 合作）全球放量加速，筑牢稳健增长底盘。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">高股息与百亿现金流</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #D97706;">$11.9B 自由现金流</div>
+                    <div class="info-card-desc">年经营现金流达 $184 亿，净利润率超 25%，股息率达 ~3.5%，回购力度强劲，堪称全球资本防御典范。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 2: 业务模式与营收拆解 -->
+        <section id="sec-2" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏢 模块 2：业务模式与分部营收深度拆解</div>
+                <span class="sec-tag">Therapeutic Pillars</span>
+            </div>
+            <div class="prose-text">
+                诺华业务聚焦于四大核心疾病领域：<strong>心血管-肾脏-代谢 (CRM)</strong>、<strong>免疫 (Immunology)</strong>、<strong>神经科学 (Neuroscience)</strong> 与 <strong>实体瘤/血液肿瘤 (Oncology)</strong>。
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>核心治疗领域</th>
+                        <th>代表性重磅药物</th>
+                        <th>适应症</th>
+                        <th>营收占比 (FY2026E)</th>
+                        <th>增长驱动力</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Cardiovascular & Metabolism</strong></td>
+                        <td>Entresto (沙库巴曲缬沙坦), Leqvio (英克司兰)</td>
+                        <td>心力衰竭、高胆固醇血症</td>
+                        <td>~34%</td>
+                        <td><span class="tag-pill tag-green">基石现金牛 • Leqvio 半年注射放量</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Immunology & Dermatology</strong></td>
+                        <td>Cosentyx (司库奇尤单抗), Fabhalta, Remibrutinib</td>
+                        <td>银屑病、强直性脊柱炎、PNH、荨麻疹</td>
+                        <td>~24%</td>
+                        <td><span class="tag-pill tag-green">静脉/自注射新剂型拓展</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Oncology & Radioligand</strong></td>
+                        <td>Pluvicto (核药), Kisqali, Scemblix, Lutathera</td>
+                        <td>前列腺癌、乳腺癌、慢粒白血病、神经内分泌瘤</td>
+                        <td>~28%</td>
+                        <td><span class="tag-pill tag-blue">核药放疗全球独家放量</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Neuroscience</strong></td>
+                        <td>Kesimpta (奥法妥木单抗), Zolgensma</td>
+                        <td>多发性硬化症 (RMS)、脊髓性肌萎缩症 (SMA)</td>
+                        <td>~14%</td>
+                        <td><span class="tag-pill tag-green">Kesimpta 居家皮下注射高黏性</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- MODULE 3: 经济护城河与竞争优势 -->
+        <section id="sec-3" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏰 模块 3：经济护城河与竞争优势分析 (Economic Moat)</div>
+                <span class="sec-tag">Wide Moat Analysis</span>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">1. 放射性核素偶联治疗 (RLT) 供应链壁垒</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        核药生产受制于同位素半衰期（如镥-177 仅 6.7 天），必须在极短时间内完成合成、质检并由专机空运至医院直接注射。诺华在美国、欧洲投产了全球最大规模的核药生产基地，这种供应链与物流壁垒是普通药企无法跨越的物理护城河。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">2. 全球商业化渠道与大慢病渗透深度</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        在心衰与心血管领域，Entresto 建立了全球心内科处方认知与医保准入；Leqvio 借助诺华强大的基层推广网络，正逐步切入欧美数千万血脂异常患者的常规体检与用药体系。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 4 & 5: 财务质量与资本配置 -->
+        <section id="sec-4" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📈 模块 4 & 5：财务质量、盈利能力与资本配置</div>
+                <span class="sec-tag">Financial Health</span>
+            </div>
+            <div class="data-grid-4">
+                <div class="info-card">
+                    <div class="info-card-title">毛利率 (Gross Margin)</div>
+                    <div class="info-card-val" style="color: #0284C7;">74.98%</div>
+                    <div class="info-card-desc">剥离仿制药后毛利结构大幅优化</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">营业利润率 (Operating Margin)</div>
+                    <div class="info-card-val" style="color: #059669;">34.62%</div>
+                    <div class="info-card-desc">欧洲制药工业极致的成本控制力</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">自由现金流 (FCF)</div>
+                    <div class="info-card-val" style="color: #D97706;">$11.90B</div>
+                    <div class="info-card-desc">现金转化率极高，股息有极强保障</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Piotroski F-Score</div>
+                    <div class="info-card-val" style="color: #10B981;">8 / 9 分</div>
+                    <div class="info-card-desc">享有 +7.0 分高质资产模型奖励</div>
+                </div>
+            </div>
+
+            <!-- CHART: NVS REVENUE & PROFIT -->
+            <div class="chart-box">
+                <canvas id="nvsFinancialChart"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 6 & 7: 行业催化与相对估值 -->
+        <section id="sec-6" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">⚡ 模块 6 & 7：行业催化剂与同行相对估值 (Peer Valuation)</div>
+                <span class="sec-tag">Valuation Multiples</span>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>公司标的</th>
+                        <th>市值</th>
+                        <th>Forward P/E</th>
+                        <th>EV / EBITDA</th>
+                        <th>股息收益率</th>
+                        <th>核心优势与定位</th>
+                        <th>估值评价</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0F9FF; font-weight: 700;">
+                        <td><strong>Novartis (NVS)</strong></td>
+                        <td>$294.4B</td>
+                        <td><span class="tag-pill tag-green">15.79x</span></td>
+                        <td>14.8x</td>
+                        <td>~3.5%</td>
+                        <td>心衰/核药放疗/降脂 RNAi</td>
+                        <td><span class="tag-pill tag-green">低估稳健价值底</span></td>
+                    </tr>
+                    <tr>
+                        <td>Eli Lilly (LLY)</td>
+                        <td>$840.0B</td>
+                        <td>38.50x</td>
+                        <td>32.0x</td>
+                        <td>0.6%</td>
+                        <td>GLP-1 减肥药绝对双雄</td>
+                        <td>高溢价成长</td>
+                    </tr>
+                    <tr>
+                        <td>AstraZeneca (AZN)</td>
+                        <td>$238.0B</td>
+                        <td>16.80x</td>
+                        <td>15.2x</td>
+                        <td>2.2%</td>
+                        <td>肿瘤靶向与 ADC 药物</td>
+                        <td>合理估值</td>
+                    </tr>
+                    <tr>
+                        <td>Pfizer (PFE)</td>
+                        <td>$160.0B</td>
+                        <td>10.50x</td>
+                        <td>11.0x</td>
+                        <td>5.8%</td>
+                        <td>疫苗后周期与专利断崖承压</td>
+                        <td>深度低估但增长乏力</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout-box">
+                💡 <strong>估值定位解析</strong>：相比高估值的减重药巨头（LLY）或面临重磅专利断崖的药企（PFE），诺华在 15.8x Forward P/E 水平上兼具了 **3.5% 的高股息防御** 与 **每年 6%~8% 的内生稳健增长**，是极其适合大资金做低风险收租的医药白马。
+            </div>
+        </section>
+
+        <!-- MODULE 8 & 9: DCF 内在价值与逆向 DCF -->
+        <section id="sec-8" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🧮 模块 8 & 9：DCF 绝对估值模型与逆向 DCF 压力检验</div>
+                <span class="sec-tag">DCF & Reverse DCF</span>
+            </div>
+            <div class="prose-text">
+                设定 WACC = 7.0%，永续增长率 g = 2.5%，未来 5 年 FCF 复合增速在不同情景下的每股公允价值测算如下：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>情景假设</th>
+                        <th>未来 5 年 FCF CAGR</th>
+                        <th>永续增长率 (g)</th>
+                        <th>折现率 (WACC)</th>
+                        <th>测算公允每股内在价值</th>
+                        <th>较现价 ($154.87) 溢价/折价</th>
+                        <th>投资建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>悲观情景 (Bear Case)</strong></td>
+                        <td>3.0%</td>
+                        <td>1.5%</td>
+                        <td>8.0%</td>
+                        <td>$142.00</td>
+                        <td>-8.3%</td>
+                        <td>极具安全垫，回踩即接</td>
+                    </tr>
+                    <tr style="background: #F0F9FF; font-weight: 700;">
+                        <td><strong>基准情景 (Base Case)</strong></td>
+                        <td>6.5%</td>
+                        <td>2.5%</td>
+                        <td>7.0%</td>
+                        <td><span style="color: #0284C7; font-size: 15px;">$172.50</span></td>
+                        <td><span class="tag-pill tag-green">+11.4%</span></td>
+                        <td>稳健持有 / 卖出 Put</td>
+                    </tr>
+                    <tr>
+                        <td><strong>乐观情景 (Bull Case)</strong></td>
+                        <td>10.0%</td>
+                        <td>3.0%</td>
+                        <td>6.5%</td>
+                        <td><span style="color: #059669; font-size: 15px;">$198.00</span></td>
+                        <td><span class="tag-pill tag-green">+27.8%</span></td>
+                        <td>核药与 Leqvio 爆发放量</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="prose-text" style="margin-top: 14px;">
+                🔄 <strong>逆向 DCF 检验</strong>：现价 $154.87 仅隐含未来 5 年自由现金流年化增速达到 <strong>4.2%</strong>，在当前创新药高毛利提振下，实现确定性极高。
+            </div>
+        </section>
+
+        <!-- MODULE 10, 11 & 12: 红队压力测试、催化剂与风险 -->
+        <section id="sec-10" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🥊 模块 10, 11 & 12：红队压力测试 (Devil's Advocate) 与风险矩阵</div>
+                <span class="sec-tag">Stress Testing</span>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card" style="border-left: 4px solid #DC2626;">
+                    <div class="info-card-title" style="color: #DC2626;">🔴 核心做空与风险压力测试 (Bear Risks)</div>
+                    <ul class="prose-list">
+                        <li><strong>Entresto 专利到期仿制药挑战</strong>：Entresto 在美国面临仿制药企的专利诉讼，虽然诺华在法庭多轮胜诉，但 2026-2027 年可能面临部分除外专利侵蚀。</li>
+                        <li><strong>核药产能爬坡瓶颈</strong>：镥-177 同位素的全球供应链若遭遇原材料断供可能压制 Pluvicto 季度放量速度。</li>
+                        <li><strong>IRA 医保药品价格谈判冲击</strong>：Entresto 被列入首批 Medicare 价格谈判名单，但诺华已通过推出新适应症与后续产品线平滑降价影响。</li>
+                    </ul>
+                </div>
+                <div class="info-card" style="border-left: 4px solid #0284C7;">
+                    <div class="info-card-title" style="color: #0284C7;">🟢 确定性催化剂清单 (Bull Catalysts)</div>
+                    <ul class="prose-list">
+                        <li><strong>Pluvicto 前线用药拓展获批</strong>：向转移性去势敏感性前列腺癌（mHSPC）前线推进，患者基数扩大 3 倍。</li>
+                        <li><strong>Remibrutinib (BTK 抑制剂) 3 期临床获批上市</strong>：慢性自发性荨麻疹百亿口服新药。</li>
+                        <li><strong>年度分红再创新高</strong>：公司连续 27 年提升股息，维持瑞士蓝筹最高股东回报信誉。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 13 & 14: 期权定价与实操方案 -->
+        <section id="sec-13" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🎯 模块 13 & 14：期权衍生品定价与 CSP 策略配置</div>
+                <span class="sec-tag">Options Strategy</span>
+            </div>
+            <div class="prose-text">
+                NVS 属于低波动率（IVP 33%）、高防御属性标的，期权 Max Pain 引力屏障位于 <strong>$160.00</strong>。推荐配置具有较厚安全垫的防守型与稳健平衡型 Put 合约：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>策略定位</th>
+                        <th>推荐合约</th>
+                        <th>到期日 (DTE)</th>
+                        <th>行权价</th>
+                        <th>安全垫</th>
+                        <th>目标 Delta</th>
+                        <th>权利金报价</th>
+                        <th>静态年化 (APY)</th>
+                        <th>胜率 (POP)</th>
+                        <th>量化综合得分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0F9FF; font-weight: 700;">
+                        <td><strong>🟢 保守收租 (近月首选)</strong></td>
+                        <td>`NVS 2026-09-18 145.00 Put`</td>
+                        <td>22D</td>
+                        <td>$145.00</td>
+                        <td><span class="tag-pill tag-green">-6.4%</span></td>
+                        <td>-0.15</td>
+                        <td>$1.07</td>
+                        <td><strong>12.3%</strong></td>
+                        <td><strong>92%</strong></td>
+                        <td><span style="color: #0284C7; font-size: 14px;">80.3 分</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🟡 远期稳健 (50天锁租)</strong></td>
+                        <td>`NVS 2026-10-16 145.00 Put`</td>
+                        <td>50D</td>
+                        <td>$145.00</td>
+                        <td><span class="tag-pill tag-green">-6.4%</span></td>
+                        <td>-0.21</td>
+                        <td>$2.33</td>
+                        <td>11.7%</td>
+                        <td><strong>85%</strong></td>
+                        <td>76.9 分</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🛡️ 极限防守 (深度实值)</strong></td>
+                        <td>`NVS 2026-10-16 135.00 Put`</td>
+                        <td>50D</td>
+                        <td>$135.00</td>
+                        <td><span class="tag-pill tag-green">-12.8%</span></td>
+                        <td>-0.09</td>
+                        <td>$0.85</td>
+                        <td>4.6%</td>
+                        <td><strong>96%</strong></td>
+                        <td>80.1 分</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔥 激进高租 (平价博弈)</strong></td>
+                        <td>`NVS 2026-09-18 150.00 Put`</td>
+                        <td>22D</td>
+                        <td>$150.00</td>
+                        <td><span class="tag-pill tag-amber">-3.1%</span></td>
+                        <td>-0.28</td>
+                        <td>$2.58</td>
+                        <td>21.5%</td>
+                        <td><strong>80%</strong></td>
+                        <td>72.3 分</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout-box">
+                🛡️ <strong>最差情况接股底线分析</strong>：若卖出 <strong>$145.00 Put</strong> 被行权接股，实际净买入成本为 <strong>$143.93</strong>（较现价折让 7.1%），对应的 Forward P/E 将进一步压缩至 <strong>14.6x</strong>，同时享有近 3.8% 的股息收益率。作为全球顶级无惧经济周期的医药蓝筹，以 14.6 倍 Forward P/E 接股持有是极其安心的长期现金流压舱石。
+            </div>
+        </section>
+
+        <!-- MODULE 15: 最终决策矩阵 -->
+        <section id="sec-15" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📋 模块 15：关键决策矩阵与行动指南</div>
+                <span class="sec-tag">Decision Matrix</span>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>决策维度</th>
+                        <th>评估结论</th>
+                        <th>实操执行指引</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>总投资评级</strong></td>
+                        <td><span class="tag-pill tag-green">稳健看多 (BUY) • 8.8分</span></td>
+                        <td>长线底仓配置，期权主推 Sell Put 低风险稳健收租。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>目标买入区间</strong></td>
+                        <td><strong>$140.00 ~ $150.00 USD</strong></td>
+                        <td>处于 200 日线均线附近，稳健防守买点。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>12-18个月目标价</strong></td>
+                        <td><strong>$172.00 USD (+11.1%)</strong></td>
+                        <td>基于 17.5x FY27 稳定现金流折现。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sell Put 推荐合约</strong></td>
+                        <td><strong>NVS 2026-09-18 145.00 Put / 10-16 145.00 Put</strong></td>
+                        <td>安全垫厚，年化 12% 稳步收割时间价值。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>止损与策略失效条件</strong></td>
+                        <td>Entresto 遭遇超预期仿制药全面抢跑且核药生产发生重大质量事故</td>
+                        <td>若发生转为被动接股并开启备兑 Call 策略降低持仓成本。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <!-- SCRIPT FOR INTERACTIVE CHART -->
+    <script>
+        const ctx = document.getElementById('nvsFinancialChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025E', 'FY2026E', 'FY2027E'],
+                datasets: [
+                    {
+                        label: '营业收入 (Revenue $B)',
+                        data: [42.20, 45.44, 50.36, 54.20, 56.69, 61.50],
+                        backgroundColor: 'rgba(2, 132, 199, 0.65)',
+                        borderColor: '#0284C7',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '自由现金流 (FCF $B)',
+                        data: [8.80, 10.20, 11.50, 11.90, 13.20, 14.80],
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderColor: '#10B981',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '营业利润率 (Operating Margin %)',
+                        data: [29.5, 31.8, 33.2, 34.0, 34.6, 35.8],
+                        type: 'line',
+                        borderColor: '#D97706',
+                        backgroundColor: '#D97706',
+                        borderWidth: 2.5,
+                        pointRadius: 4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '金额 ($ Billion)' },
+                        grid: { color: '#E2E8F0' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        min: 20,
+                        max: 45,
+                        title: { display: true, text: '营业利润率 (%)' },
+                        grid: { drawOnChartArea: false }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.dataset.type === 'line') {
+                                    return context.dataset.label + ': ' + context.raw + '%';
+                                }
+                                return context.dataset.label + ': $' + context.raw + 'B';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

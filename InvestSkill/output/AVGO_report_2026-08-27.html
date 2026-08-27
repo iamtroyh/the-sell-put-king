@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>Broadcom (AVGO) 深度投研与期权策略报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(5,150,105,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #166534; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-amber { background: #FEF3C7; color: #92400E; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+
+        .prose-text { font-size: 13.5px; line-height: 1.7; color: #334155; margin-bottom: 12px; }
+        .prose-text strong { color: var(--text-primary); }
+        .prose-list { padding-left: 18px; margin-bottom: 14px; }
+        .prose-list li { font-size: 13px; color: #334155; margin-bottom: 6px; line-height: 1.5; }
+
+        .chart-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+            height: 320px;
+            position: relative;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-top: 10px;
+        }
+        .table-custom th {
+            background: #F1F5F9;
+            color: #475569;
+            font-weight: 700;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+        .table-custom td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: #1E293B;
+        }
+        .table-custom tr:hover { background: #F8FAFC; }
+
+        .callout-box {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+
+        .verdict-banner {
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+            border: 1.5px solid #10B981;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .verdict-left { max-width: 800px; }
+        .verdict-title { font-size: 20px; font-weight: 800; color: #064E3B; margin-bottom: 6px; }
+        .verdict-desc { font-size: 13.5px; color: #047857; line-height: 1.5; }
+        .verdict-score-badge {
+            background: #059669;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(5,150,105,.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO HEADER -->
+    <header class="report-hero">
+        <div class="hero-inner">
+            <div class="hero-badge-row">
+                <span class="badge badge-hero-stock">NASDAQ: AVGO</span>
+                <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+                <span class="badge badge-hero-score">综合评分: 9.4 / 10</span>
+                <span class="badge badge-hero-stock">报告日期: 2026-08-27</span>
+            </div>
+            <h1 class="hero-title">Broadcom (AVGO) 深度投研与期权策略报告</h1>
+            <p class="hero-sub">全球 AI 自研芯片（Custom ASIC / XPU）与超大规模网络交换机（Tomahawk / Jericho）双绝对垄断者，VMware 私有云订阅化转型释放百亿级自由现金流，估值回踩 200 日线构筑确定性黄金坑。</p>
+
+            <div class="hero-kpis">
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                    <div class="hero-kpi-val">$369.73</div>
+                    <div class="hero-kpi-sub">较 200SMA 偏离: -0.20%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Forward P/E</div>
+                    <div class="hero-kpi-val">18.96x</div>
+                    <div class="hero-kpi-sub">PEG: 0.40 (极其低估)</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">年度自由现金流 (FCF)</div>
+                    <div class="hero-kpi-val">$27.21B</div>
+                    <div class="hero-kpi-sub">FCF Margin: 36.1%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">分析师平均目标价</div>
+                    <div class="hero-kpi-val">$525.97</div>
+                    <div class="hero-kpi-sub">潜在上涨空间: +42.3%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Piotroski F-Score</div>
+                    <div class="hero-kpi-val">9 / 9 分</div>
+                    <div class="hero-kpi-sub">财务健康度: 满分防御</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrap">
+
+        <!-- VERDICT SUMMARY BANNER -->
+        <div class="verdict-banner">
+            <div class="verdict-left">
+                <div class="verdict-title">🌟 核心投资结论：强烈看多 (STRONG BUY) • 9.4/10</div>
+                <div class="verdict-desc">博通具备半导体与基础设施软件领域无可撼动的双重宽护城河（Wide Moat）。AI 定制芯片（Google TPU, Meta MTIA, OpenAI 自研芯片）与以太网交换芯片（Tomahawk 5/6）享受行业爆发红利；VMware 整合超预期提振毛利率至 76.3%。当前股价回踩 200 日线 ($370.47)，Forward P/E 仅 18.96x，是绝佳的左侧建仓与 Sell Put 权利金收割标的。</div>
+            </div>
+            <div class="verdict-score-badge">
+                9.4<div style="font-size: 11px; font-weight: 500; opacity: 0.9;">/ 10 分</div>
+            </div>
+        </div>
+
+        <!-- QUICK TABLE OF CONTENTS -->
+        <nav class="toc-bar">
+            <div class="toc-title">报告核心导航 (15 模块全景框架)</div>
+            <div class="toc-links">
+                <a href="#sec-1" class="toc-link">1. 核心观点</a>
+                <a href="#sec-2" class="toc-link">2. 业务拆解</a>
+                <a href="#sec-3" class="toc-link">3. 护城河壁垒</a>
+                <a href="#sec-4" class="toc-link">4. 财务质量</a>
+                <a href="#sec-5" class="toc-link">5. 资本配置</a>
+                <a href="#sec-6" class="toc-link">6. 行业催化</a>
+                <a href="#sec-7" class="toc-link">7. 估值对比</a>
+                <a href="#sec-8" class="toc-link">8. DCF 模型</a>
+                <a href="#sec-9" class="toc-link">9. 逆向 DCF</a>
+                <a href="#sec-10" class="toc-link">10. 逆向压力测试</a>
+                <a href="#sec-11" class="toc-link">11. 催化剂清单</a>
+                <a href="#sec-12" class="toc-link">12. 风险矩阵</a>
+                <a href="#sec-13" class="toc-link">13. 期权定价与波动率</a>
+                <a href="#sec-14" class="toc-link">14. CSP / CC 实操方案</a>
+                <a href="#sec-15" class="toc-link">15. 决策矩阵</a>
+            </div>
+        </nav>
+
+        <!-- MODULE 1: 核心观点与投资摘要 -->
+        <section id="sec-1" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📌 模块 1：执行摘要与核心投资逻辑</div>
+                <span class="sec-tag">Executive Summary</span>
+            </div>
+            <div class="prose-text">
+                <strong>Broadcom Inc. (NASDAQ: AVGO)</strong> 是全球顶尖的高性能半导体与企业级基础设施软件巨头。公司以极具侵略性的并购整合与资本回报效率著称（CEO Hock Tan 领导力），构建了难以逾越的软硬件协同生态。
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">三大 AI 增长极</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #059669;">Custom ASIC + Networking + Optics</div>
+                    <div class="info-card-desc">全美 80%+ 云计算巨头自研芯片（TPU, MTIA）由博通提供 IP 封装与物理后端设计；Tomahawk 5/6 统治以太网集群。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">VMware 订阅化爆发</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #0284C7;">ARR 复合增速 >30%</div>
+                    <div class="info-card-desc">VMware 永久许可证转订阅制完成，VCF（VMware Cloud Foundation）成为混合云私有算力标配，软件业务毛利率冲破 90%。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">自由现金流印钞机</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #D97706;">$27.2B 自由现金流</div>
+                    <div class="info-card-desc">单季产生近 $70 亿现金流，快速削减 VMware 收购债务，兼具股息连续 14 年高增与大规模股票回购。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 2: 业务模式与营收拆解 -->
+        <section id="sec-2" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏢 模块 2：业务模式与分部营收深度拆解</div>
+                <span class="sec-tag">Business Segments</span>
+            </div>
+            <div class="prose-text">
+                博通营收结构分为两大核心板块：<strong>半导体解决方案 (Semiconductor Solutions)</strong> 与 <strong>基础设施软件 (Infrastructure Software)</strong>。随着 VMware 的全面并表，软件营收占比提升至近 45%，使得公司兼具半导体的高成长性与 SaaS 软件的高确定性经常性收入（Recurring Revenue）。
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>业务分部</th>
+                        <th>核心产品线</th>
+                        <th>主要客户群</th>
+                        <th>营收占比 (FY2026E)</th>
+                        <th>分部营业利润率</th>
+                        <th>竞争地位</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>AI Custom Silicon (ASIC)</strong></td>
+                        <td>Google TPU v5/v6, Meta MTIA 2, OpenAI 自研芯片</td>
+                        <td>Hyperscalers (Google, Meta, Microsoft, ByteDance)</td>
+                        <td>~25%</td>
+                        <td>~58%</td>
+                        <td><span class="tag-pill tag-green">全球第一 (市占率 70%+)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Networking & Switching</strong></td>
+                        <td>Tomahawk 5/6 (51.2T/102.4T), Jericho 3-AI, PCIe Switch</td>
+                        <td>云服务商、数据中心设备商 (Arista, Cisco, Dell)</td>
+                        <td>~22%</td>
+                        <td>~64%</td>
+                        <td><span class="tag-pill tag-green">以太网领域绝对垄断</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Infrastructure Software</strong></td>
+                        <td>VMware Cloud Foundation (VCF), CA, Symantec, Brocade</td>
+                        <td>全球财富 500 强企业、大型金融与电信机构</td>
+                        <td>~43%</td>
+                        <td>~72%</td>
+                        <td><span class="tag-pill tag-green">私有云虚拟化标杆 (90%+ 黏性)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wireless, Storage & Broadband</strong></td>
+                        <td>FBAR 射频滤波器, Wi-Fi 7 芯片, 光纤通道存储 HBA</td>
+                        <td>Apple (iPhone/iPad), 电信运营商</td>
+                        <td>~10%</td>
+                        <td>~45%</td>
+                        <td><span class="tag-pill tag-blue">成熟现金牛业务</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- MODULE 3: 经济护城河与竞争优势 -->
+        <section id="sec-3" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏰 模块 3：经济护城河与竞争优势分析 (Economic Moat)</div>
+                <span class="sec-tag">Wide Moat Analysis</span>
+            </div>
+            <div class="prose-text">
+                根据晨星护城河框架与波特五力模型，博通享有极高的 <strong>Wide Moat（宽护城河）</strong> 评级：
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">1. 专利壁垒与先发物理设计 (IP & Physical Design)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        博通掌握全球最顶尖的高速 SerDes（超百吉比特互联）、先进封装（CoWoS / 2.5D/3D Chiplet）以及复杂数模混合信号设计 IP。顶级 CSP 巨头若绕开博通自研物理层芯片，流片失败与延期风险极高，博通是硅谷“算力定制”不可或缺的超级军火商。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">2. 极其高昂的客户转换成本 (Switching Costs)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        在数据中心网络层，Tomahawk 架构与网络操作系统（如 SONiC）深度整合；在软件层，全球超过 80% 的金融、医疗和制造巨头的核心 IT 架构运行在 VMware vSphere/VCF 虚拟化底座上，迁移到 KVM 或 Nutanix 面临不可承受的宕机与再工程成本。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 4 & 5: 财务质量与资本配置 -->
+        <section id="sec-4" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📈 模块 4 & 5：财务质量、盈利能力与资本配置</div>
+                <span class="sec-tag">Financial Health</span>
+            </div>
+            <div class="data-grid-4">
+                <div class="info-card">
+                    <div class="info-card-title">毛利率 (Gross Margin)</div>
+                    <div class="info-card-val" style="color: #059669;">76.28%</div>
+                    <div class="info-card-desc">VMware 软件高毛利拉动整体毛利上行</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">营业利润率 (Operating Margin)</div>
+                    <div class="info-card-val" style="color: #0284C7;">48.99%</div>
+                    <div class="info-card-desc">Hock Tan 极致的成本管控与效率优化</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">净资产收益率 (ROE)</div>
+                    <div class="info-card-val" style="color: #D97706;">37.28%</div>
+                    <div class="info-card-desc">资本回报率远超 WACC (8.5%)</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Piotroski F-Score</div>
+                    <div class="info-card-val" style="color: #10B981;">9 / 9 分</div>
+                    <div class="info-card-desc">盈利/杠杆/运营效率全维度满分</div>
+                </div>
+            </div>
+
+            <!-- CHART: REVENUE & FCF TRAJECTORY -->
+            <div class="chart-box">
+                <canvas id="avgoFinancialChart"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 6 & 7: 行业催化与相对估值 -->
+        <section id="sec-6" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">⚡ 模块 6 & 7：行业催化剂与相对估值 (Peer Valuation)</div>
+                <span class="sec-tag">Valuation Multiples</span>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>公司标的</th>
+                        <th>市值</th>
+                        <th>Forward P/E</th>
+                        <th>EV / EBITDA</th>
+                        <th>FCF Margin</th>
+                        <th>EPS 预测复合增速 (3Y)</th>
+                        <th>PEG 比率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>Broadcom (AVGO)</strong></td>
+                        <td>$1.76T</td>
+                        <td><span class="tag-pill tag-green">18.96x</span></td>
+                        <td>41.2x</td>
+                        <td>36.1%</td>
+                        <td>~32.5%</td>
+                        <td><span class="tag-pill tag-green">0.40 (深度折价)</span></td>
+                    </tr>
+                    <tr>
+                        <td>NVIDIA (NVDA)</td>
+                        <td>$3.10T</td>
+                        <td>31.50x</td>
+                        <td>36.8x</td>
+                        <td>48.2%</td>
+                        <td>~38.0%</td>
+                        <td>0.83</td>
+                    </tr>
+                    <tr>
+                        <td>Marvell (MRVL)</td>
+                        <td>$65.4B</td>
+                        <td>28.40x</td>
+                        <td>34.1x</td>
+                        <td>18.5%</td>
+                        <td>~24.0%</td>
+                        <td>1.18</td>
+                    </tr>
+                    <tr>
+                        <td>Qualcomm (QCOM)</td>
+                        <td>$185.2B</td>
+                        <td>14.80x</td>
+                        <td>13.2x</td>
+                        <td>27.4%</td>
+                        <td>~12.0%</td>
+                        <td>1.23</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout-box">
+                💡 <strong>估值深度洼地解析</strong>：在 AI 芯片及网络交换领域，AVGO 的 Forward P/E 仅不到 19 倍，相比 NVDA 和 MRVL 具备极高的安全折价（Target Discount 达 42.3%），为长线投资者提供了丰厚的非对称风险收益比。
+            </div>
+        </section>
+
+        <!-- MODULE 8 & 9: DCF 内在价值与逆向 DCF -->
+        <section id="sec-8" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🧮 模块 8 & 9：DCF 绝对估值模型与逆向 DCF 压力检验</div>
+                <span class="sec-tag">DCF & Reverse DCF</span>
+            </div>
+            <div class="prose-text">
+                基于博通持续产生的强劲自由现金流（基准 FCF $27.2B），设定 WACC = 8.5%，永续增长率 g = 3.5%，未来 5 年 FCF 复合增速在不同情景下的每股公允内在价值测算如下：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>情景假设</th>
+                        <th>未来 5 年 FCF CAGR</th>
+                        <th>永续增长率 (g)</th>
+                        <th>折现率 (WACC)</th>
+                        <th>测算公允每股内在价值</th>
+                        <th>较现价 ($369.73) 溢价/折价</th>
+                        <th>投资建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>悲观情景 (Bear Case)</strong></td>
+                        <td>12.0%</td>
+                        <td>2.5%</td>
+                        <td>9.5%</td>
+                        <td>$342.50</td>
+                        <td>-7.4%</td>
+                        <td>安全垫厚，回踩即接</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>基准情景 (Base Case)</strong></td>
+                        <td>22.0%</td>
+                        <td>3.5%</td>
+                        <td>8.5%</td>
+                        <td><span style="color: #059669; font-size: 15px;">$488.60</span></td>
+                        <td><span class="tag-pill tag-green">+32.1%</span></td>
+                        <td>积极建仓 / 卖出 Put</td>
+                    </tr>
+                    <tr>
+                        <td><strong>乐观情景 (Bull Case)</strong></td>
+                        <td>30.0%</td>
+                        <td>4.0%</td>
+                        <td>8.0%</td>
+                        <td><span style="color: #0284C7; font-size: 15px;">$615.20</span></td>
+                        <td><span class="tag-pill tag-blue">+66.4%</span></td>
+                        <td>戴维斯双击爆发</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="prose-text" style="margin-top: 14px;">
+                🔄 <strong>逆向 DCF (Reverse DCF) 测算</strong>：当前股价 $369.73 仅隐含市场预期未来 5 年 FCF 复合增速达到 <strong>14.2%</strong>。考虑到 AI ASIC 业务 50%+ 的年化爆发增长以及 VMware 订阅提价效应，该预期被严重低估。
+            </div>
+        </section>
+
+        <!-- MODULE 10, 11 & 12: 红队压力测试、催化剂与风险 -->
+        <section id="sec-10" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🥊 模块 10, 11 & 12：红队压力测试 (Devil's Advocate) 与风险矩阵</div>
+                <span class="sec-tag">Stress Testing</span>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card" style="border-left: 4px solid #DC2626;">
+                    <div class="info-card-title" style="color: #DC2626;">🔴 核心做空与风险压力测试 (Bear Risks)</div>
+                    <ul class="prose-list">
+                        <li><strong>大客户集中度风险</strong>：Google 与 Apple 合计贡献约 25% 营收，若 Google TPU v7 增加第二代工合作方可能引发情绪扰动。</li>
+                        <li><strong>VMware 客户反弹诉讼</strong>：提价转订阅制遭遇部分欧盟政企客户抵制，但在关键核心业务上迁移替代成本过高。</li>
+                        <li><strong>$64.9B 债务杠杆</strong>：短期利息支出较高，但依靠单季 $7B FCF 预计 2 年内可将净杠杆降至 1.5x EBITDA 以下。</li>
+                    </ul>
+                </div>
+                <div class="info-card" style="border-left: 4px solid #10B981;">
+                    <div class="info-card-title" style="color: #059669;">🟢 确定性催化剂清单 (Bull Catalysts)</div>
+                    <ul class="prose-list">
+                        <li><strong>OpenAI / ByteDance ASIC 订单落地</strong>：传闻博通已与新一线 AI 巨头达成定制芯片流片协议。</li>
+                        <li><strong>Tomahawk 6 (102.4T) 与共封装光学 (CPO) 规模商用</strong>：奠定 1.6T 光互联霸权。</li>
+                        <li><strong>季度股息再次上调预期</strong>：自由现金流充沛，预估年末股息增幅达 10%~15%。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 13 & 14: 期权定价与实操方案 -->
+        <section id="sec-13" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🎯 模块 13 & 14：期权衍生品定价与 CSP 策略配置</div>
+                <span class="sec-tag">Options Strategy</span>
+            </div>
+            <div class="prose-text">
+                当前博通期权呈现出极佳的波动率特征：<strong>真 IVP 处于 71% 高位，IVR 达到 88%</strong>，伴随 VixFix 恐慌溢价，卖出 Put 能享有极高的 Vega 坍塌（IV Crush）红利与 Theta 衰减加速度。
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>策略定位</th>
+                        <th>推荐合约</th>
+                        <th>到期日 (DTE)</th>
+                        <th>行权价</th>
+                        <th>安全垫</th>
+                        <th>目标 Delta</th>
+                        <th>权利金报价</th>
+                        <th>静态年化 (APY)</th>
+                        <th>胜率 (POP)</th>
+                        <th>期望收益 (EV)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><strong>🟢 保守收租 (首选)</strong></td>
+                        <td>`AVGO 2026-10-16 290.00 Put`</td>
+                        <td>50D</td>
+                        <td>$290.00</td>
+                        <td><span class="tag-pill tag-green">-21.6%</span></td>
+                        <td>-0.10</td>
+                        <td>$3.38</td>
+                        <td>8.5%</td>
+                        <td><strong>92%</strong></td>
+                        <td>+$129 / 张</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🟡 平衡攻守 (高性价)</strong></td>
+                        <td>`AVGO 2026-10-16 300.00 Put`</td>
+                        <td>50D</td>
+                        <td>$300.00</td>
+                        <td><span class="tag-pill tag-green">-18.9%</span></td>
+                        <td>-0.14</td>
+                        <td>$4.93</td>
+                        <td>12.0%</td>
+                        <td><strong>89%</strong></td>
+                        <td>+$172 / 张</td>
+                    </tr>
+                    <tr>
+                        <td><strong>⚡ 近月加速 (Theta型)</strong></td>
+                        <td>`AVGO 2026-09-25 310.00 Put`</td>
+                        <td>29D</td>
+                        <td>$310.00</td>
+                        <td><span class="tag-pill tag-amber">-16.2%</span></td>
+                        <td>-0.15</td>
+                        <td>$4.17</td>
+                        <td>17.0%</td>
+                        <td><strong>91%</strong></td>
+                        <td>+$220 / 张</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔥 激进高租 (博弈接股)</strong></td>
+                        <td>`AVGO 2026-09-18 330.00 Put`</td>
+                        <td>22D</td>
+                        <td>$330.00</td>
+                        <td><span class="tag-pill tag-red">-10.7%</span></td>
+                        <td>-0.19</td>
+                        <td>$5.83</td>
+                        <td>29.3%</td>
+                        <td><strong>86%</strong></td>
+                        <td>+$222 / 张</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout-box">
+                🛡️ <strong>最差情况接股底线分析</strong>：若卖出 <strong>$290.00 Put</strong> 被行权接股，实际净买入成本为 <strong>$286.62</strong>（较现价折让 22.5%），对应的 Forward P/E 将进一步压缩至 <strong>14.7x</strong>。对于垄断全球 AI 网络与定制芯片的科技基石资产，以 14.7 倍市盈率接股持有是极其优异的长线配置机会。
+            </div>
+        </section>
+
+        <!-- MODULE 15: 最终决策矩阵 -->
+        <section id="sec-15" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📋 模块 15：关键决策矩阵与行动指南</div>
+                <span class="sec-tag">Decision Matrix</span>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>决策维度</th>
+                        <th>评估结论</th>
+                        <th>实操执行指引</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>总投资评级</strong></td>
+                        <td><span class="tag-pill tag-green">强烈看多 (STRONG BUY) • 9.4分</span></td>
+                        <td>现货逢低建仓，期权主推 Sell Put 高安全垫收租。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>目标买入区间</strong></td>
+                        <td><strong>$330.00 ~ $370.00 USD</strong></td>
+                        <td>处于 200 日线黄金坑位置，逢低分批布局。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>12-18个月目标价</strong></td>
+                        <td><strong>$525.00 USD (+42.0%)</strong></td>
+                        <td>基于 25x FY27 EPS ($21.00) 目标倍数。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sell Put 推荐合约</strong></td>
+                        <td><strong>AVGO 2026-10-16 290.00 Put / 300.00 Put</strong></td>
+                        <td>兼具 18%~22% 安全垫与丰厚权利金收益。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>止损与策略失效条件</strong></td>
+                        <td>跌破 200 日线 -15% ($315) 且 AI 芯片客户订单发生结构性撤销</td>
+                        <td>若发生则转为被动接股并开启备兑 Call 策略降低持仓成本。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <!-- SCRIPT FOR INTERACTIVE CHART -->
+    <script>
+        const ctx = document.getElementById('avgoFinancialChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025E', 'FY2026E', 'FY2027E'],
+                datasets: [
+                    {
+                        label: '营业收入 (Revenue $B)',
+                        data: [33.20, 35.82, 51.36, 62.40, 75.46, 92.00],
+                        backgroundColor: 'rgba(5, 150, 105, 0.65)',
+                        borderColor: '#059669',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '自由现金流 (FCF $B)',
+                        data: [16.31, 17.61, 19.38, 22.50, 27.21, 35.00],
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderColor: '#10B981',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '毛利率 (Gross Margin %)',
+                        data: [75.4, 74.8, 75.8, 76.0, 76.3, 77.2],
+                        type: 'line',
+                        borderColor: '#D97706',
+                        backgroundColor: '#D97706',
+                        borderWidth: 2.5,
+                        pointRadius: 4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '金额 ($ Billion)' },
+                        grid: { color: '#E2E8F0' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        min: 60,
+                        max: 90,
+                        title: { display: true, text: '毛利率 (%)' },
+                        grid: { drawOnChartArea: false }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.dataset.type === 'line') {
+                                    return context.dataset.label + ': ' + context.raw + '%';
+                                }
+                                return context.dataset.label + ': $' + context.raw + 'B';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
