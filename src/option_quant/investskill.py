@@ -134,7 +134,7 @@ def scan_investskill_reports(
                             if score is None:
                                 score_m = (
                                     re.search(r"(?:hero-meta-label|signal-lbl|signal-item-label|sb-item-label|hero-kpi-lbl)[^>]*>\s*(?:多因子综合(?:量化)?评分|综合评分|综合得分|量化评分|加权综合量化总分|Score|Composite)[^<]*</(?:span|div|th|td)>\s*<(?:span|div|td)[^>]*class=[\"\x27][^\"\x27]*(?:hero-meta-value|signal-val|signal-item-val|sb-item-val|hero-kpi-val)[^\"\x27]*[\"\x27][^>]*>\s*([^\n<]+)", content, re.I) or
-                                    re.search(r"class=[\"\x27][^\"\x27]*(?:signal-score|sb-score-badge|score-badge)[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I) or
+                                    re.search(r"class=[\"\x27][^\"\x27]*(?:signal-score|sb-score-badge|score-badge|badge-hero-score)[^\"\x27]*[\"\x27][^>]*>([^<]+)", content, re.I) or
                                     re.search(r"综合评分[^\n\d<]*[:：║\s]*([\d\.]+)\s*/\s*10", content, re.I) or
                                     re.search(r"综合得分[^\n\d<]*[:：║\s]*([\d\.]+)\s*/\s*10", content, re.I) or
                                     re.search(r"量化评分[^\n\d<]*[:：║\s]*([\d\.]+)\s*/\s*10", content, re.I) or

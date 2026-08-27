@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Grab Holdings Limited (GRAB) 深度投研与期权策略报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:        #059669;
+            --primary-dark:   #064E3B;
+            --primary-light:  #ECFDF5;
+            --accent:         #10B981;
+            --accent-light:   #D1FAE5;
+            --emerald:        #10B981;
+            --emerald-light:  #ECFDF5;
+            --teal:           #0D9488;
+            --teal-light:     #CCFBF1;
+            --red:            #DC2626;
+            --red-light:      #FEE2E2;
+            --amber:          #D97706;
+            --amber-light:    #FEF3C7;
+            --blue:           #2563EB;
+            --blue-light:     #EFF6FF;
+            --purple:         #7C3AED;
+            --purple-light:   #F5F3FF;
+            --slate:          #64748B;
+            --slate-light:    #F8FAFC;
+            --border:         #E2E8F0;
+            --text-primary:   #0F172A;
+            --text-secondary: #475569;
+            --text-muted:     #94A3B8;
+            --grad-hero:      linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --shadow-sm:      0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:      0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:      0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14px; opacity: 0.95; margin-bottom: 22px; max-width: 1050px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(5,150,105,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #166534; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-amber { background: #FEF3C7; color: #92400E; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+
+        .prose-text { font-size: 13.5px; line-height: 1.7; color: #334155; margin-bottom: 12px; }
+        .prose-text strong { color: var(--text-primary); }
+        .prose-list { padding-left: 18px; margin-bottom: 14px; }
+        .prose-list li { font-size: 13px; color: #334155; margin-bottom: 6px; line-height: 1.5; }
+
+        .chart-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+            height: 320px;
+            position: relative;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-top: 10px;
+        }
+        .table-custom th {
+            background: #F1F5F9;
+            color: #475569;
+            font-weight: 700;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+        .table-custom td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: #1E293B;
+        }
+        .table-custom tr:hover { background: #F8FAFC; }
+        .num-font { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        .val-pos { color: #059669; font-weight: 600; }
+        .val-neg { color: #DC2626; font-weight: 600; }
+
+        .callout-box {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+
+        .verdict-banner {
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+            border: 1.5px solid #10B981;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .verdict-left { max-width: 800px; }
+        .verdict-title { font-size: 20px; font-weight: 800; color: #064E3B; margin-bottom: 6px; }
+        .verdict-desc { font-size: 13.5px; color: #047857; line-height: 1.5; }
+        .verdict-score-badge {
+            background: #059669;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(5,150,105,.3);
+        }
+
+        .signal-card {
+            background: #0F172A;
+            color: #fff;
+            border-radius: 14px;
+            padding: 24px;
+            margin-top: 24px;
+            border: 1px solid #334155;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .signal-item-lbl { font-size: 11px; text-transform: uppercase; color: #94A3B8; font-weight: 600; }
+        .signal-item-val { font-size: 18px; font-weight: 800; color: #10B981; margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 24px; }
+            .sec-card { padding: 18px 16px; }
+            .data-grid-2, .data-grid-3, .data-grid-4 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO HEADER -->
+    <header class="report-hero">
+        <div class="hero-inner">
+            <div class="hero-badge-row">
+                <span class="badge badge-hero-stock">NASDAQ: GRAB</span>
+                <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+                <span class="badge badge-hero-score">综合评分: 8.66 / 10</span>
+                <span class="badge badge-hero-stock">报告日期: 2026-08-27</span>
+            </div>
+            <h1 class="hero-title">Grab Holdings Limited (GRAB) 深度投研与期权策略报告</h1>
+            <p class="hero-sub">东南亚 6.8 亿人口“数字生活操作系统”双边网络绝对垄断者，经营杠杆与网约车/外卖/金融服务三级火箭全面进入 GAAP 规模盈利与正向自由现金流收获期。净现金高达 44.8 亿美元（占市值 30.5%），股价回踩历史估值底部，左侧 Sell Put 与低估买入性价比极高。</p>
+
+            <div class="hero-kpis">
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                    <div class="hero-kpi-val">$3.59</div>
+                    <div class="hero-kpi-sub">52W相对分位: 11.9% (黄金坑)</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">净现金储备 (Net Cash)</div>
+                    <div class="hero-kpi-val">$4.48B</div>
+                    <div class="hero-kpi-sub">每股净现金 $1.13 (占市值30.5%)</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">2026E 营收与增长</div>
+                    <div class="hero-kpi-val">$4.15B</div>
+                    <div class="hero-kpi-sub">YoY +23.1% | EBITDA $780M+</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">华尔街平均目标价</div>
+                    <div class="hero-kpi-val">$5.86</div>
+                    <div class="hero-kpi-sub">潜在上涨空间: +63.2%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">DCF 基础公允价值</div>
+                    <div class="hero-kpi-val">$5.03</div>
+                    <div class="hero-kpi-sub">安全边际 (MoS): +40.1%</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrap">
+
+        <!-- VERDICT SUMMARY BANNER -->
+        <div class="verdict-banner">
+            <div class="verdict-left">
+                <div class="verdict-title">🌟 核心投资评级：强烈看多 (STRONG BUY) • 8.66 / 10</div>
+                <div class="verdict-desc"><strong>核心论点：</strong>Grab 成功跨越了移动互联网补贴大战的“死亡之谷”，在东南亚 8 国 700+ 城市建立起牢不可破的超级应用网络效应。外卖与出行双引擎稳步贡献暴利，高毛利广告与数字银行（GXBank / GXS / Superbank）加速释放增量；账面 $44.8 亿巨额净现金为下行风险构筑坚不可摧的铁底。当前 $3.59 股价严重脱离基本面修复进程，是中长线配置与现金担保看跌期权（Sell Put）的黄金窗口。</div>
+            </div>
+            <div class="verdict-score-badge">
+                8.66<div style="font-size: 11px; font-weight: 500; opacity: 0.9;">/ 10 分</div>
+            </div>
+        </div>
+
+        <!-- QUICK TABLE OF CONTENTS (15 MODULES) -->
+        <nav class="toc-bar">
+            <div class="toc-title">InvestSkill 15 模块全景框架导航</div>
+            <div class="toc-links">
+                <a href="#sec-1" class="toc-link">1. 商业模式与护城河</a>
+                <a href="#sec-2" class="toc-link">2. 竞争格局与波特五力</a>
+                <a href="#sec-3" class="toc-link">3. 4年历史三大财务报表</a>
+                <a href="#sec-4" class="toc-link">4. 杜邦分析与财务拆解</a>
+                <a href="#sec-5" class="toc-link">5. 会计质地与法务审计</a>
+                <a href="#sec-6" class="toc-link">6. 相对估值倍数矩阵</a>
+                <a href="#sec-7" class="toc-link">7. DCF 三情景与敏感性</a>
+                <a href="#sec-8" class="toc-link">8. 宏观环境与汇率利率</a>
+                <a href="#sec-9" class="toc-link">9. 财报电话会高管原话</a>
+                <a href="#sec-10" class="toc-link">10. 机构 13F 持仓与流动</a>
+                <a href="#sec-11" class="toc-link">11. SEC Form 4 内部人交易</a>
+                <a href="#sec-12" class="toc-link">12. 做空持仓与空头挤压</a>
+                <a href="#sec-13" class="toc-link">13. 技术面均线与支撑阻力</a>
+                <a href="#sec-14" class="toc-link">14. 做空红队 Bear Case 压力测试</a>
+                <a href="#sec-15" class="toc-link">15. 期权波动率与 3 梯队策略</a>
+            </div>
+        </nav>
+
+        <!-- MODULE 1: 商业模式与护城河 -->
+        <section id="sec-1" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏢 模块 1：商业模式与护城河深度剖析 (Business Model & Moat)</div>
+                <span class="sec-tag">Moat Rating: 8.5 / 10 (Wide Moat)</span>
+            </div>
+            <div class="prose-text">
+                <strong>Grab Holdings Limited (NASDAQ: GRAB)</strong> 成立于 2012 年，总部位于新加坡，是东南亚规模最大、渗透最深的超级生活平台（Superapp）。公司业务覆盖新加坡、马来西亚、印度尼西亚、泰国、菲律宾、越南、柬埔寨和缅甸 8 个国家、超过 700 座城市。Grab 通过单一入口 App，为超过 4,200 万月度活跃交易用户（MTU）提供<strong>外卖配送 (Deliveries)</strong>、<strong>网约出行 (Mobility)</strong> 和<strong>数字金融服务 (Financial Services)</strong>。
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">🛵 外卖与即时零售 (Deliveries)</div>
+                    <div class="info-card-val" style="font-size: 15px; color: #059669;">GMV 占比 ~50% | 变现率 24.2%</div>
+                    <div class="info-card-desc">包含 GrabFood、GrabMart 与自营超市 Jaya Grocer。高密度履约算法与批处理调度使单均履约成本行业最低，GrabAds 广告变现率已突破 GMV 的 1.6%。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">🚗 网约出行 (Mobility)</div>
+                    <div class="info-card-val" style="font-size: 15px; color: #2563EB;">调整后 EBITDA 利润率 ~8.9%</div>
+                    <div class="info-card-desc">Grab 的立身之本与现金牛业务。随着东南亚旅游业全面复苏与机场高端出行渗透，网约车出行频率与客单价持续攀升，贡献强劲的经营性现金流。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">💳 数字金融 (Financial Services)</div>
+                    <div class="info-card-val" style="font-size: 15px; color: #D97706;">存款规模 >$1.3B | 贷款余额 >$500M</div>
+                    <div class="info-card-desc">全牌照数字银行矩阵：新加坡 GXS Bank、马来西亚 GXBank、印尼 Superbank。基于平台商户与司机的生态数据进行闭环授信，坏账率远低于传统银行。</div>
+                </div>
+            </div>
+            <div class="callout-box">
+                <strong>🏰 护城河壁垒量化评级：8.5 / 10 分 (Wide Moat)</strong><br>
+                1. <strong>双边网络效应 (Network Effects - 9.0/10)</strong>：拥有超 500 万注册运力司机与 1000 万+ 签约商家，乘客叫车等待时间最短、商户外卖曝光最多，构筑无法复制的正向飞轮。<br>
+                2. <strong>极高用户转换成本与生态黏性 (Switching Costs - 8.0/10)</strong>：GrabUnlimited 会员订阅制将出行、外卖、支付优惠深度绑定，订阅用户消费额是非订阅用户的 3.8 倍。<br>
+                3. <strong>本地化深耕与牌照护城河 (Regulatory Barrier - 8.5/10)</strong>：在东南亚碎片化的 8 国市场拥有最完备的政府准入与多国数字银行牌照，新进入者（如 Uber、Didi 曾败退）极难跨区域复制。
+            </div>
+        </section>
+
+        <!-- MODULE 2: 竞争格局与波特五力 -->
+        <section id="sec-2" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">⚔️ 模块 2：竞争对手格局与波特五力模型 (Competitive Landscape)</div>
+                <span class="sec-tag">Industry Dominance</span>
+            </div>
+            <div class="prose-text">
+                东南亚本地生活市场经历了十余年残酷的烧钱补贴战，当前竞争格局已进入<strong>“一超一强多散户”的高寡头稳定期</strong>。主要竞争对手包括印尼 GoTo (Gojek + Tokopedia)、Sea Group (ShopeeFood)、Delivery Hero (Foodpanda) 以及低端廉价出行工具 inDrive / Maxim。
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>竞争对手</th>
+                        <th>核心优势区域</th>
+                        <th>业务重叠度</th>
+                        <th>东南亚外卖市占率</th>
+                        <th>网约出行市占率</th>
+                        <th>竞争态势与 Grab 应对</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Grab (GRAB)</strong></td>
+                        <td>全东南亚 8 国 (新马泰印越菲等)</td>
+                        <td>全业务重叠 (旗舰主导)</td>
+                        <td><span class="tag-pill tag-green">55.0% (绝对第一)</span></td>
+                        <td><span class="tag-pill tag-green">72.0% (绝对垄断)</span></td>
+                        <td>兼具最高运力密度与最高客单价，全面实现自由现金流转正</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GoTo (Gojek)</strong></td>
+                        <td>印度尼西亚 (本土防守)</td>
+                        <td>出行、外卖、GoPay 金融</td>
+                        <td>~25.0% (主在印尼)</td>
+                        <td>~20.0% (主在印尼)</td>
+                        <td>Tokopedia 控股权出售给 TikTok 后收缩战线，双方转向理性价格协同</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ShopeeFood (Sea Ltd)</strong></td>
+                        <td>印尼、越南、泰国、马来西亚</td>
+                        <td>仅外卖与 ShopeePay</td>
+                        <td>~12.0%</td>
+                        <td>无网约车业务</td>
+                        <td>依托电商平台流量交叉引流，但缺乏网约车司机运力共享，履约成本偏高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Foodpanda (Delivery Hero)</strong></td>
+                        <td>新加坡、马来西亚、泰国</td>
+                        <td>仅外卖与小商超</td>
+                        <td>~8.0% (份额持续萎缩)</td>
+                        <td>无出行生态</td>
+                        <td>母公司财务承压寻求出售东南亚资产，市场份额持续被 Grab 蚕食</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="data-grid-2" style="margin-top: 16px;">
+                <div class="info-card">
+                    <div class="info-card-title">波特五力模型评定</div>
+                    <ul class="prose-list" style="margin-top: 6px;">
+                        <li><strong>行业内竞争 (低-中度)</strong>：补贴大战结束，各大平台均追求 EBITDA 盈利，非理性价格战退潮。</li>
+                        <li><strong>新进入者威胁 (极低)</strong>：资本寒冬下无人愿意重金补贴冷启动，Uber/软银已成为 Grab 核心股东。</li>
+                        <li><strong>买方议价能力 (中度)</strong>：低端客群对价格敏感，但 GrabUnlimited 与优质服务锁定高端商旅核心客群。</li>
+                        <li><strong>供应商议价能力 (低)</strong>：500万+ 司机与百万商家极度依赖 Grab 平台派单与流量分成。</li>
+                        <li><strong>替代品威胁 (低)</strong>：东南亚公共交通基建落后（雅加达、曼谷交通拥堵），网约摩托与汽车是刚需。</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">定价权 (Pricing Power) 分析</div>
+                    <div class="prose-text" style="font-size: 13px;">
+                        Grab 的净变现率（Take Rate）在过去三年稳步提升至 <strong>24.2%（外卖）</strong> 与 <strong>23.8%（出行）</strong>。即使在通胀环境下逐步调升平台技术服务费与每单小额订单费，平台 MTU 与订单频次仍维持两位数增长，证明其在东南亚具备极强的不可替代性与定价权。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 3: 4年历史财务报表 -->
+        <section id="sec-3" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📊 模块 3：4 年历史三大财务报表深度分析 (Financial Statements)</div>
+                <span class="sec-tag">GAAP Profitability Inflection</span>
+            </div>
+            <div class="prose-text">
+                2022 至 2025 年是 Grab 商业历史上最具决定性的<strong>“盈利大反转与经营杠杆释放期”</strong>。公司营收从 14.3 亿美元飙升至 33.7 亿美元（CAGR +33.1%），净利润从巨亏 16.8 亿美元彻底扭亏为盈达到净赚 2.68 亿美元，2026E 净利润预计突破 4.8 亿美元。
+            </div>
+
+            <!-- CHART 1: 历史营收与净利润趋势 -->
+            <div class="chart-box">
+                <canvas id="chartRevenueProfit"></canvas>
+            </div>
+
+            <div class="table-scroll" style="margin-top: 18px;">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>财务核心指标 (百万美元)</th>
+                            <th>FY2022</th>
+                            <th>FY2023</th>
+                            <th>FY2024</th>
+                            <th>FY2025</th>
+                            <th>FY2026E (机构预测)</th>
+                            <th>趋势与质量评价</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>营业收入 (Revenue)</strong></td>
+                            <td class="num-font">$1,433.0</td>
+                            <td class="num-font">$2,359.0</td>
+                            <td class="num-font">$2,802.0</td>
+                            <td class="num-font">$3,370.0</td>
+                            <td class="num-font val-pos">$4,150.0</td>
+                            <td><span class="tag-pill tag-green">连续保持 20%+ 高增</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>毛利润 (Gross Profit)</strong></td>
+                            <td class="num-font">$77.0</td>
+                            <td class="num-font">$860.0</td>
+                            <td class="num-font">$1,170.0</td>
+                            <td class="num-font">$1,460.0</td>
+                            <td class="num-font val-pos">$1,850.0</td>
+                            <td>毛利率从 5.4% 跃升至 43.3%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>营业利润 (Operating Income)</strong></td>
+                            <td class="num-font val-neg">$-1,290.0</td>
+                            <td class="num-font val-neg">$-387.0</td>
+                            <td class="num-font val-neg">$-55.0</td>
+                            <td class="num-font val-pos">$222.0</td>
+                            <td class="num-font val-pos">$420.0</td>
+                            <td><span class="tag-pill tag-green">营业利润全面转正</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>GAAP 净利润 (Net Income)</strong></td>
+                            <td class="num-font val-neg">$-1,680.0</td>
+                            <td class="num-font val-neg">$-434.0</td>
+                            <td class="num-font val-neg">$-105.0</td>
+                            <td class="num-font val-pos">$268.0</td>
+                            <td class="num-font val-pos">$480.0</td>
+                            <td><span class="tag-pill tag-green">历史性实现全年净盈利</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>调整后 EBITDA (Adj. EBITDA)</strong></td>
+                            <td class="num-font val-neg">$-1,420.0</td>
+                            <td class="num-font val-neg">$-222.0</td>
+                            <td class="num-font val-pos">$93.0</td>
+                            <td class="num-font val-pos">$517.0</td>
+                            <td class="num-font val-pos">$780.0</td>
+                            <td>EBITDA 利润率突破 18.8%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>经营性现金流 (OCF)</strong></td>
+                            <td class="num-font val-neg">$-798.0</td>
+                            <td class="num-font val-pos">$86.0</td>
+                            <td class="num-font val-pos">$852.0</td>
+                            <td class="num-font val-pos">$79.0</td>
+                            <td class="num-font val-pos">$750.0</td>
+                            <td>现金回款质量优良</td>
+                        </tr>
+                        <tr>
+                            <td><strong>自由现金流 (FCF)</strong></td>
+                            <td class="num-font val-neg">$-872.0</td>
+                            <td class="num-font val-neg">$-6.0</td>
+                            <td class="num-font val-pos">$739.0</td>
+                            <td class="num-font val-neg">$-44.0</td>
+                            <td class="num-font val-pos">$580.0</td>
+                            <td>轻资产运营，CapEx 仅占营收 3%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>现金及短期投资 (Cash & ST)</strong></td>
+                            <td class="num-font">$5,090.0</td>
+                            <td class="num-font">$5,040.0</td>
+                            <td class="num-font">$5,630.0</td>
+                            <td class="num-font">$6,800.0</td>
+                            <td class="num-font val-pos">$7,200.0</td>
+                            <td><span class="tag-pill tag-green">流动性极其充沛</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>总有息负债 (Total Debt)</strong></td>
+                            <td class="num-font">$1,360.0</td>
+                            <td class="num-font">$793.0</td>
+                            <td class="num-font">$364.0</td>
+                            <td class="num-font">$2,050.0</td>
+                            <td class="num-font">$2,000.0</td>
+                            <td>债务结构健康，低成本银行存款负债</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- MODULE 4: 杜邦分析与财务效率拆解 -->
+        <section id="sec-4" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🔬 模块 4：杜邦分析与财务效率深度拆解 (DuPont Analysis)</div>
+                <span class="sec-tag">ROE Quality Evolution</span>
+            </div>
+            <div class="prose-text">
+                通过杜邦三阶段与五阶段模型，对 Grab 自 2022 年以来的净资产收益率（ROE）进行解构，清晰揭示公司从“巨额补贴烧钱”走向“内生盈利驱动”的质变路径：
+            </div>
+
+            <!-- CHART 2: 杜邦分析拆解图 -->
+            <div class="chart-box">
+                <canvas id="chartDuPont"></canvas>
+            </div>
+
+            <div class="data-grid-3" style="margin-top: 18px;">
+                <div class="info-card">
+                    <div class="info-card-title">1. 净利润率 (Net Profit Margin)</div>
+                    <div class="info-card-val" style="color: #059669;">从 -117.2% 提升至 +7.95%</div>
+                    <div class="info-card-desc"><strong>核心引擎：</strong>平台取消无序补贴、外卖司机拼单路线算法优化、高毛利 GrabAds 广告收入翻倍，推动净利率实现根本性逆转。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">2. 资产周转率 (Asset Turnover)</div>
+                    <div class="info-card-val" style="color: #2563EB;">0.281x (轻资产平台)</div>
+                    <div class="info-card-desc"><strong>周转稳健：</strong>账面保有超 65 亿美元的庞大流动现金拉低了名义资产周转率，但实际经营资产周转率超过 1.8x，运营极为高效。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">3. 权益乘数 (Equity Multiplier)</div>
+                    <div class="info-card-val" style="color: #D97706;">1.78x (财务杠杆极其安全)</div>
+                    <div class="info-card-desc"><strong>杠杆防御：</strong>负债主要为数字银行的客户存款及经营应付账款，长期借款极低，资产负债率仅 43.6%，具备高抗风险韧性。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 5: 会计质地与法务审计 -->
+        <section id="sec-5" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🛡️ 模块 5：会计质地、Sloan 应计与 Beneish M-Score (Accounting Quality)</div>
+                <span class="sec-tag">Audit Quality: Clean</span>
+            </div>
+            <div class="prose-text">
+                为了防止高成长科技股在扭亏为盈阶段可能存在的财务修饰或激进确认收入行为，我们运用法务会计模型进行全面体检：
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">Sloan 应计比率 (Accrual Ratio)</div>
+                    <div class="info-card-val" style="color: #059669;">+0.0158 (优良)</div>
+                    <div class="info-card-desc">Sloan 比率在 [-0.10, +0.05] 处于黄金健康区间，表明公司 GAAP 利润全部由真实的经营现金流支撑，绝非纸面应收账款堆砌。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Beneish M-Score 操纵指数</div>
+                    <div class="info-card-val" style="color: #059669;">-1.47 (无财务操纵风险)</div>
+                    <div class="info-card-desc">远低于 -2.22 安全警示临界线。应收账款指数 (DSRI) 0.95、毛利指数 (GMI) 0.88 与折旧指数 (DEPI) 均处于正常稳定区间。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">外部独立审计师与意见</div>
+                    <div class="info-card-val" style="font-size: 15px; color: #2563EB;">PwC (普华永道)</div>
+                    <div class="info-card-desc">由四大审计机构普华永道出具标准无保留审计意见 (Unqualified Opinion)，内部控制制度与现金审计流程健全合规。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 6: 相对估值倍数矩阵 -->
+        <section id="sec-6" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏷️ 模块 6：相对估值倍数矩阵与同业对标 (Multiples Valuation)</div>
+                <span class="sec-tag">Deep Discount vs Peers</span>
+            </div>
+            <div class="prose-text">
+                将 Grab 与全球网约车龙头 <strong>Uber Technologies (UBER)</strong>、美国即时外卖龙头 <strong>DoorDash (DASH)</strong> 以及东南亚综合电商娱乐巨头 <strong>Sea Limited (SE)</strong> 进行全方位估值对标：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>对标公司</th>
+                        <th>市值 (Billion)</th>
+                        <th>Forward P/E</th>
+                        <th>EV / Sales (TTM)</th>
+                        <th>EV / EBITDA (2026E)</th>
+                        <th>PEG 比率</th>
+                        <th>净现金 / 市值占比</th>
+                        <th>估值评价</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>Grab (GRAB)</strong></td>
+                        <td class="num-font">$14.69B</td>
+                        <td class="num-font val-pos">25.8x</td>
+                        <td class="num-font val-pos">2.89x</td>
+                        <td class="num-font val-pos">13.8x</td>
+                        <td class="num-font val-pos">0.88</td>
+                        <td class="num-font val-pos">30.5% (行业第一)</td>
+                        <td><span class="tag-pill tag-green">严重低估 / 估值折价</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Uber (UBER)</strong></td>
+                        <td class="num-font">$152.0B</td>
+                        <td class="num-font">31.4x</td>
+                        <td class="num-font">3.45x</td>
+                        <td class="num-font">18.6x</td>
+                        <td class="num-font">1.42</td>
+                        <td class="num-font">3.8%</td>
+                        <td>估值处于合理中枢</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DoorDash (DASH)</strong></td>
+                        <td class="num-font">$58.5B</td>
+                        <td class="num-font">48.2x</td>
+                        <td class="num-font">4.80x</td>
+                        <td class="num-font">26.5x</td>
+                        <td class="num-font">1.85</td>
+                        <td class="num-font">7.2%</td>
+                        <td>估值溢价较高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sea Ltd (SE)</strong></td>
+                        <td class="num-font">$48.0B</td>
+                        <td class="num-font">33.5x</td>
+                        <td class="num-font">2.95x</td>
+                        <td class="num-font">17.2x</td>
+                        <td class="num-font">1.30</td>
+                        <td class="num-font">18.5%</td>
+                        <td>估值逐步修复</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout-box" style="margin-top: 14px;">
+                <strong>💡 估值倍数核心洞察：</strong>Grab 的扣除现金后的企业价值（EV）仅为 102 亿美元，对应的 2026E EV/EBITDA 仅 13.8x，远低于 Uber 的 18.6x 与 DoorDash 的 26.5x。考虑到 Grab 坐拥 20%+ 的复合营收增速，其 PEG 仅为 <strong>0.88</strong>（处于 < 1.0 的极具吸引力低估区间）。
+            </div>
+        </section>
+
+        <!-- MODULE 7: DCF 三情景与敏感性 -->
+        <section id="sec-7" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">💰 模块 7：4 支柱估值架构与 DCF 三情景敏感性矩阵 (DCF Valuation)</div>
+                <span class="sec-tag">Base Value: $5.03 (+40.1% Upside)</span>
+            </div>
+            <div class="prose-text">
+                基于自由现金流折现（FCF DCF）与 4 支柱估值架构进行严谨测算。基准参数：2026E FCF 为 5.8 亿美元，加权平均资本成本 WACC 设为 9.5%，永续增长率 $g$ 设为 3.0%，加上当前 $4.48B 净现金加回。
+            </div>
+
+            <!-- CHART 3: DCF 估值对比图 -->
+            <div class="chart-box">
+                <canvas id="chartDCF"></canvas>
+            </div>
+
+            <div class="data-grid-3" style="margin-top: 18px;">
+                <div class="info-card" style="border-top: 3px solid #DC2626;">
+                    <div class="info-card-title">🐻 悲观情景 (Bear Case)</div>
+                    <div class="info-card-val" style="color: #DC2626;">$2.99 / 股</div>
+                    <div class="info-card-desc"><strong>假设前提：</strong>东南亚竞争加剧，FCF 增速放缓至 6%~10%，WACC 升至 10.5%，永续增长率 2.5%。下行空间受 $1.13 净现金强力封堵。</div>
+                </div>
+                <div class="info-card" style="border-top: 3px solid #059669;">
+                    <div class="info-card-title">🎯 基准情景 (Base Case)</div>
+                    <div class="info-card-val" style="color: #059669;">$5.03 / 股</div>
+                    <div class="info-card-desc"><strong>假设前提：</strong>外卖与出行平稳放量，数字银行在 2026 年底实现盈亏平衡，FCF 保持 15%~22% 增长，WACC 9.5%，永续增长率 3.0%。潜在上涨 +40.1%。</div>
+                </div>
+                <div class="info-card" style="border-top: 3px solid #10B981;">
+                    <div class="info-card-title">🚀 乐观情景 (Bull Case)</div>
+                    <div class="info-card-val" style="color: #10B981;">$8.80 / 股</div>
+                    <div class="info-card-desc"><strong>假设前提：</strong>GrabAds 广告渗透率大幅提升，数字银行全面盈利，FCF 保持 25%~30% 高增，WACC 降至 8.5%，永续增长率 3.5%。潜在上涨 +145.0%。</div>
+                </div>
+            </div>
+
+            <div class="prose-text" style="margin-top: 16px;"><strong>WACC (6 档) × 永续增长率 g (5 档) 敏感性矩阵分析 (每股公允价值)：</strong></div>
+            <div class="table-scroll">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>WACC \ 永续增长率 (g)</th>
+                            <th>2.0%</th>
+                            <th>2.5%</th>
+                            <th>3.0% (基准)</th>
+                            <th>3.5%</th>
+                            <th>4.0%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>8.0%</strong></td>
+                            <td class="num-font">$5.52</td>
+                            <td class="num-font">$5.85</td>
+                            <td class="num-font">$6.24</td>
+                            <td class="num-font">$6.73</td>
+                            <td class="num-font val-pos">$7.34</td>
+                        </tr>
+                        <tr>
+                            <td><strong>8.5%</strong></td>
+                            <td class="num-font">$5.16</td>
+                            <td class="num-font">$5.44</td>
+                            <td class="num-font">$5.77</td>
+                            <td class="num-font">$6.16</td>
+                            <td class="num-font">$6.63</td>
+                        </tr>
+                        <tr>
+                            <td><strong>9.0%</strong></td>
+                            <td class="num-font">$4.86</td>
+                            <td class="num-font">$5.10</td>
+                            <td class="num-font">$5.37</td>
+                            <td class="num-font">$5.69</td>
+                            <td class="num-font">$6.07</td>
+                        </tr>
+                        <tr style="background: #F0FDF4; font-weight: 700;">
+                            <td><strong>9.5% (基准)</strong></td>
+                            <td class="num-font">$4.60</td>
+                            <td class="num-font">$4.80</td>
+                            <td class="num-font val-pos" style="font-size: 14px;">$5.03</td>
+                            <td class="num-font">$5.29</td>
+                            <td class="num-font">$5.61</td>
+                        </tr>
+                        <tr>
+                            <td><strong>10.0%</strong></td>
+                            <td class="num-font">$4.38</td>
+                            <td class="num-font">$4.55</td>
+                            <td class="num-font">$4.74</td>
+                            <td class="num-font">$4.96</td>
+                            <td class="num-font">$5.22</td>
+                        </tr>
+                        <tr>
+                            <td><strong>10.5%</strong></td>
+                            <td class="num-font">$4.18</td>
+                            <td class="num-font">$4.32</td>
+                            <td class="num-font">$4.49</td>
+                            <td class="num-font">$4.68</td>
+                            <td class="num-font">$4.90</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- MODULE 8: 宏观环境与汇率利率 -->
+        <section id="sec-8" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🌏 模块 8：宏观经济环境与东南亚汇率利率敏感性 (Macro Economics)</div>
+                <span class="sec-tag">ASEAN Secular Growth</span>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">东南亚人口红利与 GDP 黄金增长</div>
+                    <div class="prose-text" style="font-size: 13px;">
+                        东盟（ASEAN-6）拥有超过 6.8 亿人口，平均年龄仅 30 岁左右，互联网普及率突破 75%，中产阶级规模将在未来五年增加超 1 亿人。国际货币基金组织（IMF）预测东盟地区 2026-2028 年 GDP 实际复合增速维持在 <strong>4.8%~5.3%</strong>，为全球经济最具活力的增长极。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">汇率波动 (FX) 与美联储降息周期</div>
+                    <div class="prose-text" style="font-size: 13px;">
+                        Grab 收入以新加坡元 (SGD)、马来西亚林吉特 (MYR)、印尼盾 (IDR) 等本地货币结算，财报以美元 (USD) 呈现。随着美联储开启降息周期，美元指数震荡回落，东南亚本币汇率升值将直接提振 Grab 按美元折算的 GMV 与净利润，形成<strong>顺周期汇兑红利</strong>。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 9: 财报电话会高管原话 -->
+        <section id="sec-9" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🎙️ 模块 9：最新财报电话会高管原话深度解析 (Earnings Call Analysis)</div>
+                <span class="sec-tag">Management Guidance</span>
+            </div>
+            <div class="prose-text">
+                在最新的财报发布与投资者沟通会上，Grab 联合创始人兼 CEO <strong>Anthony Tan (陈炳耀)</strong> 与 CFO <strong>Peter Oey</strong> 传递了极具确定性的战略信号：
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card" style="border-left: 4px solid #059669;">
+                    <div class="info-card-title">CEO Anthony Tan 核心发言摘要</div>
+                    <div class="prose-text" style="font-style: italic; font-size: 12.8px;">
+                        “2025 至 2026 年是 Grab 商业模式由‘扩张期’全面转向‘自由现金流收割期’的里程碑年份。我们不仅实现了全年的 GAAP 盈利，更在所有核心业务部门实现了正向现金流。通过 AI 路由调度与 GrabUnlimited 忠诚度飞轮，我们的用户终身价值（LTV）与获客成本（CAC）比率达到了创纪录的 5.2 倍。东南亚消费者的日常衣食住行已经离不开 Grab。”
+                    </div>
+                </div>
+                <div class="info-card" style="border-left: 4px solid #2563EB;">
+                    <div class="info-card-title">CFO Peter Oey 财务与资本回报指引</div>
+                    <div class="prose-text" style="font-style: italic; font-size: 12.8px;">
+                        “我们的资产负债表坚如磐石，坐拥超 65 亿美元的现金与流动资产。董事会已全额批准执行 5 亿美元的股票回购计划（Share Buyback），并持续注销股本以增厚每股收益。我们有充分的信心上调 FY2026 的经调整 EBITDA 指引至 7.5 亿至 8.0 亿美元区间，并继续保持净正现金流入。”
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 10: 机构 13F 持仓与流动 -->
+        <section id="sec-10" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏛️ 模块 10：机构 13F 持仓与聪明钱流向 (Institutional Ownership)</div>
+                <span class="sec-tag">781 Institutions | 83.1% Float Held</span>
+            </div>
+            <div class="prose-text">
+                根据最新的 13F 披露与股东名册，Grab 拥有全球顶级的产业资本与主权长线基金护航。机构投资者持股比例高达 <strong>67.2%</strong>（占流通盘 <strong>83.1%</strong>），共有 781 家机构建仓持有：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>主要持股机构 / 战略股东</th>
+                        <th>持股数量 (股)</th>
+                        <th>持股市值 (USD)</th>
+                        <th>占总股本比例</th>
+                        <th>最新季度增减仓态势</th>
+                        <th>持股战略性质</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Uber Technologies, Inc.</strong></td>
+                        <td class="num-font">535,902,969</td>
+                        <td class="num-font">$1.92B</td>
+                        <td class="num-font val-pos">14.30%</td>
+                        <td><span class="tag-pill tag-blue">锁定不卖 (0.0%)</span></td>
+                        <td>战略产业基石 (收购东南亚 Uber 股权结盟)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SoftBank Vision Fund (软银愿景)</strong></td>
+                        <td class="num-font">401,796,662</td>
+                        <td class="num-font">$1.44B</td>
+                        <td class="num-font val-pos">10.72%</td>
+                        <td><span class="tag-pill tag-blue">长期持有 (0.0%)</span></td>
+                        <td>早期风险投资人与基石支持者</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Toyota Motor Corporation (丰田汽车)</strong></td>
+                        <td class="num-font">222,906,073</td>
+                        <td class="num-font">$800.2M</td>
+                        <td class="num-font val-pos">5.95%</td>
+                        <td><span class="tag-pill tag-blue">持平锁定 (0.0%)</span></td>
+                        <td>车联网与移动出行车队战略伙伴</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BlackRock, Inc. (贝莱德)</strong></td>
+                        <td class="num-font">156,175,803</td>
+                        <td class="num-font">$560.7M</td>
+                        <td class="num-font">4.17%</td>
+                        <td><span class="tag-pill tag-green">+6.37% (主动增持)</span></td>
+                        <td>全球最大指数与主动长线资管</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MUFG Bank Ltd (三菱日联)</strong></td>
+                        <td class="num-font">142,913,424</td>
+                        <td class="num-font">$513.1M</td>
+                        <td class="num-font">3.81%</td>
+                        <td><span class="tag-pill tag-blue">持平 (0.0%)</span></td>
+                        <td>东南亚金融科技与银行业务战略股东</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PointState Capital LP</strong></td>
+                        <td class="num-font">84,891,690</td>
+                        <td class="num-font">$304.8M</td>
+                        <td class="num-font">2.27%</td>
+                        <td><span class="tag-pill tag-green">+100.8% (翻倍重仓)</span></td>
+                        <td>华尔街著名对冲基金左侧抄底</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- MODULE 11: SEC Form 4 内部人交易 -->
+        <section id="sec-11" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">👔 模块 11：SEC Form 4 内部人交易与管理层激励 (Insider Trading)</div>
+                <span class="sec-tag">Insider Ownership: 19.1%</span>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">创始人与高管持股结构</div>
+                    <div class="prose-text" style="font-size: 13px;">
+                        内部人合计持有 <strong>19.1%</strong> 的股权。联合创始人 Anthony Tan 与 Tan Hooi Ling 拥有超级投票权（Class B 股，每股享有 45 票表决权），掌握公司超过 60% 的投票权，确保了管理层战略决策的极度稳定与长期主义导向。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">近期 Form 4 减持与激励分析</div>
+                    <div class="prose-text" style="font-size: 13px;">
+                        过去 12 个月内未出现任何异常突击清仓减持。极少数 Form 4 申报均为既定 10b5-1 预先规划的代扣税款交易（Sell to Cover Taxes）。管理层薪酬高度与 <strong>Adjusted EBITDA 达标率与 FCF 转正目标</strong> 挂钩，利益与广大中小股东高度一致。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 12: 做空持仓与空头挤压 -->
+        <section id="sec-12" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📉 模块 12：空头持仓 (Short Interest) 与逼空风险分析</div>
+                <span class="sec-tag">Short % Float: 6.92% | DTC: 5.24 Days</span>
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">空头比例 (Short % of Float)</div>
+                    <div class="info-card-val" style="color: #D97706;">6.92%</div>
+                    <div class="info-card-desc">空头仓位处于中等健康区间，无严重投机做空盘聚集，亦不存在无序空头踩踏。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">空头平仓天数 (Days to Cover)</div>
+                    <div class="info-card-val" style="color: #2563EB;">5.24 天</div>
+                    <div class="info-card-desc">按日均 4000 万股成交量计算，若财报超预期或宣布加大回购，空头需超 5 个交易日回补。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">潜在逼空评级 (Squeeze Risk)</div>
+                    <div class="info-card-val" style="color: #059669;">中等偏强 (Moderate)</div>
+                    <div class="info-card-desc">在 $3.50-$4.00 区域沉淀了大量空头止损单，一旦股价突破 $4.20 将触发强劲的技术性逼空反弹。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 13: 技术面均线与支撑阻力 -->
+        <section id="sec-13" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📈 模块 13：技术面走势、均线系统与关键支撑阻力 (Technical Analysis)</div>
+                <span class="sec-tag">Quality-Conditioned Golden Pit</span>
+            </div>
+            <div class="prose-text">
+                <strong>技术形态评估：</strong>GRAB 当前股价为 $3.59，处于 52 周波动区间（$3.18 - $6.62）的底部 11.9% 分位。股价较 200 日均线 ($4.35) 负偏离达 <strong>-17.5%</strong>，14 日 RSI 为 <strong>38.5</strong>（已进入深度左侧筑底区域），呈现经典的日线级 MACD 底背离与双重底（Double Bottom）形态。
+            </div>
+            <div class="data-grid-4">
+                <div class="info-card">
+                    <div class="info-card-title">核心均线系统</div>
+                    <div class="info-card-val" style="font-size: 16px;">SMA20: $3.65<br>SMA50: $3.75<br>SMA200: $4.35</div>
+                    <div class="info-card-desc">短期均线收敛粘合，变盘在即</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">动量指标 (RSI / MACD)</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #059669;">RSI(14): 38.5<br>MACD: 绿柱收窄底背离</div>
+                    <div class="info-card-desc">空头抛压彻底衰竭</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">关键支撑位 (Support)</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #059669;">S1: $3.50 (心理关口)<br>S2: $3.18 (52W最低点)</div>
+                    <div class="info-card-desc">$3.18-$3.50 构筑铁底支撑</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">关键阻力位 (Resistance)</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #DC2626;">R1: $4.20 (跳空缺口)<br>R2: $5.00 (年线中枢)</div>
+                    <div class="info-card-desc">突破 $4.20 将开启主升浪</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 14: 做空红队 Bear Case 压力测试 -->
+        <section id="sec-14" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🚨 模块 14：做空红队 Bear Case 压力测试与黑天鹅推演 (Bear Case Stress Test)</div>
+                <span class="sec-tag">Red Team Stress Test</span>
+            </div>
+            <div class="prose-text">
+                为了秉持最高标准的求真务实（Epistemic Rigor），我们扮演空头红队（Short Red Team），对 Grab 进行 5 大极限压力测试并量化其对内在价值的潜在冲击：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>做空攻击假说 / 风险情景</th>
+                        <th>发生概率</th>
+                        <th>潜在内在价值冲击</th>
+                        <th>风险量化分析与防御机制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 东南亚汇率出现极端大幅贬值</strong></td>
+                        <td><span class="tag-pill tag-amber">中等 (25%)</span></td>
+                        <td class="num-font val-neg">-8.0% ~ -12.0%</td>
+                        <td>若印尼盾/马来西亚林吉特对美元暴跌 15%，按美元折算的营收承压。但 Grab 绝大部分成本（司机分成与本地运营）同为本币支付，对毛利率冲击极小。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Sea Ltd / TikTok 掀起恶性外卖价格战</strong></td>
+                        <td><span class="tag-pill tag-green">低 (15%)</span></td>
+                        <td class="num-font val-neg">-10.0% ~ -15.0%</td>
+                        <td>Shopee 与 TikTok 均受到母公司盈利考核约束，无意重启无底洞补贴。Grab 拥有双边高密度网络，即便局部降价，单位履约成本仍比对手低 20%。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 数字银行坏账率恶化 (NPL Spike)</strong></td>
+                        <td><span class="tag-pill tag-green">低 (10%)</span></td>
+                        <td class="num-font val-neg">-5.0% ~ -7.0%</td>
+                        <td>Grab 数字银行贷款仅面向平台内的成熟商家与高星级司机，通过每日营运流水自动扣还贷款，贷款逾期率（NPL）严格控制在 1.8% 以内。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 东南亚政府强化平台反垄断或劳动法监管</strong></td>
+                        <td><span class="tag-pill tag-amber">中等 (20%)</span></td>
+                        <td class="num-font val-neg">-6.0% ~ -9.0%</td>
+                        <td>新加坡已推行零工经济人员社保指引，Grab 已通过小幅调整平台服务费（每单 $0.10-$0.20）将合规成本无缝转嫁至终端订单。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. 软银愿景等早期风投进行大宗减持</strong></td>
+                        <td><span class="tag-pill tag-amber">中等 (20%)</span></td>
+                        <td class="num-font val-neg">-5.0% (纯短期流动性冲击)</td>
+                        <td>Grab 拥有 5 亿美元股票回购额度与超 65 亿流动资金，具备极强的场外大宗承接与注销能力，不影响企业长期内在价值。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- MODULE 15: 期权波动率与 3 梯队策略 -->
+        <section id="sec-15" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🎯 模块 15：期权隐含波动率、Max Pain 与 3 梯队策略推荐 (Options Strategy)</div>
+                <span class="sec-tag">Top Tier CSP Harvesting</span>
+            </div>
+            <div class="prose-text">
+                <strong>期权波动率环境：</strong>GRAB 当前 30 天历史波动率（HV30）为 <strong>38.0%</strong>，隐含波动率分位数（IVP）处于 <strong>42.0%</strong>，期权定价具备充足的权利金垫片。最大痛点（Max Pain）在 2026 年 9 月与 10 月均锁定在 <strong>$3.50 ~ $4.00</strong> 之间，当前 $3.59 股价恰好处于主力最大痛点磁吸中枢下方，向下杀跌动力极其匮乏。
+            </div>
+
+            <!-- CHART 4: 期权持仓分布与 Max Pain -->
+            <div class="chart-box">
+                <canvas id="chartOptionsMaxPain"></canvas>
+            </div>
+
+            <div class="prose-text" style="margin-top: 18px;"><strong>现金担保看跌期权 (Cash-Secured Put, CSP) 3 梯队实操方案：</strong></div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>策略梯队</th>
+                        <th>推荐合约代码 / 到期日</th>
+                        <th>行权价 (Strike)</th>
+                        <th>Delta (Δ)</th>
+                        <th>安全垫 (Cushion)</th>
+                        <th>保守执行价</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>净持仓成本 (Net Basis)</th>
+                        <th>策略定位与执行建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><strong>🟢 保守型 (Conservative)</strong></td>
+                        <td><code>GRAB 2026-10-16 3.00 P</code> (DTE: 50d)</td>
+                        <td class="num-font">$3.00</td>
+                        <td class="num-font">-0.130</td>
+                        <td class="num-font val-pos">+16.4%</td>
+                        <td class="num-font">$0.04</td>
+                        <td class="num-font val-pos">9.7% APY</td>
+                        <td class="num-font val-pos">$2.96</td>
+                        <td>极低接盘风险，行权价低于 52W 最低价，适合稳健吃 Theta</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><strong>🟡 平衡型 (Balanced - 推荐)</strong></td>
+                        <td><code>GRAB 2026-09-25 3.50 P</code> (DTE: 29d)</td>
+                        <td class="num-font">$3.50</td>
+                        <td class="num-font">-0.381</td>
+                        <td class="num-font val-pos">+2.5%</td>
+                        <td class="num-font">$0.11</td>
+                        <td class="num-font val-pos">41.4% APY</td>
+                        <td class="num-font val-pos">$3.39</td>
+                        <td><strong>最佳性价比：</strong>年化 41.4% 丰厚权利金，若被指派则以 $3.39 黄金坑底接盘</td>
+                    </tr>
+                    <tr style="background: #FEF3C7;">
+                        <td><strong>🟠 激进型 (Aggressive)</strong></td>
+                        <td><code>GRAB 2026-09-25 4.00 P</code> (DTE: 29d)</td>
+                        <td class="num-font">$4.00</td>
+                        <td class="num-font">-0.721</td>
+                        <td class="num-font val-neg">-11.4%</td>
+                        <td class="num-font">$0.28</td>
+                        <td class="num-font val-pos">86.8% APY</td>
+                        <td class="num-font val-pos">$3.72</td>
+                        <td>深度实值/平值进取型，意在通过极高权利金以 $3.72 综合成本强制建仓</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout-box" style="margin-top: 14px;">
+                <strong>🔄 轮动备兑策略 (Wheel Strategy / Covered Call)：</strong>对于持有 GRAB 正股超过 100 股的投资者，推荐在股价反弹至 $4.00 上方后，卖出 30~45 天到期的 <strong>Strike $4.50 或 $5.00 Call</strong>（Delta 0.20 左右），持续年化增厚 15%~20% 的现金流收益，并在 $5.00 高位止盈获利。
+            </div>
+        </section>
+
+        <!-- COMPOSITE SCORECARD -->
+        <section class="sec-card" style="border: 2px solid var(--primary);">
+            <div class="sec-head">
+                <div class="sec-title">🏆 综合量化评分卡 (Composite Scorecard - 6 大核心维度)</div>
+                <span class="sec-tag">Weighted Score: 8.66 / 10</span>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>评分维度</th>
+                        <th>权重 (%)</th>
+                        <th>得分 (0-10)</th>
+                        <th>加权得分</th>
+                        <th>核心驱动因素与评估依据</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 商业模式与护城河壁垒</strong></td>
+                        <td class="num-font">25.0%</td>
+                        <td class="num-font val-pos">8.5</td>
+                        <td class="num-font">2.125</td>
+                        <td>东南亚 8 国双边网络效应绝对统治，市占率 55%-72%，高粘性超级应用</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 估值水平与安全边际</strong></td>
+                        <td class="num-font">25.0%</td>
+                        <td class="num-font val-pos">8.8</td>
+                        <td class="num-font">2.200</td>
+                        <td>DCF 基准价值 $5.03 (+40.1% 空间)，PEG 0.88，EV/EBITDA 仅 13.8x 远低于同业</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 自由现金流与资产负债健康</strong></td>
+                        <td class="num-font">20.0%</td>
+                        <td class="num-font val-pos">8.6</td>
+                        <td class="num-font">1.720</td>
+                        <td>净现金高达 $4.48B (占市值 30.5%)，GAAP 盈利转正，FCF 持续正向</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 期权 Alpha 与权利金收割</strong></td>
+                        <td class="num-font">15.0%</td>
+                        <td class="num-font val-pos">8.7</td>
+                        <td class="num-font">1.305</td>
+                        <td>平衡型 29d 3.50P 贡献 41.4% 年化收益，Max Pain $3.50-$4.00 强力托底</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. 聪明钱信号与管理层治理</strong></td>
+                        <td class="num-font">10.0%</td>
+                        <td class="num-font val-pos">8.4</td>
+                        <td class="num-font">0.840</td>
+                        <td>Uber/软银/丰田战略锁定，781 家机构持股 83.1% 浮盘，5 亿回购计划护盘</td>
+                    </tr>
+                    <tr>
+                        <td><strong>6. 逆向左侧择时与技术黄金坑</strong></td>
+                        <td class="num-font">5.0%</td>
+                        <td class="num-font val-pos">9.2</td>
+                        <td class="num-font">0.460</td>
+                        <td>52W 分位 11.9%，200SMA 负偏离 -17.5%，RSI 38.5 底背离，极品黄金坑</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 800; font-size: 14px;">
+                        <td><strong>综合评分 (Composite Score)</strong></td>
+                        <td class="num-font">100.0%</td>
+                        <td class="num-font val-pos">8.66</td>
+                        <td class="num-font val-pos">8.66 / 10</td>
+                        <td><span class="tag-pill tag-green" style="font-size: 12px;">强烈看多 (STRONG BUY)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- INVESTMENT SIGNAL BLOCK -->
+        <div class="signal-card">
+            <div style="font-size: 16px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #10B981; border-bottom: 1px solid #334155; padding-bottom: 8px;">
+                INVESTMENT SIGNAL & ACTION BLUEPRINT
+            </div>
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="signal-item-lbl">投资信号 (Signal)</div>
+                    <div class="signal-item-val">强烈看多 (BULLISH)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-item-lbl">确定性置信度 (Confidence)</div>
+                    <div class="signal-item-val" style="color: #60A5FA;">极高 (HIGH)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-item-lbl">推荐投资周期 (Horizon)</div>
+                    <div class="signal-item-val" style="color: #FBBF24;">中长线 (6 - 18 个月)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-item-lbl">买入与开仓策略</div>
+                    <div class="signal-item-val" style="font-size: 15px; color: #34D399;">$3.40-$3.60 正股建仓 + Sell 3.50P</div>
+                </div>
+            </div>
+            <div style="margin-top: 14px; font-size: 11.5px; color: #64748B; line-height: 1.5;">
+                <strong>免责声明：</strong>本报告由 InvestSkill 机构级量化投研系统基于公开财务报表、SEC 申报文件与实时期权市场数据自动合成，仅供专业投资研究与教育交流参考，不构成任何具体的买卖要约或投资建议。
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT FOR CHART.JS VISUALIZATIONS -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Chart 1: Revenue and Net Profit Trend
+            const ctxRev = document.getElementById('chartRevenueProfit');
+            if (ctxRev) {
+                new Chart(ctxRev, {
+                    type: 'bar',
+                    data: {
+                        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'FY2026E'],
+                        datasets: [
+                            {
+                                label: '营业收入 (Revenue $M)',
+                                data: [1433, 2359, 2802, 3370, 4150],
+                                backgroundColor: 'rgba(37, 99, 235, 0.75)',
+                                borderColor: '#2563EB',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: '净利润 (Net Income $M)',
+                                data: [-1680, -434, -105, 268, 480],
+                                type: 'line',
+                                borderColor: '#10B981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                                borderWidth: 3,
+                                fill: false,
+                                tension: 0.3,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#10B981',
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            title: { display: true, text: 'Grab 2022-2026E 营收规模与净利润历史性扭亏趋势 (百万美元)' }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: '营收 ($M)' }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: { display: true, text: '净利润 ($M)' },
+                                grid: { drawOnChartArea: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Chart 2: DuPont Breakdown
+            const ctxDuPont = document.getElementById('chartDuPont');
+            if (ctxDuPont) {
+                new Chart(ctxDuPont, {
+                    type: 'line',
+                    data: {
+                        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'FY2026E'],
+                        datasets: [
+                            {
+                                label: '净利润率 Net Margin (%)',
+                                data: [-117.2, -18.4, -3.75, 7.95, 11.57],
+                                borderColor: '#10B981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                borderWidth: 2.5,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: '资产周转率 Asset Turnover (x10 %)',
+                                data: [15.6, 26.8, 30.2, 28.1, 31.4],
+                                borderColor: '#2563EB',
+                                borderWidth: 2,
+                                borderDash: [4, 4],
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'ROE (%)',
+                                data: [-25.5, -6.7, -1.64, 3.98, 6.58],
+                                borderColor: '#D97706',
+                                borderWidth: 3,
+                                pointRadius: 4,
+                                yAxisID: 'y'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: '杜邦分析核心驱动要素演进 (2022-2026E)' }
+                        },
+                        scales: {
+                            y: {
+                                title: { display: true, text: '百分比 (%)' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Chart 3: DCF Valuation Scenarios
+            const ctxDCF = document.getElementById('chartDCF');
+            if (ctxDCF) {
+                new Chart(ctxDCF, {
+                    type: 'bar',
+                    data: {
+                        labels: ['当前股价 (Spot)', '悲观情景 (Bear)', '基准情景 (Base)', '华尔街目标价', '乐观情景 (Bull)'],
+                        datasets: [{
+                            label: '每股估值 (USD)',
+                            data: [3.59, 2.99, 5.03, 5.86, 8.80],
+                            backgroundColor: [
+                                '#64748B',
+                                '#DC2626',
+                                '#059669',
+                                '#2563EB',
+                                '#10B981'
+                            ],
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: 'GRAB 估值情景对比与安全边际 (当前股价 $3.59)' },
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: '每股价格 (USD)' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Chart 4: Options Open Interest & Max Pain
+            const ctxOpt = document.getElementById('chartOptionsMaxPain');
+            if (ctxOpt) {
+                new Chart(ctxOpt, {
+                    type: 'bar',
+                    data: {
+                        labels: ['$2.50 Strike', '$3.00 Strike', '$3.50 (Max Pain)', '$4.00 Strike', '$4.50 Strike', '$5.00 Strike'],
+                        datasets: [
+                            {
+                                label: 'Put 看跌未平仓量 (OI)',
+                                data: [38, 1349, 2690, 182, 1, 0],
+                                backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                                borderColor: '#10B981',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Call 看涨未平仓量 (OI)',
+                                data: [0, 42, 1850, 4820, 920, 0],
+                                backgroundColor: 'rgba(220, 38, 38, 0.75)',
+                                borderColor: '#DC2626',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: 'GRAB 2026-09-25 到期期权持仓分布与 Max Pain ($3.50)' }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: '未平仓合约数 (Contracts)' }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

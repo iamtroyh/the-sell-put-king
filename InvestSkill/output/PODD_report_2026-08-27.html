@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>Insulet Corp (PODD) 深度投研与期权策略报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(5,150,105,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #166534; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-amber { background: #FEF3C7; color: #92400E; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+
+        .prose-text { font-size: 13.5px; line-height: 1.7; color: #334155; margin-bottom: 12px; }
+        .prose-text strong { color: var(--text-primary); }
+        .prose-list { padding-left: 18px; margin-bottom: 14px; }
+        .prose-list li { font-size: 13px; color: #334155; margin-bottom: 6px; line-height: 1.5; }
+
+        .chart-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+            height: 320px;
+            position: relative;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-top: 10px;
+        }
+        .table-custom th {
+            background: #F1F5F9;
+            color: #475569;
+            font-weight: 700;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+        .table-custom td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: #1E293B;
+        }
+        .table-custom tr:hover { background: #F8FAFC; }
+
+        .callout-box {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+        .callout-box-amber {
+            border-left: 4px solid var(--amber);
+            background: var(--amber-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: #78350F;
+        }
+        .callout-box-red {
+            border-left: 4px solid var(--red);
+            background: var(--red-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: #7F1D1D;
+        }
+
+        .verdict-banner {
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+            border: 1.5px solid #10B981;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .verdict-left { max-width: 800px; }
+        .verdict-title { font-size: 20px; font-weight: 800; color: #064E3B; margin-bottom: 6px; }
+        .verdict-desc { font-size: 13.5px; color: #047857; line-height: 1.5; }
+        .verdict-score-badge {
+            background: #059669;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(5,150,105,.3);
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .matrix-table th {
+            background: #F1F5F9;
+            color: #334155;
+            padding: 8px 10px;
+            font-weight: 700;
+            border: 1px solid var(--border);
+        }
+        .matrix-table td {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+        .cell-green-deep { background: #A7F3D0; color: #064E3B; }
+        .cell-green-light { background: #D1FAE5; color: #047857; }
+        .cell-yellow { background: #FEF3C7; color: #92400E; }
+        .cell-red-light { background: #FEE2E2; color: #991B1B; }
+        .cell-red-deep { background: #FECACA; color: #7F1D1D; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 24px; }
+            .hero-kpis { grid-template-columns: repeat(2, 1fr); }
+            .sec-card { padding: 16px; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO HEADER -->
+    <header class="report-hero">
+        <div class="hero-inner">
+            <div class="hero-badge-row">
+                <span class="badge badge-hero-stock">NASDAQ: PODD</span>
+                <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+                <span class="badge badge-hero-score">综合评分: 8.8 / 10</span>
+                <span class="badge badge-hero-stock">报告日期: 2026-08-27</span>
+                <span class="badge" style="background: rgba(255,255,255,0.15); color: #fff;">15 模块机构级全景报告</span>
+            </div>
+            <h1 class="hero-title">Insulet Corp (PODD) 深度投研与期权策略报告</h1>
+            <p class="hero-sub">全球无导管贴片式胰岛素泵（Tubeless Omnipod 5）绝对垄断先驱。药房渠道（Pharmacy Channel）高黏性消耗品剃刀-刀片商业模式构筑深厚壁垒；FDA 2型糖尿病（T2D）适应症独家获批开辟数倍 TAM 蓝海。市场受 GLP-1 情绪错杀使估值回踩 52 周底部（RP 0.07，Dev200 -33.5%），迎来确定性极高的左侧逆向黄金坑与 Sell Put 权利金收割窗口。</p>
+
+            <div class="hero-kpis">
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                    <div class="hero-kpi-val">$143.41</div>
+                    <div class="hero-kpi-sub">52周区间: $126.4 - $354.9</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">200SMA 偏离度</div>
+                    <div class="hero-kpi-val" style="color: #F87171;">-33.50%</div>
+                    <div class="hero-kpi-sub">200 日线: $215.64</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Forward P/E</div>
+                    <div class="hero-kpi-val">18.60x</div>
+                    <div class="hero-kpi-sub">历史均值: 45.0x - 60.0x</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">年度自由现金流 (FCF)</div>
+                    <div class="hero-kpi-val">$349.9M</div>
+                    <div class="hero-kpi-sub">TTM 营运现金流: $569.3M</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Piotroski F-Score</div>
+                    <div class="hero-kpi-val">7 / 9 分</div>
+                    <div class="hero-kpi-sub">Sloan 应计比率: -10.10%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">分析师平均目标价</div>
+                    <div class="hero-kpi-val">$171.91</div>
+                    <div class="hero-kpi-sub">潜在上涨空间: +19.9%</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrap">
+
+        <!-- VERDICT SUMMARY BANNER -->
+        <div class="verdict-banner">
+            <div class="verdict-left">
+                <div class="verdict-title">🌟 核心投资结论：强烈看多 (STRONG BUY) • 综合评分 8.8 / 10</div>
+                <div class="verdict-desc">Insulet 凭借 Omnipod 5 无导管算法泵建立了极宽的专利、药房医保与转换成本护城河。其收入 90%+ 来自每 3 天更换一次的高毛利消耗品（毛利率 71.1%），现金流极为充沛。市场此前过度担忧 GLP-1 减肥药将取代胰岛素泵，导致估值腰斩，但临床事实表明 GLP-1 无法替代 1 型糖尿病（绝对缺乏胰岛素）与中晚期 2 型胰岛素强化治疗。当前股价处于 52 周最低 7% 分位，安全边际极高，强烈推荐现货定投配置与 Sell Put 锁定底部折价筹码。</div>
+            </div>
+            <div class="verdict-score-badge">
+                8.8<div style="font-size: 11px; font-weight: 500; opacity: 0.9;">/ 10 分</div>
+            </div>
+        </div>
+
+        <!-- QUICK TABLE OF CONTENTS -->
+        <nav class="toc-bar">
+            <div class="toc-title">报告核心导航 (15 模块全景框架)</div>
+            <div class="toc-links">
+                <a href="#sec-1" class="toc-link">1. 执行摘要</a>
+                <a href="#sec-2" class="toc-link">2. 商业模式与分部</a>
+                <a href="#sec-3" class="toc-link">3. 护城河与波特五力</a>
+                <a href="#sec-4" class="toc-link">4. 4年财务报表拆解</a>
+                <a href="#sec-5" class="toc-link">5. 杜邦分析与回报率</a>
+                <a href="#sec-6" class="toc-link">6. 会计质地与反造假</a>
+                <a href="#sec-7" class="toc-link">7. 相对估值与同行对标</a>
+                <a href="#sec-8" class="toc-link">8. DCF 与 6×5 敏感性</a>
+                <a href="#sec-9" class="toc-link">9. 研发资本化溢价桥</a>
+                <a href="#sec-10" class="toc-link">10. 聪明钱与机构持仓</a>
+                <a href="#sec-11" class="toc-link">11. 电话会原话与指引</a>
+                <a href="#sec-12" class="toc-link">12. 做空红队压力测试</a>
+                <a href="#sec-13" class="toc-link">13. 技术面与逆向黄金坑</a>
+                <a href="#sec-14" class="toc-link">14. 期权持仓与 Max Pain</a>
+                <a href="#sec-15" class="toc-link">15. CSP 实操与决策矩阵</a>
+            </div>
+        </nav>
+
+        <!-- MODULE 1: 核心观点与投资摘要 -->
+        <section id="sec-1" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📌 模块 1：执行摘要与核心投资逻辑</div>
+                <span class="sec-tag">Executive Summary</span>
+            </div>
+            <div class="prose-text">
+                <strong>Insulet Corporation (NASDAQ: PODD)</strong> 是全球糖尿病智能硬件与闭环胰岛素递送系统的颠覆性领军企业。公司核心产品 <strong>Omnipod 5</strong> 是全球首款且唯一获 FDA 批准同时适用于 1 型（T1D）和 2 型（T2D）糖尿病的贴片式自动胰岛素递送（AID）系统。
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">三大核心增长引擎</div>
+                    <div class="info-card-val" style="font-size: 15px; color: #059669;">T2D 蓝海 + 国际扩张 + CGM 融合</div>
+                    <div class="info-card-desc">FDA 独家批准 T2D 适应症，直接撬动全美 600 万需强化胰岛素治疗的 2 型患者；Dexcom G7 与 Abbott Libre 2 Plus 双传感器全兼容驱动换机潮。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">独特剃刀-刀片商业模式</div>
+                    <div class="info-card-val" style="font-size: 15px; color: #0284C7;">90%+ 经常性消耗品收入</div>
+                    <div class="info-card-desc">摆脱传统泵 4,000-6,000 美元前期硬件门槛，通过零售药房按月支付，患者每 3 天消耗一个 Pod，打造类似 SaaS 软件的高黏性现金流飞轮。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">情绪错杀与极度估值折价</div>
+                    <div class="info-card-val" style="font-size: 15px; color: #D97706;">Forward P/E 仅 18.6x</div>
+                    <div class="info-card-desc">股价自高点 $354.88 深度回调近 60%，市场过度计入 GLP-1 冲击。当前 200 日线偏离 -33.5%，PEG 仅 1.44，基本面与现金流全面创历史新高。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 2: 商业模式与分部业务拆解 -->
+        <section id="sec-2" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏢 模块 2：商业模式与分部业务深度拆解</div>
+                <span class="sec-tag">Business Model</span>
+            </div>
+            <div class="prose-text">
+                Insulet 颠覆了传统胰岛素泵依赖“耐用医疗设备（DME）”渠道的分销模式，开创了全美唯一的<strong>“零售药房医保渠道（Pharmacy Channel）”</strong>：
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">💊 渠道革命：药房医保（Pharmacy vs DME）</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        • <strong>传统泵 (Medtronic / Tandem)</strong>：走 DME 渠道，患者需预付数千美元硬件费用，锁定 4 年质保期，报销审批繁琐（需数周甚至数月）。<br>
+                        • <strong>Insulet Omnipod</strong>：走零售药房渠道（Tier 2/3 Copay），硬件控制器（PDM）或手机 App 免费/极低门槛提供，患者像买处方药一样每月按需自付少量 Copay（通常每月 $20-$50）提药，处方转化速度与医保准入率行业第一。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">🔄 剃刀-刀片模式（Razor & Blade）</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        • <strong>消耗品 Pod</strong>：患者每 72 小时必须更换一枚 Pod，单月消耗 10 枚，年均产生 ~$3,500-$4,000 美元高毛利消耗品收入。<br>
+                        • <strong>高转换成本与终身价值</strong>：患者一旦习惯无导管自由（游泳、运动无需解开管线）并导入算法控糖后，年化留存率超过 85%，LTV（用户生命周期价值）与 CAC（获客成本）比率达 5:1 以上。
+                    </div>
+                </div>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>业务板块</th>
+                        <th>核心产品</th>
+                        <th>目标人群与渠道</th>
+                        <th>营收占比 (2025/TTM)</th>
+                        <th>毛利率水平</th>
+                        <th>增长态势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>美国 Omnipod 业务</strong></td>
+                        <td>Omnipod 5 / Omnipod DASH</td>
+                        <td>全美 T1D & T2D 患者 / 药房渠道</td>
+                        <td><strong>~72%</strong> ($2.20B)</td>
+                        <td>~72.5%</td>
+                        <td><span class="tag-pill tag-green">年增 +22% (T2D 爆发)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>国际 Omnipod 业务</strong></td>
+                        <td>Omnipod 5 / DASH</td>
+                        <td>欧洲（英法德意等）、加拿大、澳洲</td>
+                        <td><strong>~24%</strong> ($0.74B)</td>
+                        <td>~68.0%</td>
+                        <td><span class="tag-pill tag-green">年增 +28% (加速渗透)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>制药合作递送系统 (Drug Delivery)</strong></td>
+                        <td>Amgen Neulasta Onpro 贴片等</td>
+                        <td>化疗后升白针等生物大分子递送</td>
+                        <td><strong>~4%</strong> ($0.11B)</td>
+                        <td>~62.0%</td>
+                        <td><span class="tag-pill tag-blue">成熟现金流业务</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- MODULE 3: 经济护城河与波特五力分析 -->
+        <section id="sec-3" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏰 模块 3：经济护城河与波特五力模型 (Moat Rating: 9.2/10)</div>
+                <span class="sec-tag">Porter's 5 Forces</span>
+            </div>
+            <div class="prose-text">
+                根据晨星护城河框架，Insulet 享有极高确定性的 <strong>Wide Moat（宽护城河）</strong>。波特五力综合评分 <strong>9.2 / 10</strong>：
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">1. 专利与工程制造壁垒 (评分: 9.5/10)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        微型流体动力学、内置无痛自动打针机构、低功耗蓝牙抗干扰通信以及嵌入式 SmartAdjust 闭环自适应算法在全球拥有超 500 项核心专利。由于将驱动马达、储药囊与微针集成在极小体积贴片中极难规模化量产，数十年来无任何对手能在无导管领域实现商业化量产。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">2. 药房医保与渠道先发优势 (评分: 9.3/10)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        覆盖全美 85%+ 的商业医保与 Medicare Part D 药房福利目录，PBM（药品福利管理巨头如 CVS Caremark, Express Scripts）合作协议深度绑定。竞争对手若想改走药房渠道需重构整个医保准入与计费系统，壁垒极高。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">3. 高昂的患者与医师转换成本 (评分: 9.0/10)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        内分泌科医师与糖尿病教育专员（CDE）培训体系高度习惯 Omnipod 操作流程；患者云端数据（Glooko / Insulet Cloud）沉淀多年，改用有管泵需要忍受衣物拖拽与插针痛苦，净流失率低于 2%。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">4. 规模经济与自动化降本 (评分: 9.0/10)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        马萨诸塞州 Acton 自动化工厂与马来西亚柔佛州（Johor Bahru）超级制造基地全面达产，单枚 Pod 制造成本持续下降，毛利率维持在 71% 以上，较中小竞争者具备压倒性成本优势。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 4: 4年历史财务报表与成长性拆解 -->
+        <section id="sec-4" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📊 模块 4：4 年历史三大财务报表与成长性拆解 (2022-2025/TTM)</div>
+                <span class="sec-tag">Financial Statements</span>
+            </div>
+            <div class="prose-text">
+                Insulet 过去 4 年展现了教科书级的<strong>“高成长向高盈利兑现”</strong>跨越。营收从 2022 年的 13.05 亿美元跃升至 2025 年的 27.08 亿美元（CAGR 27.5%），TTM 营收更突破 30.5 亿美元；营业利润由 3,760 万美元暴增至 4.74 亿美元，营运杠杆全面爆发。
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (百万美元)</th>
+                        <th>FY2022</th>
+                        <th>FY2023</th>
+                        <th>FY2024</th>
+                        <th>FY2025</th>
+                        <th>TTM (2026 Q2)</th>
+                        <th>4年 CAGR / 趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Revenue)</strong></td>
+                        <td>$1,305.3</td>
+                        <td>$1,697.1</td>
+                        <td>$2,071.6</td>
+                        <td>$2,708.1</td>
+                        <td><strong>$3,053.4</strong></td>
+                        <td><span class="tag-pill tag-green">+27.5% CAGR</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td>$805.6</td>
+                        <td>$1,159.9</td>
+                        <td>$1,445.7</td>
+                        <td>$1,939.9</td>
+                        <td><strong>$2,170.2</strong></td>
+                        <td><span class="tag-pill tag-green">毛利率: 71.1%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>研发费用 (R&D Expense)</strong></td>
+                        <td>$180.2</td>
+                        <td>$205.0</td>
+                        <td>$219.6</td>
+                        <td>$301.1</td>
+                        <td><strong>$320.5</strong></td>
+                        <td><span class="tag-pill tag-blue">研发强度: ~11%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>销售与管理费用 (SG&A)</strong></td>
+                        <td>$587.8</td>
+                        <td>$734.8</td>
+                        <td>$917.2</td>
+                        <td>$1,165.0</td>
+                        <td><strong>$1,333.8</strong></td>
+                        <td>费率持续优化降至 43%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td>$37.6</td>
+                        <td>$220.1</td>
+                        <td>$308.9</td>
+                        <td>$473.8</td>
+                        <td><strong>$515.9</strong></td>
+                        <td><span class="tag-pill tag-green">利润率从 2.9% -> 16.9%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td>$4.6</td>
+                        <td>$206.3</td>
+                        <td>$418.3</td>
+                        <td>$247.1</td>
+                        <td><strong>$375.3</strong></td>
+                        <td>盈利规模跃上数亿台阶</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营现金流 (OCF)</strong></td>
+                        <td>$119.0</td>
+                        <td>$145.7</td>
+                        <td>$430.2</td>
+                        <td>$569.3</td>
+                        <td><strong>$511.2</strong></td>
+                        <td><span class="tag-pill tag-green">4年激增近 4 倍</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (FCF)</strong></td>
+                        <td>-$38.3</td>
+                        <td>$36.5</td>
+                        <td>$296.2</td>
+                        <td>$349.9</td>
+                        <td><strong>$236.9</strong></td>
+                        <td>由负转正，年产生数亿真金白银</td>
+                    </tr>
+                    <tr>
+                        <td><strong>现金及等价物 (Cash & Equiv)</strong></td>
+                        <td>$674.2</td>
+                        <td>$704.2</td>
+                        <td>$953.3</td>
+                        <td>$716.1</td>
+                        <td><strong>$534.9</strong></td>
+                        <td>大量用于偿还高息债务</td>
+                    </tr>
+                    <tr>
+                        <td><strong>长期总负债 (Total Debt)</strong></td>
+                        <td>$1,401.8</td>
+                        <td>$1,415.8</td>
+                        <td>$1,379.9</td>
+                        <td>$949.2</td>
+                        <td><strong>$948.4</strong></td>
+                        <td><span class="tag-pill tag-green">负债压降超 4.5 亿美元</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- CHART 1: HISTORICAL FINANCIALS -->
+            <div class="chart-box">
+                <canvas id="chartFinancials"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 5: 杜邦分析与资本回报率 -->
+        <section id="sec-5" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📈 模块 5：杜邦分析与资本回报效率 (DuPont ROE Decomposition)</div>
+                <span class="sec-tag">DuPont Analysis</span>
+            </div>
+            <div class="prose-text">
+                通过三因素杜邦拆解（净利润率 × 资产周转率 × 权益乘数）可以清晰看到，Insulet 的 ROE 从 2022 年的 0.97% 飙升至 2024 年的 34.52%，并在 2025 年维持在 16.31% 的高位。更重要的是，<strong>杠杆乘数从 4.73x 大幅下降至 2.11x</strong>，说明公司的回报率提升完全来自于<strong>“核心利润率扩张”与“资产运营周转效率提升”</strong>，而非靠借债加杠杆驱动，含金量极高！
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>年份</th>
+                        <th>净利润率 (Net Margin)</th>
+                        <th>× 资产周转率 (Asset Turnover)</th>
+                        <th>× 权益乘数 (Equity Multiplier)</th>
+                        <th>= 净资产收益率 (ROE)</th>
+                        <th>ROIC (投入资本回报率)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2022</strong></td>
+                        <td>0.35%</td>
+                        <td>0.580 次</td>
+                        <td>4.73x</td>
+                        <td><strong>0.97%</strong></td>
+                        <td>~2.1%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td>12.16%</td>
+                        <td>0.656 次</td>
+                        <td>3.53x</td>
+                        <td><strong>28.16%</strong></td>
+                        <td>~12.8%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td>20.19%</td>
+                        <td>0.671 次</td>
+                        <td>2.55x</td>
+                        <td><strong>34.52%</strong></td>
+                        <td>~18.5%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025</strong></td>
+                        <td>9.12%</td>
+                        <td>0.849 次</td>
+                        <td>2.11x</td>
+                        <td><strong>16.31%</strong></td>
+                        <td>~19.2%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- CHART 2: DUPONT BREAKDOWN -->
+            <div class="chart-box">
+                <canvas id="chartDupont"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 6: 会计质地、Sloan 应计比率与 Beneish M-Score -->
+        <section id="sec-6" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🔍 模块 6：会计质地检验、Sloan 应计比率与 Beneish M-Score 反欺诈模型</div>
+                <span class="sec-tag">Forensic Accounting</span>
+            </div>
+            <div class="prose-text">
+                为了严格防范中概或医药行业常见的财务包装与应计造假陷阱，我们对 Insulet 运行了全套法务会计（Forensic Accounting）量化检验：
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">Sloan Accrual 应计比率</div>
+                    <div class="info-card-val" style="color: #059669;">-10.10%</div>
+                    <div class="info-card-desc"><strong>安全评级：极优 (Gold Standard)</strong><br>经营现金流 ($569.3M) 大幅超出账面净利润 ($247.1M)，应计比率处于负值区间，表明利润全由真实现金支撑，毫无激进收入确认。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Beneish M-Score 反造假模型</div>
+                    <div class="info-card-val" style="color: #059669;">-2.155</div>
+                    <div class="info-card-desc"><strong>安全评级：零造假风险 (Pass)</strong><br>远低于做空警戒线 -1.78。应收账款指数(DSRI 1.10)、毛利指数(GMI 0.97)、资产质量指数(AQI 1.00)均处完全健康区间。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Piotroski F-Score 评分</div>
+                    <div class="info-card-val" style="color: #059669;">7 / 9 分</div>
+                    <div class="info-card-desc"><strong>安全评级：堡垒级健康度</strong><br>净利与现金流为正(+2)、现金流覆盖净利(+1)、债务结构优化(+1)、毛利率扩张(+1)、周转率提升(+1)、无稀释融资(+1)。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 7: 相对估值与同行对标 -->
+        <section id="sec-7" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏷️ 模块 7：相对估值倍数与可比同行对标 (Peer Valuation Benchmarking)</div>
+                <span class="sec-tag">Relative Valuation</span>
+            </div>
+            <div class="prose-text">
+                在医疗器械与糖尿病数字医疗板块中，Insulet 的收入复合增速（+23.5%）与毛利率（71.1%）处于行业绝对领先梯队，但由于 GLP-1 市场恐慌，其估值倍数被压缩至同行最具性价比水平：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>公司名称 (Ticker)</th>
+                        <th>主营业务与定位</th>
+                        <th>Forward P/E</th>
+                        <th>EV / EBITDA</th>
+                        <th>P/S (TTM)</th>
+                        <th>营收增速 (YoY)</th>
+                        <th>毛利率 (GM)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>Insulet (PODD)</strong></td>
+                        <td>贴片式无导管胰岛素泵龙头</td>
+                        <td><strong>18.60x</strong></td>
+                        <td><strong>16.84x</strong></td>
+                        <td><strong>3.26x</strong></td>
+                        <td><strong>+23.5%</strong></td>
+                        <td><strong>71.08%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dexcom (DXCM)</strong></td>
+                        <td>连续血糖监测仪 (CGM) 巨头</td>
+                        <td>28.50x</td>
+                        <td>21.20x</td>
+                        <td>5.40x</td>
+                        <td>+14.2%</td>
+                        <td>63.50%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tandem Diabetes (TNDM)</strong></td>
+                        <td>传统有导管胰岛素泵 (Control-IQ)</td>
+                        <td>38.20x</td>
+                        <td>26.40x</td>
+                        <td>2.85x</td>
+                        <td>+11.8%</td>
+                        <td>51.20%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Abbott Labs (ABT)</strong></td>
+                        <td>多元化医疗 / FreeStyle Libre CGM</td>
+                        <td>22.40x</td>
+                        <td>16.50x</td>
+                        <td>4.30x</td>
+                        <td>+6.8%</td>
+                        <td>55.80%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Medtronic (MDT)</strong></td>
+                        <td>综合医疗器械龙头 / MiniMed 泵</td>
+                        <td>15.20x</td>
+                        <td>13.10x</td>
+                        <td>3.40x</td>
+                        <td>+4.5%</td>
+                        <td>65.40%</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout-box">
+                💡 <strong>估值对标结论</strong>：PODD 历史上常年享有 45x - 60x 的 Forward P/E 溢价。目前 18.6x 的 Forward P/E 处于过去 5 年历史最低分位（0% 分位），而其营收增速是行业均值的 2-3 倍，PEG 仅 1.44，存在强烈的多重估值修复（Multiple Expansion）空间。
+            </div>
+        </section>
+
+        <!-- MODULE 8: DCF 估值模型与 6x5 敏感性矩阵 -->
+        <section id="sec-8" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🧮 模块 8：DCF 三情景估值模型与 WACC 6×5 敏感性矩阵</div>
+                <span class="sec-tag">DCF Valuation</span>
+            </div>
+            <div class="prose-text">
+                基于未来 5 年自由现金流预测，设定基准无风险利率 4.25%、Beta 1.10、股权风险溢价 5.0%、债务成本 5.5%，计算得到加权平均资本成本 <strong>WACC = 8.5%</strong>，永续增长率 <strong>g = 3.0%</strong>，净负债 $413.5M，总股本 6,935 万股：
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card" style="border-top: 3px solid #10B981;">
+                    <div class="info-card-title">🟢 牛市情景 (Bull Case - 30% 概率)</div>
+                    <div class="info-card-val" style="color: #059669;">$234.15</div>
+                    <div class="info-card-desc"><strong>潜在上涨: +63.3%</strong><br>Omnipod 5 在 2 型糖尿病渗透加速，国际收入年增 30%+，FCF 达 9 亿美元，WACC 8.0%，g 3.5%。</div>
+                </div>
+                <div class="info-card" style="border-top: 3px solid #0284C7;">
+                    <div class="info-card-title">🔵 基准情景 (Base Case - 50% 概率)</div>
+                    <div class="info-card-val" style="color: #0284C7;">$158.55</div>
+                    <div class="info-card-desc"><strong>潜在上涨: +10.6%</strong><br>营收复合增长 16-18%，FCF 稳步增至 7.4 亿美元，毛利率维持 71%，WACC 8.5%，g 3.0%。</div>
+                </div>
+                <div class="info-card" style="border-top: 3px solid #DC2626;">
+                    <div class="info-card-title">🔴 熊市情景 (Bear Case - 20% 概率)</div>
+                    <div class="info-card-val" style="color: #DC2626;">$78.58</div>
+                    <div class="info-card-desc"><strong>潜在下行: -45.2%</strong><br>Abbott 贴片泵提早上市导致价格战，GLP-1 延缓 T2D 胰岛素治疗，FCF 停滞在 4.9 亿，WACC 9.5%，g 2.0%。</div>
+                </div>
+            </div>
+
+            <div class="prose-text" style="margin-top: 14px;"><strong>WACC × 永续增长率 6×5 估值敏感性矩阵 (每股内在价值 $/股)：</strong></div>
+            <table class="matrix-table">
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th>2.0%</th>
+                        <th>2.5%</th>
+                        <th>3.0% (基准)</th>
+                        <th>3.5%</th>
+                        <th>4.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>7.5%</strong></td>
+                        <td class="cell-green-light">$164.43</td>
+                        <td class="cell-green-light">$178.96</td>
+                        <td class="cell-green-deep">$196.71</td>
+                        <td class="cell-green-deep">$218.90</td>
+                        <td class="cell-green-deep">$247.44</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8.0%</strong></td>
+                        <td class="cell-yellow">$149.57</td>
+                        <td class="cell-green-light">$161.46</td>
+                        <td class="cell-green-light">$175.72</td>
+                        <td class="cell-green-deep">$193.15</td>
+                        <td class="cell-green-deep">$214.93</td>
+                    </tr>
+                    <tr style="border: 2px solid #059669;">
+                        <td><strong>8.5% (基准)</strong></td>
+                        <td class="cell-yellow">$137.02</td>
+                        <td class="cell-yellow">$146.89</td>
+                        <td class="cell-green-light" style="font-weight: 800;">$158.55 (Base)</td>
+                        <td class="cell-green-light">$172.55</td>
+                        <td class="cell-green-deep">$189.66</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9.0%</strong></td>
+                        <td class="cell-red-light">$126.26</td>
+                        <td class="cell-yellow">$134.57</td>
+                        <td class="cell-yellow">$144.26</td>
+                        <td class="cell-green-light">$155.71</td>
+                        <td class="cell-green-light">$169.45</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9.5%</strong></td>
+                        <td class="cell-red-light">$116.95</td>
+                        <td class="cell-red-light">$124.02</td>
+                        <td class="cell-yellow">$132.17</td>
+                        <td class="cell-yellow">$141.69</td>
+                        <td class="cell-green-light">$152.93</td>
+                    </tr>
+                    <tr>
+                        <td><strong>10.0%</strong></td>
+                        <td class="cell-red-deep">$108.81</td>
+                        <td class="cell-red-light">$114.88</td>
+                        <td class="cell-red-light">$121.82</td>
+                        <td class="cell-yellow">$129.83</td>
+                        <td class="cell-yellow">$139.17</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- CHART 3: DCF SENSITIVITY CHART -->
+            <div class="chart-box">
+                <canvas id="chartDcf"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 9: 研发资本化与无形资产溢价桥接 -->
+        <section id="sec-9" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🔬 模块 9：研发资本化 (Damodaran Framework) 与无形资产价值桥</div>
+                <span class="sec-tag">R&D Capitalization</span>
+            </div>
+            <div class="prose-text">
+                医疗器械行业 GAAP 会计将高额研发直接费用化，严重低估了高科技医疗龙头的真实经济资产与盈利能力。按照纽约大学 Aswath Damodaran 教授框架，将 Insulet 过去 5 年累计超 11 亿美元的研发投入按 5 年直线折旧资本化为<strong>“技术无形资产（R&D Intangible Asset）”</strong>：
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">调整后无形资产价值</div>
+                    <div class="info-card-val" style="color: #0284C7;">+$685.2M</div>
+                    <div class="info-card-desc">将 Omnipod 5 专有算法、微型泵机构及 CGM 通信协议研发资产化，大幅增厚账面净资产。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">真实调整后营业利润</div>
+                    <div class="info-card-val" style="color: #059669;">$558.4M</div>
+                    <div class="info-card-desc">加回研发费用并扣除摊销后，真实核心营业利润率提升至 <strong>20.6%</strong>，ROIC 跃升至 <strong>22.4%</strong>。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">研发资本化内在公允价</div>
+                    <div class="info-card-val" style="color: #10B981;">$192.50 / 股</div>
+                    <div class="info-card-desc">相较当前市价 $143.41 存在 <strong>+34.2%</strong> 的内在安全边际空间，技术垄断溢价极其显著。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 10: 聪明钱与机构持仓 -->
+        <section id="sec-10" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏛️ 模块 10：机构 13F 持仓与高管治理 (Smart Money & Insider Signals)</div>
+                <span class="sec-tag">13F & Insiders</span>
+            </div>
+            <div class="prose-text">
+                • <strong>机构持股比例高达 107.0%</strong>（含做空借券再持股），Vanguard、BlackRock、Capital Group、T. Rowe Price 等全球顶级长线主权与公募基金深度重仓。<br>
+                • <strong>空头平仓回补（Short Covering）动能充沛</strong>：最新空头仓位为 369.6 万股（占流通盘 6.02%），较上月的 464.5 万股大幅减少近 100 万股（-20.4%），空头回补天数（Days-to-Cover）仅 2.2 天，做空动能已近衰竭。<br>
+                • <strong>强力新掌舵人就任</strong>：强生（Johnson & Johnson）前全球医疗科技（MedTech）执行副总裁兼全球主席 <strong>Ashley McEvoy</strong> 出任 Insulet 总裁兼 CEO。Ashley 曾统领 J&J 500 亿美金级全球医疗业务，其加盟彰显了对 Insulet 国际化与 T2D 万亿赛道的绝对雄心。
+            </div>
+        </section>
+
+        <!-- MODULE 11: 电话会原话拆解与前瞻指引 -->
+        <section id="sec-11" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🎙️ 模块 11：最新财报电话会高管原话拆解与指引更新 (Earnings Call Deep Dive)</div>
+                <span class="sec-tag">Management Quotes</span>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">🗣️ CEO Ashley McEvoy 关于 2 型糖尿病与 GLP-1 共存</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        <em>"Our real-world clinical data continues to demonstrate that Omnipod 5 delivers unprecedented HbA1c reduction for Type 2 patients. Furthermore, patients on GLP-1 who also require basal-bolus insulin are adopting Omnipod 5 at an accelerated rate — GLP-1 is expanding awareness of diabetes management rather than shrinking our addressable market."</em><br>
+                        <strong>【解读】</strong>：真实世界临床数据显示，GLP-1 提高了患者对血糖达标的重视度，许多 2 型患者在接受 GLP-1 治疗同时依然需要胰岛素，二者呈良性互补协同。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">🗣️ CFO Flavia Pease 关于全财年指引与毛利率</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        <em>"We are pleased to raise our full-year 2026 revenue guidance to 21% - 24% constant currency growth. Gross margin expansion remains on track toward 71.5% as our Johor Bahru facility reaches optimal automation efficiency, generating robust operating cash flows."</em><br>
+                        <strong>【解读】</strong>：管理层再次上调 2026 全年营收增速指引至 21%-24%，马来西亚工厂自动化效率带动毛利率冲击 71.5%，业绩确定性强。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 12: 做空红队与黑天鹅压力测试 -->
+        <section id="sec-12" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🛡️ 模块 12：做空红队（Red Team）反向思维与黑天鹅压力测试</div>
+                <span class="sec-tag">Bear Case Stress Test</span>
+            </div>
+            <div class="prose-text">
+                为了坚守反向思考与投资受托责任，我们设立独立的做空红队，对 Insulet 潜在的三大致命杀手级风险进行极限压力测试：
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card" style="border-left: 3px solid #DC2626;">
+                    <div class="info-card-title">1. 雅培 (Abbott) / 罗氏贴片泵竞争</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        <strong>风险暴露</strong>：雅培此前与 Bigfoot / Tandem 合作研发贴片泵。<br>
+                        <strong>压力测试结论</strong>：贴片泵量产涉及极复杂的精密微流体工程，即便竞品在 2027 年后获批，Insulet 的药房医保排他准入、专利壁垒与 85%+ 患者高留存率将提供至少 3-5 年舒适缓冲期。
+                    </div>
+                </div>
+                <div class="info-card" style="border-left: 3px solid #DC2626;">
+                    <div class="info-card-title">2. GLP-1 口服小分子与双重激动剂</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        <strong>风险暴露</strong>：礼来 Orforglipron 等口服药可能进一步推迟部分轻度 T2D 胰岛素注射时间。<br>
+                        <strong>压力测试结论</strong>：T1D 患者胰岛 β 细胞完全坏死，对胰岛素有终身刚性需求；且全美有超过 250 万胰岛素依赖型 T2D 患者即使使用 GLP-1 仍无法分泌足够胰岛素，核心基本盘坚如磐石。
+                    </div>
+                </div>
+                <div class="info-card" style="border-left: 3px solid #D97706;">
+                    <div class="info-card-title">3. 国际医保降价与汇率波动</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        <strong>风险暴露</strong>：欧洲各国单议机制可能对耗材施加降价压力。<br>
+                        <strong>压力测试结论</strong>：Insulet 欧洲定价采用捆绑打包策略，且马来西亚低成本工厂投产有效稀释了海外毛利率压力。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 13: 技术面与逆向黄金坑时机 -->
+        <section id="sec-13" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📉 模块 13：技术分析、均线偏离与质量调制逆向黄金坑 (Contrarian Golden Pit)</div>
+                <span class="sec-tag">Technical Setup</span>
+            </div>
+            <div class="prose-text">
+                根据 InvestSkill <strong>质量调制机制（Quality-Conditioned Regime Engine）</strong>：Insulet 商业质量评级 9.2 分、财务健康度 9.0 分，属于最高等级的<strong>“宽护城河堡垒级资产”</strong>。在此体制下，技术面的深度超卖与 200 日均线负偏离绝非“下跌飞刀”，而是千载难逢的<strong>“左侧逆向黄金坑（Prime Contrarian Golden Pit）”</strong>！
+            </div>
+            <div class="data-grid-4">
+                <div class="info-card">
+                    <div class="info-card-title">200 日线偏离度 (Dev200)</div>
+                    <div class="info-card-val" style="color: #059669;">-33.50%</div>
+                    <div class="info-card-desc">200 SMA: $215.64<br>处于严重负偏离价值底部</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">52 周相对位置 (RP)</div>
+                    <div class="info-card-val" style="color: #059669;">0.074 (7.4%)</div>
+                    <div class="info-card-desc">距 52W 低点 $126.4 仅一步之遥，下行空间已被充分夯实</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">RSI (14) 强弱指标</div>
+                    <div class="info-card-val" style="color: #0284C7;">53.18</div>
+                    <div class="info-card-desc">从 30 极度超卖区走出底部抬升，日线级别底背离确立</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">MACD 动能</div>
+                    <div class="info-card-val" style="color: #0284C7;">-3.41 (绿柱缩窄)</div>
+                    <div class="info-card-desc">DIFF 与 DEA 在零轴下方即将金叉，右侧动能蓄势待发</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 14: 期权持仓、Max Pain 引力与波动率分析 -->
+        <section id="sec-14" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🎯 模块 14：期权持仓分布、Max Pain 引力与 IVP 波动率特征</div>
+                <span class="sec-tag">Options Analytics</span>
+            </div>
+            <div class="prose-text">
+                通过提取全市场期权持仓分布（Open Interest）与隐含波动率（Implied Volatility）：
+                • <strong>Max Pain（最大痛点）向上引力强劲</strong>：2026-09-18 到期合约 Max Pain 为 <strong>$145.00</strong>，2026-10-16 到期 Max Pain 为 <strong>$145.00</strong>，2026-12-18 到期 Max Pain 为 <strong>$150.00</strong>！现价 $143.41 紧贴最大痛点下方，做市商具有强烈的向上拉抬与行权收敛动力。<br>
+                • <strong>隐含波动率与认沽认购比</strong>：当前 30-60 天 IV 维持在 <strong>43% - 49%</strong>，处于年化极佳水平，提供了极为丰厚的 Theta 时间价值与安全垫。Put/Call Ratio (OI) 为 0.86 - 0.98，市场情绪中性偏多。
+            </div>
+
+            <!-- CHART 4: OPTIONS OPEN INTEREST & MAX PAIN -->
+            <div class="chart-box">
+                <canvas id="chartOptions"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 15: 期权实操方案与决策信号 -->
+        <section id="sec-15" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">💎 模块 15：Sell Put (CSP) 三梯队实操方案与综合决策矩阵</div>
+                <span class="sec-tag">Actionable Strategy</span>
+            </div>
+            <div class="prose-text">
+                基于当前极具吸引力的期权隐含波动率与 52 周底部支撑，针对不同风险偏好的投资者定制 3 梯队 Cash-Secured Put (CSP) 策略：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>策略梯队</th>
+                        <th>推荐合约代码</th>
+                        <th>到期日 (DTE)</th>
+                        <th>行权价 (Strike)</th>
+                        <th>权利金 (Bid / Mark)</th>
+                        <th>安全垫 (Cushion)</th>
+                        <th>净持仓成本 (Net Basis)</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>战术定位与行权应对</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tag-pill tag-green">🛡️ 保守型 (Conservative)</span></td>
+                        <td><strong>PODD 261016 P130.00</strong></td>
+                        <td>2026-10-16 (50天)</td>
+                        <td>$130.00</td>
+                        <td>$2.45 / <strong>$3.02</strong></td>
+                        <td><strong>+9.35%</strong></td>
+                        <td><strong>$126.98</strong> (逼近52W历史低点)</td>
+                        <td><strong>~17.0%</strong></td>
+                        <td>极度安全防御，若被行权即以历史绝对铁底抄底拥有全球垄断医疗资产。</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; border: 2px solid #10B981;">
+                        <td><span class="tag-pill tag-green">⚖️ 平衡型 (Balanced - 推荐)</span></td>
+                        <td><strong>PODD 260918 P135.00</strong></td>
+                        <td>2026-09-18 (22天)</td>
+                        <td>$135.00</td>
+                        <td>$1.80 / <strong>$2.05</strong></td>
+                        <td><strong>+5.86%</strong></td>
+                        <td><strong>$132.95</strong></td>
+                        <td><strong>~25.2%</strong></td>
+                        <td>收益与安全极佳平衡，22天快速收割时间价值，年化超 25% 稳健落袋。</td>
+                    </tr>
+                    <tr style="background: #FFFBEB;">
+                        <td><span class="tag-pill tag-amber">🔥 激进型 (Aggressive)</span></td>
+                        <td><strong>PODD 260918 P140.00</strong></td>
+                        <td>2026-09-18 (22天)</td>
+                        <td>$140.00</td>
+                        <td>$3.70 / <strong>$4.15</strong></td>
+                        <td><strong>+2.38%</strong></td>
+                        <td><strong>$135.85</strong></td>
+                        <td><strong>~48.7%</strong></td>
+                        <td>博取近 50% 暴利年化，或平价接盘直接开展 Covered Call 轮动轮动策略 (Wheel)。</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- COMPOSITE SCORECARD -->
+            <div style="margin-top: 24px;">
+                <div class="prose-text"><strong>InvestSkill 综合评分卡 (Composite Scorecard - 100% 满血版)：</strong></div>
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>评估维度</th>
+                            <th>权重</th>
+                            <th>得分 (0-10)</th>
+                            <th>加权得分</th>
+                            <th>核心评估依据</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1. 商业模式与护城河壁垒</td>
+                            <td>25%</td>
+                            <td><strong>9.2</strong></td>
+                            <td>2.30</td>
+                            <td>无导管贴片泵全球绝对垄断，药房渠道 90%+ 经常性耗材模式</td>
+                        </tr>
+                        <tr>
+                            <td>2. 估值水平与安全边际</td>
+                            <td>25%</td>
+                            <td><strong>8.8</strong></td>
+                            <td>2.20</td>
+                            <td>Forward P/E 18.6x 创 5 年新低，DCF 较现价低估 10%-63%，RP 0.07</td>
+                        </tr>
+                        <tr>
+                            <td>3. 自由现金流与财务健康度</td>
+                            <td>20%</td>
+                            <td><strong>9.0</strong></td>
+                            <td>1.80</td>
+                            <td>FCF $3.5 亿+，Sloan 应计比率 -10.1%，Piotroski 7分，债务快速压降</td>
+                        </tr>
+                        <tr>
+                            <td>4. 期权 Alpha 与权利金收益</td>
+                            <td>15%</td>
+                            <td><strong>8.5</strong></td>
+                            <td>1.28</td>
+                            <td>IV ~45% 提供极佳期权溢价，Max Pain $145-$150 向上强引力</td>
+                        </tr>
+                        <tr>
+                            <td>5. 聪明钱与机构信号</td>
+                            <td>10%</td>
+                            <td><strong>7.5</strong></td>
+                            <td>0.75</td>
+                            <td>机构持股 >100%，强生前全球医疗副总裁出任 CEO，做空大幅回补</td>
+                        </tr>
+                        <tr>
+                            <td>6. 逆向价值时机 (Golden Pit)</td>
+                            <td>5%</td>
+                            <td><strong>9.2</strong></td>
+                            <td>0.46</td>
+                            <td>堡垒资产回踩 200 日线 -33.5%，绝佳左侧逆向黄金坑</td>
+                        </tr>
+                        <tr style="background: #ECFDF5; font-weight: 800; font-size: 14px;">
+                            <td><strong>综合总评 (COMPOSITE SCORE)</strong></td>
+                            <td><strong>100%</strong></td>
+                            <td><strong style="color: #059669; font-size: 18px;">8.8 / 10</strong></td>
+                            <td><strong style="color: #059669; font-size: 18px;">8.79</strong></td>
+                            <td><span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- STANDARDIZED SIGNAL BLOCK -->
+            <div style="background: #0F172A; color: #fff; border-radius: 10px; padding: 18px 22px; margin-top: 24px; font-family: 'JetBrains Mono', monospace; font-size: 13px;">
+                <div style="color: #10B981; font-weight: 700; margin-bottom: 8px;">╔══════════════════════════════════════════════╗</div>
+                <div style="color: #10B981; font-weight: 700; margin-bottom: 8px;">║              INVESTMENT SIGNAL               ║</div>
+                <div style="color: #10B981; font-weight: 700; margin-bottom: 8px;">╠══════════════════════════════════════════════╣</div>
+                <div>║ Signal:      <span style="color: #10B981; font-weight: 800;">BULLISH (强烈看多)</span>              ║</div>
+                <div>║ Confidence:  <span style="color: #10B981; font-weight: 800;">HIGH (高确定性)</span>                 ║</div>
+                <div>║ Horizon:     <span style="color: #38BDF8; font-weight: 800;">MEDIUM TO LONG-TERM (6-24个月)</span>  ║</div>
+                <div>║ Score:       <span style="color: #10B981; font-weight: 800;">8.8 / 10.0</span>                      ║</div>
+                <div style="color: #10B981; font-weight: 700; margin: 8px 0;">╠══════════════════════════════════════════════╣</div>
+                <div>║ Action:      <span style="color: #10B981; font-weight: 800;">BUY / SELL PUT (建仓/收割权利金)</span>║</div>
+                <div>║ Conviction:  <span style="color: #10B981; font-weight: 800;">STRONG (强信念)</span>                 ║</div>
+                <div style="color: #10B981; font-weight: 700; margin-top: 8px;">╚══════════════════════════════════════════════╝</div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- CHART.JS SCRIPTS -->
+    <script>
+        // 1. Chart Financials (Revenue & Net Income)
+        const ctxFin = document.getElementById('chartFinancials').getContext('2d');
+        new Chart(ctxFin, {
+            type: 'bar',
+            data: {
+                labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'TTM (2026 Q2)'],
+                datasets: [
+                    {
+                        label: '营业收入 (Revenue $M)',
+                        data: [1305.3, 1697.1, 2071.6, 2708.1, 3053.4],
+                        backgroundColor: 'rgba(5, 150, 105, 0.75)',
+                        borderColor: '#059669',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '营业利润 (Operating Income $M)',
+                        data: [37.6, 220.1, 308.9, 473.8, 515.9],
+                        backgroundColor: 'rgba(2, 132, 199, 0.85)',
+                        borderColor: '#0284C7',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '自由现金流 (FCF $M)',
+                        data: [-38.3, 36.5, 296.2, 349.9, 236.9],
+                        type: 'line',
+                        borderColor: '#D97706',
+                        backgroundColor: '#D97706',
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        fill: false,
+                        yAxisID: 'y'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Insulet 历史营收、营业利润与自由现金流趋势 ($M)', font: { size: 14, weight: 'bold' } },
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: false, title: { display: true, text: '百万美元 ($M)' } }
+                }
+            }
+        });
+
+        // 2. Chart DuPont Breakdown
+        const ctxDupont = document.getElementById('chartDupont').getContext('2d');
+        new Chart(ctxDupont, {
+            type: 'line',
+            data: {
+                labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025'],
+                datasets: [
+                    {
+                        label: 'ROE (%)',
+                        data: [0.97, 28.16, 34.52, 16.31],
+                        borderColor: '#059669',
+                        backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        fill: true,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '净利润率 Net Margin (%)',
+                        data: [0.35, 12.16, 20.19, 9.12],
+                        borderColor: '#0284C7',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '权益乘数 Equity Multiplier (x)',
+                        data: [4.73, 3.53, 2.55, 2.11],
+                        borderColor: '#DC2626',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: '杜邦分析核心指标演变 (去杠杆与高质量 ROE 扩张)', font: { size: 14, weight: 'bold' } }
+                },
+                scales: {
+                    y: { position: 'left', title: { display: true, text: '百分比 (%)' } },
+                    y1: { position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: '乘数 (x)' } }
+                }
+            }
+        });
+
+        // 3. Chart DCF Sensitivity
+        const ctxDcf = document.getElementById('chartDcf').getContext('2d');
+        new Chart(ctxDcf, {
+            type: 'bar',
+            data: {
+                labels: ['WACC 7.5%', 'WACC 8.0%', 'WACC 8.5% (基准)', 'WACC 9.0%', 'WACC 9.5%', 'WACC 10.0%'],
+                datasets: [
+                    {
+                        label: 'g = 2.0% (悲观增长)',
+                        data: [164.43, 149.57, 137.02, 126.26, 116.95, 108.81],
+                        backgroundColor: '#94A3B8'
+                    },
+                    {
+                        label: 'g = 3.0% (基准增长)',
+                        data: [196.71, 175.72, 158.55, 144.26, 132.17, 121.82],
+                        backgroundColor: '#059669'
+                    },
+                    {
+                        label: 'g = 4.0% (乐观增长)',
+                        data: [247.44, 214.93, 189.66, 169.45, 152.93, 139.17],
+                        backgroundColor: '#10B981'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'DCF 内在价值敏感性矩阵 ($/股 vs 现价 $143.41)', font: { size: 14, weight: 'bold' } },
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: { title: { display: true, text: '每股内在价值 ($)' } }
+                }
+            }
+        });
+
+        // 4. Chart Options Open Interest
+        const ctxOpt = document.getElementById('chartOptions').getContext('2d');
+        new Chart(ctxOpt, {
+            type: 'bar',
+            data: {
+                labels: ['$115', '$120', '$125', '$130', '$135', '$140', '$145 (Max Pain)', '$150', '$155'],
+                datasets: [
+                    {
+                        label: 'Put Open Interest (看跌持仓)',
+                        data: [76, 89, 239, 371, 161, 258, 158, 58, 36],
+                        backgroundColor: 'rgba(220, 38, 38, 0.75)',
+                        borderColor: '#DC2626',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Call Open Interest (看涨持仓)',
+                        data: [12, 25, 45, 110, 280, 490, 580, 210, 95],
+                        backgroundColor: 'rgba(5, 150, 105, 0.75)',
+                        borderColor: '#059669',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: '期权行权价持仓分布与 Max Pain ($145) 引力', font: { size: 14, weight: 'bold' } },
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    x: { stacked: false },
+                    y: { title: { display: true, text: '未平仓合约张数 (Contracts)' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
