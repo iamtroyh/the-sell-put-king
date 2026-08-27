@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>The Kroger Co. (KR) 深度投研与期权策略报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #1E40AF;
+            --primary-dark:  #1E3A8A;
+            --primary-light: #EFF6FF;
+            --accent:        #3B82F6;
+            --accent-light:  #DBEAFE;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #172554 0%, #1E40AF 50%, #3B82F6 100%);
+            --grad-accent:   linear-gradient(90deg, #1E40AF, #3B82F6);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #BFDBFE; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(30,64,175,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #166534; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-amber { background: #FEF3C7; color: #92400E; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+
+        .prose-text { font-size: 13.5px; line-height: 1.7; color: #334155; margin-bottom: 12px; }
+        .prose-text strong { color: var(--text-primary); }
+        .prose-list { padding-left: 18px; margin-bottom: 14px; }
+        .prose-list li { font-size: 13px; color: #334155; margin-bottom: 6px; line-height: 1.5; }
+
+        .chart-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+            height: 320px;
+            position: relative;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-top: 10px;
+        }
+        .table-custom th {
+            background: #F1F5F9;
+            color: #475569;
+            font-weight: 700;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+        .table-custom td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: #1E293B;
+        }
+        .table-custom tr:hover { background: #F8FAFC; }
+
+        .callout-box {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+
+        .verdict-banner {
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            border: 1.5px solid #1E40AF;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .verdict-left { max-width: 800px; }
+        .verdict-title { font-size: 20px; font-weight: 800; color: #1E3A8A; margin-bottom: 6px; }
+        .verdict-desc { font-size: 13.5px; color: #1D4ED8; line-height: 1.5; }
+        .verdict-score-badge {
+            background: #1E40AF;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(30,64,175,.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO HEADER -->
+    <header class="report-hero">
+        <div class="hero-inner">
+            <div class="hero-badge-row">
+                <span class="badge badge-hero-stock">NYSE: KR</span>
+                <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+                <span class="badge badge-hero-score">综合评分: 9.1 / 10</span>
+                <span class="badge badge-hero-stock">报告日期: 2026-08-27</span>
+            </div>
+            <h1 class="hero-title">The Kroger Co. (KR) 深度投研与期权策略报告</h1>
+            <p class="hero-sub">全美最大必需消费品连锁超市巨头，年化自由现金流逼近 30 亿美元。Forward P/E 仅 10.3x 处于历史估值地板，反垄断并购诉讼提供非对称波动率溢价，单张合约仅需 $5,000 抵押金，极佳的轻量级防御收租压舱石。</p>
+
+            <div class="hero-kpis">
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                    <div class="hero-kpi-val">$57.21</div>
+                    <div class="hero-kpi-sub">较 200SMA 偏离: -8.32%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Forward P/E</div>
+                    <div class="hero-kpi-val">10.32x</div>
+                    <div class="hero-kpi-sub">PEG: 0.57 (绝对估值底)</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">年度自由现金流 (FCF)</div>
+                    <div class="hero-kpi-val">$2.99B</div>
+                    <div class="hero-kpi-sub">OCF: $6.94B (强劲造血)</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">分析师平均目标价</div>
+                    <div class="hero-kpi-val">$70.50</div>
+                    <div class="hero-kpi-sub">潜在上涨空间: +23.2%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">股息收益率 (Dividend)</div>
+                    <div class="hero-kpi-val">~2.2%</div>
+                    <div class="hero-kpi-sub">连续 18 年上调分红</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrap">
+
+        <!-- VERDICT SUMMARY BANNER -->
+        <div class="verdict-banner">
+            <div class="verdict-left">
+                <div class="verdict-title">🌟 核心投资结论：强烈看多 (STRONG BUY) • 9.1/10</div>
+                <div class="verdict-desc">Kroger (KR) 是美国必需消费品（Consumer Staples）领域的绝对基本盘龙头。无论 FTC 阻挠其 246 亿美元收购 Albertsons (ACI) 的反垄断诉讼结果如何，公司自身 1,500 亿营收、近 30 亿现金流和 10 倍市盈率的底盘坚如磐石（若败诉将卸下巨额杠杆并开启大规模回购；若胜诉将成为 5,000 家门店超级巨擘）。当前股价处于 52 周底部（RP 13.6%），通过 Sell Put 卖出 10/16 远期合约（避开 9/11 财报）可稳收 12%~20% 年化收益，净建仓成本击穿年内低点。</div>
+            </div>
+            <div class="verdict-score-badge">
+                9.1<div style="font-size: 11px; font-weight: 500; opacity: 0.9;">/ 10 分</div>
+            </div>
+        </div>
+
+        <!-- QUICK TABLE OF CONTENTS -->
+        <nav class="toc-bar">
+            <div class="toc-title">报告核心导航 (15 模块全景框架)</div>
+            <div class="toc-links">
+                <a href="#sec-1" class="toc-link">1. 核心观点</a>
+                <a href="#sec-2" class="toc-link">2. 业务拆解</a>
+                <a href="#sec-3" class="toc-link">3. 护城河壁垒</a>
+                <a href="#sec-4" class="toc-link">4. 财务质量</a>
+                <a href="#sec-5" class="toc-link">5. 资本配置</a>
+                <a href="#sec-6" class="toc-link">6. 行业催化</a>
+                <a href="#sec-7" class="toc-link">7. 估值对比</a>
+                <a href="#sec-8" class="toc-link">8. DCF 模型</a>
+                <a href="#sec-9" class="toc-link">9. 逆向 DCF</a>
+                <a href="#sec-10" class="toc-link">10. 逆向压力测试</a>
+                <a href="#sec-11" class="toc-link">11. 催化剂清单</a>
+                <a href="#sec-12" class="toc-link">12. 风险矩阵</a>
+                <a href="#sec-13" class="toc-link">13. 期权定价与波动率</a>
+                <a href="#sec-14" class="toc-link">14. CSP / CC 实操方案</a>
+                <a href="#sec-15" class="toc-link">15. 决策矩阵</a>
+            </div>
+        </nav>
+
+        <!-- MODULE 1: 核心观点与投资摘要 -->
+        <section id="sec-1" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📌 模块 1：执行摘要与核心投资逻辑</div>
+                <span class="sec-tag">Executive Summary</span>
+            </div>
+            <div class="prose-text">
+                <strong>The Kroger Co. (NYSE: KR)</strong> 创立于 1883 年，是全美规模最大的传统食品与日用品杂货零售巨头。公司在全美 35 个州运营超过 2,720 家超市，旗下拥有 Ralphs, Fred Meyer, King Soopers 等十数个著名区域品牌。
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">自有品牌 (Our Brands) 暴利壁垒</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #1E40AF;">年销超 $300 亿</div>
+                    <div class="info-card-desc">Simple Truth、Private Selection 等自产自销品牌毛利率高出外部品牌 600-800 个基点，消费者性价比心智极强。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">零售媒体网络 (KPM) 高毛利飞轮</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #059669;">Kroger Precision Marketing</div>
+                    <div class="info-card-desc">基于 6,000 万家庭会员大数据，向可口可乐、宝洁等消费品巨头提供精准数字广告服务，营业利润率超 70%。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">极低估值与稳健造血</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #D97706;">10.3x Forward P/E</div>
+                    <div class="info-card-desc">年自由现金流达 $30 亿，远低于沃尔玛 (32x) 与标普中枢，单张期权仅需 $5,000 抵押金，极佳防守性。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 2: 业务模式与营收拆解 -->
+        <section id="sec-2" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏢 模块 2：业务模式与分部营收深度拆解</div>
+                <span class="sec-tag">Revenue Drivers</span>
+            </div>
+            <div class="prose-text">
+                Kroger 的收入主要由生鲜食品、杂货日用品、药房服务以及加油站燃油构成：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>业务板块</th>
+                        <th>核心产品 / 业态</th>
+                        <th>门店与设施规模</th>
+                        <th>营收占比 (FY2026E)</th>
+                        <th>毛利特征与战略定位</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Supermarket Grocery & Fresh</strong></td>
+                        <td>生鲜肉蛋奶、冷冻食品、预制菜、日化杂货</td>
+                        <td>2,720+ 家大型社区综合超市</td>
+                        <td>~75%</td>
+                        <td><span class="tag-pill tag-green">刚需高频流量入口 (毛利 24%~28%)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Private Label (Our Brands)</strong></td>
+                        <td>Simple Truth (全美最大有机品牌), Private Selection</td>
+                        <td>35 家自有食品制造工厂</td>
+                        <td>(并入杂货，超 $30B)</td>
+                        <td><span class="tag-pill tag-green">核心利润增厚引擎 (高毛利)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fuel Centers (加油站)</strong></td>
+                        <td>会员燃油积分兑换与成品油零售</td>
+                        <td>1,600+ 个加油中心</td>
+                        <td>~13%</td>
+                        <td><span class="tag-pill tag-blue">会员黏性与连带消费拉动</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pharmacies & Health</strong></td>
+                        <td>处方药配药、疫苗接种、临床小诊所</td>
+                        <td>2,250+ 家店内专业药房</td>
+                        <td>~10%</td>
+                        <td>稳定抗周期处方流量</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Alternative Profit (KPM 广告)</strong></td>
+                        <td>零售数字媒体广告、金融服务、数据洞察</td>
+                        <td>覆盖 96% 美国数字家庭</td>
+                        <td>~2%</td>
+                        <td><span class="tag-pill tag-green">爆发性高毛利利润源 (>70% 利润率)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- MODULE 3: 经济护城河与竞争优势 -->
+        <section id="sec-3" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏰 模块 3：经济护城河与竞争优势分析 (Economic Moat)</div>
+                <span class="sec-tag">Wide Moat Analysis</span>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">1. 超大规模供应链与自建物流制造一体化</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        Kroger 拥有 35 家自有面包厂、乳品加工厂和肉类分切中心，结合与英国 Ocado 合作的全自动化智能履约中心（CFC），使其在冷链生鲜采购与仓配成本上具备任何地方性商超无法匹敌的规模成本优势（Cost Advantage）。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">2. 6,000 万高黏性忠诚会员与第一方数据资产</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        全美超过半数家庭持有 Kroger 会员卡，Kroger Boost 订阅制提供免费配送与 2 倍燃油积分。其沉淀的 20 年第一方家庭消费行为数据构筑了极高的精准营销壁垒。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 4 & 5: 财务质量与资本配置 -->
+        <section id="sec-4" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📈 模块 4 & 5：财务质量、盈利能力与资本配置</div>
+                <span class="sec-tag">Financial Health</span>
+            </div>
+            <div class="data-grid-4">
+                <div class="info-card">
+                    <div class="info-card-title">营业收入 (Revenue)</div>
+                    <div class="info-card-val" style="color: #1E40AF;">$148.65B</div>
+                    <div class="info-card-desc">全美仅次于沃尔玛的第二大杂货商</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">自由现金流 (FCF)</div>
+                    <div class="info-card-val" style="color: #059669;">$2.99B</div>
+                    <div class="info-card-desc">OCF $6.94B，现金流转化极强</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Forward P/E</div>
+                    <div class="info-card-val" style="color: #D97706;">10.32x</div>
+                    <div class="info-card-desc">PEG 仅 0.57，深度价值洼地</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">净资产收益率 (ROE)</div>
+                    <div class="info-card-val" style="color: #10B981;">13.78%</div>
+                    <div class="info-card-desc">必需消费品优异资本回报率</div>
+                </div>
+            </div>
+
+            <!-- CHART: KR REVENUE & CASHFLOW -->
+            <div class="chart-box">
+                <canvas id="krFinancialChart"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 6 & 7: 行业催化与相对估值 -->
+        <section id="sec-6" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">⚡ 模块 6 & 7：行业催化剂与同行相对估值 (Peer Valuation)</div>
+                <span class="sec-tag">Valuation Multiples</span>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>公司标的</th>
+                        <th>市值</th>
+                        <th>Forward P/E</th>
+                        <th>EV / EBITDA</th>
+                        <th>FCF 年化规模</th>
+                        <th>股息率</th>
+                        <th>估值评价</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #EFF6FF; font-weight: 700;">
+                        <td><strong>Kroger (KR)</strong></td>
+                        <td>$35.0B</td>
+                        <td><span class="tag-pill tag-green">10.32x</span></td>
+                        <td>8.4x</td>
+                        <td>$2.99B</td>
+                        <td>~2.2%</td>
+                        <td><span class="tag-pill tag-green">绝对估值洼地 (PEG 0.57)</span></td>
+                    </tr>
+                    <tr>
+                        <td>Walmart (WMT)</td>
+                        <td>$590.0B</td>
+                        <td>31.80x</td>
+                        <td>16.5x</td>
+                        <td>$15.20B</td>
+                        <td>1.1%</td>
+                        <td>高溢价巨头</td>
+                    </tr>
+                    <tr>
+                        <td>Costco (COST)</td>
+                        <td>$385.0B</td>
+                        <td>49.20x</td>
+                        <td>28.5x</td>
+                        <td>$6.80B</td>
+                        <td>0.5%</td>
+                        <td>超高估值白马</td>
+                    </tr>
+                    <tr>
+                        <td>Target (TGT)</td>
+                        <td>$68.0B</td>
+                        <td>14.50x</td>
+                        <td>9.2x</td>
+                        <td>$3.80B</td>
+                        <td>2.9%</td>
+                        <td>非必需品受经济周期压制</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout-box">
+                💡 <strong>估值断层解析</strong>：相比 WMT (31.8x) 和 COST (49.2x)，Kroger 作为纯正的刚需食品超市，其 Forward P/E 仅为 **10.3x**。市场因反垄断诉讼不确定性过度折价，提供了近乎无风险的估值安全垫。
+            </div>
+        </section>
+
+        <!-- MODULE 8 & 9: DCF 内在价值与逆向 DCF -->
+        <section id="sec-8" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🧮 模块 8 & 9：DCF 绝对估值模型与逆向 DCF 压力检验</div>
+                <span class="sec-tag">DCF & Reverse DCF</span>
+            </div>
+            <div class="prose-text">
+                基于每年稳定产生 ~$30 亿自由现金流，设定 WACC = 6.5%，永续增长率 g = 2.0%（必需品抗通胀属性）：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>情景假设</th>
+                        <th>未来 5 年 FCF CAGR</th>
+                        <th>永续增长率 (g)</th>
+                        <th>折现率 (WACC)</th>
+                        <th>测算公允每股内在价值</th>
+                        <th>较现价 ($57.21) 溢价/折价</th>
+                        <th>投资建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>悲观情景 (Bear Case)</strong></td>
+                        <td>1.5%</td>
+                        <td>1.5%</td>
+                        <td>7.5%</td>
+                        <td>$55.00</td>
+                        <td>-3.8%</td>
+                        <td>下行空间极其有限</td>
+                    </tr>
+                    <tr style="background: #EFF6FF; font-weight: 700;">
+                        <td><strong>基准情景 (Base Case)</strong></td>
+                        <td>4.5%</td>
+                        <td>2.0%</td>
+                        <td>6.5%</td>
+                        <td><span style="color: #1E40AF; font-size: 15px;">$72.80</span></td>
+                        <td><span class="tag-pill tag-green">+27.3%</span></td>
+                        <td>强烈推荐建仓 / 卖出 Put</td>
+                    </tr>
+                    <tr>
+                        <td><strong>乐观情景 (Bull Case)</strong></td>
+                        <td>8.0%</td>
+                        <td>2.5%</td>
+                        <td>6.0%</td>
+                        <td><span style="color: #059669; font-size: 15px;">$88.50</span></td>
+                        <td><span class="tag-pill tag-green">+54.7%</span></td>
+                        <td>并购获批或超级回购落地</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="prose-text" style="margin-top: 14px;">
+                🔄 <strong>逆向 DCF 检验</strong>：现价 $57.21 仅隐含未来 5 年 FCF 复合增速达到 <strong>1.8%</strong>（低于美国长期通胀率）。对于通过食品杂货实现 100% 通胀成本顺畅转嫁的龙头而言，该预期被严重低估。
+            </div>
+        </section>
+
+        <!-- MODULE 10, 11 & 12: 红队压力测试、催化剂与风险 -->
+        <section id="sec-10" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🥊 模块 10, 11 & 12：红队压力测试 (Devil's Advocate) 与风险矩阵</div>
+                <span class="sec-tag">Stress Testing</span>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card" style="border-left: 4px solid #DC2626;">
+                    <div class="info-card-title" style="color: #DC2626;">🔴 核心做空与风险压力测试 (Bear Risks)</div>
+                    <ul class="prose-list">
+                        <li><strong>FTC 诉讼败诉 6 亿美元分手费</strong>：若收购被叫停短期引发情绪波动，但将彻底消除 246 亿债务负担。</li>
+                        <li><strong>食品通胀放缓与同店销售承压</strong>：食品 CPI 降温可能压制名义销售额增速，但自有品牌占比提升对冲了毛利压力。</li>
+                        <li><strong>工会劳资谈判与薪酬上涨</strong>：UFCW 工会续约可能导致单店人工成本小幅上升。</li>
+                    </ul>
+                </div>
+                <div class="info-card" style="border-left: 4px solid #1E40AF;">
+                    <div class="info-card-title" style="color: #1E40AF;">🟢 确定性催化剂清单 (Bull Catalysts)</div>
+                    <ul class="prose-list">
+                        <li><strong>巨额股票回购计划启动</strong>：若并购受阻，原预备的数百亿美元现金将直接转为激进股票回购（增厚 EPS 15%+）。</li>
+                        <li><strong>KPM 数字广告高毛利爆发</strong>：零售媒体网络利润占比提升，推动整体 EBIT 利润率向 4% 突破。</li>
+                        <li><strong>9月11日 Q2 财报业绩超预期</strong>：生鲜供应链降本增效带动利润超华尔街保守共识。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 13 & 14: 期权定价与实操方案 -->
+        <section id="sec-13" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🎯 模块 13 & 14：期权衍生品定价与 CSP 策略配置</div>
+                <span class="sec-tag">Options Strategy</span>
+            </div>
+            <div class="prose-text">
+                <strong>⚠️ 关键风控指令</strong>：由于 9 月 11 日发布财报，严禁开仓 9/11 或 9/18 临期合约。<strong>唯一推荐到期日为 `2026-10-16`（50D）</strong>，跨过财报与诉讼初裁，充分赚取时间价值与高 IV 暴跌红利：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>策略定位</th>
+                        <th>推荐合约</th>
+                        <th>到期日 (DTE)</th>
+                        <th>行权价</th>
+                        <th>安全垫</th>
+                        <th>目标 Delta</th>
+                        <th>权利金报价</th>
+                        <th>静态年化 (APY)</th>
+                        <th>胜率 (POP)</th>
+                        <th>单张抵押金</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #EFF6FF; font-weight: 700;">
+                        <td><strong>🟢 平衡高息 (主推首选)</strong></td>
+                        <td>`KR 2026-10-16 52.50 Put`</td>
+                        <td>50D</td>
+                        <td>$52.50</td>
+                        <td><span class="tag-pill tag-green">-8.22%</span></td>
+                        <td>-0.18</td>
+                        <td>$0.87</td>
+                        <td><strong>12.1%</strong></td>
+                        <td><strong>88%</strong></td>
+                        <td>$5,250 USD</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>🔥 激进高租 (博弈建仓)</strong></td>
+                        <td>`KR 2026-10-16 55.00 Put`</td>
+                        <td>50D</td>
+                        <td>$55.00</td>
+                        <td><span class="tag-pill tag-amber">-3.85%</span></td>
+                        <td>-0.31</td>
+                        <td>$1.56</td>
+                        <td><strong>20.7%</strong></td>
+                        <td><strong>77%</strong></td>
+                        <td>$5,500 USD</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🛡️ 极限防守 (深度实值)</strong></td>
+                        <td>`KR 2026-10-16 50.00 Put`</td>
+                        <td>50D</td>
+                        <td>$50.00</td>
+                        <td><span class="tag-pill tag-green">-12.60%</span></td>
+                        <td>-0.08</td>
+                        <td>$0.39</td>
+                        <td>5.7%</td>
+                        <td><strong>96%</strong></td>
+                        <td>$5,000 USD</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout-box">
+                🛡️ <strong>最差情况接股底线分析</strong>：若卖出 <strong>$52.50 Put</strong> 被行权接股，实际净买入成本为 <strong>$51.63</strong>（较现价折让 9.8%，彻底击穿 52 周最低点 $54.15），对应的 Forward P/E 将进一步压缩至 <strong>9.3x</strong>，股息率提升至 <strong>~2.5%</strong>。作为美国老百姓刚需消费的绝对基石，以 9.3 倍市盈率接股持有是胜率极高的非对称底仓。
+            </div>
+        </section>
+
+        <!-- MODULE 15: 最终决策矩阵 -->
+        <section id="sec-15" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📋 模块 15：关键决策矩阵与行动指南</div>
+                <span class="sec-tag">Decision Matrix</span>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>决策维度</th>
+                        <th>评估结论</th>
+                        <th>实操执行指引</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>总投资评级</strong></td>
+                        <td><span class="tag-pill tag-green">强烈看多 (STRONG BUY) • 9.1分</span></td>
+                        <td>现货逢低配置，期权主推 10/16 远月 Sell Put 收租。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>目标买入区间</strong></td>
+                        <td><strong>$50.00 ~ $55.00 USD</strong></td>
+                        <td>处于 52 周历史低位区间，极高防御性。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>12-18个月目标价</strong></td>
+                        <td><strong>$70.50 USD (+23.2%)</strong></td>
+                        <td>基于 13.0x FY27 稳定现金流均值回归。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sell Put 推荐合约</strong></td>
+                        <td><strong>KR 2026-10-16 52.50 Put</strong></td>
+                        <td>年化 12.1% APY，安全垫 8.2%，单张仅需 $5,250 抵押。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>止损与策略失效条件</strong></td>
+                        <td>跌破 $45 且发生全美大规模食品安全恶性事故导致品牌商誉永久受损</td>
+                        <td>若发生转为接股并开启备兑 Call 策略降低持仓成本。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <!-- SCRIPT FOR INTERACTIVE CHART -->
+    <script>
+        const ctx = document.getElementById('krFinancialChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025E', 'FY2026E', 'FY2027E'],
+                datasets: [
+                    {
+                        label: '营业收入 (Revenue $B)',
+                        data: [137.89, 148.26, 150.03, 148.65, 152.40, 156.80],
+                        backgroundColor: 'rgba(30, 64, 175, 0.65)',
+                        borderColor: '#1E40AF',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '经营现金流 (OCF $B)',
+                        data: [5.20, 6.10, 6.85, 6.94, 7.30, 7.80],
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderColor: '#10B981',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '自由现金流 (FCF $B)',
+                        data: [2.10, 2.65, 2.90, 2.99, 3.40, 3.80],
+                        type: 'line',
+                        borderColor: '#D97706',
+                        backgroundColor: '#D97706',
+                        borderWidth: 2.5,
+                        pointRadius: 4,
+                        yAxisID: 'y'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '金额 ($ Billion)' },
+                        grid: { color: '#E2E8F0' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.raw + 'B';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
