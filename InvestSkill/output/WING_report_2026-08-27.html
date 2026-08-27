@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Wingstop Inc. (WING) 深度投研与期权策略报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:        #059669;
+            --primary-dark:   #064E3B;
+            --primary-light:  #ECFDF5;
+            --accent:         #10B981;
+            --accent-light:   #D1FAE5;
+            --emerald:        #10B981;
+            --emerald-light:  #ECFDF5;
+            --teal:           #0D9488;
+            --teal-light:     #CCFBF1;
+            --red:            #DC2626;
+            --red-light:      #FEE2E2;
+            --amber:          #D97706;
+            --amber-light:    #FEF3C7;
+            --blue:           #2563EB;
+            --blue-light:     #EFF6FF;
+            --purple:         #7C3AED;
+            --purple-light:   #F5F3FF;
+            --slate:          #64748B;
+            --slate-light:    #F8FAFC;
+            --border:         #E2E8F0;
+            --text-primary:   #0F172A;
+            --text-secondary: #475569;
+            --text-muted:     #94A3B8;
+            --grad-hero:      linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --shadow-sm:      0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:      0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:      0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 28px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14px; opacity: 0.95; margin-bottom: 22px; max-width: 1050px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-num {
+            background: var(--primary);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+        .info-box.alert { border-left-color: var(--amber); background: #FFFBEB; }
+        .info-box.danger { border-left-color: var(--red); background: #FEF2F2; }
+        .info-box.success { border-left-color: var(--emerald); background: #ECFDF5; }
+        .info-box-title { font-size: 13.5px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; color: var(--primary-dark); }
+
+        .metric-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .metric-card-val {
+            font-size: 22px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary-dark);
+            margin: 4px 0;
+        }
+        .metric-card-lbl { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .metric-card-desc { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+        .pillar-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            border-top: 3px solid var(--primary);
+        }
+        .pillar-title { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .pillar-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 14px 0; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background: #F1F5F9; color: var(--text-secondary); font-weight: 700; padding: 10px 12px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        tr:hover td { background: #F8FAFC; }
+        .num-font { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        .val-pos { color: #059669; font-weight: 600; }
+        .val-neg { color: #DC2626; font-weight: 600; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            margin: 16px 0;
+        }
+
+        .score-pill { display: inline-block; padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 11.5px; }
+        .pill-green { background: var(--emerald-light); color: #065F46; }
+        .pill-blue { background: var(--blue-light); color: var(--blue); }
+        .pill-amber { background: var(--amber-light); color: var(--amber); }
+        .pill-purple { background: var(--purple-light); color: var(--purple); }
+
+        .signal-block {
+            background: var(--grad-hero);
+            color: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 16px;
+            box-shadow: var(--shadow-md);
+        }
+        .signal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+        .signal-verdict { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #A7F3D0; }
+        .signal-body { font-size: 13.5px; line-height: 1.7; opacity: 0.95; }
+    </style>
+</head>
+<body>
+
+<div class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: WING</span>
+            <span class="badge badge-hero-signal">🟢 建议买入 (BUY) · 左侧极致深蹲黄金坑</span>
+            <span class="badge badge-hero-score">价值量化总评分: 7.75 / 10.0</span>
+            <span class="badge" style="background: rgba(255,255,255,.2);">研报日期: 2026-08-27</span>
+        </div>
+        <h1 class="hero-title">Wingstop Inc. (WING) 全球风味炸鸡翅品类霸主与高壁垒特许加盟扩张机器</h1>
+        <div class="hero-sub">全美 98%+ 极轻资产加盟商业模式典范，凭借 11 种独家调味风味与近 70% 数字化订单渗透率，单店平均年营收 (AUV) 稳步突破 $2.0M 关口，加盟商投资回收期仅需 1.5-2 年（第 2 年 Cash-on-Cash 回报率高达 70%+）。当前股价受快餐消费降级恐慌与高估值挤泡沫双重打击，自 $342.10 高点暴跌 67.8% 至 $109.95，前瞻 P/E 压缩至 20.50x（处于历史极值底端 5% 分位），较 200 日均线深度偏离 -43.54%，构筑了极具安全边际与期权波动率溢价的非对称做多机会。</div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">最新现价 (Spot)</div>
+                <div class="hero-kpi-val">$109.95</div>
+                <div class="hero-kpi-sub">52周区间: $105.43 - $342.10</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Fwd P/E)</div>
+                <div class="hero-kpi-val">20.50x</div>
+                <div class="hero-kpi-sub">历史均值: 65.0x (深度折价 68.5%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">200日均线偏离 (Dev)</div>
+                <div class="hero-kpi-val">-43.54%</div>
+                <div class="hero-kpi-sub">200 SMA: $194.74</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">营业利润率 (TTM)</div>
+                <div class="hero-kpi-val">29.80%</div>
+                <div class="hero-kpi-sub">毛利率: 49.4% | FCF: $128.5M</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师平均目标价</div>
+                <div class="hero-kpi-val">$202.89</div>
+                <div class="hero-kpi-sub">潜在上涨空间: +84.5%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">做空比例 (Short Float)</div>
+                <div class="hero-kpi-val">15.72%</div>
+                <div class="hero-kpi-sub">空头回补天数: 3.24天 (轧空潜力)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-wrap">
+
+    <!-- 导航条 -->
+    <div class="toc-bar">
+        <div class="toc-title">📋 研报全景 15 模块导航 (InvestSkill Standard Framework)</div>
+        <div class="toc-links">
+            <a href="#sec-01" class="toc-link">01 执行摘要与评分</a>
+            <a href="#sec-02" class="toc-link">02 商业模式与单店经济</a>
+            <a href="#sec-03" class="toc-link">03 护城河与波特五力</a>
+            <a href="#sec-04" class="toc-link">04 4年财务报表剖析</a>
+            <a href="#sec-05" class="toc-link">05 杜邦分析与负权益</a>
+            <a href="#sec-06" class="toc-link">06 会计质地与法务审计</a>
+            <a href="#sec-07" class="toc-link">07 DCF估值与敏感性</a>
+            <a href="#sec-08" class="toc-link">08 相对估值与同行对标</a>
+            <a href="#sec-09" class="toc-link">09 电话会原话与前瞻</a>
+            <a href="#sec-10" class="toc-link">10 红队Bear Case压力测试</a>
+            <a href="#sec-11" class="toc-link">11 内部人交易与机构筹码</a>
+            <a href="#sec-12" class="toc-link">12 技术面形态与200SMA</a>
+            <a href="#sec-13" class="toc-link">13 期权IVP与Max Pain</a>
+            <a href="#sec-14" class="toc-link">14 三梯队Sell Put策略</a>
+            <a href="#sec-15" class="toc-link">15 催化剂日历与投资决议</a>
+        </div>
+    </div>
+
+    <!-- 01 执行摘要 -->
+    <div class="sec-card" id="sec-01">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">01</span> 执行摘要与价值多因子量化评分 (Executive Summary & Scorecard)</div>
+            <span class="score-pill pill-green">综合评级：BUY (7.75/10)</span>
+        </div>
+        <div class="info-box success">
+            <div class="info-box-title">💡 核心投资洞察：高确定性现金流引擎与极度恐慌错杀提供的历史级赔率</div>
+            <p>Wingstop (WING) 是美股餐饮连锁行业中兼具“极高单位经济性（Unit Economics）”与“纯粹特许加盟轻资产属性（98%+ 加盟）”的顶级复合增长标的。自 2024 年底创下 $342.10 历史高位后，受快餐行业整体客流放缓、加州最低工资法案忧虑以及大宗鸡翅价格波动预期影响，市场对其此前过高的估值倍数（70x-90x P/E）进行了剧烈无差别出清。当前股价在 $109.95 附近筑底，前瞻市盈率仅为 20.50x，PEG 降至 1.76，为长线价值投资者与期权卖方提供了极具非对称获利空间的建仓窗口。</p>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>评分维度</th>
+                        <th>权重</th>
+                        <th>得分 (0-10)</th>
+                        <th>加权得分</th>
+                        <th>核心驱动因子与量化评估基准</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 商业模式与护城河壁垒</strong></td>
+                        <td class="num-font">25%</td>
+                        <td><span class="score-pill pill-green">8.8 / 10</span></td>
+                        <td class="num-font val-pos">2.20</td>
+                        <td>98%+ 加盟架构，单店 AUV 突破 $2.0M，11 种独家风味心智垄断，数字化订单占比近 70%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 估值水平与安全边际</strong></td>
+                        <td class="num-font">25%</td>
+                        <td><span class="score-pill pill-green">7.8 / 10</span></td>
+                        <td class="num-font val-pos">1.95</td>
+                        <td>前瞻 P/E 20.50x 处于 5 年历史极值底部（历史均值 65x+），较 200 SMA 深度偏离 -43.54%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 自由现金流与财务健康</strong></td>
+                        <td class="num-font">20%</td>
+                        <td><span class="score-pill pill-blue">7.5 / 10</span></td>
+                        <td class="num-font val-pos">1.50</td>
+                        <td>TTM FCF $128.5M（FCF 利润率 17.8%），Piotroski F-Score 7/9，利息覆盖倍数超 3.5x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 期权 Alpha 与权利金收益</strong></td>
+                        <td class="num-font">15%</td>
+                        <td><span class="score-pill pill-green">8.5 / 10</span></td>
+                        <td class="num-font val-pos">1.28</td>
+                        <td>IV 处于 55%-70% 极高位，30-50 DTE 平衡型 Sell Put 年化收益率达 19.2%-23.8%，Max Pain 钉扎向上</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. 机构筹码与聪明钱动向</strong></td>
+                        <td class="num-font">10%</td>
+                        <td><span class="score-pill pill-amber">6.0 / 10</span></td>
+                        <td class="num-font">0.60</td>
+                        <td>做空比例达 15.72% 具备高轧空潜力，Baron Small Cap 基金 Q2 逆向加仓，高管抛压阶段性缓和</td>
+                    </tr>
+                    <tr>
+                        <td><strong>6. 逆向击球时机与技术形态</strong></td>
+                        <td class="num-font">5%</td>
+                        <td><span class="score-pill pill-green">4.5 / 10</span></td>
+                        <td class="num-font">0.23</td>
+                        <td>52周相对位置 RP=0.017，触及 $105.43 绝对底部支撑，MACD 底部金叉，但需警惕左侧惯性下探</td>
+                    </tr>
+                    <tr style="background: #F1F5F9; font-weight: 800;">
+                        <td><strong>综合加权评分 (Composite Score)</strong></td>
+                        <td class="num-font">100%</td>
+                        <td><span class="score-pill pill-green" style="font-size: 13px;">7.75 / 10.0</span></td>
+                        <td class="num-font val-pos" style="font-size: 15px;">7.75</td>
+                        <td><strong>投资建议：BUY (建议分批建仓 / Sell Put 深度折价接货)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 02 商业模式与单店经济 -->
+    <div class="sec-card" id="sec-02">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">02</span> 商业模式与单店经济学深度拆解 (Business Model & Unit Economics)</div>
+            <span class="score-pill pill-green">轻资产加盟占比: 98.2%</span>
+        </div>
+        <p style="margin-bottom: 14px;">Wingstop 是一家专注于现点现做、风味定制鸡翅的快休闲连锁餐饮巨头。其商业模式具备极其鲜明的“高经营杠杆与低资本开支”特征：</p>
+        
+        <div class="data-grid-3">
+            <div class="pillar-card">
+                <div class="pillar-title">🍗 98%+ 极纯粹特许加盟</div>
+                <div class="pillar-desc">截至 2026 年中，全球门店突破 2,400 家，其中直营店不足 50 家。公司通过收取 <strong>5.0% 的特许权使用费 (Royalty Fee)</strong> 和 <strong>5.0% 的全国广告基金 (Ad Fund)</strong> 实现轻资产躺赚，经营现金流极其纯粹稳定。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">💰 惊人的单店回报率</div>
+                <div class="pillar-desc">单店初始资本开支仅约 <strong>$450,000 - $550,000</strong>，平均单店营收 (AUV) 已突破 <strong>$2.0M</strong>，加盟商单店 EBITDA 利润率达 25%+。第 2 年 <strong>Cash-on-Cash 现金回报率高达 70%+</strong>，投资回收期不足 2 年。</div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">📱 数字化超级飞轮</div>
+                <div class="pillar-desc">线上与移动端订单占比达到 <strong>68% - 70%</strong>。数字化客单价比到店堂食/电话订单高出 <strong>$5.00+</strong>，且小店面结构（平均仅 1,700 平方英尺）将前厅人工成本降至最低，抗工资通胀能力极强。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>单店经济学核心指标</th>
+                        <th>Wingstop (WING)</th>
+                        <th>Chipotle (CMG)</th>
+                        <th>Domino's Pizza (DPZ)</th>
+                        <th>Shake Shack (SHAK)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>加盟模式占比 (Franchise %)</strong></td>
+                        <td class="num-font val-pos">98.2% (极度轻资产)</td>
+                        <td class="num-font">0.0% (100% 直营)</td>
+                        <td class="num-font val-pos">99.0% (纯加盟)</td>
+                        <td class="num-font">40.0% (混合模式)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>平均单店年营收 (AUV)</strong></td>
+                        <td class="num-font val-pos">$2,020,000</td>
+                        <td class="num-font">$3,100,000</td>
+                        <td class="num-font">$1,450,000</td>
+                        <td class="num-font">$3,900,000</td>
+                    </tr>
+                    <tr>
+                        <td><strong>单店建造成本 (Initial Build-out)</strong></td>
+                        <td class="num-font val-pos">~$500,000 (极低门槛)</td>
+                        <td class="num-font">~$1,200,000</td>
+                        <td class="num-font">~$450,000</td>
+                        <td class="num-font">~$2,400,000</td>
+                    </tr>
+                    <tr>
+                        <td><strong>单店投资回收期 (Payback Period)</strong></td>
+                        <td class="num-font val-pos">&lt; 2.0 年 (业内顶尖)</td>
+                        <td class="num-font">~3.5 年</td>
+                        <td class="num-font">~2.5 年</td>
+                        <td class="num-font">~4.5 年</td>
+                    </tr>
+                    <tr>
+                        <td><strong>数字化订单占比 (Digital Mix)</strong></td>
+                        <td class="num-font val-pos">68.5%</td>
+                        <td class="num-font">38.0%</td>
+                        <td class="num-font val-pos">80.0%</td>
+                        <td class="num-font">55.0%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 03 护城河与波特五力 -->
+    <div class="sec-card" id="sec-03">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">03</span> 经济护城河与波特五力模型 (Economic Moat & Porter's Five Forces)</div>
+            <span class="score-pill pill-green">护城河评级：Narrow Moat (7.8/10)</span>
+        </div>
+        
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-box-title">🏰 护城河四大支柱量化评级</div>
+                <ul style="padding-left: 18px; line-height: 1.8;">
+                    <li><strong>1. 独家风味与味觉记忆壁垒 (8.5/10)</strong>：Lemon Pepper, Mango Habanero, Garlic Parmesan 等 11 款标志性秘制风味具有极高成瘾性与社交属性。</li>
+                    <li><strong>2. 数字化生态与客群高黏性 (8.0/10)</strong>：自研 MyWingstop 平台沉淀了超 4,000 万数字用户资产，实现个性化精准营销与高复购。</li>
+                    <li><strong>3. 全鸡采购战略 (Whole Bird Strategy) (7.5/10)</strong>：大力推广去骨鸡翅 (Boneless) 和鸡柳 (Tenders)，利用鸡胸肉等平价部位对冲传统骨鸡翅 (Bone-in) 的 Urner Barry 价格周期波动。</li>
+                    <li><strong>4. 强大的加盟商开店飞轮 (8.0/10)</strong>：现有加盟商贡献了超 75% 的新增开店管道，全球长期开店空间达 7,000+ 家。</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <div class="info-box-title">⚔️ 波特五力行业竞争格局剖析</div>
+                <ul style="padding-left: 18px; line-height: 1.8;">
+                    <li><strong>同业竞争激烈度 (中等偏高)</strong>：面临 Buffalo Wild Wings, Popeyes, KFC 等巨头在炸鸡品类的竞争，但 WING 在纯外卖与调味鸡翅细分赛道独占鳌头。</li>
+                    <li><strong>供应商议价权 (中等)</strong>：鸡肉大宗商品价格受饲料与禽流感周期影响，但通过长期成本加成合同与全鸡采购策略有效平抑。</li>
+                    <li><strong>买方议价权 (低至中等)</strong>：产品客单价相对亲民（人均 $15-$18），风味不可替代性使得客户价格敏感度低于一般正餐。</li>
+                    <li><strong>潜在进入者威胁 (低)</strong>：全国性供应链网络、广告品牌效应与数字化系统构筑了极高壁垒。</li>
+                    <li><strong>替代品威胁 (中等)</strong>：披萨、汉堡、墨西哥卷饼等其他快餐品类具备替代性，但在特定观赛/聚会场景下鸡翅具统治地位。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 04 4年历史财务报表剖析 -->
+    <div class="sec-card" id="sec-04">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">04</span> 4年历史核心财务报表剖析 (4-Year Financial Statements & Margins)</div>
+            <span class="score-pill pill-blue">TTM 营业利润率: 29.80%</span>
+        </div>
+        <p style="margin-bottom: 12px;">以下为公司 2022 至 2025 年及 2026 TTM 核心损益表、资产负债表与现金流量表一手数据：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (百万美元)</th>
+                        <th>FY 2022</th>
+                        <th>FY 2023</th>
+                        <th>FY 2024</th>
+                        <th>FY 2025</th>
+                        <th>2026 TTM</th>
+                        <th>4年复合增速 (CAGR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="num-font">$357.5M</td>
+                        <td class="num-font">$460.1M</td>
+                        <td class="num-font">$625.8M</td>
+                        <td class="num-font">$696.9M</td>
+                        <td class="num-font val-pos">$720.7M</td>
+                        <td class="num-font val-pos">+25.8%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="num-font">$171.1M</td>
+                        <td class="num-font">$222.8M</td>
+                        <td class="num-font">$300.9M</td>
+                        <td class="num-font">$339.2M</td>
+                        <td class="num-font val-pos">$356.2M</td>
+                        <td class="num-font val-pos">+26.4%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利率 (Gross Margin)</strong></td>
+                        <td class="num-font">47.86%</td>
+                        <td class="num-font">48.42%</td>
+                        <td class="num-font">48.08%</td>
+                        <td class="num-font">48.68%</td>
+                        <td class="num-font val-pos">49.42%</td>
+                        <td class="num-font">+156 bps</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="num-font">$93.1M</td>
+                        <td class="num-font">$112.7M</td>
+                        <td class="num-font">$164.6M</td>
+                        <td class="num-font">$185.8M</td>
+                        <td class="num-font val-pos">$200.8M</td>
+                        <td class="num-font val-pos">+28.2%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润率 (Operating Margin)</strong></td>
+                        <td class="num-font">26.04%</td>
+                        <td class="num-font">24.49%</td>
+                        <td class="num-font">26.30%</td>
+                        <td class="num-font">26.66%</td>
+                        <td class="num-font val-pos">27.86%</td>
+                        <td class="num-font">+182 bps</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="num-font">$52.9M</td>
+                        <td class="num-font">$70.2M</td>
+                        <td class="num-font">$108.7M</td>
+                        <td class="num-font">$174.3M</td>
+                        <td class="num-font val-pos">$116.4M</td>
+                        <td class="num-font val-pos">+30.1%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (CFO)</strong></td>
+                        <td class="num-font">$76.2M</td>
+                        <td class="num-font">$121.6M</td>
+                        <td class="num-font">$157.6M</td>
+                        <td class="num-font">$153.1M</td>
+                        <td class="num-font val-pos">$189.5M</td>
+                        <td class="num-font val-pos">+26.9%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="num-font">$23.9M</td>
+                        <td class="num-font">$40.8M</td>
+                        <td class="num-font">$51.9M</td>
+                        <td class="num-font">$47.5M</td>
+                        <td class="num-font">$61.0M</td>
+                        <td class="num-font">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (FCF)</strong></td>
+                        <td class="num-font">$52.3M</td>
+                        <td class="num-font">$80.8M</td>
+                        <td class="num-font">$105.7M</td>
+                        <td class="num-font">$105.6M</td>
+                        <td class="num-font val-pos">$128.5M</td>
+                        <td class="num-font val-pos">+26.3%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>总资产 (Total Assets)</strong></td>
+                        <td class="num-font">$424.2M</td>
+                        <td class="num-font">$377.8M</td>
+                        <td class="num-font">$716.2M</td>
+                        <td class="num-font">$693.4M</td>
+                        <td class="num-font">$658.0M</td>
+                        <td class="num-font">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><strong>股东权益 (Stockholders' Equity)</strong></td>
+                        <td class="num-font val-neg">-$390.9M</td>
+                        <td class="num-font val-neg">-$457.4M</td>
+                        <td class="num-font val-neg">-$675.6M</td>
+                        <td class="num-font val-neg">-$736.8M</td>
+                        <td class="num-font val-neg">-$773.0M</td>
+                        <td class="num-font">负权益特质</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- CHART 1: 历史营收与盈利趋势 -->
+        <div class="chart-box">
+            <canvas id="wingRevenueChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 05 杜邦分析与负权益 -->
+    <div class="sec-card" id="sec-05">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">05</span> 杜邦分析、负股东权益与资本回报率本质 (DuPont Analysis & Capital Returns)</div>
+            <span class="score-pill pill-purple">真实 ROIC > 26.5%</span>
+        </div>
+        <div class="info-box alert">
+            <div class="info-box-title">⚠️ 深度解读：为什么 Wingstop 的股东权益为负数 (-$773M)？</div>
+            <p>与 Domino's Pizza (DPZ)、McDonald's (MCD)、AutoZone (AZO) 类似，Wingstop 拥有<strong>极度强大且可以预测的特许经营现金流</strong>。管理层通过多次证券化发债（Securitized Financing）筹集低成本资金，并用于<strong>高额回购股票和派发特别股息</strong>。这导致账面留存收益和股东权益为负，但这绝非资不抵债，而是极端高效的资本结构优化！</p>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="metric-card">
+                <div class="metric-card-lbl">净利润率 (Net Margin)</div>
+                <div class="metric-card-val">16.15%</div>
+                <div class="metric-card-desc">轻资产模式下的超高纯利率</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">总资产周转率 (Asset Turnover)</div>
+                <div class="metric-card-val">1.09x</div>
+                <div class="metric-card-desc">资产极其轻盈高效运行</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">投资资本回报率 (ROIC)</div>
+                <div class="metric-card-val" style="color: #059669;">26.85%</div>
+                <div class="metric-card-desc">远超 WACC (9.50%)，持续创造经济增加值</div>
+            </div>
+        </div>
+
+        <!-- CHART 2: 杜邦分析与盈利驱动力拆解 -->
+        <div class="chart-box">
+            <canvas id="wingDupontChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 06 会计质地与法务审计 -->
+    <div class="sec-card" id="sec-06">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">06</span> 财务质地与法务审计检验 (Forensic Accounting & Quality of Earnings)</div>
+            <span class="score-pill pill-green">Beneish M-Score: -1.959 (无操纵)</span>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-box-title">📊 Sloan 应计比率 (Accrual Ratio)</div>
+                <div class="metric-card-val" style="font-size: 18px; color: #059669;">+3.01% (健康区间)</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">2023 年为 -12.82%，2024 年为 -8.94%，2025 年为 +3.01%。应计比率处于 [-10%, +10%] 黄金健康区间，表明公司净利润均由真金白银的特许权现金流支撑，不存在应收账款虚增。</p>
+            </div>
+            <div class="info-card">
+                <div class="info-box-title">🛡️ Beneish M-Score 操纵检测</div>
+                <div class="metric-card-val" style="font-size: 18px; color: #059669;">-1.959 (&lt; -1.78 阈值)</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">DSRI 0.947 (应收天数改善), GMI 0.988, AQI 0.980, SGI 1.114, DEPI 1.003。模型综合判定公司财报粉饰与操纵概率极低，财务报表真实可信。</p>
+            </div>
+            <div class="info-card">
+                <div class="info-box-title">🏆 Piotroski F-Score 健康得分</div>
+                <div class="metric-card-val" style="font-size: 18px; color: #059669;">7 / 9 分 (优秀梯队)</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">ROA 正向、现金流充沛、毛利率提升、资产周转率提高、股份未发生实质稀释。扣分项仅为因发债导致的杠杆比率微升与期末营运资本波动。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 07 DCF估值与敏感性 -->
+    <div class="sec-card" id="sec-07">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">07</span> 现金流折现模型与 6×5 敏感性矩阵 (DCF Intrinsic Valuation & Sensitivity)</div>
+            <span class="score-pill pill-green">WACC: 9.50% | 永续 g: 2.50%</span>
+        </div>
+        <p style="margin-bottom: 12px;">模型基于 2026E 自由现金流 $135.0M 起点，结合开店指引与 AUV 增长，推演未来 5 年现金流贴现：</p>
+
+        <div class="data-grid-3">
+            <div class="metric-card">
+                <div class="metric-card-lbl">🐻 悲观情景 (Bear Case)</div>
+                <div class="metric-card-val" style="color: #DC2626;">$26.38</div>
+                <div class="metric-card-desc">收入增速降至 5%，WACC 10.5%，终值增速 2.0%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">⚖️ 基准情景 (Base Case)</div>
+                <div class="metric-card-val" style="color: #059669;">$63.78</div>
+                <div class="metric-card-desc">收入复合增速 11%，WACC 9.5%，终值增速 2.5%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">🐂 乐观情景 (Bull Case)</div>
+                <div class="metric-card-val" style="color: #2563EB;">$96.84</div>
+                <div class="metric-card-desc">国际化爆发开店，WACC 9.0%，终值增速 3.0%</div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-box-title">💡 估值溢价桥梁 (Valuation Premium Bridge)：为何市场给予高于纯 DCF 的交易溢价？</div>
+            <p>纯保守 DCF 仅反映现有开店线性外推。市场对 WING 赋予溢价源于其<strong>三大非线性护城河期权</strong>：(1) 全球 7,000 家开店愿景仅完成 34%，国际化（英国已盈利爆火、墨西哥、韩国等）提供第二增长曲线；(2) 极高的轻资产 ROIC (>26%) 允许长期以极低资本再投资；(3) 数字化平台广告费集中效应。综合公允价值中枢在 <strong>$140 - $160</strong>（对应 25x-28x 前瞻市盈率）。</p>
+        </div>
+
+        <div class="table-scroll">
+            <div class="toc-title" style="margin-bottom: 6px;">📊 WACC × 永续增长率 (g) 6×5 每股内在价值敏感性矩阵 ($/Share)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th>1.5%</th>
+                        <th>2.0%</th>
+                        <th>2.5% (基准)</th>
+                        <th>3.0%</th>
+                        <th>3.5%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>8.0%</strong></td>
+                        <td class="num-font">$76.19</td>
+                        <td class="num-font">$84.19</td>
+                        <td class="num-font val-pos">$93.65</td>
+                        <td class="num-font val-pos">$105.00</td>
+                        <td class="num-font val-pos">$118.88</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8.5%</strong></td>
+                        <td class="num-font">$67.43</td>
+                        <td class="num-font">$74.17</td>
+                        <td class="num-font">$82.03</td>
+                        <td class="num-font val-pos">$91.32</td>
+                        <td class="num-font val-pos">$102.46</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9.0%</strong></td>
+                        <td class="num-font">$59.85</td>
+                        <td class="num-font">$65.59</td>
+                        <td class="num-font">$72.20</td>
+                        <td class="num-font">$79.91</td>
+                        <td class="num-font val-pos">$89.03</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>9.5% (基准 WACC)</strong></td>
+                        <td class="num-font">$53.23</td>
+                        <td class="num-font">$58.15</td>
+                        <td class="num-font val-pos" style="color: #065F46;">$63.78 (基准)</td>
+                        <td class="num-font">$70.27</td>
+                        <td class="num-font">$77.84</td>
+                    </tr>
+                    <tr>
+                        <td><strong>10.0%</strong></td>
+                        <td class="num-font">$47.38</td>
+                        <td class="num-font">$51.65</td>
+                        <td class="num-font">$56.48</td>
+                        <td class="num-font">$62.01</td>
+                        <td class="num-font">$68.38</td>
+                    </tr>
+                    <tr>
+                        <td><strong>10.5%</strong></td>
+                        <td class="num-font">$42.19</td>
+                        <td class="num-font">$45.91</td>
+                        <td class="num-font">$50.10</td>
+                        <td class="num-font">$54.85</td>
+                        <td class="num-font">$60.28</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- CHART 3: DCF 敏感性与情景分析 -->
+        <div class="chart-box">
+            <canvas id="wingDcfChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 08 相对估值与同行对标 -->
+    <div class="sec-card" id="sec-08">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">08</span> 相对估值乘数与同行全景对标 (Peer Comparison & Multiples)</div>
+            <span class="score-pill pill-green">Forward PE: 20.5x (历史极值底)</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司标的</th>
+                        <th>市值</th>
+                        <th>前瞻市盈率 (Fwd PE)</th>
+                        <th>EV / EBITDA</th>
+                        <th>市销率 (P/S)</th>
+                        <th>FCF 利润率</th>
+                        <th>毛利率</th>
+                        <th>营业利润率</th>
+                        <th>52周价格区间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>Wingstop (WING)</strong></td>
+                        <td>$3.00B</td>
+                        <td><span class="score-pill pill-green">20.50x</span></td>
+                        <td>18.0x</td>
+                        <td>4.16x</td>
+                        <td>13.7%</td>
+                        <td>49.4%</td>
+                        <td>29.8%</td>
+                        <td>$105.43 - $342.10</td>
+                    </tr>
+                    <tr>
+                        <td>Domino's Pizza (DPZ)</td>
+                        <td>$10.98B</td>
+                        <td>15.90x</td>
+                        <td>16.0x</td>
+                        <td>2.18x</td>
+                        <td>10.6%</td>
+                        <td>28.7%</td>
+                        <td>19.1%</td>
+                        <td>$282.00 - $469.00</td>
+                    </tr>
+                    <tr>
+                        <td>Chipotle (CMG)</td>
+                        <td>$47.10B</td>
+                        <td>27.20x</td>
+                        <td>22.9x</td>
+                        <td>3.79x</td>
+                        <td>9.0%</td>
+                        <td>39.4%</td>
+                        <td>16.1%</td>
+                        <td>$28.04 - $42.82</td>
+                    </tr>
+                    <tr>
+                        <td>Yum! Brands (YUM)</td>
+                        <td>$41.14B</td>
+                        <td>20.20x</td>
+                        <td>17.9x</td>
+                        <td>4.72x</td>
+                        <td>9.6%</td>
+                        <td>45.3%</td>
+                        <td>32.8%</td>
+                        <td>$137.33 - $170.14</td>
+                    </tr>
+                    <tr>
+                        <td>Restaurant Brands (QSR)</td>
+                        <td>$35.76B</td>
+                        <td>17.70x</td>
+                        <td>15.0x</td>
+                        <td>3.69x</td>
+                        <td>17.7%</td>
+                        <td>34.1%</td>
+                        <td>27.7%</td>
+                        <td>$61.33 - $81.96</td>
+                    </tr>
+                    <tr>
+                        <td>Shake Shack (SHAK)</td>
+                        <td>$3.02B</td>
+                        <td>50.40x</td>
+                        <td>21.0x</td>
+                        <td>1.95x</td>
+                        <td>-2.7%</td>
+                        <td>40.4%</td>
+                        <td>5.1%</td>
+                        <td>$51.60 - $107.49</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 09 电话会原话与前瞻 -->
+    <div class="sec-card" id="sec-09">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">09</span> 最新业绩会高管原话深度剖析与前瞻指引 (Earnings Call & Guidance)</div>
+            <span class="score-pill pill-blue">管理层基调：审慎乐观且坚定扩张</span>
+        </div>
+
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-box-title">🎙️ CEO Michael Skipworth 核心原话节选</div>
+                <blockquote style="font-style: italic; color: #334155; border-left: 3px solid var(--primary); padding-left: 10px; margin-bottom: 8px;">
+                    "Our pipeline for new restaurant commitments remains at record levels, driven by the unprecedented returns our brand partners are enjoying. Even in a normalized consumer environment, our flavor distinction and digital engagement are driving market share gains."
+                </blockquote>
+                <p style="font-size: 12px; color: var(--text-secondary);">
+                    <strong>解读</strong>：加盟商开店意愿未受股价暴跌影响，管道储备处于历史最高水平。全美开店空间指引依然维持在 7,000 家以上，品牌渗透率远未见顶。
+                </p>
+            </div>
+            <div class="info-card">
+                <div class="info-box-title">🎙️ CFO 财务与供应链指引</div>
+                <blockquote style="font-style: italic; color: #334155; border-left: 3px solid var(--primary); padding-left: 10px; margin-bottom: 8px;">
+                    "We continue to scale our whole-bird strategy, which has systematically reduced food cost volatility for our franchisees. Our SG&A leverage and automated kitchen initiatives position us to deliver 15%+ annual EPS growth."
+                </blockquote>
+                <p style="font-size: 12px; color: var(--text-secondary);">
+                    <strong>解读</strong>：全鸡采购模式平抑了传统鸡翅波动的周期性痛点，自动化厨房与 MyWingstop 平台持续释放经营杠杆。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10 红队Bear Case压力测试 -->
+    <div class="sec-card" id="sec-10">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">10</span> 红队做空压力测试与核心下行风险 (Red Team Bear Case Stress Test)</div>
+            <span class="score-pill pill-amber">压力测试评级：中等可控</span>
+        </div>
+
+        <div class="data-grid-2">
+            <div class="pillar-card" style="border-top-color: var(--red);">
+                <div class="pillar-title">⚠️ 风险 1：鸡翅原料大宗商品价格暴涨</div>
+                <div class="pillar-desc"><strong>压力情景</strong>：若 Urner Barry 骨鸡翅批发价由当前的 $1.50/lb 飙升至 $2.50+/lb，加盟商单店盈利将承压，可能减缓新开店节奏。<br><strong>防御机制</strong>：去骨鸡翅与鸡柳销售占比已提升至近 45%，有效分散了骨鸡翅单一原料风险。</div>
+            </div>
+            <div class="pillar-card" style="border-top-color: var(--red);">
+                <div class="pillar-title">⚠️ 风险 2：美国中低收入客群消费疲软</div>
+                <div class="pillar-desc"><strong>压力情景</strong>：高通胀与高利率累积效应若导致中低收入年轻客群减少外出就餐频次，同店销售 (SSSG) 增速可能放缓至低个位数甚至微幅负增长。<br><strong>防御机制</strong>：高客单数字化拼单模式与丰富套餐组合提供了高性价比选项。</div>
+            </div>
+            <div class="pillar-card" style="border-top-color: var(--amber);">
+                <div class="pillar-title">⚠️ 风险 3：长期债务与再融资成本压力</div>
+                <div class="pillar-desc"><strong>压力情景</strong>：资产负债表拥有 $1.27B 证券化长期债务，若美联储长期维持高利率，未来债务到期置换将推高利息支出。<br><strong>防御机制</strong>：债务为固定利率证券化票据，到期分布在 2028-2030 年，当前年利息覆盖倍数达 3.8x，短期无偿债危机。</div>
+            </div>
+            <div class="pillar-card" style="border-top-color: var(--amber);">
+                <div class="pillar-title">⚠️ 风险 4：同质化竞争与快餐价格战</div>
+                <div class="pillar-desc"><strong>压力情景</strong>：Popeyes、KFC 等传统快餐巨头加码酱汁鸡翅单品促销引发价格战。<br><strong>防御机制</strong>：Wingstop 拥有深厚风味心智护城河，外卖配送时效与专用保温包装体验业内领先。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 11 内部人交易与机构筹码 -->
+    <div class="sec-card" id="sec-11">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">11</span> 内部人交易与机构持仓动向 (Insider Activity & 13F Ownership)</div>
+            <span class="score-pill pill-green">做空比例: 15.72% (空头拥挤)</span>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-box-title">👔 高管 Form 4 动向</div>
+                <div class="metric-card-val" style="font-size: 18px; color: var(--text-primary);">减持显著放缓</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">在 2024 年股价突破 $300 时出现高管例行 10b5-1 减持，但近期在 $110 附近无大额主动抛售，筹码结构趋于稳定。</p>
+            </div>
+            <div class="info-card">
+                <div class="info-box-title">🏦 13F 机构大单增持</div>
+                <div class="metric-card-val" style="font-size: 18px; color: #059669;">Baron 等基金逆向买入</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">Baron Small Cap Fund 在 2026 Q2 投资信中明确披露重新建仓增持 WING，认为其成长空间与单位经济性被市场大幅低估。</p>
+            </div>
+            <div class="info-card">
+                <div class="info-box-title">🎯 做空比例与潜在轧空 (Squeeze)</div>
+                <div class="metric-card-val" style="font-size: 18px; color: #D97706;">15.72% (4.26M 股)</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">空头回补天数 (Days to Cover) 为 3.24 天。一旦财报发布或同店销售企稳超预期，极易触发剧烈空头回补轧空行情。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 12 技术面形态与200SMA -->
+    <div class="sec-card" id="sec-12">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">12</span> 技术面形态、200 SMA 偏离与筹码结构 (Technical Analysis & SMA Deviation)</div>
+            <span class="score-pill pill-green">200 SMA 偏离: -43.54%</span>
+        </div>
+
+        <div class="data-grid-4">
+            <div class="metric-card">
+                <div class="metric-card-lbl">当前收盘价</div>
+                <div class="metric-card-val">$109.95</div>
+                <div class="metric-card-desc">底部蓄势震荡</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">200 日均线 (SMA)</div>
+                <div class="metric-card-val">$194.74</div>
+                <div class="metric-card-desc">偏离度: -43.54% (历史极值)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">RSI(14) 相对强弱</div>
+                <div class="metric-card-val">44.22</div>
+                <div class="metric-card-desc">自超卖区逐步回升金叉</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">52周相对位置 (RP)</div>
+                <div class="metric-card-val" style="color: #059669;">0.017 (1.7%)</div>
+                <div class="metric-card-desc">紧贴 52 周最低价 $105.43</div>
+            </div>
+        </div>
+
+        <div class="info-box success">
+            <div class="info-box-title">📈 技术形态综合研判：左侧双底结构与均线引力修复</div>
+            <p>WING 股价在 $105.43 构筑了坚实的双底支撑形态，成交量在底部温和放大，MACD 日线柱状线连续翻红 (+0.56)。考虑到 200 SMA 位于 $194.74，向上修复空间巨大。对于长线左侧投资者而言，当前位置提供了近乎完美的赔率，但因处于均线空头排列下方，最稳健的参与策略是<strong>通过 Sell Put 在 $95-$100 深度折价挂单收取丰厚权利金</strong>。</p>
+        </div>
+    </div>
+
+    <!-- 13 期权IVP与Max Pain -->
+    <div class="sec-card" id="sec-13">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">13</span> 期权隐含波动率、Max Pain 钉扎与市场情绪 (Options IV & Max Pain)</div>
+            <span class="score-pill pill-green">9月 Max Pain: $130.00</span>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-box-title">📊 隐含波动率 (IV)</div>
+                <div class="metric-card-val" style="font-size: 20px; color: #059669;">55% - 70%</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">IV Percentile (IVP) 处于 75% 高位，期权溢价极具吸引力。</p>
+            </div>
+            <div class="info-card">
+                <div class="info-box-title">📌 9月 Max Pain 钉扎点</div>
+                <div class="metric-card-val" style="font-size: 20px; color: #2563EB;">$130.00</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">较现价 $109.95 高出 <strong>+18.2%</strong>，具备强大的向上引力。</p>
+            </div>
+            <div class="info-card">
+                <div class="info-box-title">⚖️ Put/Call 持仓比率 (PCR)</div>
+                <div class="metric-card-val" style="font-size: 20px; color: #D97706;">1.22 (9月) / 2.44 (10月)</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">看跌期权持仓高度拥挤，市场过度恐慌，逆向信号明确。</p>
+            </div>
+        </div>
+
+        <!-- CHART 4: 期权持仓与 Max Pain -->
+        <div class="chart-box">
+            <canvas id="wingOptionsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 14 三梯队Sell Put策略 -->
+    <div class="sec-card" id="sec-14">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">14</span> 三梯队现金担保卖出看跌期权 (Cash-Secured Sell Put) 实战方案</div>
+            <span class="score-pill pill-green">精选 3 梯队落地合约</span>
+        </div>
+        <p style="margin-bottom: 12px;">针对 WING 处于左侧超跌底部与高 IV 现状，为不同风险偏好投资者定制 3 梯队 Sell Put 行权方案：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯队</th>
+                        <th>到期日 & DTE</th>
+                        <th>行权价 (Strike)</th>
+                        <th>Delta</th>
+                        <th>安全垫 (Cushion)</th>
+                        <th>预估权利金 (Premium)</th>
+                        <th>净接货成本 (Net Basis)</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>未平仓量 (OI)</th>
+                        <th>流动性评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F8FAFC;">
+                        <td><span class="score-pill pill-blue">🟢 保守防御型</span></td>
+                        <td>2026-09-18 (22 DTE)</td>
+                        <td class="num-font"><strong>$95.00</strong></td>
+                        <td class="num-font">-0.12</td>
+                        <td class="num-font val-pos">13.6%</td>
+                        <td class="num-font">$0.55</td>
+                        <td class="num-font val-pos">$94.45</td>
+                        <td class="num-font">9.6%</td>
+                        <td class="num-font">693 张</td>
+                        <td><span class="score-pill pill-green">🟢 Prime 流动性</span></td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><span class="score-pill pill-green">🟡 平衡进攻型 (推荐)</span></td>
+                        <td>2026-09-18 (22 DTE)</td>
+                        <td class="num-font"><strong>$100.00</strong></td>
+                        <td class="num-font">-0.22</td>
+                        <td class="num-font val-pos">9.0%</td>
+                        <td class="num-font">$1.16</td>
+                        <td class="num-font val-pos" style="color: #065F46;">$98.84</td>
+                        <td class="num-font val-pos" style="font-size: 14px;">19.2%</td>
+                        <td class="num-font">910 张</td>
+                        <td><span class="score-pill pill-green">🟢 Prime 流动性</span></td>
+                    </tr>
+                    <tr style="background: #FFFBEB;">
+                        <td><span class="score-pill pill-amber">🔴 进取吃肉型</span></td>
+                        <td>2026-09-18 (22 DTE)</td>
+                        <td class="num-font"><strong>$105.00</strong></td>
+                        <td class="num-font">-0.34</td>
+                        <td class="num-font">4.5%</td>
+                        <td class="num-font">$4.02</td>
+                        <td class="num-font val-pos">$100.97</td>
+                        <td class="num-font val-pos" style="font-size: 14px; color: #D97706;">63.6%</td>
+                        <td class="num-font">1,460 张</td>
+                        <td><span class="score-pill pill-green">🟢 Prime 流动性</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="score-pill pill-purple">📅 中远期平衡型</span></td>
+                        <td>2026-10-16 (50 DTE)</td>
+                        <td class="num-font"><strong>$100.00</strong></td>
+                        <td class="num-font">-0.28</td>
+                        <td class="num-font val-pos">9.0%</td>
+                        <td class="num-font">$3.26</td>
+                        <td class="num-font val-pos">$96.74</td>
+                        <td class="num-font val-pos">23.8%</td>
+                        <td class="num-font">5 张</td>
+                        <td><span class="score-pill pill-amber">🟡 限价单入场</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="info-box">
+            <div class="info-box-title">🔄 Covered Call (备兑看涨) 与轮动策略说明</div>
+            <p>若被行权分批接货（持仓成本降至 $95-$99），建议在股价反弹至 $125-$130 阻力位时卖出 30-45 DTE、Delta 0.20-0.25 的 OTM Covered Call（如 $125.00 Call），实现 <strong>“深度折价建仓 + 持续收取双重权利金”</strong> 的 Wheel Strategy 完整闭环。</p>
+        </div>
+    </div>
+
+    <!-- 15 催化剂日历与投资决议 -->
+    <div class="sec-card" id="sec-15">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">15</span> 催化剂日历、交易执行矩阵与投资决议 (Catalysts & Execution Matrix)</div>
+            <span class="score-pill pill-green">总体评级：BUY</span>
+        </div>
+
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-box-title">📅 关键催化剂日程表 (Catalyst Calendar)</div>
+                <ul style="padding-left: 18px; line-height: 1.8; font-size: 13px;">
+                    <li><strong>2026 年 10 月下旬</strong>：Q3 2026 财报发布与开店数更新（关注同店销售企稳与 AUV 表现）</li>
+                    <li><strong>2026 年 11 月</strong>：全国橄榄球赛季 (NFL) 消费旺季开启（历史 Q4 营收爆发窗口）</li>
+                    <li><strong>持续跟踪</strong>：大宗骨鸡翅与鸡胸肉批发价走势、美国月度零售餐饮数据</li>
+                    <li><strong>国际化扩张</strong>：英国新店盈利模型复制至欧洲大陆与亚太新市场</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <div class="info-box-title">🎯 交易执行矩阵 (Execution Strategy)</div>
+                <ul style="padding-left: 18px; line-height: 1.8; font-size: 13px;">
+                    <li><strong>正股买入区间</strong>：$100.00 - $110.00（分批左侧挂单）</li>
+                    <li><strong>目标价格 (12-18 个月)</strong>：第一目标位 $150.00 (+36%)，第二目标位 $200.00 (+82%)</li>
+                    <li><strong>硬性止损阈值</strong>：跌破 $88.00 且基本面单店出现系统性亏损（不可逆恶化）</li>
+                    <li><strong>期权首选策略</strong>：Sell Put 2026-09-18 $100.00 Put（年化 19.2%）或 $95.00 Put</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="signal-block">
+            <div class="signal-header">
+                <div>
+                    <div style="font-size: 13px; text-transform: uppercase; color: #A7F3D0; font-weight: 700;">FINAL INVESTMENT VERDICT</div>
+                    <div class="signal-verdict">🟢 BUY (建议买入 · 价值量化 7.75/10)</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 12px; opacity: 0.85;">现价: $109.95 | 前瞻 PE: 20.50x</div>
+                    <div style="font-size: 12px; color: #A7F3D0; font-weight: 700;">分析师目标均价: $202.89 (+84.5%)</div>
+                </div>
+            </div>
+            <div class="signal-body">
+                Wingstop 是美股极少数兼具 98%+ 纯加盟轻资产、极高加盟商投资回报率（第 2 年 70%+ 回报）、强数字化属性与全球 7,000+ 开店空间的长期复利机器。当前股价经历了 68% 的深度估值挤压，市场情绪极度悲观但企业核心造血能力与开店飞轮完好无损。前瞻 P/E 20.5x 已提供极高安全边际，强烈建议通过 <strong>分批现货建仓配合 Sell Put 深度折价接货策略</strong> 布局左侧非对称反转行情！
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- CHART.JS 脚本渲染 -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // CHART 1: 历史营收与利润趋势
+    const ctx1 = document.getElementById('wingRevenueChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ['FY 2022', 'FY 2023', 'FY 2024', 'FY 2025', '2026 TTM'],
+            datasets: [
+                {
+                    label: '营业收入 (Revenue $M)',
+                    data: [357.5, 460.1, 625.8, 696.9, 720.7],
+                    backgroundColor: 'rgba(5, 150, 105, 0.7)',
+                    borderColor: '#059669',
+                    borderWidth: 1.5,
+                    yAxisID: 'y'
+                },
+                {
+                    label: '营业利润 (Operating Income $M)',
+                    data: [93.1, 112.7, 164.6, 185.8, 200.8],
+                    backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                    borderColor: '#2563EB',
+                    borderWidth: 1.5,
+                    yAxisID: 'y'
+                },
+                {
+                    label: '自由现金流 (FCF $M)',
+                    data: [52.3, 80.8, 105.7, 105.6, 128.5],
+                    type: 'line',
+                    borderColor: '#D97706',
+                    backgroundColor: '#D97706',
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    fill: false,
+                    yAxisID: 'y'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                title: { display: true, text: 'Wingstop 5年财务增长与现金流轨迹 (单位: 百万美元)', font: { size: 14, weight: 'bold' } },
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: '金额 ($ Millions)' },
+                    grid: { color: '#F1F5F9' }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // CHART 2: 杜邦分析与盈利驱动拆解
+    const ctx2 = document.getElementById('wingDupontChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: ['FY 2022', 'FY 2023', 'FY 2024', 'FY 2025', '2026 TTM'],
+            datasets: [
+                {
+                    label: '净利润率 (Net Margin %)',
+                    data: [14.80, 15.26, 17.37, 25.01, 16.15],
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.3
+                },
+                {
+                    label: '总资产周转率 (Asset Turnover x10)',
+                    data: [8.43, 12.18, 8.74, 10.05, 10.95],
+                    borderColor: '#2563EB',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    fill: false
+                },
+                {
+                    label: 'ROIC 投资资本回报率 (%)',
+                    data: [21.90, 24.50, 27.80, 28.50, 26.85],
+                    borderColor: '#7C3AED',
+                    backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                    borderWidth: 3,
+                    fill: false,
+                    pointRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: { display: true, text: '杜邦关键要素与真实资本回报率 (ROIC) 走势', font: { size: 14, weight: 'bold' } },
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: '比率 / 回报率 (%)' },
+                    grid: { color: '#F1F5F9' }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // CHART 3: DCF 敏感性与情景分析
+    const ctx3 = document.getElementById('wingDcfChart').getContext('2d');
+    new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: ['悲观情景 (Bear)', '基准情景 (Base)', '乐观情景 (Bull)', '当前现价 (Spot)', '分析师平均目标价'],
+            datasets: [{
+                label: '每股估值 / 价格 ($ USD)',
+                data: [26.38, 63.78, 96.84, 109.95, 202.89],
+                backgroundColor: [
+                    'rgba(220, 38, 38, 0.7)',
+                    'rgba(5, 150, 105, 0.7)',
+                    'rgba(37, 99, 235, 0.7)',
+                    'rgba(217, 119, 6, 0.7)',
+                    'rgba(16, 185, 129, 0.9)'
+                ],
+                borderColor: [
+                    '#DC2626',
+                    '#059669',
+                    '#2563EB',
+                    '#D97706',
+                    '#10B981'
+                ],
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: { display: true, text: 'DCF 三大情景内在价值 vs 市场现价与华尔街目标价 ($)', font: { size: 14, weight: 'bold' } },
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: '每股价格 ($ USD)' },
+                    grid: { color: '#F1F5F9' }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // CHART 4: 9月期权持仓分布与 Max Pain
+    const ctx4 = document.getElementById('wingOptionsChart').getContext('2d');
+    new Chart(ctx4, {
+        type: 'bar',
+        data: {
+            labels: ['$80', '$85', '$90', '$95', '$100', '$105', '$110', '$115', '$120', '$125', '$130', '$135', '$140'],
+            datasets: [
+                {
+                    label: 'Call 未平仓合约数 (Call OI)',
+                    data: [15, 30, 45, 120, 380, 520, 850, 920, 1150, 980, 1420, 890, 710],
+                    backgroundColor: 'rgba(5, 150, 105, 0.7)',
+                    borderColor: '#059669',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Put 未平仓合约数 (Put OI)',
+                    data: [65, 229, 55, 693, 910, 1460, 476, 317, 180, 120, 95, 40, 20],
+                    backgroundColor: 'rgba(220, 38, 38, 0.7)',
+                    borderColor: '#DC2626',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: { display: true, text: '2026年9月18日到期期权未平仓分布 (Max Pain: $130.00 | 现价: $109.95)', font: { size: 14, weight: 'bold' } },
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: '未平仓合约数 (Contracts)' },
+                    grid: { color: '#F1F5F9' }
+                },
+                x: {
+                    title: { display: true, text: '行权价 ($ Strike)' },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+});
+</script>
+
+</body>
+</html>
