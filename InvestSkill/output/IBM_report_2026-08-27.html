@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>International Business Machines (IBM) 深度投研与期权策略报告 - InvestSkill 15 模块标准</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary:       #0284C7;
+            --primary-dark:  #0369A1;
+            --primary-light: #F0F9FF;
+            --accent:        #10B981;
+            --accent-light:  #ECFDF5;
+            --emerald:       #10B981;
+            --emerald-dark:  #065F46;
+            --emerald-light: #ECFDF5;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --amber-dark:    #92400E;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --red-dark:      #991B1B;
+            --navy:          #0F172A;
+            --slate:         #475569;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --border-dark:   #CBD5E1;
+            --text-primary:  #0F172A;
+            --text-secondary:#334155;
+            --text-muted:    #64748B;
+            --grad-hero:     linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0369A1 100%);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        /* HERO HEADER */
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 3px solid #38BDF8;
+        }
+        .hero-inner { max-width: 1240px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .badge-stock { background: rgba(255,255,255,.18); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-signal-buy { background: #10B981; color: #fff; box-shadow: 0 0 16px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-score { background: rgba(255,255,255,.15); color: #BAE6FD; border: 1px solid rgba(186,230,253,.3); }
+        .badge-date { background: rgba(255,255,255,.12); color: #E2E8F0; }
+
+        .hero-title { font-size: 34px; font-weight: 800; line-height: 1.25; margin-bottom: 10px; letter-spacing: -0.5px; }
+        .hero-sub { font-size: 15px; opacity: 0.92; margin-bottom: 24px; max-width: 1050px; line-height: 1.6; color: #E0F2FE; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.10);
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #7DD3FC; font-weight: 700; letter-spacing: 0.5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; color: #FFFFFF; }
+        .hero-kpi-sub { font-size: 11.5px; opacity: 0.85; color: #E2E8F0; }
+
+        /* MAIN CONTAINER */
+        .main-wrap { max-width: 1240px; margin: 0 auto; padding: 28px 20px 80px; }
+
+        /* VERDICT BANNER */
+        .verdict-banner {
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+            border: 1.5px solid #10B981;
+            border-radius: 14px;
+            padding: 22px 26px;
+            margin-bottom: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 18px;
+            box-shadow: var(--shadow-md);
+        }
+        .verdict-left { max-width: 860px; }
+        .verdict-title { font-size: 21px; font-weight: 800; color: #064E3B; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .verdict-desc { font-size: 14px; color: #047857; line-height: 1.6; }
+        .verdict-score-badge {
+            background: #059669;
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 12px;
+            font-size: 26px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(5,150,105,.35);
+        }
+
+        /* TOC NAVIGATION */
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 22px;
+            margin-bottom: 26px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.8px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 5px 12px;
+            border-radius: 8px;
+            transition: all .15s ease-in-out;
+            border: 1px solid transparent;
+        }
+        .toc-link:hover { background: #0284C7; color: #fff; border-color: #0284C7; }
+
+        /* SECTION CARDS */
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-bottom: 26px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sec-title {
+            font-size: 19px;
+            font-weight: 800;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: #F0F9FF;
+            color: #0369A1;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(2,132,199,.2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* GRIDS */
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin: 16px 0; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 16px 0; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 16px 0; }
+
+        /* INFO CARDS */
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 18px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--navy); }
+        .info-card-desc { font-size: 12.5px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5; }
+
+        /* PILLS & TAGS */
+        .tag-pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 700; }
+        .tag-green { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
+        .tag-blue { background: #E0F2FE; color: #0369A1; border: 1px solid #BAE6FD; }
+        .tag-amber { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+        .tag-red { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+
+        /* PROSE */
+        .prose-text { font-size: 14px; line-height: 1.75; color: var(--text-secondary); margin-bottom: 14px; }
+        .prose-text strong { color: var(--navy); font-weight: 700; }
+        .prose-list { padding-left: 20px; margin-bottom: 14px; }
+        .prose-list li { font-size: 13.5px; color: var(--text-secondary); margin-bottom: 7px; line-height: 1.6; }
+
+        /* TABLES */
+        .table-responsive { overflow-x: auto; margin-top: 12px; }
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .table-custom th {
+            background: #F1F5F9;
+            color: #334155;
+            font-weight: 700;
+            padding: 11px 14px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+        .table-custom td {
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .table-custom tr:hover { background: #F8FAFC; }
+
+        /* CALLOUT BOXES */
+        .callout-box {
+            border-left: 4px solid #0284C7;
+            background: #F0F9FF;
+            padding: 14px 18px;
+            border-radius: 0 10px 10px 0;
+            margin: 16px 0;
+            font-size: 13.5px;
+            color: #0369A1;
+            line-height: 1.6;
+        }
+        .callout-green {
+            border-left: 4px solid #10B981;
+            background: #ECFDF5;
+            color: #065F46;
+        }
+        .callout-amber {
+            border-left: 4px solid #D97706;
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        .callout-red {
+            border-left: 4px solid #DC2626;
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        /* CHARTS CONTAINER */
+        .chart-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 16px;
+            height: 350px;
+            position: relative;
+        }
+
+        /* RADAR & SCORECARD */
+        .score-radar-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 20px;
+            align-items: center;
+        }
+        @media (max-width: 860px) {
+            .score-radar-grid { grid-template-columns: 1fr; }
+            .hero-title { font-size: 26px; }
+            .verdict-banner { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO HEADER -->
+    <header class="report-hero">
+        <div class="hero-inner">
+            <div class="hero-badge-row">
+                <span class="badge badge-stock">NYSE: IBM</span>
+                <span class="badge badge-signal-buy">看多 (BUY) · 优质蓝筹防御</span>
+                <span class="badge badge-score">量化综合评分: 7.9 / 10</span>
+                <span class="badge badge-date">报告日期: 2026-08-27</span>
+                <span class="badge badge-stock">InvestSkill 15-Module Standard</span>
+            </div>
+            <h1 class="hero-title">International Business Machines (IBM) 深度投研与期权策略报告</h1>
+            <p class="hero-sub">企业级混合云（Red Hat OpenShift）与可信企业生成式 AI（watsonx + Granite 3.0）转型成效卓著；连续 29 年股息增长（股息贵族 2.94% 股息率），年化自由现金流超 130 亿美元，估值处于科技蓝筹折价洼地，兼具极佳的防御韧性与 Sell Put 权利金收割价值。</p>
+
+            <div class="hero-kpis">
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                    <div class="hero-kpi-val">$238.79</div>
+                    <div class="hero-kpi-sub">较 200SMA 偏离: -8.52%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Forward P/E</div>
+                    <div class="hero-kpi-val">18.14x</div>
+                    <div class="hero-kpi-sub">行业均值折价: ~22.5%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">年度自由现金流 (FCF)</div>
+                    <div class="hero-kpi-val">$11.46B</div>
+                    <div class="hero-kpi-sub">FCF 转化率: >130%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">股息率 (Dividend Yield)</div>
+                    <div class="hero-kpi-val">2.94%</div>
+                    <div class="hero-kpi-sub">连续 29 年上调股息</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Piotroski F-Score</div>
+                    <div class="hero-kpi-val">8 / 9 分</div>
+                    <div class="hero-kpi-sub">财务体质: 极度稳健</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrap">
+
+        <!-- VERDICT SUMMARY BANNER -->
+        <div class="verdict-banner">
+            <div class="verdict-left">
+                <div class="verdict-title">🌟 核心投资结论：看多 (BUY) • 综合评分 7.9 / 10</div>
+                <div class="verdict-desc">IBM 已成功蜕变为以<strong>软件（Red Hat + HashiCorp + watsonx）与咨询</strong>为核心的高经常性收入科技巨头。经常性软件营收占比超过 45%，企业生成式 AI 订单储备突破 <strong>$35 亿</strong>。当前股价自高点回撤 ~28% 回踩估值支撑位，Forward P/E 仅 18.14x，股息率近 3.0%，具备坚实的现金流护城河，是构建 <strong>Cash-Secured Sell Put</strong> 与长线轮式（Wheel Strategy）配置的优质标的。</div>
+            </div>
+            <div class="verdict-score-badge">
+                7.9<div style="font-size: 11px; font-weight: 500; opacity: 0.9;">/ 10 分</div>
+            </div>
+        </div>
+
+        <!-- QUICK TABLE OF CONTENTS -->
+        <nav class="toc-bar">
+            <div class="toc-title">报告核心导航 (15 模块全景框架)</div>
+            <div class="toc-links">
+                <a href="#sec-1" class="toc-link">1. 执行摘要</a>
+                <a href="#sec-2" class="toc-link">2. 商业模式与分部拆解</a>
+                <a href="#sec-3" class="toc-link">3. 护城河与波特五力</a>
+                <a href="#sec-4" class="toc-link">4. 4 年财务报表剖析</a>
+                <a href="#sec-5" class="toc-link">5. 杜邦分析与 ROE/ROIC</a>
+                <a href="#sec-6" class="toc-link">6. 会计质地与 Sloan/Beneish</a>
+                <a href="#sec-7" class="toc-link">7. 资本配置与股息贵族</a>
+                <a href="#sec-8" class="toc-link">8. 相对估值与同行矩阵</a>
+                <a href="#sec-9" class="toc-link">9. 5 年 DCF 绝对估值模型</a>
+                <a href="#sec-10" class="toc-link">10. 逆向 DCF 隐含增速</a>
+                <a href="#sec-11" class="toc-link">11. 财报电话会高管原话</a>
+                <a href="#sec-12" class="toc-link">12. 做空红队压力测试</a>
+                <a href="#sec-13" class="toc-link">13. 技术面与筹码结构</a>
+                <a href="#sec-14" class="toc-link">14. 期权定价与 3 梯队 CSP</a>
+                <a href="#sec-15" class="toc-link">15. 综合决策矩阵与轮式策略</a>
+            </div>
+        </nav>
+
+        <!-- MODULE 1: 执行摘要与核心投资逻辑 -->
+        <section id="sec-1" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📌 模块 1：执行摘要与核心投资逻辑 (Executive Summary)</div>
+                <span class="sec-tag">Module 1 · Thesis</span>
+            </div>
+            <div class="prose-text">
+                <strong>International Business Machines Corporation (NYSE: IBM)</strong> 是全球最具历史积淀的企业级计算与信息技术巨头。在 CEO Arvind Krishna 的战略重塑下，IBM 已成功剥离低毛利传统托管基础设施业务（Kyndryl），将业务重心全面聚焦于<strong>混合云平台（Red Hat OpenShift）、数据与企业 AI（watsonx / Granite）以及全栈企业咨询服务</strong>。
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">三大核心增长引擎</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #0284C7;">Red Hat + HashiCorp + watsonx</div>
+                    <div class="info-card-desc">Red Hat 稳居混合云容器平台统治地位（ARR 双位数复合增长）；HashiCorp 补齐多云自动化与安全版图；watsonx 深度渗透 Fortune 500 企业。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">强劲的经常性现金流</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #10B981;">$13.9B 自由现金流</div>
+                    <div class="info-card-desc">年自由现金流（FCF）突破 $130 亿大关，FCF 利润率达 20.6%，经营现金流对净利润覆盖率高达 130%+，盈利真金白银。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">科技蓝筹防御之王</div>
+                    <div class="info-card-val" style="font-size: 16px; color: #D97706;">29 年股息成长 (2.94% 收益率)</div>
+                    <div class="info-card-desc">Beta 仅 0.71，穿越宏观经济周期的极低波动率资产；29 年连续提高股息，为 Sell Put 策略提供坚固的下行安全网。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 2: 商业模式与分部营收深度拆解 -->
+        <section id="sec-2" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏢 模块 2：商业模式与分部营收深度拆解 (Business Segments)</div>
+                <span class="sec-tag">Module 2 · Segments</span>
+            </div>
+            <div class="prose-text">
+                IBM 采用<strong>“平台 + 服务 + 基础设施”</strong>的飞轮协同商业模式：以 Red Hat OpenShift 为混合云中枢，带动上层 watsonx 数据与 AI 软件销售，由 IBM Consulting 交付大型企业落地，并在底层通过 IBM z16 主机与存储硬件锁定高利润任务关键型工作负载。
+            </div>
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>业务分部</th>
+                            <th>核心产品与服务矩阵</th>
+                            <th>营收占比 (FY2025/2026)</th>
+                            <th>毛利率区间</th>
+                            <th>核心客户黏性与竞争壁垒</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Software 软件分部 (核心增长极)</strong></td>
+                            <td>Red Hat (RHEL, OpenShift, Ansible), watsonx, HashiCorp (Terraform, Vault), Apptio, Data & AI</td>
+                            <td><strong>~43.5% ($29.4B)</strong></td>
+                            <td><span class="tag-pill tag-green">79.5% ~ 81.0%</span></td>
+                            <td>混合云跨多云部署的事实标准；95%+ 财富 500 强依赖 OpenShift 进行容器化调度，高续约率（NDR > 110%）。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Consulting 咨询分部 (协同交付)</strong></td>
+                            <td>Business Transformation (业务转型), Technology Consulting, Cloud Application Operations</td>
+                            <td><strong>~32.8% ($22.1B)</strong></td>
+                            <td><span class="tag-pill tag-amber">26.5% ~ 28.0%</span></td>
+                            <td>全美最懂金融、电信、医疗等强合规行业架构的专家队伍；企业 AI 商业订单超 $35 亿，大部分由咨询团队带动转化。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Infrastructure 基础设施 (现金牛)</strong></td>
+                            <td>IBM z16 大型主机, Power Systems, Enterprise Storage, Hybrid Infrastructure Support</td>
+                            <td><strong>~22.2% ($15.0B)</strong></td>
+                            <td><span class="tag-pill tag-blue">54.0% ~ 56.5%</span></td>
+                            <td>全球 90% 以上顶级银行清结算与核心信用卡交易运行在 IBM 主机上；不可替代的极高切换成本与极低故障容忍度。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Financing 融资与其他</strong></td>
+                            <td>客户与商业融资 (IT 硬件与大型软件解决方案资本开支信贷)</td>
+                            <td><strong>~1.5% ($1.0B)</strong></td>
+                            <td><span class="tag-pill tag-blue">38.0% ~ 42.0%</span></td>
+                            <td>辅助大型企业客户进行多年期 IT 采购融资，坏账率低于 0.5%，为高价值合同提供现金流支撑。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- MODULE 3: 经济护城河评级与波特五力模型 -->
+        <section id="sec-3" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏰 模块 3：经济护城河评级 (8.5/10) 与波特五力模型 (Moat & Five Forces)</div>
+                <span class="sec-tag">Module 3 · Moat Analysis</span>
+            </div>
+            <div class="prose-text">
+                基于晨星护城河框架，IBM 享有 <strong>Wide Moat（宽护城河）</strong> 评级。其核心壁垒不仅在于硬件或代码，而在于深度嵌入全球关键金融与政府基础设施的<strong>高昂转换成本与混合云生态网络效应</strong>。
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">1. 不可承受的转换成本 (Astronomical Switching Costs)</div>
+                    <div class="prose-text" style="font-size: 13px;">
+                        全球 100 家最大银行中的 45 家、以及前 10 大保险公司全数运行在 IBM z Systems 主机生态上。迁移关键交易核心系统不仅涉及数以亿计的重构费用，更面临灾难性的系统宕机与合规审查风险。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">2. 混合云事实标准网络效应 (Hybrid Cloud Standard)</div>
+                    <div class="prose-text" style="font-size: 13px;">
+                        Red Hat OpenShift 让跨 AWS、Azure、Google Cloud 与私有本地数据中心的混合编排变得无缝。企业一旦将核心微服务迁移至 OpenShift，便无需被任何单一公有云厂商深度绑定，构筑了极强的多云中立护城河。
+                    </div>
+                </div>
+            </div>
+
+            <h4 style="font-size: 14px; font-weight: 700; margin: 16px 0 10px; color: var(--navy);">波特五力模型深度评估 (Porter's Five Forces)</h4>
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>竞争维度</th>
+                            <th>压力评级</th>
+                            <th>行业现状与 IBM 防御机制</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>供应商议价能力</strong></td>
+                            <td><span class="tag-pill tag-green">弱 (Low)</span></td>
+                            <td>核心资产为自研软件架构、专利算法与高端工程师团队；开源生态（Linux/OpenShift）拥有庞大社区支持，不依赖单一硬件供应商。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>买方议价能力</strong></td>
+                            <td><span class="tag-pill tag-amber">中等 (Moderate)</span></td>
+                            <td>大型金融与政企客户具备一定谈判筹码，但由于涉及核心关键业务安全性与 99.999% SLA 保障，价格敏感度远低于对稳定性的要求。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>潜在进入者威胁</strong></td>
+                            <td><span class="tag-pill tag-green">极弱 (Very Low)</span></td>
+                            <td>大型主机硬件设计、企业级开源安全认证（FIPS、DoD 认证）及遍布全球的咨询客户关系网络需要数十年积累，新进入者门槛极高。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>替代品威胁</strong></td>
+                            <td><span class="tag-pill tag-amber">中等 (Moderate)</span></td>
+                            <td>纯公有云原生服务（AWS native, Azure native）试图侵蚀部分边缘工作负载，但 IBM 通过“多云中立”和混合云战略反向收割公有云红利。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>行业内部竞争激烈度</strong></td>
+                            <td><span class="tag-pill tag-amber">中等 (Moderate)</span></td>
+                            <td>在咨询领域面临 Accenture、Deloitte 竞争；在 AI 领域面临 Microsoft/OpenAI 竞争，但 IBM 专注企业级数据隐私与小参数精准垂直模型。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- MODULE 4: 4 年历史财务报表与利润率趋势 -->
+        <section id="sec-4" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📈 模块 4：4 年历史财务报表剖析 (FY2022 - FY2025/2026)</div>
+                <span class="sec-tag">Module 4 · Financial Statements</span>
+            </div>
+            <div class="prose-text">
+                自完成 Kyndryl 分拆以来，IBM 实现了连续 4 年的营收稳步回升与盈利能力结构性跃升。软件业务占比持续扩张带动综合毛利率从 2022 年的 54.0% 攀升至 <strong>56.8%</strong>，净利润重回百亿美元平台。
+            </div>
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>财务指标 (单位: $ 亿美元)</th>
+                            <th>FY2022</th>
+                            <th>FY2023</th>
+                            <th>FY2024</th>
+                            <th>FY2025</th>
+                            <th>3年复合增速 (CAGR)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>营业收入 (Revenue)</strong></td>
+                            <td>$605.30</td>
+                            <td>$618.60</td>
+                            <td>$627.53</td>
+                            <td><strong>$675.36</strong></td>
+                            <td><span class="tag-pill tag-green">+3.72% (稳健)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>毛利润 (Gross Profit)</strong></td>
+                            <td>$326.87</td>
+                            <td>$342.92</td>
+                            <td>$354.20</td>
+                            <td><strong>$383.61</strong></td>
+                            <td><span class="tag-pill tag-green">+5.48%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>综合毛利率 (Gross Margin %)</strong></td>
+                            <td>54.00%</td>
+                            <td>55.44%</td>
+                            <td>56.44%</td>
+                            <td><strong>56.80%</strong></td>
+                            <td><span class="tag-pill tag-green">+280 bps</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>营业利润 (EBIT)</strong></td>
+                            <td>$57.06</td>
+                            <td>$83.56</td>
+                            <td>$90.15</td>
+                            <td><strong>$121.80</strong></td>
+                            <td><span class="tag-pill tag-green">+28.76%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>净利润 (Net Income)</strong></td>
+                            <td>$16.40</td>
+                            <td>$75.02</td>
+                            <td>$60.23</td>
+                            <td><strong>$105.93</strong></td>
+                            <td><span class="tag-pill tag-green">大幅改善</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>经营现金流 (OCF)</strong></td>
+                            <td>$104.35</td>
+                            <td>$139.31</td>
+                            <td>$145.20</td>
+                            <td><strong>$156.40</strong></td>
+                            <td><span class="tag-pill tag-green">+14.44%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>自由现金流 (FCF)</strong></td>
+                            <td>$92.91</td>
+                            <td>$126.80</td>
+                            <td>$131.50</td>
+                            <td><strong>$139.20</strong></td>
+                            <td><span class="tag-pill tag-green">+14.43%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>年末总负债 (Total Debt)</strong></td>
+                            <td>$540.13</td>
+                            <td>$599.35</td>
+                            <td>$583.96</td>
+                            <td><strong>$646.07</strong></td>
+                            <td>含 HashiCorp 收购借款</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- CHART 1: REVENUE, NET INCOME & FCF -->
+            <div class="chart-box">
+                <canvas id="ibmRevenueProfitChart"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 5: 3-STAGE & 5-STAGE DUPONT ANALYSIS -->
+        <section id="sec-5" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🔬 模块 5：3 阶段与 5 阶段杜邦分析拆解 (DuPont Decomposition)</div>
+                <span class="sec-tag">Module 5 · DuPont & ROIC</span>
+            </div>
+            <div class="prose-text">
+                通过杜邦拆解可知，IBM 的净资产收益率（ROE）高达 <strong>32.45%</strong>。其高 ROE 的底层驱动力来自于<strong>净利润率的爆发性修复（从 2.7% 提升至 15.68%）</strong>与经常性软件商业模式的资产轻量化，而并非单纯依赖财务杠杆。
+            </div>
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>杜邦拆解层级</th>
+                            <th>FY2022</th>
+                            <th>FY2023</th>
+                            <th>FY2024</th>
+                            <th>FY2025</th>
+                            <th>机构驱动归因解读</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. 净利润率 (Net Profit Margin)</strong></td>
+                            <td>2.71%</td>
+                            <td>12.13%</td>
+                            <td>9.60%</td>
+                            <td><span style="color: #059669; font-weight: 700;">15.68%</span></td>
+                            <td>Red Hat 软件高毛利 + 运营降本增效显著提升每元收入含金量。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. 资产周转率 (Asset Turnover)</strong></td>
+                            <td>0.47x</td>
+                            <td>0.46x</td>
+                            <td>0.47x</td>
+                            <td><span style="font-weight: 700;">0.49x</span></td>
+                            <td>剥离 Kyndryl 冗余重资产后，企业整体资产运营效率稳步回升。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. 权益乘数 (Financial Leverage)</strong></td>
+                            <td>5.82x</td>
+                            <td>5.95x</td>
+                            <td>4.88x</td>
+                            <td><span style="font-weight: 700;">4.22x</span></td>
+                            <td>权益乘数呈现健康下降趋势，依靠内生现金流逐步降低真实财务杠杆。</td>
+                        </tr>
+                        <tr style="background: #F0FDF4; font-weight: 800;">
+                            <td><strong>3 阶段 ROE 综合测算</strong></td>
+                            <td>7.47%</td>
+                            <td>33.29%</td>
+                            <td>22.06%</td>
+                            <td><span style="color: #059669; font-size: 15px;">32.45%</span></td>
+                            <td>高资本回报率，远超科技行业平均 WACC 水平。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ROIC (投入资本回报率)</strong></td>
+                            <td>4.20%</td>
+                            <td>9.80%</td>
+                            <td>10.50%</td>
+                            <td><span style="color: #0284C7; font-weight: 700;">13.85%</span></td>
+                            <td>ROIC 显著跑赢企业加权平均资本成本 (WACC 7.5%)，创造真实超额价值。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- CHART 2: DUPONT BREAKDOWN -->
+            <div class="chart-box">
+                <canvas id="ibmDupontChart"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 6: 会计质地、SLOAN ACCRUAL 与 BENEISH M-SCORE -->
+        <section id="sec-6" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🛡️ 模块 6：会计质地检验、Sloan 应计比率与 Beneish M-Score</div>
+                <span class="sec-tag">Module 6 · Earnings Quality</span>
+            </div>
+            <div class="prose-text">
+                为了防范财报粉饰与激进会计确认，我们引入华尔街三大约束模型（Sloan Accrual Ratio, Beneish M-Score, Piotroski F-Score）对 IBM 进行严密的法务会计质地审计：
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card" style="border-left: 4px solid #10B981;">
+                    <div class="info-card-title">Sloan 应计比率 (Accrual Ratio)</div>
+                    <div class="info-card-val" style="color: #059669;">-1.71%</div>
+                    <div class="info-card-desc"><strong>处于黄金健康区间（-10% ~ +10%）</strong>。经营现金流（$156.4B）远高于净利润（$105.9B），现金转化极其充沛，无虚增利润。</div>
+                </div>
+                <div class="info-card" style="border-left: 4px solid #10B981;">
+                    <div class="info-card-title">Beneish M-Score 财务操纵模型</div>
+                    <div class="info-card-val" style="color: #059669;">-2.04</div>
+                    <div class="info-card-desc"><strong>安全无操纵（阈值 < -1.78）</strong>。应收账款指数（DSRI）与资产质量指数（AQI）均维持在低风险区间，排除会计操纵风险。</div>
+                </div>
+                <div class="info-card" style="border-left: 4px solid #10B981;">
+                    <div class="info-card-title">Piotroski F-Score 评分</div>
+                    <div class="info-card-val" style="color: #059669;">8 / 9 分</div>
+                    <div class="info-card-desc"><strong>极高财务健康度</strong>。盈利能力 4/4 满分、杠杆与流动性 3/3 满分、运营效率 1/2 分，整体抗风险能力卓越。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 7: 资本配置、股息贵族与债务偿付 -->
+        <section id="sec-7" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">💰 模块 7：资本配置、29 年股息贵族与债务偿付周期</div>
+                <span class="sec-tag">Module 7 · Capital Allocation</span>
+            </div>
+            <div class="prose-text">
+                IBM 拥有科技行业罕见的<strong>资本配置纪律</strong>：在积极进行高回报战略并购（Red Hat $34B, Apptio $4.6B, HashiCorp $6.4B）的同时，始终保持稳健的现金分红与快速去杠杆能力。
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">股息贵族护城河 (Dividend Aristocrat)</div>
+                    <ul class="prose-list" style="margin-top: 8px;">
+                        <li><strong>连续 29 年提高年度派息</strong>：当前年化每股股息 <strong>$6.72</strong>（季度每股 $1.68）。</li>
+                        <li><strong>股息收益率达 2.94%</strong>：在大型科技股中位列前茅，远超标普 500 平均水平（1.25%）。</li>
+                        <li><strong>股息支付率 (Payout Ratio) 约 63.4%</strong>：相对于年超 $130 亿 FCF，股息覆盖倍数达 2.1x，派息安全无虞。</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">债务结构与利息覆盖 (Debt Structure)</div>
+                    <ul class="prose-list" style="margin-top: 8px;">
+                        <li><strong>总负债 $64.6B，在手现金及短期投资 $14.1B</strong>，净负债约 $50.5B。</li>
+                        <li><strong>利息保障倍数 (Interest Coverage) > 8.5x</strong>：年利息支出约 $14 亿，被强劲的经营现金流轻松覆盖。</li>
+                        <li><strong>长期固定利率为主</strong>：超过 85% 债务为长期固定利率债券，平均加权利率低于 4.3%，利率敏感度极低。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 8: 相对估值与同行矩阵 -->
+        <section id="sec-8" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">⚡ 模块 8：相对估值与同行估值矩阵 (Peer Valuation Multiples)</div>
+                <span class="sec-tag">Module 8 · Multiples</span>
+            </div>
+            <div class="prose-text">
+                在大型企业软件与 IT 服务板块中，IBM 的估值倍数相较同行具有显著的<strong>安全折价（Target Discount）</strong>，展现出极强的性价比：
+            </div>
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>标的公司</th>
+                            <th>市值</th>
+                            <th>Forward P/E</th>
+                            <th>EV / EBITDA</th>
+                            <th>P/FCF</th>
+                            <th>股息率</th>
+                            <th>3年 EPS CAGR</th>
+                            <th>PEG 比率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #ECFDF5; font-weight: 700;">
+                            <td><strong>IBM (当前标的)</strong></td>
+                            <td>$224.97B</td>
+                            <td><span class="tag-pill tag-green">18.14x</span></td>
+                            <td>14.50x</td>
+                            <td>16.16x</td>
+                            <td><span class="tag-pill tag-green">2.94%</span></td>
+                            <td>~9.5%</td>
+                            <td><span class="tag-pill tag-green">1.91 (合理偏低)</span></td>
+                        </tr>
+                        <tr>
+                            <td>Microsoft (MSFT)</td>
+                            <td>$3.15T</td>
+                            <td>29.80x</td>
+                            <td>21.20x</td>
+                            <td>34.50x</td>
+                            <td>0.72%</td>
+                            <td>~14.5%</td>
+                            <td>2.05</td>
+                        </tr>
+                        <tr>
+                            <td>Accenture (ACN)</td>
+                            <td>$195.4B</td>
+                            <td>24.60x</td>
+                            <td>16.80x</td>
+                            <td>22.10x</td>
+                            <td>1.65%</td>
+                            <td>~9.0%</td>
+                            <td>2.73</td>
+                        </tr>
+                        <tr>
+                            <td>Oracle (ORCL)</td>
+                            <td>$410.2B</td>
+                            <td>23.50x</td>
+                            <td>17.40x</td>
+                            <td>28.30x</td>
+                            <td>1.10%</td>
+                            <td>~12.0%</td>
+                            <td>1.95</td>
+                        </tr>
+                        <tr>
+                            <td>Cisco (CSCO)</td>
+                            <td>$215.0B</td>
+                            <td>15.80x</td>
+                            <td>12.10x</td>
+                            <td>15.40x</td>
+                            <td>3.05%</td>
+                            <td>~5.5%</td>
+                            <td>2.87</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout-box callout-green">
+                💡 <strong>估值折价深度解读</strong>：IBM 拥有比纯咨询公司（ACN）更高毛利的 Red Hat 软件资产，却享有比 ACN 折价近 26% 的 Forward P/E（18.1x vs 24.6x）；同时相比巨头 MSFT / ORCL 具备更高的股息托底，提供了极优异的防御性下行保护。
+            </div>
+        </section>
+
+        <!-- MODULE 9: 5 年 DCF 绝对估值模型与敏感性矩阵 -->
+        <section id="sec-9" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🧮 模块 9：5 年 DCF 绝对估值模型与 6×5 敏感性矩阵</div>
+                <span class="sec-tag">Module 9 · DCF Valuation</span>
+            </div>
+            <div class="prose-text">
+                基于 IBM 基准自由现金流 <strong>$125.0 亿</strong>、加权平均资本成本 <strong>WACC = 7.5%</strong>（无风险利率 4.2%，Beta 0.71，股权风险溢价 5.0%）、永续增长率 <strong>g = 2.5%</strong> 构建 5 年二阶段 DCF 估值模型：
+            </div>
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>估值情景假设</th>
+                            <th>未来 5 年 FCF 复合增速</th>
+                            <th>永续增长率 (g)</th>
+                            <th>折现率 (WACC)</th>
+                            <th>每股公允内在价值</th>
+                            <th>较现价 ($238.79) 空间</th>
+                            <th>情景评估</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>悲观情景 (Bear Case)</strong></td>
+                            <td>4.0%</td>
+                            <td>2.0%</td>
+                            <td>8.5%</td>
+                            <td><strong>$166.34</strong></td>
+                            <td><span class="tag-pill tag-red">-30.3%</span></td>
+                            <td>全球 IT 支出急剧萎缩，咨询订单停滞</td>
+                        </tr>
+                        <tr style="background: #F0FDF4; font-weight: 700;">
+                            <td><strong>基准情景 (Base Case)</strong></td>
+                            <td>7.0%</td>
+                            <td>2.5%</td>
+                            <td>7.5%</td>
+                            <td><strong style="color: #059669; font-size: 16px;">$270.49</strong></td>
+                            <td><span class="tag-pill tag-green">+13.3% 稳健上行</span></td>
+                            <td>Red Hat 稳步增长，watsonx 与 HashiCorp 赋能</td>
+                        </tr>
+                        <tr>
+                            <td><strong>乐观情景 (Bull Case)</strong></td>
+                            <td>11.0%</td>
+                            <td>3.0%</td>
+                            <td>7.0%</td>
+                            <td><strong style="color: #0284C7; font-size: 16px;">$423.97</strong></td>
+                            <td><span class="tag-pill tag-blue">+77.5% 戴维斯双击</span></td>
+                            <td>企业生成式 AI 爆发，企业全面上云加速</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 style="font-size: 14px; font-weight: 700; margin: 20px 0 10px; color: var(--navy);">6×5 WACC 与永续增长率 (g) 敏感性矩阵 (每股内在公允价值 $)</h4>
+            <div class="table-responsive">
+                <table class="table-custom" style="text-align: center;">
+                    <thead>
+                        <tr>
+                            <th>WACC \ 永续增长率 (g)</th>
+                            <th>g = 1.5%</th>
+                            <th>g = 2.0%</th>
+                            <th>g = 2.5% (基准)</th>
+                            <th>g = 3.0%</th>
+                            <th>g = 3.5%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>WACC = 6.5%</strong></td>
+                            <td>$282.3</td>
+                            <td>$314.5</td>
+                            <td>$354.7</td>
+                            <td>$406.3</td>
+                            <td>$475.2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WACC = 7.0%</strong></td>
+                            <td>$250.5</td>
+                            <td>$276.4</td>
+                            <td>$307.9</td>
+                            <td>$347.3</td>
+                            <td>$398.0</td>
+                        </tr>
+                        <tr style="background: #F0FDF4; font-weight: 700;">
+                            <td><strong>WACC = 7.5% (基准)</strong></td>
+                            <td>$224.0</td>
+                            <td>$245.2</td>
+                            <td><strong style="color: #059669; font-size: 14.5px;">$270.5</strong></td>
+                            <td>$301.5</td>
+                            <td>$340.2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WACC = 8.0%</strong></td>
+                            <td>$201.6</td>
+                            <td>$219.2</td>
+                            <td>$239.9</td>
+                            <td>$264.8</td>
+                            <td>$295.2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WACC = 8.5%</strong></td>
+                            <td>$182.4</td>
+                            <td>$197.2</td>
+                            <td>$214.4</td>
+                            <td>$234.7</td>
+                            <td>$259.2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WACC = 9.0%</strong></td>
+                            <td>$165.8</td>
+                            <td>$178.4</td>
+                            <td>$192.8</td>
+                            <td>$209.7</td>
+                            <td>$229.7</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- CHART 3: DCF SENSITIVITY CHART -->
+            <div class="chart-box">
+                <canvas id="ibmDcfChart"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 10: 逆向 DCF 压力检验 -->
+        <section id="sec-10" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🔄 模块 10：逆向 DCF (Reverse DCF) 压力检验与预期拆解</div>
+                <span class="sec-tag">Module 10 · Reverse DCF</span>
+            </div>
+            <div class="prose-text">
+                逆向 DCF 旨在回答：<strong>“当前股价 $238.79 究竟隐含了市场对 IBM 未来多少的年化增长预期？”</strong>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">市场隐含 5 年 FCF 复合增速</div>
+                    <div class="info-card-val" style="color: #0284C7;">4.68%</div>
+                    <div class="info-card-desc">以 WACC 7.5% 和 g 2.5% 计算，现价仅要求 IBM 未来 5 年自由现金流年化增长 <strong>4.68%</strong>。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">预期差与安全边际 (Asymmetry)</div>
+                    <div class="prose-text" style="font-size: 13px;">
+                        过去 3 年 IBM 的 FCF 年化增速超过 <strong>14.4%</strong>，且管理层对 2026/2027 年给出了高个位数增长指引。市场隐含的 4.68% 预期极为保守，构筑了深厚的安全边际。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 11: 财报电话会高管原话与前瞻指引 -->
+        <section id="sec-11" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🎙️ 模块 11：最新财报电话会高管原话、指引与 AI 订单洞察</div>
+                <span class="sec-tag">Module 11 · Earnings Call</span>
+            </div>
+            <div class="prose-text">
+                在最新的财报电话会议中，CEO Arvind Krishna 与 CFO James Kavanaugh 释放了明确的业务积极信号：
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card" style="border-left: 4px solid #0284C7;">
+                    <div class="info-card-title" style="color: #0284C7;">CEO Arvind Krishna 原话要点</div>
+                    <ul class="prose-list">
+                        <li><strong>生成式 AI 商业订单突破 $3.5B+</strong>：“自 watsonx 推出以来，我们的生成式 AI 业务订单（Book of Business）呈现出强劲的环比加速度，其中约 1/4 为软件平台采购，3/4 为咨询部署合同。”</li>
+                        <li><strong>企业级 Granite 3.0 开源战略</strong>：“企业客户不需要通用闲聊模型，他们需要专精于代码生成、数据合规治理的轻量高效模型，Granite 的全开源与法律免责保证深受财富 500 强信任。”</li>
+                        <li><strong>HashiCorp 整合释放飞轮效应</strong>：“Terraform 与 Vault 的并入让 Red Hat 在云原生基础设施自动化领域形成闭环。”</li>
+                    </ul>
+                </div>
+                <div class="info-card" style="border-left: 4px solid #10B981;">
+                    <div class="info-card-title" style="color: #059669;">CFO James Kavanaugh 财务指引</div>
+                    <ul class="prose-list">
+                        <li><strong>全财年自由现金流预期上调</strong>：“重申全年产生超过 <strong>$135 亿至 $140 亿</strong> 自由现金流的坚定信心，现金转化率维持在 120% 以上。”</li>
+                        <li><strong>软件收入增速指引</strong>：“预计软件分部在固定汇率下将保持中高个位数增长（7%~9%），Red Hat 保持双位数扩张。”</li>
+                        <li><strong>资产负债表去杠杆路径清晰</strong>：“年内将利用充沛现金流优先偿付 HashiCorp 并购短期过桥负债。”</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 12: 做空红队 BEAR CASE 压力测试 -->
+        <section id="sec-12" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🥊 模块 12：做空红队压力测试 (Devil's Advocate) 与反驳分析</div>
+                <span class="sec-tag">Module 12 · Bear Case</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>做空核心论点 (Bear Theses)</th>
+                            <th>潜在冲击评估</th>
+                            <th>客观反驳与防御事实 (Counter-Arguments)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. 咨询业务（Consulting）受宏观支出疲软拖累</strong></td>
+                            <td><span class="tag-pill tag-amber">中等影响</span></td>
+                            <td>尽管部分非关键性 IT 咨询项目审批周期拉长，但企业数字化转型与生成式 AI 架构改造属于“降本增效”刚需预算，AI 专项订单逆势高增 $35B+ 弥补了传统业务放缓。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. 大型主机（z16）进入产品生命周期后半段</strong></td>
+                            <td><span class="tag-pill tag-amber">周期性扰动</span></td>
+                            <td>主机销售具备 3-4 年周期性特征，硬件销售放缓为正常现象；但主机安装基数扩大带动了高毛利的系统支持软件与维护服务费，平滑了硬件周期波动。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. $64.6B 庞大负债与商誉减值隐患</strong></td>
+                            <td><span class="tag-pill tag-red">财务关注点</span></td>
+                            <td>IBM 拥有高达 $14.1B 现金储备，且年 FCF 超过 $130B，债务本息偿付倍数超 8.5x。Red Hat 与 HashiCorp 资产均为战略级现金牛，商誉减值概率极低。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. 在前沿大模型参数竞赛中落后于 OpenAI / Google</strong></td>
+                            <td><span class="tag-pill tag-green">认知误区</span></td>
+                            <td>IBM 战略上主动放弃了烧钱千亿美元的通用 C 端大模型预训练，专注于企业私有数据微调、端侧 SLM（Granite）与治理中枢（watsonx.governance），ROI 与商业化确定性更高。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- MODULE 13: 技术面走势、200SMA 偏离与筹码支撑 -->
+        <section id="sec-13" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📊 模块 13：技术面走势、200SMA 偏离与筹码支撑 (Technical Setup)</div>
+                <span class="sec-tag">Module 13 · Technicals</span>
+            </div>
+            <div class="prose-text">
+                从技术面量化指标来看，IBM 经历高位健康回调后，已进入<strong>极具吸引力的中长线左侧支撑区间</strong>：
+            </div>
+            <div class="data-grid-4">
+                <div class="info-card">
+                    <div class="info-card-title">200 日均线 (200 SMA)</div>
+                    <div class="info-card-val" style="color: #0284C7;">$261.03</div>
+                    <div class="info-card-desc">现价较 200SMA 偏离 <strong>-8.52%</strong>，处于超卖企稳黄金坑。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">50 日均线 (50 SMA)</div>
+                    <div class="info-card-val" style="color: #D97706;">$243.03</div>
+                    <div class="info-card-desc">短期均线开始由跌趋平，构筑阶段性底部平台。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">14 日 RSI 指标</div>
+                    <div class="info-card-val" style="color: #10B981;">53.2</div>
+                    <div class="info-card-desc">脱离超卖盲区，呈现底部温和放量底背离特征。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">52 周相对位置 (RP)</div>
+                    <div class="info-card-val" style="color: #059669;">31.0%</div>
+                    <div class="info-card-desc">距离 52 周高点 ($332.46) 回撤达 28.2%，风险充分释放。</div>
+                </div>
+            </div>
+            <div class="callout-box">
+                🎯 <strong>筹码结构与关键点位</strong>：主要支撑位位于 <strong>$220.00 ~ $230.00</strong>（2025 年平台强筹码密集区）；上方第一阻力位在 <strong>$250.00</strong>（50 日均线），强阻力位在 <strong>$265.00</strong>（200 日线）。
+            </div>
+        </section>
+
+        <!-- MODULE 14: 期权波动率、MAX PAIN 与 3 梯队 SELL PUT 策略 -->
+        <section id="sec-14" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🎯 模块 14：期权衍生品定价、Max Pain 与 3 梯队 CSP 实操方案</div>
+                <span class="sec-tag">Module 14 · Options Strategy</span>
+            </div>
+            <div class="prose-text">
+                当前 IBM 期权隐波处于合理中枢，卖出深度虚值 Cash-Secured Put (CSP) 能够以极高的胜率（POP 70%~90%+）收割时间价值（Theta Decay），并在极端行情下以深度折价接手优质高股息资产：
+            </div>
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>策略定位</th>
+                            <th>推荐合约代码</th>
+                            <th>到期日 (DTE)</th>
+                            <th>行权价</th>
+                            <th>安全垫 (Cushion)</th>
+                            <th>Delta</th>
+                            <th>权利金报价</th>
+                            <th>静态年化收益 (APY)</th>
+                            <th>胜率 (POP)</th>
+                            <th>期望值 (EV)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #F0FDF4; font-weight: 700;">
+                            <td><strong>🟢 保守收租型 (首选推荐)</strong></td>
+                            <td>`IBM 2026-10-16 215.00 Put`</td>
+                            <td>50天</td>
+                            <td>$215.00</td>
+                            <td><span class="tag-pill tag-green">-10.0%</span></td>
+                            <td>-0.17</td>
+                            <td>$3.08</td>
+                            <td><span class="tag-pill tag-green">10.4% APY</span></td>
+                            <td><strong>79.6%</strong></td>
+                            <td>+$18 /张</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🟡 平衡攻守型 (高性价比)</strong></td>
+                            <td>`IBM 2026-10-16 225.00 Put`</td>
+                            <td>50天</td>
+                            <td>$225.00</td>
+                            <td><span class="tag-pill tag-green">-5.8%</span></td>
+                            <td>-0.28</td>
+                            <td>$5.42</td>
+                            <td><span class="tag-pill tag-amber">17.6% APY</span></td>
+                            <td><strong>68.2%</strong></td>
+                            <td>+$13 /张</td>
+                        </tr>
+                        <tr>
+                            <td><strong>⚡ 近月加速型 (Theta收割)</strong></td>
+                            <td>`IBM 2026-09-18 220.00 Put`</td>
+                            <td>22天</td>
+                            <td>$220.00</td>
+                            <td><span class="tag-pill tag-amber">-7.9%</span></td>
+                            <td>-0.14</td>
+                            <td>$1.47</td>
+                            <td><span class="tag-pill tag-amber">11.0% APY</span></td>
+                            <td><strong>84.3%</strong></td>
+                            <td>+$6 /张</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🔥 激进高租型 (博弈接股)</strong></td>
+                            <td>`IBM 2026-09-18 230.00 Put`</td>
+                            <td>22天</td>
+                            <td>$230.00</td>
+                            <td><span class="tag-pill tag-red">-3.7%</span></td>
+                            <td>-0.30</td>
+                            <td>$3.72</td>
+                            <td><span class="tag-pill tag-red">26.9% APY</span></td>
+                            <td><strong>67.7%</strong></td>
+                            <td>+$-2 /张</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- CHART 4: OPTIONS OPEN INTEREST & MAX PAIN -->
+            <div class="chart-box">
+                <canvas id="ibmOptionsChart"></canvas>
+            </div>
+
+            <div class="callout-box callout-green" style="margin-top: 20px;">
+                🛡️ <strong>接股底线深度测算</strong>：若执行 <strong>`IBM 2026-10-16 215.00 Put`</strong> 并最终被指派接股，扣除权利金后的实际净建仓成本仅为 <strong>$211.93 USD</strong>（较现价折价约 <strong>11.5%</strong>）。在该成本价下，IBM 的静态股息收益率将提升至 <strong>3.32%</strong>，Forward P/E 压缩至 <strong>16.0x</strong>，具备极高的长线价值托底。
+            </div>
+        </section>
+
+        <!-- MODULE 15: 综合决策矩阵与轮式策略执行表 -->
+        <section id="sec-15" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📋 模块 15：综合决策矩阵与轮式策略 (Decision Matrix & Wheel Strategy)</div>
+                <span class="sec-tag">Module 15 · Action Plan</span>
+            </div>
+            <div class="score-radar-grid">
+                <div>
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--navy);">多因子量化综合评分雷达 (7.9 / 10)</h4>
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>评分维度</th>
+                                <th>权重</th>
+                                <th>单项得分</th>
+                                <th>核心驱动与简评</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 商业模式与护城河</strong></td>
+                                <td>25%</td>
+                                <td><span class="tag-pill tag-green">8.5 / 10</span></td>
+                                <td>Red Hat 混合云标准 + 主机高转换成本</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 估值与安全边际</strong></td>
+                                <td>25%</td>
+                                <td><span class="tag-pill tag-green">8.2 / 10</span></td>
+                                <td>Forward P/E 18.1x，DCF 较现价溢价 13.3%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 自由现金流与健康度</strong></td>
+                                <td>20%</td>
+                                <td><span class="tag-pill tag-green">8.8 / 10</span></td>
+                                <td>FCF $13.9B，F-Score 8分，Sloan 优质</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 期权权利金与 Alpha</strong></td>
+                                <td>15%</td>
+                                <td><span class="tag-pill tag-amber">7.2 / 10</span></td>
+                                <td>年化收租 7%~15%，POP 达 80%+</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 机构持仓与市场信号</strong></td>
+                                <td>10%</td>
+                                <td><span class="tag-pill tag-amber">6.8 / 10</span></td>
+                                <td>机构持股 60%+，AI 订单 $35B+ 催化</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. 逆向左侧技术择时</strong></td>
+                                <td>5%</td>
+                                <td><span class="tag-pill tag-green">7.5 / 10</span></td>
+                                <td>回撤 28% 回踩 200SMA 黄金坑支撑</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 800;">
+                                <td><strong>加权综合评级</strong></td>
+                                <td>100%</td>
+                                <td><span style="color: #059669; font-size: 15px;">7.9 / 10</span></td>
+                                <td><span class="tag-pill tag-green">看多 (BUY) · 蓝筹收租首选</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--navy);">轮式策略 (The Wheel Strategy) 全流程操作指引</h4>
+                    <div class="table-responsive">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>轮式执行阶段</th>
+                                    <th>推荐操作指令</th>
+                                    <th>触发条件与风控管理</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>阶段 1: Sell Put 开仓</strong></td>
+                                    <td>卖出 `IBM 2026-10-16 215.00 Put` 或 `220.00 Put`</td>
+                                    <td>每张合约预留 $21,500 现金担保，捕获年化 8%~12% 权利金。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>阶段 2: 动态获利平仓 (BTC)</strong></td>
+                                    <td>当 Put 浮盈达到 <strong>+75% ~ +80%</strong> 时提前买入平仓</td>
+                                    <td>释放担保资金，滚动至下一个 30-45 DTE 周期继续收租。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>阶段 3: 被动接股 (Assignment)</strong></td>
+                                    <td>若到期结算价跌破 $215.00，从容接受指派接股</td>
+                                    <td>实际持股净成本约 $213.00，每季稳定收取 $1.68/股 高额股息。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>阶段 4: Covered Call 卖出</strong></td>
+                                    <td>持股 100 股后，卖出 30-45 DTE、Strike $240+ 的备兑 Call</td>
+                                    <td>实现“股息 + Sell Call 权利金”双重被动现金流增强。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- JAVASCRIPT CHARTS SCRIPT -->
+    <script>
+        // Chart 1: Revenue, Profit & FCF
+        const ctx1 = document.getElementById('ibmRevenueProfitChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'FY2026E'],
+                datasets: [
+                    {
+                        label: '营业收入 (Revenue $B)',
+                        data: [60.53, 61.86, 62.75, 67.54, 71.20],
+                        backgroundColor: 'rgba(2, 132, 199, 0.7)',
+                        borderColor: '#0284C7',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '自由现金流 (FCF $B)',
+                        data: [9.29, 12.68, 13.15, 13.92, 14.80],
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderColor: '#10B981',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '综合毛利率 (Gross Margin %)',
+                        data: [54.00, 55.44, 56.44, 56.80, 57.50],
+                        type: 'line',
+                        borderColor: '#D97706',
+                        backgroundColor: '#D97706',
+                        borderWidth: 2.5,
+                        pointRadius: 4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '金额 ($ Billion)' },
+                        grid: { color: '#E2E8F0' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        min: 45,
+                        max: 65,
+                        title: { display: true, text: '毛利率 (%)' },
+                        grid: { drawOnChartArea: false }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.dataset.type === 'line') {
+                                    return context.dataset.label + ': ' + context.raw + '%';
+                                }
+                                return context.dataset.label + ': $' + context.raw + 'B';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: DuPont Breakdown
+        const ctx2 = document.getElementById('ibmDupontChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025'],
+                datasets: [
+                    {
+                        label: 'ROE (净资产收益率 %)',
+                        data: [7.47, 33.29, 22.06, 32.45],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        borderWidth: 3,
+                        pointRadius: 5
+                    },
+                    {
+                        label: '净利润率 (Net Margin %)',
+                        data: [2.71, 12.13, 9.60, 15.68],
+                        borderColor: '#0284C7',
+                        borderWidth: 2,
+                        pointRadius: 4
+                    },
+                    {
+                        label: '资产周转率 (Turnover x100)',
+                        data: [47, 46, 47, 49],
+                        borderColor: '#D97706',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: '杜邦分析三要素历史演变趋势 (ROE 驱动归因)' }
+                },
+                scales: {
+                    y: { grid: { color: '#E2E8F0' } }
+                }
+            }
+        });
+
+        // Chart 3: DCF Sensitivity Matrix Visual
+        const ctx3 = document.getElementById('ibmDcfChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: ['WACC 6.5%', 'WACC 7.0%', 'WACC 7.5% (基准)', 'WACC 8.0%', 'WACC 8.5%', 'WACC 9.0%'],
+                datasets: [
+                    {
+                        label: 'g = 2.0%',
+                        data: [314.5, 276.4, 245.2, 219.2, 197.2, 178.4],
+                        backgroundColor: 'rgba(217, 119, 6, 0.65)'
+                    },
+                    {
+                        label: 'g = 2.5% (基准)',
+                        data: [354.7, 307.9, 270.5, 239.9, 214.4, 192.8],
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)'
+                    },
+                    {
+                        label: 'g = 3.0%',
+                        data: [406.3, 347.3, 301.5, 264.8, 234.7, 209.7],
+                        backgroundColor: 'rgba(2, 132, 199, 0.7)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'DCF 每股公允内在价值敏感性分布 (美元/股)' }
+                },
+                scales: {
+                    y: {
+                        title: { display: true, text: '每股公允估值 ($)' },
+                        grid: { color: '#E2E8F0' }
+                    }
+                }
+            }
+        });
+
+        // Chart 4: Options Open Interest & Max Pain
+        const ctx4 = document.getElementById('ibmOptionsChart').getContext('2d');
+        new Chart(ctx4, {
+            type: 'bar',
+            data: {
+                labels: ['$200', '$205', '$210', '$215', '$220', '$225', '$230', '$235', '$240', '$245', '$250'],
+                datasets: [
+                    {
+                        label: 'Put 未平仓量 (OI)',
+                        data: [4800, 2100, 3900, 2800, 5247, 2400, 4200, 1800, 1200, 600, 400],
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Call 未平仓量 (OI)',
+                        data: [200, 300, 450, 700, 1100, 2300, 3800, 4500, 5800, 4200, 6100],
+                        backgroundColor: 'rgba(220, 38, 38, 0.75)',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: '期权未平仓量分布 (OI) 与 Max Pain ($230.00 支撑枢纽)' }
+                },
+                scales: {
+                    x: { stacked: false },
+                    y: {
+                        title: { display: true, text: '未平仓合约张数 (Contracts)' },
+                        grid: { color: '#E2E8F0' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

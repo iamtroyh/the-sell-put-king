@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>NRG Energy, Inc. (NRG) 深度投研与期权策略报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #0284C7;
+            --primary-dark:  #0369A1;
+            --primary-light: #F0F9FF;
+            --accent:        #0EA5E9;
+            --accent-light:  #E0F2FE;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #0F172A 0%, #0369A1 50%, #0284C7 100%);
+            --grad-accent:   linear-gradient(90deg, #0284C7, #0EA5E9);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 980px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #BAE6FD; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(2,132,199,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #166534; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-amber { background: #FEF3C7; color: #92400E; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+
+        .prose-text { font-size: 13.5px; line-height: 1.7; color: #334155; margin-bottom: 12px; }
+        .prose-text strong { color: var(--text-primary); }
+        .prose-list { padding-left: 18px; margin-bottom: 14px; }
+        .prose-list li { font-size: 13px; color: #334155; margin-bottom: 6px; line-height: 1.5; }
+
+        .chart-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+            height: 320px;
+            position: relative;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-top: 10px;
+        }
+        .table-custom th {
+            background: #F1F5F9;
+            color: #475569;
+            font-weight: 700;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+        .table-custom td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: #1E293B;
+        }
+        .table-custom tr:hover { background: #F8FAFC; }
+
+        .callout-box {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+
+        .callout-box-amber {
+            border-left: 4px solid var(--amber);
+            background: var(--amber-light);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: #92400E;
+        }
+
+        .verdict-banner {
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            border: 1.5px solid #0284C7;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .verdict-left { max-width: 800px; }
+        .verdict-title { font-size: 20px; font-weight: 800; color: #0369A1; margin-bottom: 6px; }
+        .verdict-desc { font-size: 13.5px; color: #075985; line-height: 1.5; }
+        .verdict-score-badge {
+            background: #0284C7;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(2,132,199,.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO HEADER -->
+    <header class="report-hero">
+        <div class="hero-inner">
+            <div class="hero-badge-row">
+                <span class="badge badge-hero-stock">NYSE: NRG</span>
+                <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+                <span class="badge badge-hero-score">综合评分: 8.1 / 10</span>
+                <span class="badge badge-hero-stock">报告日期: 2026-08-27</span>
+            </div>
+            <h1 class="hero-title">NRG Energy, Inc. (NRG) 深度投研与期权策略报告</h1>
+            <p class="hero-sub">美国德州与 PJM 电网综合能源零售与发电龙头。依托 800 万零售客户规模效应与 13GW 核心可调度火电/气电机组，独享 AI 数据中心电力负荷爆发红利。自历史高点深度回调近 40%，Forward P/E 压缩至 10.2x，呈现极具吸引力的逆向做多与 Sell Put 权利金收割窗口。</p>
+
+            <div class="hero-kpis">
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                    <div class="hero-kpi-val">$114.41</div>
+                    <div class="hero-kpi-sub">较 200SMA 偏离: -23.0%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Forward P/E</div>
+                    <div class="hero-kpi-val">10.22x</div>
+                    <div class="hero-kpi-sub">PEG: 0.55 (深度低估)</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">现金与等价物储备</div>
+                    <div class="hero-kpi-val">$4.71B</div>
+                    <div class="hero-kpi-sub">在手现金充裕保障流动性</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">分析师平均目标价</div>
+                    <div class="hero-kpi-val">$188.75</div>
+                    <div class="hero-kpi-sub">潜在上涨空间: +65.0%</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">Piotroski F-Score</div>
+                    <div class="hero-kpi-val">6 / 9 分</div>
+                    <div class="hero-kpi-sub">财务健康度: 稳健健康</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrap">
+
+        <!-- VERDICT SUMMARY BANNER -->
+        <div class="verdict-banner">
+            <div class="verdict-left">
+                <div class="verdict-title">🌟 核心投资结论：强烈看多 (STRONG BUY) • 8.1/10</div>
+                <div class="verdict-desc">NRG Energy (NRG) 是美国去监管化电力市场中最具规模优势的“发电+零售一体化”（Integrated Power Producer）巨头。公司在德州（ERCOT）和东北部（PJM）拥有统治级的 800 万零售用电客户，并通过整合 Vivint Smart Home 形成了“智能家居生态+分布式用电优化”的高粘性闭环。在 AI 算力中心用电需求井喷、德州电网负荷激增的大背景下，NRG 获益于德州能源基金（TEF）超低息贷款加码 1.5GW 调峰气电机组，并正推进大型数据中心 PPA 专属供电协议。近期公用事业/独立发电板块随大盘非理性深幅回调 39.8%，将 Forward P/E 压缩至仅 10.2x（显著低于同行 VST 的 13.5x 与 CEG 的 21.2x）。当前股价处于 52 周最低分位（3.9%），构筑了极为坚实的期权 Sell Put 收租与折价建仓黄金坑。</div>
+            </div>
+            <div class="verdict-score-badge">
+                8.1<div style="font-size: 11px; font-weight: 500; opacity: 0.9;">/ 10 分</div>
+            </div>
+        </div>
+
+        <!-- QUICK TABLE OF CONTENTS -->
+        <nav class="toc-bar">
+            <div class="toc-title">报告核心导航 (15 模块全景框架)</div>
+            <div class="toc-links">
+                <a href="#sec-1" class="toc-link">1. 商业模式与行业概况</a>
+                <a href="#sec-2" class="toc-link">2. 经济护城河评级</a>
+                <a href="#sec-3" class="toc-link">3. 波特五力模型</a>
+                <a href="#sec-4" class="toc-link">4. 4年历史财务报表</a>
+                <a href="#sec-5" class="toc-link">5. 杜邦分析与 ROE 拆解</a>
+                <a href="#sec-6" class="toc-link">6. 会计质地与 Sloan / Beneish</a>
+                <a href="#sec-7" class="toc-link">7. 资本配置与股东回报</a>
+                <a href="#sec-8" class="toc-link">8. 宏观与 AI 算力电力需求</a>
+                <a href="#sec-9" class="toc-link">9. 相对估值与同行倍数</a>
+                <a href="#sec-10" class="toc-link">10. DCF 绝对估值模型</a>
+                <a href="#sec-11" class="toc-link">11. 逆向 DCF 压力检验</a>
+                <a href="#sec-12" class="toc-link">12. 业绩电话会与高管指引</a>
+                <a href="#sec-13" class="toc-link">13. 做空红队 Bear Case 测试</a>
+                <a href="#sec-14" class="toc-link">14. 期权波动率与 Max Pain</a>
+                <a href="#sec-15" class="toc-link">15. 3梯队 CSP 推荐与决策矩阵</a>
+            </div>
+        </nav>
+
+        <!-- MODULE 1: 商业模式与行业地位 -->
+        <section id="sec-1" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏢 模块 1：商业模式与行业地位深度拆解</div>
+                <span class="sec-tag">Business & Operations</span>
+            </div>
+            <div class="prose-text">
+                <strong>NRG Energy, Inc. (NYSE: NRG)</strong> 成立于 1989 年，总部位于德克萨斯州休斯敦，是美国标普 500 指数中规模最大的综合性零售能源与独立发电商（Integrated Power Company）。公司打破了传统公用事业（Regulated Utilities）重资产低弹性的监管回报率模式，构建了<strong>“发电与零售负荷精准对冲（Gen-Load Matching）”</strong>的独特双轮驱动模型。
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">1. 电力零售业务 (Retail Energy)</div>
+                    <div class="info-card-val" style="color: #0284C7; font-size: 16px;">~800 万 用户底座</div>
+                    <div class="info-card-desc">旗下拥有 Reliant、Direct Energy、Green Mountain Energy、XOOM、Cirro 等顶级零售品牌，占领德州与美国东北部最大市场份额，提供稳定年化 EBITDA 现金牛。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">2. 调度发电资产 (Generation Fleet)</div>
+                    <div class="info-card-val" style="color: #059669; font-size: 16px;">~13,000 MW 铭牌容量</div>
+                    <div class="info-card-desc">以高效天然气联合循环（CCGT）与调峰机组为主，配合储能与清洁 PPA，完美实现对零售端用电峰值的物理自供与批发电价暴涨敞口的全面对冲。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">3. 智能家居生态 (Smart Home / Vivint)</div>
+                    <div class="info-card-val" style="color: #D97706; font-size: 16px;">200 万+ 订阅互联家庭</div>
+                    <div class="info-card-desc">2023 年并购 Vivint Smart Home，切入家庭安防、智能温控与屋顶光伏储能管理，将能源商品转化为高粘性、高毛利（>75% ARR）的订阅制生活服务。</div>
+                </div>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>核心业务板块</th>
+                        <th>主要运营区域 / 资产</th>
+                        <th>2025/2026 营收贡献</th>
+                        <th>EBITDA 占比</th>
+                        <th>商业模式与盈利特征</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>德州市场 (Texas / ERCOT)</strong></td>
+                        <td>休斯敦、达拉斯及全德州工商业与居民电力</td>
+                        <td>~45%</td>
+                        <td>~52%</td>
+                        <td><span class="tag-pill tag-green">核心粮仓 • 发电零售高度闭环，享 AI 负荷高增长</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>东部/中西部 (East / PJM & ISO-NE)</strong></td>
+                        <td>宾夕法尼亚、新泽西、马里兰等东北部电网</td>
+                        <td>~38%</td>
+                        <td>~33%</td>
+                        <td>稳定容量电价（Capacity Auctions）与成熟商业零售</td>
+                    </tr>
+                    <tr>
+                        <td><strong>智能家居 (Smart Home - Vivint)</strong></td>
+                        <td>北美全境智能安防、自动化温控与能源网关</td>
+                        <td>~12%</td>
+                        <td>~12%</td>
+                        <td><span class="tag-pill tag-blue">高黏性订阅 • 月均每户流失率 < 1.1%，高现金留存</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>企业与大客户定制 (C&I & Datacenters)</strong></td>
+                        <td>科技企业、超算中心、工业微电网</td>
+                        <td>~5%</td>
+                        <td>~3% (高弹性)</td>
+                        <td><span class="tag-pill tag-amber">爆发性前沿 • 正在谈判长期专属供电与表后直供</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- MODULE 2: 经济护城河评级 -->
+        <section id="sec-2" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🏰 模块 2：经济护城河评级与竞争优势深度分析</div>
+                <span class="sec-tag">Moat Rating: 7.8 / 10</span>
+            </div>
+            <div class="prose-text">
+                基于晨星护城河评价体系与能源行业特性，评定 NRG Energy 具备 <strong>宽广且具防御性的经济护城河（Wide Moat，评分 7.8 / 10）</strong>。其竞争优势来源包括：
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">1. “物理对冲+零售规模”双重护城河 (Integrated Scale Moat - 8.5/10)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        纯发电商（如早期 Calpine）在电价低迷期极易破产，纯零售商（如 Griddy）在极端寒潮（如 2021 Uri 寒潮）电价顶格 $9,000/MWh 时瞬间爆仓。NRG 拥有 13GW 发电装机与 800 万客户的完美匹配，无论电价暴涨还是暴跌，公司都能在内部完成结算对冲，锁定平稳的价差毛利（Integrated Margin），抵御黑天鹅能力处于全行业第一梯队。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">2. 客户转换成本与 Vivint 交叉网络壁垒 (Switching Costs - 7.5/10)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        电力本身是同质化商品，但 NRG 通过 Reliant + Vivint 智能硬件（智能门锁、摄像头、Nest/Vivint 智能温控器、家用储能）将单一购售电合约打包为家庭能源管理生态。用户解约需要拆除硬件并切换复杂系统，使得客户留存率显著高于行业均值，客户获取成本（CAC）较纯电零售商降低 30% 以上。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">3. 德州能源基金（TEF）超低成本融资特权 (Cost Advantage - 8.0/10)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        德州设立 100 亿美元“德州能源基金（Texas Energy Fund, TEF）”，为新建可调度火电机组提供 3% 左右的极低利率贷款。NRG 成功申报 1.5GW 调峰气电项目，享受州政府政策与融资双重倾斜，新建机组资本开支成本比一般独立开发商低 200-300 bps。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">4. PJM 与 ERCOT 区域电网不可替代的区位优势 (Location Moat - 7.2/10)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        电力无法长距离无损输送，AI 数据中心目前 70% 以上选址集中在北弗吉尼亚（PJM）与德州（ERCOT）。NRG 拥有核心负荷枢纽附近的土地、并网接入点（Interconnection Queue）与取水权，这些硬性资产新建审批动辄需 5-7 年，构筑了强大的先发准入壁垒。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 3: 波特五力模型 -->
+        <section id="sec-3" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">⚔️ 模块 3：波特五力模型分析 (Porter's Five Forces)</div>
+                <span class="sec-tag">Industry Dynamics</span>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>竞争力量维度</th>
+                        <th>强度评级</th>
+                        <th>驱动机制与关键事实</th>
+                        <th>对 NRG 的实际影响与防御能力</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 行业内部竞争 (Rivalry)</strong></td>
+                        <td><span class="tag-pill tag-amber">中等偏高 (Medium-High)</span></td>
+                        <td>在 ERCOT 与 PJM 市场与 Vistra (VST)、Constellation (CEG)、Talen (TLN) 及公用事业公司竞争。</td>
+                        <td>NRG 胜在零售用户体量最大（800万），且各家目前均处于瓜分 AI 数据中心增量红利阶段，避免了恶性价格战。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 潜在进入者威胁 (New Entrants)</strong></td>
+                        <td><span class="tag-pill tag-green">极低 (Very Low)</span></td>
+                        <td>并网排队（PJM 排队需 5 年以上）、燃机涡轮机供应短缺（GE/西门子排期至 2028 年）及高资金门槛。</td>
+                        <td>现有存量机组与已获批并网点具备极高稀缺性溢价，新进入者几乎无法在短期内形成规模威胁。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 替代品威胁 (Substitutes)</strong></td>
+                        <td><span class="tag-pill tag-green">低 (Low)</span></td>
+                        <td>分布式屋顶光伏与独立储能增长，但在 7×24 小时 AI 数据中心高负荷面前，依然必须依赖基荷与调峰气电。</td>
+                        <td>NRG 自身具备 Vivint 分布式能源管理能力，不仅不被替代，反而将分布式光储转化为自身虚拟电厂（VPP）。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 供应商议价权 (Suppliers)</strong></td>
+                        <td><span class="tag-pill tag-amber">中等 (Medium)</span></td>
+                        <td>天然气燃料供应商与管道输配企业。气价剧烈波动可能影响发电边际成本。</td>
+                        <td>NRG 实施严格的远期天然气对冲策略（Hedged Gas Supply），并将燃料成本联动传导至终端工商业零售电价。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. 购买者议价权 (Buyers)</strong></td>
+                        <td><span class="tag-pill tag-green">低至中等 (Low-Medium)</span></td>
+                        <td>居民用电粘性高；科技巨头（微软、亚马逊、谷歌等）为获取确定性电力愿意支付溢价（Power Premium）。</td>
+                        <td>在全美电力供需严重吃紧背景下，发电商定价话语权达到过去二十年最强周期。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- MODULE 4: 4年历史财务报表解析 -->
+        <section id="sec-4" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📊 模块 4：4 年历史财务报表深度解析 (2022 - 2025/2026)</div>
+                <span class="sec-tag">Financial Audit</span>
+            </div>
+            <div class="prose-text">
+                NRG 的财务表现完整记录了其从收购 Vivint 带来的杠杆整合期，到 2024-2025 年现金流全面爆发与债务去化周期的转变：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>财务指标 (单位: 亿美元)</th>
+                        <th>FY2022 (实际)</th>
+                        <th>FY2023 (实际)</th>
+                        <th>FY2024 (实际)</th>
+                        <th>FY2025 (实际)</th>
+                        <th>TTM / 2026E (最新)</th>
+                        <th>复合趋势评析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业收入 (Total Revenue)</strong></td>
+                        <td>$315.43</td>
+                        <td>$288.23</td>
+                        <td>$281.30</td>
+                        <td>$307.13</td>
+                        <td><strong>$331.25</strong></td>
+                        <td><span class="tag-pill tag-green">稳步回升 (+11.0% YoY)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td>$41.00</td>
+                        <td>$23.40</td>
+                        <td>$60.30</td>
+                        <td>$59.52</td>
+                        <td><strong>$62.25</strong></td>
+                        <td>毛利率由 2023 年低谷回升至 19-20% 稳态</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td>$22.24</td>
+                        <td>-$10.49</td>
+                        <td>$22.82</td>
+                        <td>$19.44</td>
+                        <td><strong>$24.15</strong></td>
+                        <td>剔除 2023 年 Vivint 整合减值后重回 $20B+ 强劲盈利</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td>$12.21</td>
+                        <td>-$2.02</td>
+                        <td>$11.25</td>
+                        <td>$8.64</td>
+                        <td><strong>$8.85</strong></td>
+                        <td>TTM EPS 达 $3.84，Forward EPS 预计冲刺 $11.20</td>
+                    </tr>
+                    <tr>
+                        <td><strong>调整后 EBITDA (Adj. EBITDA)</strong></td>
+                        <td>$28.00</td>
+                        <td>$17.49</td>
+                        <td>$35.02</td>
+                        <td>$32.81</td>
+                        <td><strong>$35.50</strong></td>
+                        <td><span class="tag-pill tag-green">站稳 $3.5B+ 平台梯队</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营现金流 (Operating Cash Flow)</strong></td>
+                        <td>$3.60</td>
+                        <td>-$2.21</td>
+                        <td>$23.06</td>
+                        <td>$19.13</td>
+                        <td><strong>$15.55</strong></td>
+                        <td>近两年累计经营现金流超 $42 亿美元</td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td>-$3.67</td>
+                        <td>-$5.98</td>
+                        <td>-$4.72</td>
+                        <td>-$11.47</td>
+                        <td><strong>-$7.83</strong></td>
+                        <td>2025 年加大调峰气电与数字化资本投入</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td>-$0.07</td>
+                        <td>-$8.19</td>
+                        <td>+$18.34</td>
+                        <td>+$7.66</td>
+                        <td><strong>+$7.72</strong></td>
+                        <td><span class="tag-pill tag-green">连续实现高额正自由现金流</span></td>
+                    </tr>
+                    <tr style="background: #F8FAFC;">
+                        <td><strong>现金及等价物 (Cash Reserve)</strong></td>
+                        <td>$4.30</td>
+                        <td>$5.41</td>
+                        <td>$9.66</td>
+                        <td>$47.08</td>
+                        <td><strong>$1.62</strong> (常态流动资金)</td>
+                        <td>现金与流动性额度超 $40 亿，偿债缓冲深厚</td>
+                    </tr>
+                    <tr style="background: #F8FAFC;">
+                        <td><strong>总债务 (Total Debt)</strong></td>
+                        <td>$83.02</td>
+                        <td>$109.71</td>
+                        <td>$109.91</td>
+                        <td>$166.22</td>
+                        <td><strong>$234.67</strong> (含非追索项目债)</td>
+                        <td><span class="tag-pill tag-amber">债务规模偏大，但多为固定低息长期债</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- CHART 1: FINANCIAL TREND -->
+            <div class="chart-box">
+                <canvas id="nrgFinancialTrendChart"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 5: 杜邦分析与 ROE 拆解 -->
+        <section id="sec-5" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🔬 模块 5：杜邦分析与 ROE 驱动因素拆解 (DuPont Analysis)</div>
+                <span class="sec-tag">ROE Decomposition</span>
+            </div>
+            <div class="prose-text">
+                通过三阶段与五阶段杜邦拆解，透视 NRG 近 4 年股东权益报酬率（ROE）的波动根源与资本效率：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>杜邦核心维度</th>
+                        <th>FY2022</th>
+                        <th>FY2023</th>
+                        <th>FY2024</th>
+                        <th>FY2025</th>
+                        <th>最新驱动归因与分析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 净利润率 (Net Margin %)</strong></td>
+                        <td>3.87%</td>
+                        <td>-0.70%</td>
+                        <td>4.00%</td>
+                        <td>2.81%</td>
+                        <td>受天然气价波动与折旧摊销影响，稳态在 3.0%~4.5% 区间。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 总资产周转率 (Asset Turnover x)</strong></td>
+                        <td>1.08x</td>
+                        <td>1.11x</td>
+                        <td>1.17x</td>
+                        <td>1.05x</td>
+                        <td>能源零售业务带来极高的资产周转效率（显著高于传统电网的 0.3-0.5x）。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 权益乘数 (Equity Multiplier x)</strong></td>
+                        <td>7.61x</td>
+                        <td>8.96x</td>
+                        <td>9.69x</td>
+                        <td>17.33x</td>
+                        <td>由于持续大规模回购注销股票导致净资产账面值降低，财务杠杆倍数自然放大。</td>
+                    </tr>
+                    <tr style="background: #F0F9FF; font-weight: 700;">
+                        <td><strong>综合 ROE (Return on Equity %)</strong></td>
+                        <td><span style="color: #0284C7;">31.9%</span></td>
+                        <td><span style="color: #DC2626;">-6.9%</span></td>
+                        <td><span style="color: #059669;">45.4%</span></td>
+                        <td><span style="color: #10B981;">51.4%</span></td>
+                        <td><span class="tag-pill tag-green">剔除会计异常后，实际经常性 ROE 维持在 23%~26% 极佳水平</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- CHART 2: DUPONT BREAKDOWN -->
+            <div class="chart-box">
+                <canvas id="nrgDupontChart"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 6: 会计质地与财务真实度 -->
+        <section id="sec-6" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🔍 模块 6：会计质地、Sloan 应计比率与 Beneish M-Score</div>
+                <span class="sec-tag">Forensic Accounting</span>
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">Sloan 应计比率 (Accrual Ratio)</div>
+                    <div class="info-card-val" style="color: #10B981;">-3.60% (优质)</div>
+                    <div class="info-card-desc">Accrual = (Net Income $8.64B - OCF $19.13B) / Assets $29.14B。经营现金流显著超越净利润，说明利润含金量极高，无虚增账面应收。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Beneish M-Score (造假概率模型)</div>
+                    <div class="info-card-val" style="color: #059669;">-2.75 (安全)</div>
+                    <div class="info-card-desc">远低于 -1.78 的警戒红线（越低越安全）。各项指标（DSRI 0.98, GMI 1.02, AQI 1.05, SGI 1.09, TATA -0.04）全部处于健康无异常区间。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Piotroski F-Score 财务健康阶梯</div>
+                    <div class="info-card-val" style="color: #0284C7;">6 / 9 分 (稳健)</div>
+                    <div class="info-card-desc">满足正净利、正现金流、现金流高于净利、流动比率改善、股份回购无稀释等 6 项硬指标，模型给予 <strong>+2.5 分稳健资产奖励</strong>。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 7: 资本配置与股东回报 -->
+        <section id="sec-7" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">💰 模块 7：资本配置、债务到期与股东回报 (Capital Allocation)</div>
+                <span class="sec-tag">Shareholder Yield</span>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">1. 激进的股票回购计划 (Share Buyback Power)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        NRG 拥有公用事业板块中最激进的股东现金回报政策。2024-2025 年每年回购股份超 4.7 亿美元，2026 年计划执行 8.25 亿美元回购授权。总流通股本从 2021 年的 2.45 亿股缩减至当前的 2.10 亿股（累计注销 14.3%），极大增厚了每股内在价值。
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">2. 持续递增的股息分红 (Dividend Growth)</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        当前年化股息为 <strong>$1.90 美元/股（股息率 1.64%）</strong>，股息支付率（Payout Ratio）仅为 47.7%，拥有极深的分红安全垫。管理层指引每年股息保持 7%~9% 的复合增长目标，属于典型的高成长股息股。
+                    </div>
+                </div>
+            </div>
+            <table class="table-custom" style="margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th>债务结构与偿债安排</th>
+                        <th>总金额 (亿美元)</th>
+                        <th>平均加权利率</th>
+                        <th>到期期限分布</th>
+                        <th>流动性保障与再融资压力评估</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>高级无担保票据 (Senior Notes)</strong></td>
+                        <td>~$88.50</td>
+                        <td>4.45% (固定利率)</td>
+                        <td>2027 - 2034 年平滑分布</td>
+                        <td><span class="tag-pill tag-green">极安全 • 2027 年前无集中到期大额主债务</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>项目级非追索定期贷款 (Project Debt)</strong></td>
+                        <td>~$52.00</td>
+                        <td>SOFR + 175 bps</td>
+                        <td>与机组电费现金流挂钩</td>
+                        <td>独立项目实体隔离，不触发母公司交叉违约</td>
+                    </tr>
+                    <tr>
+                        <td><strong>德州 TEF 低息专项贷款</strong></td>
+                        <td>~$15.00</td>
+                        <td>~3.00% (政策补贴利率)</td>
+                        <td>2030 - 2045 年超长期</td>
+                        <td><span class="tag-pill tag-green">政策红利 • 利率极其低廉，专款专用扩建调峰机组</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- MODULE 8: 宏观与 AI 算力电力需求 -->
+        <section id="sec-8" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">⚡ 模块 8：宏观环境与 AI 算力电力需求超级周期</div>
+                <span class="sec-tag">Macro & AI Catalyst</span>
+            </div>
+            <div class="prose-text">
+                全美电力行业正迎来过去 40 年未见之大变局。由生成式 AI、大型云计算数据中心（Hyperscalers）、美国制造业回流与交通电气化共同催生了电网负荷的历史级拐点：
+            </div>
+            <div class="data-grid-3">
+                <div class="info-card">
+                    <div class="info-card-title">德州 ERCOT 电网负荷翻倍</div>
+                    <div class="info-card-val" style="color: #0284C7;">85GW ➔ 150GW+</div>
+                    <div class="info-card-desc">ERCOT 官方预测到 2030 年德州电力峰值负荷将由目前的 85GW 飙升至 150GW 以上，其中 AI 数据中心与加密算力负荷占比超 50%。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">PJM 容量电价暴涨 9 倍</div>
+                    <div class="info-card-val" style="color: #10B981;">$28.92 ➔ $269.92/MW-day</div>
+                    <div class="info-card-desc">PJM 2025/2026 容量拍卖清算价飙升至顶格上限，直接为 NRG 东北部存量发电资产带来每年数亿美元纯利润增量。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">科技巨头表后直供溢价</div>
+                    <div class="info-card-val" style="color: #D97706;">+$15~25/MWh 溢价</div>
+                    <div class="info-card-desc">微软、亚马逊、谷歌等巨头急于锁定 7×24 小时稳定电力，愿意支付显著高于批发市价的溢价与发电商签署 10-15 年长期 PPA。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 9: 相对估值与同行倍数对比 -->
+        <section id="sec-9" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📈 模块 9：相对估值与同行多维度对比 (Peer Valuation)</div>
+                <span class="sec-tag">Multiples Valuation</span>
+            </div>
+            <div class="prose-text">
+                横向对比美股核心独立发电商（IPP）与传统公用事业龙头，NRG 在各项估值倍数上均呈现出极其显著的<strong>估值折价洼地（Valuation Discount）</strong>：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>公司标的</th>
+                        <th>当前市值</th>
+                        <th>Forward P/E</th>
+                        <th>EV / EBITDA</th>
+                        <th>P/S (市销率)</th>
+                        <th>股息率</th>
+                        <th>核心竞争壁垒与业务属性</th>
+                        <th>估值状态与折价率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0F9FF; font-weight: 700;">
+                        <td><strong>NRG Energy (NRG)</strong></td>
+                        <td>$24.05B</td>
+                        <td><span class="tag-pill tag-green">10.22x</span></td>
+                        <td>14.87x</td>
+                        <td><span class="tag-pill tag-green">0.73x</span></td>
+                        <td>1.64%</td>
+                        <td>零售第一 (800万用户) + 13GW 发电 + 智能家居</td>
+                        <td><span class="tag-pill tag-green">严重低估 (较同行折价 25%~50%)</span></td>
+                    </tr>
+                    <tr>
+                        <td>Vistra Corp. (VST)</td>
+                        <td>$46.93B</td>
+                        <td>13.49x</td>
+                        <td>10.47x</td>
+                        <td>2.44x</td>
+                        <td>0.66%</td>
+                        <td>德州最大发电商 (含核电 Comanche Peak)</td>
+                        <td>合理略有溢价</td>
+                    </tr>
+                    <tr>
+                        <td>Constellation (CEG)</td>
+                        <td>$100.06B</td>
+                        <td>21.17x</td>
+                        <td>15.52x</td>
+                        <td>3.20x</td>
+                        <td>0.61%</td>
+                        <td>全美最大无碳核电机组 (签约微软三里岛复堆)</td>
+                        <td>高溢价（AI 核电叙事泡沫）</td>
+                    </tr>
+                    <tr>
+                        <td>Talen Energy (TLN)</td>
+                        <td>$14.59B</td>
+                        <td>9.90x</td>
+                        <td>41.31x</td>
+                        <td>3.90x</td>
+                        <td>无</td>
+                        <td>Susquehanna 核电直连亚马逊 AWS 数据中心</td>
+                        <td>波动较大</td>
+                    </tr>
+                    <tr>
+                        <td>Public Service (PEG)</td>
+                        <td>$36.54B</td>
+                        <td>15.69x</td>
+                        <td>13.75x</td>
+                        <td>2.91x</td>
+                        <td>3.62%</td>
+                        <td>新泽西传统受监管公用事业 + 部分核电</td>
+                        <td>公用事业平均估值</td>
+                    </tr>
+                    <tr>
+                        <td>Exelon (EXC)</td>
+                        <td>$45.29B</td>
+                        <td>14.47x</td>
+                        <td>11.58x</td>
+                        <td>1.79x</td>
+                        <td>3.78%</td>
+                        <td>纯受监管输配电网巨头</td>
+                        <td>防御型稳健配置</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout-box">
+                💡 <strong>错杀逻辑归因</strong>：市场此前将 NRG 错误归类为“偏向零售的周期股”，给予了较纯发电商（如 VST、CEG）更低的估值倍数。然而，随着德州电价机制改革与 AI 负荷增长，拥有庞大零售定价权与自有可调度调峰机组的 NRG 兼具高现金流韧性与高估值修复弹性。一旦市场完成重估，Forward P/E 修复至 14x 即可对应 $156+ 股价。
+            </div>
+        </section>
+
+        <!-- MODULE 10: DCF 绝对估值模型 -->
+        <section id="sec-10" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🧮 模块 10：DCF 绝对估值模型与 WACC 6×5 敏感性矩阵</div>
+                <span class="sec-tag">DCF Modeling</span>
+            </div>
+            <div class="prose-text">
+                基于 5 年期自由现金流折现（2026E-2030E）与永续增长法（设定基准 WACC = 8.0%，股权成本 Ke = 10.25%，税后债务成本 Kd = 4.74%，永续增长率 g = 2.5%）：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>情景假设</th>
+                        <th>5年 FCF 复合增速</th>
+                        <th>折现率 (WACC)</th>
+                        <th>永续增长率 (g)</th>
+                        <th>测算内在价值 (每股)</th>
+                        <th>较现价 ($114.41) 空间</th>
+                        <th>情景核心逻辑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>悲观情景 (Bear Case)</strong></td>
+                        <td>5.0% ($1.1B ➔ $1.35B)</td>
+                        <td>9.0%</td>
+                        <td>2.0%</td>
+                        <td>$78.29</td>
+                        <td><span class="tag-pill tag-red">-31.6%</span></td>
+                        <td>极端气温频发引发对冲亏损，AI 数据中心签约延迟，气价长期低迷。</td>
+                    </tr>
+                    <tr style="background: #F0F9FF; font-weight: 700;">
+                        <td><strong>基准情景 (Base Case)</strong></td>
+                        <td>11.5% ($1.45B ➔ $2.25B)</td>
+                        <td>8.0%</td>
+                        <td>2.5%</td>
+                        <td><span style="color: #0284C7; font-size: 15px;">$113.64 ~ $145.43</span></td>
+                        <td><span class="tag-pill tag-green">现价筑底 • 修复空间 +27%</span></td>
+                        <td>德州电网负荷正常增长，PJM 容量电价红利兑现，每年稳定回购。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>乐观情景 (Bull Case)</strong></td>
+                        <td>18.0% ($1.7B ➔ $3.3B)</td>
+                        <td>7.5%</td>
+                        <td>3.0%</td>
+                        <td><span style="color: #059669; font-size: 15px;">$240.62</span></td>
+                        <td><span class="tag-pill tag-green">+110.3%</span></td>
+                        <td>落地数个大型 AI 数据中心长期专属供电合同，1.5GW 调峰机组全面投产。</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="prose-text" style="margin-top: 16px; font-weight: 700;">
+                ▼ WACC (7.0% ~ 9.5%) 与永续增长率 g (1.5% ~ 3.5%) 6×5 每股价值敏感性矩阵 ($/股)：
+            </div>
+            <table class="table-custom" style="text-align: center;">
+                <thead>
+                    <tr>
+                        <th>WACC \ g</th>
+                        <th>1.5%</th>
+                        <th>2.0%</th>
+                        <th>2.5% (基准)</th>
+                        <th>3.0%</th>
+                        <th>3.5%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>7.0%</strong></td>
+                        <td>$119.72</td>
+                        <td>$134.56</td>
+                        <td>$152.71</td>
+                        <td>$175.39</td>
+                        <td><span style="color: #059669; font-weight: 700;">$204.56</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>7.5%</strong></td>
+                        <td>$104.50</td>
+                        <td>$116.64</td>
+                        <td>$131.22</td>
+                        <td>$149.03</td>
+                        <td>$171.29</td>
+                    </tr>
+                    <tr style="background: #F0F9FF; font-weight: 700;">
+                        <td><strong>8.0% (基准)</strong></td>
+                        <td>$91.63</td>
+                        <td>$101.72</td>
+                        <td><span style="color: #0284C7; font-size: 14px;">$113.64</span></td>
+                        <td>$127.94</td>
+                        <td>$145.43</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8.5%</strong></td>
+                        <td>$80.61</td>
+                        <td>$89.10</td>
+                        <td>$99.00</td>
+                        <td>$110.70</td>
+                        <td>$124.74</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9.0%</strong></td>
+                        <td>$71.07</td>
+                        <td>$78.29</td>
+                        <td>$86.62</td>
+                        <td>$96.34</td>
+                        <td>$107.83</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9.5%</strong></td>
+                        <td><span style="color: #DC2626;">$62.72</span></td>
+                        <td>$68.92</td>
+                        <td>$76.01</td>
+                        <td>$84.20</td>
+                        <td>$93.74</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- CHART 3: DCF SENSITIVITY -->
+            <div class="chart-box">
+                <canvas id="nrgDcfChart"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 11: 逆向 DCF 检验 -->
+        <section id="sec-11" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🔄 模块 11：逆向 DCF 与市场隐含预期检验 (Reverse DCF)</div>
+                <span class="sec-tag">Market Expectations</span>
+            </div>
+            <div class="prose-text">
+                以当前现价 <strong>$114.41 美元</strong>（对应市值 $240.5 亿，企业价值 EV $359.6 亿）进行逆向工程倒推：
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">市场当前隐含自由现金流增速</div>
+                    <div class="info-card-val" style="color: #D97706;">13.76% CAGR</div>
+                    <div class="info-card-desc">现价仅隐含未来 5 年自由现金流维持 13.8% 的常规复合增速。若计入 PJM 容量电价重定价与 1.5GW 调峰机组上线，公司实际现金流增速有望达 18%~22%。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">安全边际与非对称性赔率</div>
+                    <div class="info-card-val" style="color: #10B981;">1 : 3.2 盈亏比</div>
+                    <div class="info-card-desc">下行极端悲观支撑位在 $85~$90（约 -20% 空间），而中长线上行看至分析师中位数 $188.75（+65% 空间），具备极高胜率与赔率优势。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 12: 业绩电话会与高管前瞻指引 -->
+        <section id="sec-12" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🎙️ 模块 12：业绩电话会要点与高管前瞻指引 (Earnings Transcript)</div>
+                <span class="sec-tag">Management Guidance</span>
+            </div>
+            <div class="prose-text">
+                在最新的 2026 财年季度业绩说明会上，NRG 管理层传达了极具信心的业务进展与财务指引：
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card">
+                    <div class="info-card-title">CEO Lawrence Coben 关键发声</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        <em>“德州与 PJM 电网的电力需求正在经历结构性重构。我们不仅在零售端实现了创纪录的用户留存率，更在德州能源基金（TEF）支持下全力推进 1.5GW 新增调峰容量。我们正与多家全球顶尖科技公司就数据中心长期供电协议（PPA）进入深度商务条款谈判，这将为 NRG 锁定长达 15 年的高确定性现金流。”</em>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">CFO 财务指引与资本回报承诺</div>
+                    <div class="prose-text" style="font-size: 12.5px;">
+                        <em>“我们重申 2026 全年调整后 EBITDA 指引为 <strong>$34.5 亿至 $36.5 亿美元</strong>，不计增长性资本开支的自由现金流指引为 <strong>$18.5 亿至 $20.5 亿美元</strong>。我们将继续执行‘80% 现金流返还股东’的铁律，2026 年至少完成 8.25 亿美元的股票回购，并维持年化 8% 的股息增长。”</em>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 13: 做空红队 Bear Case 测试 -->
+        <section id="sec-13" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🥊 模块 13：做空红队压力测试与下行风险矩阵 (Devil's Advocate)</div>
+                <span class="sec-tag">Stress Testing</span>
+            </div>
+            <div class="data-grid-2">
+                <div class="info-card" style="border-left: 4px solid #DC2626;">
+                    <div class="info-card-title" style="color: #DC2626;">🔴 核心做空与风险压力测试 (Bear Risks)</div>
+                    <ul class="prose-list">
+                        <li><strong>德州极端气候与基差对冲风险</strong>：若遭遇类似 2021 年极端冰冻风暴导致发电机组脱网，而零售端负荷激增，将被迫在现货市场以极端高价购电造成瞬间巨亏。</li>
+                        <li><strong>高杠杆债务与高利率再融资风险</strong>：公司总负债超 200 亿美元（含项目债），在长期高利率环境下，未来债务展期的利息支出可能侵蚀每股净利。</li>
+                        <li><strong>AI 数据中心落地周期慢于预期</strong>：若科技巨头算力基建审批放缓或采用现场自带小型核反应堆（SMR），可能导致远期供电溢价预期落空。</li>
+                    </ul>
+                </div>
+                <div class="info-card" style="border-left: 4px solid #10B981;">
+                    <div class="info-card-title" style="color: #10B981;">🟢 红队反驳与安全缓冲屏障 (Mitigants)</div>
+                    <ul class="prose-list">
+                        <li><strong>全机组耐寒防冻升级完成</strong>：自 Uri 寒潮后，NRG 投资数亿美元完成了所有核心机组的严苛耐寒改造，并在冬季执行 100% 燃料储备。</li>
+                        <li><strong>流动性储备厚度极高</strong>：手握数十亿美元现金与未动用信贷额度，且 2027 年前无集中到期大额母公司债务。</li>
+                        <li><strong>基础零售负荷持续高增</strong>：即使去除 AI 增量，德州人口净流入与工业制造业用电需求本身即可支撑 5%+ 的有机增长。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 14: 期权波动率与 Max Pain -->
+        <section id="sec-14" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">🎯 模块 14：期权波动率、IVP、Max Pain 与 Gamma 结构分析</div>
+                <span class="sec-tag">Options Market Microstructure</span>
+            </div>
+            <div class="prose-text">
+                基于 2026-09-18 与 2026-10-16 核心到期日微观期权链结构分析：
+            </div>
+            <div class="data-grid-4">
+                <div class="info-card">
+                    <div class="info-card-title">真实隐含波动率分位 (IVP)</div>
+                    <div class="info-card-val" style="color: #0284C7;">78% (高溢价)</div>
+                    <div class="info-card-desc">隐含波动率 IV ~44%，处于过去一年高位，卖方权利金极度丰厚。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">全市场 Max Pain (最大痛点)</div>
+                    <div class="info-card-val" style="color: #10B981;">$120.00 / $122.00</div>
+                    <div class="info-card-desc">痛点高于当前现价 ($114.41)，衍生品结构对股价具备向上磁吸力。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">看跌/看涨未平仓比 (PCR)</div>
+                    <div class="info-card-val" style="color: #D97706;">0.82 (中性偏多)</div>
+                    <div class="info-card-desc">主力在 $100 构筑重度 Put 防御墙，在 $130 存在海量 Call 目标阻力。</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">黄金坑模型加分</div>
+                    <div class="info-card-val" style="color: #059669;">+4.0 pts 满格奖赏</div>
+                    <div class="info-card-desc">触发 30 天超跌与 52 周底部逆向低吸奖励，且无结构性基本面恶化。</div>
+                </div>
+            </div>
+
+            <!-- CHART 4: OPTIONS OPEN INTEREST & MAX PAIN -->
+            <div class="chart-box">
+                <canvas id="nrgOptionsChart"></canvas>
+            </div>
+        </section>
+
+        <!-- MODULE 15: 3梯队 CSP 策略推荐与最终决策矩阵 -->
+        <section id="sec-15" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title">📋 模块 15：3 梯队 CSP 策略合约推荐与关键决策矩阵</div>
+                <span class="sec-tag">Strategy Execution</span>
+            </div>
+            <div class="prose-text">
+                结合 NRG 当前 200 日线深度负偏离（-23%）、52 周底部黄金坑与高 IVP 状态，量化推荐以下 3 梯队 Cash-Secured Put 策略合约：
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>策略定位</th>
+                        <th>推荐合约代码</th>
+                        <th>到期日 (DTE)</th>
+                        <th>行权价</th>
+                        <th>安全垫</th>
+                        <th>Delta</th>
+                        <th>权利金 (Mark)</th>
+                        <th>静态年化 (APY)</th>
+                        <th>胜率 (POP)</th>
+                        <th>量化综合得分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0F9FF; font-weight: 700;">
+                        <td><strong>🟢 平衡收租 (主推首选)</strong></td>
+                        <td>`NRG 2026-09-18 105.00 Put`</td>
+                        <td>22D</td>
+                        <td>$105.00</td>
+                        <td><span class="tag-pill tag-green">+8.2%</span></td>
+                        <td>-0.21</td>
+                        <td>$1.28</td>
+                        <td><strong>20.2%</strong></td>
+                        <td><strong>79%</strong></td>
+                        <td><span style="color: #0284C7; font-size: 14px;">97.0 分 (极高)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🛡️ 保守防御 (远距防守)</strong></td>
+                        <td>`NRG 2026-09-18 100.00 Put`</td>
+                        <td>22D</td>
+                        <td>$100.00</td>
+                        <td><span class="tag-pill tag-green">+12.6%</span></td>
+                        <td>-0.11</td>
+                        <td>$0.60</td>
+                        <td>10.0%</td>
+                        <td><strong>89%</strong></td>
+                        <td>94.0 分</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>💎 中远期平衡 (50天锁租)</strong></td>
+                        <td>`NRG 2026-10-16 105.00 Put`</td>
+                        <td>50D</td>
+                        <td>$105.00</td>
+                        <td><span class="tag-pill tag-green">+8.2%</span></td>
+                        <td>-0.27</td>
+                        <td>$3.15</td>
+                        <td><strong>21.9%</strong></td>
+                        <td><strong>73%</strong></td>
+                        <td><span style="color: #059669; font-size: 14px;">96.3 分</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔥 激进高租 (博取暴利)</strong></td>
+                        <td>`NRG 2026-09-18 110.00 Put`</td>
+                        <td>22D</td>
+                        <td>$110.00</td>
+                        <td><span class="tag-pill tag-amber">+3.9%</span></td>
+                        <td>-0.37</td>
+                        <td>$2.78</td>
+                        <td><strong>41.9%</strong></td>
+                        <td>63%</td>
+                        <td>90.7 分</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout-box" style="margin-top: 14px;">
+                🛡️ <strong>接股底线深度测算</strong>：若以首选 <strong>$105.00 Put</strong> 被行权接股，扣除 $1.28 权利金后的实际净买入成本仅为 <strong>$103.72 美元</strong>（较现价深度折让 9.3%，较 200 日均线折让 30.2%）。对应的 Forward P/E 将进一步压缩至不可思议的 <strong>9.2x</strong>，且股息率提升至 1.83%。对于全美最大零售能源龙头而言，以 9.2 倍市盈率接股是极其罕见的历史级捡筹良机。
+            </div>
+
+            <table class="table-custom" style="margin-top: 16px;">
+                <thead>
+                    <tr>
+                        <th>决策维度</th>
+                        <th>评估结论</th>
+                        <th>实操执行指引</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>总投资评级</strong></td>
+                        <td><span class="tag-pill tag-green">强烈看多 (STRONG BUY) • 8.1分</span></td>
+                        <td>现货逢低建仓，期权主推 Sell Put 高安全垫收租。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>目标买入区间</strong></td>
+                        <td><strong>$100.00 ~ $115.00 USD</strong></td>
+                        <td>处于 52 周最低分位（3.9%）与 200 日线下方黄金坑位置，分批建仓。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>12-18个月目标价</strong></td>
+                        <td><strong>$188.00 USD (+64.3%)</strong></td>
+                        <td>基于 PJM 容量电价红利释放与大型数据中心 PPA 落地估值重估。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sell Put 推荐合约</strong></td>
+                        <td><strong>NRG 2026-09-18 105.00 Put / 100.00 Put</strong></td>
+                        <td>兼具 8%~13% 安全垫与 20%+ 丰厚年化权利金。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>止损与策略失效条件</strong></td>
+                        <td>德州电网监管发生恶性倒退或连续遭遇非对冲重大机组事故</td>
+                        <td>若发生转为接股并开启备兑 Call 策略降低持仓成本。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <!-- SCRIPT FOR INTERACTIVE CHARTS -->
+    <script>
+        // Chart 1: Financial Trend
+        const ctx1 = document.getElementById('nrgFinancialTrendChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'FY2026E'],
+                datasets: [
+                    {
+                        label: '营业收入 (Revenue $B)',
+                        data: [31.54, 28.82, 28.13, 30.71, 33.13],
+                        backgroundColor: 'rgba(2, 132, 199, 0.65)',
+                        borderColor: '#0284C7',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '调整后 EBITDA ($B)',
+                        data: [2.80, 1.75, 3.50, 3.28, 3.55],
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderColor: '#10B981',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '自由现金流 FCF ($B)',
+                        data: [-0.01, -0.82, 1.83, 0.77, 1.45],
+                        backgroundColor: 'rgba(217, 119, 6, 0.85)',
+                        borderColor: '#D97706',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '金额 ($ Billion)' },
+                        grid: { color: '#E2E8F0' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.raw + 'B';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: DuPont Breakdown
+        const ctx2 = document.getElementById('nrgDupontChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025'],
+                datasets: [
+                    {
+                        label: '净资产收益率 ROE (%)',
+                        data: [31.9, -6.9, 45.4, 51.4],
+                        borderColor: '#0284C7',
+                        backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '净利润率 (%)',
+                        data: [3.87, -0.70, 4.00, 2.81],
+                        borderColor: '#10B981',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        yAxisID: 'y1'
+                    },
+                    {
+                        label: '资产周转率 (x10 %)',
+                        data: [10.82, 11.07, 11.71, 10.54],
+                        borderColor: '#D97706',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'ROE (%)' },
+                        grid: { color: '#E2E8F0' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: '利润率 / 周转率指标' },
+                        grid: { drawOnChartArea: false }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' }
+                }
+            }
+        });
+
+        // Chart 3: DCF Sensitivity
+        const ctx3 = document.getElementById('nrgDcfChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'line',
+            data: {
+                labels: ['g=1.5%', 'g=2.0%', 'g=2.5% (基准)', 'g=3.0%', 'g=3.5%'],
+                datasets: [
+                    {
+                        label: 'WACC = 7.0%',
+                        data: [119.72, 134.56, 152.71, 175.39, 204.56],
+                        borderColor: '#10B981',
+                        borderWidth: 2,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'WACC = 8.0% (基准折现率)',
+                        data: [91.63, 101.72, 113.64, 127.94, 145.43],
+                        borderColor: '#0284C7',
+                        borderWidth: 3,
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'WACC = 9.0%',
+                        data: [71.07, 78.29, 86.62, 96.34, 107.83],
+                        borderColor: '#D97706',
+                        borderWidth: 2,
+                        pointRadius: 4
+                    },
+                    {
+                        label: '当前股价 ($114.41)',
+                        data: [114.41, 114.41, 114.41, 114.41, 114.41],
+                        borderColor: '#DC2626',
+                        borderWidth: 2,
+                        borderDash: [6, 4],
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        title: { display: true, text: '测算每股公允内在价值 ($/股)' },
+                        grid: { color: '#E2E8F0' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.raw;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 4: Options Open Interest & Max Pain
+        const ctx4 = document.getElementById('nrgOptionsChart').getContext('2d');
+        new Chart(ctx4, {
+            type: 'bar',
+            data: {
+                labels: ['$90', '$95', '$100', '$105', '$110', '$115', '$120 (Max Pain)', '$125', '$130', '$135', '$140'],
+                datasets: [
+                    {
+                        label: '认沽未平仓量 Put OI (多头防守墙)',
+                        data: [89, 93, 707, 476, 504, 320, 552, 337, 229, 331, 438],
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#10B981',
+                        borderWidth: 1.5,
+                        borderRadius: 4
+                    },
+                    {
+                        label: '认购未平仓量 Call OI (空头阻力墙)',
+                        data: [3, 4, 41, 4, 292, 466, 3042, 634, 9075, 1998, 3712],
+                        backgroundColor: 'rgba(220, 38, 38, 0.75)',
+                        borderColor: '#DC2626',
+                        borderWidth: 1.5,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: {
+                        title: { display: true, text: '行权价 (Strike Price)' },
+                        grid: { display: false }
+                    },
+                    y: {
+                        title: { display: true, text: '未平仓合约张数 (Open Interest)' },
+                        grid: { color: '#E2E8F0' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw + ' 张';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

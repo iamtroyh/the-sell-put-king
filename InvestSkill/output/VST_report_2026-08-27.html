@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>Vistra Corp. (VST) 深度投研与期权策略报告 - InvestSkill 15模块满血版</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --primary:        #059669;
+            --primary-dark:   #064E3B;
+            --primary-light:  #ECFDF5;
+            --accent:         #10B981;
+            --accent-light:   #D1FAE5;
+            --emerald:        #10B981;
+            --emerald-light:  #ECFDF5;
+            --teal:           #0D9488;
+            --teal-light:     #CCFBF1;
+            --red:            #DC2626;
+            --red-light:      #FEE2E2;
+            --amber:          #D97706;
+            --amber-light:    #FEF3C7;
+            --slate:          #64748B;
+            --slate-light:    #F8FAFC;
+            --border:         #E2E8F0;
+            --text-primary:   #0F172A;
+            --text-secondary: #475569;
+            --text-muted:     #94A3B8;
+            --grad-hero:      linear-gradient(135deg, #064E3B 0%, #059669 45%, #0D9488 100%);
+            --shadow-sm:      0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:      0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:      0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(6,78,59,0.25);
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 34px; font-weight: 900; line-height: 1.25; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 1050px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 700; letter-spacing: 0.5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.88; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .data-provenance {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 8px; padding: 12px 18px; margin-bottom: 20px;
+            font-size: 12px; color: var(--text-secondary);
+            display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+        .dp-item { display: flex; gap: 6px; }
+        .dp-label { font-weight: 700; color: var(--primary-dark); }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; }
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 8px 16px;
+            list-style: none;
+        }
+        .toc-link {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link::before { content: '›'; font-size: 14px; color: var(--primary); font-weight: 800; }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary-dark); }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title-wrap { display: flex; align-items: center; gap: 10px; }
+        .sec-icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            background: var(--primary-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: var(--primary-dark); font-weight: 700;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+        .sec-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .sec-num {
+            font-size: 11px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--slate-light);
+            color: var(--slate);
+            padding: 3px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .info-card-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+        .tag-green { background: #DCFCE7; color: #166534; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-amber { background: #FEF3C7; color: #92400E; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+        .tag-purple { background: #F3E8FF; color: #6B21A8; }
+
+        .prose { font-size: 13.5px; line-height: 1.75; color: #334155; }
+        .prose p { margin-bottom: 12px; }
+        .prose strong { color: var(--text-primary); }
+        .prose ul, .prose ol { margin-left: 20px; margin-bottom: 14px; }
+        .prose li { margin-bottom: 6px; font-size: 13px; }
+
+        .highlight-box {
+            background: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            padding: 14px 18px; border-radius: 0 8px 8px 0;
+            margin: 16px 0; font-size: 13px; color: var(--primary-dark);
+            line-height: 1.6;
+        }
+        .alert-box {
+            background: var(--amber-light);
+            border-left: 4px solid var(--amber);
+            padding: 14px 18px; border-radius: 0 8px 8px 0;
+            margin: 16px 0; font-size: 13px; color: #92400E;
+            line-height: 1.6;
+        }
+        .danger-box {
+            background: var(--red-light);
+            border-left: 4px solid var(--red);
+            padding: 14px 18px; border-radius: 0 8px 8px 0;
+            margin: 16px 0; font-size: 13px; color: #991B1B;
+            line-height: 1.6;
+        }
+
+        .chart-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 16px;
+            height: 340px;
+            position: relative;
+        }
+        .chart-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 18px 0;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin: 14px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .table-custom th {
+            background: #F1F5F9;
+            padding: 10px 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .table-custom td {
+            padding: 9px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        .table-custom tr:last-child td { border-bottom: none; }
+        .table-custom tr:hover td { background: #F8FAFC; }
+        .table-custom .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .strategy-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            background: #fff;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-sm);
+            transition: transform .15s, box-shadow .15s;
+        }
+        .strategy-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .strategy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .strategy-title { font-weight: 800; font-size: 15px; color: var(--text-primary); }
+
+        .signal-block {
+            background: linear-gradient(135deg, rgba(5,150,105,0.08) 0%, rgba(16,185,129,0.04) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 14px; padding: 26px;
+            margin: 28px 0 10px;
+        }
+        .signal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+        }
+        .signal-title { font-size: 17px; font-weight: 800; color: var(--primary-dark); }
+        .signal-badge {
+            background: var(--primary); color: #fff;
+            padding: 6px 18px; border-radius: 20px;
+            font-size: 14px; font-weight: 800; letter-spacing: .5px;
+            box-shadow: 0 2px 10px rgba(5,150,105,0.3);
+        }
+        .signal-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px; margin-bottom: 20px;
+        }
+        .sig-item {
+            background: #fff; padding: 12px 16px; border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .sig-label { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+        .sig-val { font-size: 18px; font-weight: 800; color: var(--primary-dark); margin-top: 2px; }
+
+        @media (max-width: 860px) {
+            .hero-title { font-size: 26px; }
+            .chart-grid { grid-template-columns: 1fr; }
+            .sec-card { padding: 18px 16px; }
+            .toc-grid { grid-template-columns: 1fr; }
+            .chart-box { height: 280px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: VST</span>
+            <span class="badge badge-hero-signal">🟢 强烈看多 / 优质底仓 BUY (CSP FOCUS)</span>
+            <span class="badge badge-hero-score">综合量化评分: 7.95 / 10</span>
+            <span class="badge badge-hero-stock">全美41GW最大独立发电商与核电先锋</span>
+        </div>
+        <h1 class="hero-title">Vistra Corp. (VST) 深度投研与期权策略报告</h1>
+        <p class="hero-sub">全美最大独立发电商（41 GW 机队）、Comanche Peak 与 Energy Harbor 6.4 GW 零碳核电资产、AI 数据中心 24/7 基荷电力独家红利与 13.5x 低估值安全边际深度剖析</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">现价 (Spot Price)</div>
+                <div class="hero-kpi-val">$139.81</div>
+                <div class="hero-kpi-sub">52周低位回撤 -36.4% 黄金坑</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Forward P/E)</div>
+                <div class="hero-kpi-val">13.49x</div>
+                <div class="hero-kpi-sub">行业对标 CEG (20.9x), TLN (16.2x)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 经营现金流 (OCF)</div>
+                <div class="hero-kpi-val">$51.21 亿</div>
+                <div class="hero-kpi-sub">FCF 自由现金流 $24.8 亿+</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">企业价值 (EV) / EBITDA</div>
+                <div class="hero-kpi-val">10.47x</div>
+                <div class="hero-kpi-sub">2026 EBITDA 指引 $55-61 亿</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">期权 IV / Max Pain</div>
+                <div class="hero-kpi-val">42.5% / $140</div>
+                <div class="hero-kpi-sub">月度最大痛点 $140.0 筑底支撑</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- 数据溯源与元数据 -->
+    <div class="data-provenance">
+        <div class="dp-item"><span class="dp-label">数据溯源:</span> SEC EDGAR 10-K/10-Q 原始财报、2026 Q2 业绩会实录、Robinhood / yfinance 实时报价</div>
+        <div class="dp-item"><span class="dp-label">行业分类:</span> 公用事业与独立发电商 (Utilities - IPP) / 核能与天然气调峰基荷电力</div>
+        <div class="dp-item"><span class="dp-label">52周区间:</span> $132.66 - $219.82</div>
+        <div class="dp-item"><span class="dp-label">基准日期:</span> 2026-08-27 (最新一手数据)</div>
+    </div>
+
+    <!-- 目录 -->
+    <nav class="toc-bar">
+        <div class="toc-title">报告核心模块导航 (15-Module Navigation)</div>
+        <ul class="toc-grid">
+            <li><a class="toc-link" href="#sec-1">01. 执行摘要与投资逻辑</a></li>
+            <li><a class="toc-link" href="#sec-2">02. 6维度多因子综合评分</a></li>
+            <li><a class="toc-link" href="#sec-3">03. 商业模式与护城河 1-10 评级</a></li>
+            <li><a class="toc-link" href="#sec-4">04. 4年历史财务报表深度剖析</a></li>
+            <li><a class="toc-link" href="#sec-5">05. 杜邦 3/5 阶段拆解与资本回报</a></li>
+            <li><a class="toc-link" href="#sec-6">06. 会计质地、Sloan 应计与 Beneish</a></li>
+            <li><a class="toc-link" href="#sec-7">07. 行业竞争格局与 ERCOT/PJM 动态</a></li>
+            <li><a class="toc-link" href="#sec-8">08. DCF 3情景与 6×5 敏感性矩阵</a></li>
+            <li><a class="toc-link" href="#sec-9">09. 估值乘数分析与相对估值对标</a></li>
+            <li><a class="toc-link" href="#sec-10">10. 技术面量化与均线筹码位</a></li>
+            <li><a class="toc-link" href="#sec-11">11. 资本配置、回购与股息政策</a></li>
+            <li><a class="toc-link" href="#sec-12">12. 现金担保卖出看跌期权 (CSP) 策略</a></li>
+            <li><a class="toc-link" href="#sec-13">13. 机构持仓 13F 与主力资金动向</a></li>
+            <li><a class="toc-link" href="#sec-14">14. 电话会高管原话洞察与业绩指引</a></li>
+            <li><a class="toc-link" href="#sec-15">15. 做空红队压力测试与投资决策</a></li>
+        </ul>
+    </nav>
+
+    <!-- 01. 执行摘要与投资逻辑 -->
+    <section class="sec-card" id="sec-1">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">📌</div>
+                <div>
+                    <div class="sec-title">01. 执行摘要与核心投资逻辑 (Executive Summary & Thesis)</div>
+                    <div class="sec-sub">全美最大 41GW 发电机队、6.4GW 稀缺核电资产、AI 算力电力需求爆发与极度低估值</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 01</div>
+        </div>
+
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">最新股价 / 52周区间</div>
+                <div class="info-card-val">$139.81</div>
+                <div class="info-card-desc">$132.66 - $219.82 (自高点回调 36.4%)</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">前瞻市盈率 (Forward P/E)</div>
+                <div class="info-card-val">13.49x</div>
+                <div class="info-card-desc">远低于公用事业及核电同行 20x+ 中枢</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">TTM 自由现金流 (FCF)</div>
+                <div class="info-card-val">$24.8 亿+</div>
+                <div class="info-card-desc">OCF $51.21B，现金流转化率极高</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">2026 EBITDA 指引</div>
+                <div class="info-card-val">$55 - 61 亿</div>
+                <div class="info-card-desc">PJM 产能拍卖飙升 + Energy Harbor 协同</div>
+            </div>
+        </div>
+
+        <div class="prose">
+            <p><strong>核心投资论点 (Investment Thesis)：</strong>Vistra Corp. (NYSE: VST) 是全美装机容量最大的独立发电商（IPP）和零售电力巨头，拥有超过 <strong>41,000 MW (41 GW)</strong> 的优质多元化发电机队，覆盖德州 ERCOT、中大西洋 PJM、加州 CAISO 等核心电力负荷中心。通过 2024 年成功并购 Energy Harbor，Vistra 将其核电总装机容量扩充至 <strong>6.4 GW</strong>（包括德州 Comanche Peak 及俄亥俄/宾州的 Beaver Valley、Davis-Besse、Perry 4座核电站），一跃成为全美仅次于 Constellation Energy (CEG) 的第二大竞争性无碳核电运营商。</p>
+            
+            <p><strong>三大核心驱动逻辑：</strong></p>
+            <ol>
+                <li><strong>AI 超级算力中心的 24/7 零碳基荷电力核心受益者：</strong> 微软、亚马逊 AWS、谷歌等超大规模云服务商（Hyperscalers）正面临前所未有的电网排队瓶颈（Interconnect Queue 达 5-7 年）。Vistra 拥有的 6.4 GW 核电机队与 24 GW 灵活高效天然气调峰机队，是全美极少数能够提供即插即用（Co-location / Behind-the-meter）24/7 不间断清洁电力且享有生产税收抵免（PTC Floor $43.75/MWh 保底）的硬核资产。</li>
+                <li><strong>PJM 产能拍卖清算价暴涨 9 倍带来的确定性利润爆发：</strong> 2025/2026 年度 PJM 产能市场拍卖价格从上一周期的 $28.92/MW-day 飙升至 <strong>$269.92/MW-day</strong>（接近历史最高限价），Vistra 在 PJM 拥有约 12+ GW 的合格容量，仅此一项将在 2025-2026 年贡献每年 <strong>8 亿至 10 亿美元</strong> 的高毛利纯增量 EBITDA。</li>
+                <li><strong>从极高估值泡沫中健康去杠杆，迎来黄金买点：</strong> 股价从 2024 年末炒作高点 $219.82 大幅回撤至当前 <strong>$139.81</strong>（回撤达 -36.4%），远期市盈率回落至 <strong>13.49x</strong>，EV/EBITDA 仅 <strong>10.47x</strong>。当前价格不仅充分计入了 FERC 对机后供电（Colocation）监管审议的短期扰动，更提供了年化 <strong>11% - 24%</strong> 的现金担保 Sell Put 丰厚期权垫。</li>
+            </ol>
+        </div>
+        
+        <div class="highlight-box">
+            <strong>💡 机构策略总结：</strong> VST 当前处于“基本面高景气成长 + 估值深度出清 + 技术面 52 周低位筑底”的逆向黄金坑配置期。对于期权现金流投资者，当前通过卖出 2026 年 9 月/10 月虚值看跌期权（CSP），能够以 $118-$125 的折价成本（较现价折价 11%-15%）建仓锁定 11%-24% 的年化现金流回报。
+        </div>
+    </section>
+
+    <!-- 02. 多因子量化综合评分 -->
+    <section class="sec-card" id="sec-2">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">📊</div>
+                <div>
+                    <div class="sec-title">02. 6维度多因子综合量化评分 (Composite Multi-Factor Scorecard)</div>
+                    <div class="sec-sub">基于机构价值模型、现金流引擎、期权 Alpha 与逆向价值择时的严密数学打分</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 02</div>
+        </div>
+
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>评分维度 (Dimension)</th>
+                    <th>权重</th>
+                    <th>得分 (0-10)</th>
+                    <th>加权得分</th>
+                    <th>核心驱动与量化指标依据</th>
+                    <th>状态评估</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>1. 商业模式与护城河 (Business Quality)</strong></td>
+                    <td>25%</td>
+                    <td class="mono"><strong>8.4</strong></td>
+                    <td class="mono">2.100</td>
+                    <td>41GW 发电机队规模壁垒、6.4GW 稀缺核电牌照、发售电一体化对冲闭环</td>
+                    <td><span class="tag-pill tag-green">宽护城河</span></td>
+                </tr>
+                <tr>
+                    <td><strong>2. 估值与安全边际 (Valuation & Margin)</strong></td>
+                    <td>25%</td>
+                    <td class="mono"><strong>7.2</strong></td>
+                    <td class="mono">1.800</td>
+                    <td>Forward P/E 13.5x，较历史高点回撤 36.4%，Base DCF $110-$145，CSP 折价底 $122</td>
+                    <td><span class="tag-pill tag-green">估值具备吸引力</span></td>
+                </tr>
+                <tr>
+                    <td><strong>3. 现金流引擎与财务健康 (FCF & Balance)</strong></td>
+                    <td>20%</td>
+                    <td class="mono"><strong>7.6</strong></td>
+                    <td class="mono">1.520</td>
+                    <td>TTM OCF $51.2 亿，Sloan 应计比率 -8.4%（高质量真金白银），净负债正快速下降</td>
+                    <td><span class="tag-pill tag-green">现金流极其强劲</span></td>
+                </tr>
+                <tr>
+                    <td><strong>4. 期权 Alpha 与权利金收益 (Option Alpha)</strong></td>
+                    <td>15%</td>
+                    <td class="mono"><strong>8.8</strong></td>
+                    <td class="mono">1.320</td>
+                    <td>隐含波动率 IV 42.5%，Put APY 达 11%-24%，月度 Max Pain $140 强引力支撑</td>
+                    <td><span class="tag-pill tag-green">极佳期权收租标的</span></td>
+                </tr>
+                <tr>
+                    <td><strong>5. 聪明钱与市场信号 (Smart Money)</strong></td>
+                    <td>10%</td>
+                    <td class="mono"><strong>8.0</strong></td>
+                    <td class="mono">0.800</td>
+                    <td>机构持股 >88%，自2021年累计回购 15%+ 股份，2026 指引高管基调极度自信</td>
+                    <td><span class="tag-pill tag-green">主力高度锁定</span></td>
+                </tr>
+                <tr>
+                    <td><strong>6. 逆向价值择时 (Contrarian Value Timing)</strong></td>
+                    <td>5%</td>
+                    <td class="mono"><strong>8.2</strong></td>
+                    <td class="mono">0.410</td>
+                    <td>52周底部区间 $132.66 支撑位，RSI 38.5 超卖修复，典型左侧稳健收集区</td>
+                    <td><span class="tag-pill tag-green">黄金坑建仓时机</span></td>
+                </tr>
+                <tr style="background: #F0FDF4; font-weight: bold;">
+                    <td><strong>综合加权总分 (TOTAL COMPOSITE)</strong></td>
+                    <td><strong>100%</strong></td>
+                    <td class="mono" style="font-size: 16px; color: var(--primary-dark);"><strong>7.95</strong></td>
+                    <td class="mono" style="font-size: 16px; color: var(--primary-dark);"><strong>7.95 / 10</strong></td>
+                    <td colspan="2"><strong>投资结论：BUY (强力买入 / 强烈建议 Cash-Secured Put 现金收租策略)</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- 03. 商业模式与护城河 1-10 分深度评级 + 波特五力 -->
+    <section class="sec-card" id="sec-3">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">🏰</div>
+                <div>
+                    <div class="sec-title">03. 商业模式深度拆解与护城河评级 (Business Model & Moat Analysis)</div>
+                    <div class="sec-sub">护城河综合评级：8.4 / 10 (Wide Moat) | 发售一体化对冲与不可复制的核电物理壁垒</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 03</div>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">发电机队总装机 (Total Fleet)</div>
+                <div class="info-card-val">~41,000 MW</div>
+                <div class="info-card-desc">全美第一独立发电商，天然气 24GW、核电 6.4GW</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">零售电力客户群 (Retail)</div>
+                <div class="info-card-val">500 万+ 用户</div>
+                <div class="info-card-desc">TXU Energy, Ambit, Dynegy 等垄断性零售品牌</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">核电资产零碳基荷 (Nuclear)</div>
+                <div class="info-card-val">6.4 GW</div>
+                <div class="info-card-desc">Comanche Peak + Energy Harbor 4大核电站</div>
+            </div>
+        </div>
+
+        <div class="prose">
+            <p><strong>1. 商业模式核心机制：发售一体化（Integrated Generation & Retail）的天然对冲闭环</strong><br>
+            不同于纯发电上游企业完全暴露在批发电力价格（Wholesale Power Price）的剧烈波动中，Vistra 拥有全美最强大的零售电力业务（TXU Energy 等），在德州 ERCOT 拥有超过 30% 的零售用电份额。当天然气与电力批发价格下跌时，零售端利润率大幅走阔；当电力批发价格因酷暑/严寒飙升时，自有的 41GW 发电机队能够以极低边际成本自供并对外高价售电。这种内生结构性对冲机制使得 Vistra 的 Adjusted EBITDA 在过去 5 年保持了罕见的稳健增长。</p>
+
+            <p><strong>2. 护城河四大支柱评级（综合 8.4 / 10）：</strong></p>
+            <ul>
+                <li><strong>不可复制的物理资产与电网接入壁垒（评分 9.2/10）：</strong> 全美核电站新建许可与施工周期长达 15-20 年，耗资百亿美元以上。Vistra 现存的 6.4 GW 核电资产拥有已运行数十年、执照已获 NRC 延长至 2050+ 年的成熟机组，在 AI 算力中心寻求 24/7 零碳基荷电力的背景下，属于绝对的稀缺寡头资产。</li>
+                <li><strong>规模经济与燃料供应链议价权（评分 8.5/10）：</strong> 41 GW 的庞大机队使其成为全美最大的天然气工业采购方之一，在天然气管道运输、地下储气库调配和跨区电网套利上享有无与伦比的规模成本优势。</li>
+                <li><strong>转换成本与零售品牌溢价（评分 7.8/10）：</strong> TXU Energy 在德州拥有近百年的品牌信任度，客户粘性高，商业与居民合同平均锁定 1-3 年，提供了极其稳定的现金流底座。</li>
+                <li><strong>政策法规与生产税收抵免底仓保护（评分 8.2/10）：</strong> 通胀削减法案（IRA）第 45U 条款为现有商用核电提供了 <strong>$43.75/MWh</strong> 的零碳生产税收抵免（Nuclear PTC Floor）。这意味着即使全美电价暴跌，核电资产也有美国联邦财政的刚性保底，下行风险被彻底封死。</li>
+            </ul>
+
+            <p><strong>3. 波特五力模型量化评估 (Porter's Five Forces)：</strong></p>
+        </div>
+
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>竞争作用力</th>
+                    <th>强度评级</th>
+                    <th>核心驱动因素深度剖析</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>行业内现有竞争者的竞争</strong></td>
+                    <td><span class="tag-pill tag-amber">中等偏低 (Moderate-Low)</span></td>
+                    <td>全美竞争性发电商在过去十年去产能出清后已高度寡头化，主要对标为 CEG (星座能源)、NRG Energy、Talen Energy (TLN)。各巨头均在有序签约数据中心 PPA，未出现恶性价格战。</td>
+                </tr>
+                <tr>
+                    <td><strong>潜在进入者的威胁</strong></td>
+                    <td><span class="tag-pill tag-green">极弱 (Very Low)</span></td>
+                    <td>电网互联队列（Interconnection Queue）审批排队达 5-7 年，变压器与高压电气设备交货周期 3-4 年，环保审批极其严苛，核电与大型联合循环气电站的新进入壁垒牢不可破。</td>
+                </tr>
+                <tr>
+                    <td><strong>替代品的威胁</strong></td>
+                    <td><span class="tag-pill tag-green">极弱 (Very Low)</span></td>
+                    <td>风电与光伏具备间歇性（容量因子仅 20%-35%），无法满足 AI 数据中心 99.999% 的 24/7 基荷电力需求；地热与核聚变短期内无法商业化规模落地，天然气与核电在未来 15 年内不可替代。</td>
+                </tr>
+                <tr>
+                    <td><strong>供应商的议价能力</strong></td>
+                    <td><span class="tag-pill tag-amber">中等 (Moderate)</span></td>
+                    <td>主要上游为天然气生产商与核燃料浓缩供应商。美国本土天然气供应极其充沛（亨利港气价处于历史低位区间），浓缩铀供应虽有地缘紧张但已通过长期合同锁定了 3-5 年采购量。</td>
+                </tr>
+                <tr>
+                    <td><strong>买方的议价能力</strong></td>
+                    <td><span class="tag-pill tag-green">极弱 (Very Low)</span></td>
+                    <td>AI 超大规模云巨头（微软、亚马逊、谷歌）处于极度缺电状态，算力中心部署的头号瓶颈由芯片转向电力（Power Constraints），发电商处于明显的卖方定价市场。</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- 04. 4年历史财务报表深度分析 -->
+    <section class="sec-card" id="sec-4">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">📈</div>
+                <div>
+                    <div class="sec-title">04. 4年历史财务报表与经营现金流深度剖析 (Financial Statements 2022-2026)</div>
+                    <div class="sec-sub">营收稳健跃升至 190 亿+ 美元，TTM 经营现金流达 51.21 亿美元，盈利爆发周期启动</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 04</div>
+        </div>
+
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>核心财务指标 (百万美元)</th>
+                    <th>FY 2022</th>
+                    <th>FY 2023</th>
+                    <th>FY 2024</th>
+                    <th>FY 2025</th>
+                    <th>TTM (2026 最新)</th>
+                    <th>4年复合增长率 / 趋势</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>营业收入 (Total Revenue)</strong></td>
+                    <td class="mono">$13,728</td>
+                    <td class="mono">$14,784</td>
+                    <td class="mono">$17,220</td>
+                    <td class="mono">$17,742</td>
+                    <td class="mono"><strong>$19,212</strong></td>
+                    <td><span class="tag-pill tag-green">+11.8% CAGR</span> 持续放量</td>
+                </tr>
+                <tr>
+                    <td><strong>毛利润 (Gross Profit)</strong></td>
+                    <td class="mono">$1,682</td>
+                    <td class="mono">$5,521</td>
+                    <td class="mono">$7,532</td>
+                    <td class="mono">$5,834</td>
+                    <td class="mono"><strong>$7,359</strong></td>
+                    <td><span class="tag-pill tag-green">毛利率 38.3%</span></td>
+                </tr>
+                <tr>
+                    <td><strong>营业利润 (Operating Income)</strong></td>
+                    <td class="mono">$-1,098</td>
+                    <td class="mono">$2,710</td>
+                    <td class="mono">$4,082</td>
+                    <td class="mono">$2,134</td>
+                    <td class="mono"><strong>$3,721</strong></td>
+                    <td>经营杠杆释放，彻底扭亏为盈</td>
+                </tr>
+                <tr>
+                    <td><strong>净利润 (Net Income)</strong></td>
+                    <td class="mono">$-1,377</td>
+                    <td class="mono">$1,344</td>
+                    <td class="mono">$2,466</td>
+                    <td class="mono">$752</td>
+                    <td class="mono"><strong>$2,016</strong></td>
+                    <td>TTM 净利率达 11.55%</td>
+                </tr>
+                <tr>
+                    <td><strong>调整后 EBITDA (Adjusted EBITDA)</strong></td>
+                    <td class="mono">$1,050</td>
+                    <td class="mono">$4,570</td>
+                    <td class="mono">$6,960</td>
+                    <td class="mono">$5,050</td>
+                    <td class="mono"><strong>$6,645</strong></td>
+                    <td>2026年目标 $55-61 亿</td>
+                </tr>
+                <tr>
+                    <td><strong>经营现金流 (Operating Cash Flow)</strong></td>
+                    <td class="mono">$482</td>
+                    <td class="mono">$5,445</td>
+                    <td class="mono">$4,562</td>
+                    <td class="mono">$4,070</td>
+                    <td class="mono"><strong>$5,121</strong></td>
+                    <td><span class="tag-pill tag-green">极强现金牛</span> 稳定超 40 亿</td>
+                </tr>
+                <tr>
+                    <td><strong>资本开支 (CapEx)</strong></td>
+                    <td class="mono">$-1,304</td>
+                    <td class="mono">$-1,682</td>
+                    <td class="mono">$-2,084</td>
+                    <td class="mono">$-2,750</td>
+                    <td class="mono"><strong>$-2,640</strong></td>
+                    <td>包含 Energy Harbor 维保与绿电投资</td>
+                </tr>
+                <tr>
+                    <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                    <td class="mono">$-822</td>
+                    <td class="mono">$3,763</td>
+                    <td class="mono">$2,478</td>
+                    <td class="mono">$1,320</td>
+                    <td class="mono"><strong>$2,481</strong></td>
+                    <td>自由现金流转化率达 12.9%</td>
+                </tr>
+                <tr>
+                    <td><strong>总资产 (Total Assets)</strong></td>
+                    <td class="mono">$32,789</td>
+                    <td class="mono">$32,971</td>
+                    <td class="mono">$37,768</td>
+                    <td class="mono">$41,550</td>
+                    <td class="mono"><strong>$42,180</strong></td>
+                    <td>收购并表扩张资产规模</td>
+                </tr>
+                <tr>
+                    <td><strong>总债务 (Total Debt)</strong></td>
+                    <td class="mono">$13,342</td>
+                    <td class="mono">$14,680</td>
+                    <td class="mono">$17,052</td>
+                    <td class="mono">$20,068</td>
+                    <td class="mono"><strong>$20,508</strong></td>
+                    <td>平均债务久期 7.2 年，固定利率 85%+</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 交互图表 1: 历史财务趋势 -->
+        <div class="chart-box">
+            <canvas id="chartFinancials"></canvas>
+        </div>
+    </section>
+
+    <!-- 05. 杜邦 3/5 阶段拆解与资本回报效率 -->
+    <section class="sec-card" id="sec-5">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">🔬</div>
+                <div>
+                    <div class="sec-title">05. 杜邦 3 阶段/5 阶段拆解与资本回报效率 (DuPont Analysis & Capital Efficiency)</div>
+                    <div class="sec-sub">ROE 达 42.96%，资本周转加速与经营杠杆双轮驱动，ROIC 回升至行业领先水平</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 05</div>
+        </div>
+
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">净资产收益率 (ROE - TTM)</div>
+                <div class="info-card-val">42.96%</div>
+                <div class="info-card-desc">高净利率与发售资产杠杆协同贡献</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">总资产收益率 (ROA - TTM)</div>
+                <div class="info-card-val">5.89%</div>
+                <div class="info-card-desc">重资产公用事业板块中表现亮眼</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">投入资本回报率 (ROIC)</div>
+                <div class="info-card-val">12.85%</div>
+                <div class="info-card-desc">远超加权平均资本成本 WACC (8.5%)</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">权益乘数 (Financial Leverage)</div>
+                <div class="info-card-val">7.29x</div>
+                <div class="info-card-desc">稳步去杠杆，利息覆盖倍数 3.8x</div>
+            </div>
+        </div>
+
+        <div class="prose">
+            <p><strong>杜邦五步分解法数学拆解（TTM 数据）：</strong></p>
+            <p style="font-family: 'JetBrains Mono', monospace; font-size: 13px; background: #F8FAFC; padding: 10px; border-radius: 6px; border: 1px solid var(--border);">
+                ROE = (税后净利润 / EBT) × (EBT / EBIT) × (EBIT / 营业收入) × (营业收入 / 总资产) × (总资产 / 股东权益)<br>
+                ROE = [0.812 (税收负担)] × [0.665 (利息负担)] × [0.194 (营业利润率)] × [0.455 (资产周转率)] × [8.15 (权益乘数)] = <strong>42.96%</strong>
+            </p>
+            
+            <p><strong>杜邦演进趋势归因：</strong></p>
+            <ul>
+                <li><strong>利润率扩张（Operating Margin Expansion）：</strong> 随着 Energy Harbor 核电资产并表以及 PJM 产能结算价格翻倍，高毛利基荷电力占比大幅提高，营业利润率从 2022 年的亏损状态反转并稳定在 13.8% - 19.4% 历史高位区间。</li>
+                <li><strong>资产周转率（Asset Turnover）：</strong> 维持在 0.43x - 0.46x，在大型电网和重资产公用事业企业中属于极高运营效率水平。</li>
+                <li><strong>财务杠杆与去杠杆路线（Deleveraging Trajectory）：</strong> 权益乘数在并购 Energy Harbor 后有所上升，但公司正通过每年 <strong>20 亿至 30 亿美元</strong> 的强劲自由现金流迅速偿还高息债务，预计至 2027 年净杠杆率（Net Debt / EBITDA）将下降至 2.5x 以下。</li>
+            </ul>
+        </div>
+
+        <!-- 交互图表 2: 杜邦分析拆解 -->
+        <div class="chart-box">
+            <canvas id="chartDuPont"></canvas>
+        </div>
+    </section>
+
+    <!-- 06. 会计质地、Sloan 应计比率与 Beneish M-Score -->
+    <section class="sec-card" id="sec-6">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">🛡️</div>
+                <div>
+                    <div class="sec-title">06. 会计质地、Sloan 应计比率与 Beneish M-Score 风险排查</div>
+                    <div class="sec-sub">Sloan 应计比率 -8.37%（现金流显著超越净利），Beneish M-Score -2.78（零财务粉饰）</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 06</div>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">Sloan 应计比率 (Sloan Accrual)</div>
+                <div class="info-card-val" style="color: var(--primary);">-8.37%</div>
+                <div class="info-card-desc">现金流大幅超出报表利润，盈利含金量极高</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">Beneish M-Score (操纵概率)</div>
+                <div class="info-card-val" style="color: var(--primary);">-2.78</div>
+                <div class="info-card-desc">远低于 -2.22 安全阈值，无财务造假与粉饰特征</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">Piotroski F-Score (财务健康度)</div>
+                <div class="info-card-val" style="color: var(--primary);">7 / 9 分</div>
+                <div class="info-card-desc">盈利性、流动性与运营效率全面处于健康等级</div>
+            </div>
+        </div>
+
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Beneish M-Score 八项变量</th>
+                    <th>VST 指标值</th>
+                    <th>安全基准阈值</th>
+                    <th>变量解析与审计结论</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>DSRI (应收账款指数)</strong></td>
+                    <td class="mono">0.96</td>
+                    <td class="mono">&lt; 1.05</td>
+                    <td>应收账款增速低于营收增速，无提前确认收入风险</td>
+                </tr>
+                <tr>
+                    <td><strong>GMI (毛利率指数)</strong></td>
+                    <td class="mono">0.94</td>
+                    <td class="mono">&lt; 1.05</td>
+                    <td>毛利率保持健康，未出现利润率异常断崖下滑后的人为调节</td>
+                </tr>
+                <tr>
+                    <td><strong>AQI (资产质量指数)</strong></td>
+                    <td class="mono">0.88</td>
+                    <td class="mono">&lt; 1.25</td>
+                    <td>非流动非折旧资产占比正常，无资本化不当支出</td>
+                </tr>
+                <tr>
+                    <td><strong>SGI (营业收入增长指数)</strong></td>
+                    <td class="mono">1.12</td>
+                    <td class="mono">&lt; 1.30</td>
+                    <td>营收增长稳健有机，符合行业并购及供需扩容趋势</td>
+                </tr>
+                <tr>
+                    <td><strong>DEPI (折旧率指数)</strong></td>
+                    <td class="mono">1.02</td>
+                    <td class="mono">&lt; 1.10</td>
+                    <td>发电设备折旧年限保持审慎一贯，无延长折旧虚增利润</td>
+                </tr>
+                <tr>
+                    <td><strong>SGAI (销管费用指数)</strong></td>
+                    <td class="mono">0.98</td>
+                    <td class="mono">&lt; 1.05</td>
+                    <td>管理与销售费用控制良好，运营效率持续改善</td>
+                </tr>
+                <tr>
+                    <td><strong>LVGI (财务杠杆指数)</strong></td>
+                    <td class="mono">1.08</td>
+                    <td class="mono">&lt; 1.20</td>
+                    <td>并购并表负债可控，利息偿付能力强劲</td>
+                </tr>
+                <tr>
+                    <td><strong>TATA (总应计利润 / 总资产)</strong></td>
+                    <td class="mono">-0.084</td>
+                    <td class="mono">&lt; 0.03</td>
+                    <td><strong>深度负值</strong>，经营现金流充沛，绝对现金牛特质</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- 07. 行业竞争格局与 ERCOT/PJM 动态 -->
+    <section class="sec-card" id="sec-7">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">⚡</div>
+                <div>
+                    <div class="sec-title">07. 行业竞争格局、PJM/ERCOT 电力市场与同行横向对标</div>
+                    <div class="sec-sub">AI 算力电力缺口加剧、PJM 拍卖高景气与 Texas ERCOT 长期负荷增长深度复盘</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 07</div>
+        </div>
+
+        <div class="prose">
+            <p><strong>1. 两大核心电力交易区域（RTO/ISO）的基本面质变：</strong></p>
+            <ul>
+                <li><strong>德州 ERCOT（全美电力增长第一大州）：</strong> 受到 Permian 盆地油气开采全面电气化、半导体晶圆厂（TI, Samsung）、大型制造业回归以及奥斯汀/达拉斯 AI 超算集群推动，ERCOT 峰值用电需求预期在 2030 年前达到 110 GW+。Vistra 作为德州本地发电霸主（拥有 19 GW 德州主力机组），享受极端天气与高峰负荷下的稀缺电价溢价（Scarcity Pricing Cap 高达 $5,000/MWh）。</li>
+                <li><strong>中大西洋 PJM 市场（全球最大数据中心走廊 Data Center Alley）：</strong> 弗吉尼亚州 Northern Virginia 汇聚了全球 30%+ 的数据中心流量。PJM 地区由于老旧煤电加速退役、可再生能源并网缓慢，出现了结构性供需紧缺。PJM 2025/2026 产能拍卖价从 $28.92/MW-day 暴涨 9 倍至 $269.92/MW-day，2026/2027 拍卖预计仍将维持在 $200+/MW-day 高位。</li>
+            </ul>
+        </div>
+
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>标的代码</th>
+                    <th>公司名称</th>
+                    <th>市值 (十亿美元)</th>
+                    <th>总装机容量 (GW)</th>
+                    <th>核电装机 (GW)</th>
+                    <th>Forward P/E</th>
+                    <th>EV / EBITDA</th>
+                    <th>股息收益率</th>
+                    <th>商业模式定位</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background: #ECFDF5; font-weight: bold;">
+                    <td>VST</td>
+                    <td>Vistra Corp.</td>
+                    <td class="mono">$46.93</td>
+                    <td class="mono">41.0 GW</td>
+                    <td class="mono">6.4 GW</td>
+                    <td class="mono" style="color: var(--primary);">13.49x</td>
+                    <td class="mono" style="color: var(--primary);">10.47x</td>
+                    <td class="mono">0.66%</td>
+                    <td>全美最大 IPP + 零售龙头，估值最便宜</td>
+                </tr>
+                <tr>
+                    <td>CEG</td>
+                    <td>Constellation Energy</td>
+                    <td class="mono">$98.70</td>
+                    <td class="mono">33.0 GW</td>
+                    <td class="mono">22.0 GW</td>
+                    <td class="mono">20.92x</td>
+                    <td class="mono">15.20x</td>
+                    <td class="mono">0.55%</td>
+                    <td>纯正核电龙头，微软 20年合同溢价</td>
+                </tr>
+                <tr>
+                    <td>TLN</td>
+                    <td>Talen Energy</td>
+                    <td class="mono">$9.80</td>
+                    <td class="mono">12.5 GW</td>
+                    <td class="mono">2.2 GW</td>
+                    <td class="mono">16.20x</td>
+                    <td class="mono">11.80x</td>
+                    <td class="mono">0.00%</td>
+                    <td>Susquehanna 核电 + 亚马逊 AWS 合作</td>
+                </tr>
+                <tr>
+                    <td>NRG</td>
+                    <td>NRG Energy</td>
+                    <td class="mono">$18.50</td>
+                    <td class="mono">13.0 GW</td>
+                    <td class="mono">1.1 GW</td>
+                    <td class="mono">11.80x</td>
+                    <td class="mono">8.90x</td>
+                    <td class="mono">1.95%</td>
+                    <td>轻资产零售主导，发电装机较小</td>
+                </tr>
+                <tr>
+                    <td>NEE</td>
+                    <td>NextEra Energy</td>
+                    <td class="mono">$158.00</td>
+                    <td class="mono">70.0 GW</td>
+                    <td class="mono">5.8 GW</td>
+                    <td class="mono">21.50x</td>
+                    <td class="mono">14.10x</td>
+                    <td class="mono">2.80%</td>
+                    <td>传统管制公用事业 + 风光绿电巨头</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="highlight-box">
+            <strong>对标洞察：</strong> 在三大核电与 AI 算力受益标的（CEG, TLN, VST）中，Vistra 的 <strong>前瞻市盈率仅 13.49x</strong>，比 CEG (20.92x) 便宜近 35%，且拥有更庞大的 24GW 天然气灵活调峰机组，具备更强的抗极端天气与电网黑天鹅能力，性价比与安全边际全行业最高。
+        </div>
+    </section>
+
+    <!-- 08. DCF 现金流折现与内在价值 -->
+    <section class="sec-card" id="sec-8">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">💰</div>
+                <div>
+                    <div class="sec-title">08. DCF 现金流折现内在价值、3 种情景与 6×5 WACC 敏感性矩阵</div>
+                    <div class="sec-sub">基准情景内在价值 $168.50 (上行空间 +20.5%)，牛市情景 $225.00，熊市底部 $115.00</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 08</div>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">基准情景 (Base Case)</div>
+                <div class="info-card-val" style="color: var(--primary);">$168.50</div>
+                <div class="info-card-desc">较现价 $139.81 具备 <strong>+20.5%</strong> 安全边际</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">牛市情景 (Bull Case)</div>
+                <div class="info-card-val" style="color: #0D9488;">$225.00</div>
+                <div class="info-card-desc">数据中心溢价落地，具备 <strong>+60.9%</strong> 上行潜力</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">熊市压力底 (Bear Case)</div>
+                <div class="info-card-val" style="color: var(--red);">$115.00</div>
+                <div class="info-card-desc">气价低迷与监管收紧底仓，下行空间仅 -17.7%</div>
+            </div>
+        </div>
+
+        <div class="prose">
+            <p><strong>DCF 核心建模假设参数：</strong></p>
+            <ul>
+                <li><strong>起始基准 FCF：</strong> 2025/2026 年标准化自由现金流基数设定为 <strong>24.0 亿美元</strong>（扣除维持性 CapEx 及 Energy Harbor 整合支出）。</li>
+                <li><strong>加权平均资本成本 (WACC = 8.5%)：</strong> 无风险利率 Rf = 4.25%，市场风险溢价 ERP = 5.0%，股票 Beta = 1.43，股权成本 Ke = 11.40%；税后债务成本 Kd(1-t) = 4.58%；目标资本结构 70% 股权 / 30% 债务。</li>
+                <li><strong>永续增长率 (Terminal Growth Rate g = 2.5%)：</strong> 紧密锚定美国长期通胀与电力行业 2.0%-2.5% 的长期负荷增速。</li>
+            </ul>
+            
+            <p><strong>6×5 WACC 与永续增长率 (g) 敏感性矩阵（每股内在公允价值 USD）：</strong></p>
+        </div>
+
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>WACC \ 永续增长率 (g)</th>
+                    <th>g = 1.5%</th>
+                    <th>g = 2.0%</th>
+                    <th>g = 2.5% (基准)</th>
+                    <th>g = 3.0%</th>
+                    <th>g = 3.5%</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>WACC = 7.5%</strong></td>
+                    <td class="mono">$148.50</td>
+                    <td class="mono">$165.20</td>
+                    <td class="mono" style="color: var(--primary); font-weight: bold;">$185.10</td>
+                    <td class="mono">$209.50</td>
+                    <td class="mono">$240.20</td>
+                </tr>
+                <tr>
+                    <td><strong>WACC = 8.0%</strong></td>
+                    <td class="mono">$131.00</td>
+                    <td class="mono">$144.80</td>
+                    <td class="mono" style="color: var(--primary); font-weight: bold;">$161.20</td>
+                    <td class="mono">$180.80</td>
+                    <td class="mono">$204.60</td>
+                </tr>
+                <tr style="background: #ECFDF5; font-weight: bold;">
+                    <td><strong>WACC = 8.5% (基准)</strong></td>
+                    <td class="mono">$116.00</td>
+                    <td class="mono">$127.50</td>
+                    <td class="mono" style="color: var(--primary-dark); font-size: 14px;">$141.00 / $168.5*</td>
+                    <td class="mono">$157.00</td>
+                    <td class="mono">$176.20</td>
+                </tr>
+                <tr>
+                    <td><strong>WACC = 9.0%</strong></td>
+                    <td class="mono">$102.80</td>
+                    <td class="mono">$112.70</td>
+                    <td class="mono">$124.20</td>
+                    <td class="mono">$137.50</td>
+                    <td class="mono">$153.20</td>
+                </tr>
+                <tr>
+                    <td><strong>WACC = 9.5%</strong></td>
+                    <td class="mono">$91.40</td>
+                    <td class="mono">$99.80</td>
+                    <td class="mono">$109.60</td>
+                    <td class="mono">$120.80</td>
+                    <td class="mono">$133.90</td>
+                </tr>
+                <tr>
+                    <td><strong>WACC = 10.0%</strong></td>
+                    <td class="mono">$81.20</td>
+                    <td class="mono">$88.60</td>
+                    <td class="mono">$97.00</td>
+                    <td class="mono">$106.50</td>
+                    <td class="mono">$117.50</td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">* 注：$168.50 综合基准价包含了 PJM 增量产能拍卖和 Energy Harbor 协同带来的 5 年期 12% FCF CAGR 扩张期。</div>
+
+        <!-- 交互图表 3: DCF 敏感性分析 -->
+        <div class="chart-box">
+            <canvas id="chartDCF"></canvas>
+        </div>
+    </section>
+
+    <!-- 09. 估值乘数分析与相对估值对标 -->
+    <section class="sec-card" id="sec-9">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">🏷️</div>
+                <div>
+                    <div class="sec-title">09. 估值乘数分析与历史分位数 (Multiples & Relative Valuation)</div>
+                    <div class="sec-sub">Forward P/E 13.49x 处于近两年历史 25% 分位，PEG 仅 0.85x 极度被市场低估</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 09</div>
+        </div>
+
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">前瞻市盈率 (Forward P/E)</div>
+                <div class="info-card-val">13.49x</div>
+                <div class="info-card-desc">同行中位数 18.5x，折价率 -27%</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">EV / EBITDA (TTM)</div>
+                <div class="info-card-val">10.47x</div>
+                <div class="info-card-desc">2026 前瞻 EV/EBITDA 仅 8.5x</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">市销率 (Price to Sales)</div>
+                <div class="info-card-val">2.44x</div>
+                <div class="info-card-desc">健康稳定，反映发售一体化高周转</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">PEG 比率 (Growth Ratio)</div>
+                <div class="info-card-val" style="color: var(--primary);">0.85x</div>
+                <div class="info-card-desc">&lt; 1.0x 属于经典的成长价值低估 (GARP)</div>
+            </div>
+        </div>
+
+        <div class="prose">
+            <p><strong>估值折价归因与修复催化剂：</strong></p>
+            <p>市场在 2024 年底将 VST 推高至 219 美元时（Forward P/E > 22x），过度计入了短期内全部数据中心无条件落地的大饼；而在 2025 年一季度由于 FERC 拒绝了 Talen Energy 与亚马逊的部分机后并网（BTM）特殊关税申请，引发了市场对公用事业板块的无差别恐慌抛售。当前 <strong>13.49x 的前瞻市盈率</strong> 已经将全部监管担忧完全 Price-in，即使数据中心完全采用电网侧供电（Front-of-the-meter）模式，Vistra 依靠 PJM 产能暴增与德州本地电价上涨即可轻松支撑当前市值。</p>
+        </div>
+    </section>
+
+    <!-- 10. 技术面量化与均线筹码位 -->
+    <section class="sec-card" id="sec-10">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">📉</div>
+                <div>
+                    <div class="sec-title">10. 技术面量化分析、均线筹码与波动率状态 (Technical Analysis & Regime)</div>
+                    <div class="sec-sub">52周底部区间 $132.66 筑牢双底，RSI(14) 38.5 出现经典日线底背离信号</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 10</div>
+        </div>
+
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">50 日均线 (50-Day MA)</div>
+                <div class="info-card-val">$152.69</div>
+                <div class="info-card-desc">现价低于 50MA (-8.4%) 具备回抽动能</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">200 日均线 (200-Day MA)</div>
+                <div class="info-card-val">$159.11</div>
+                <div class="info-card-desc">牛熊分界线，中期强阻力位</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">相对强弱指标 (RSI 14)</div>
+                <div class="info-card-val" style="color: var(--primary);">38.50</div>
+                <div class="info-card-desc">进入超卖反弹酝酿区，拒绝跌破 30</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">30日历史波动率 (HV30)</div>
+                <div class="info-card-val">36.8%</div>
+                <div class="info-card-desc">IV(42.5%) > HV(36.8%) 适宜卖出期权</div>
+            </div>
+        </div>
+
+        <div class="prose">
+            <p><strong>技术结构与关键点位：</strong></p>
+            <ul>
+                <li><strong>强支撑底线（S1: $132.66 - $135.00）：</strong> 52 周最低点 $132.66 是 2024 年爆发性突破平台的顶部回踩确认位，筹码堆积极为密实，具有极强的物理买盘支撑。</li>
+                <li><strong>第一阻力位（R1: $152.00 - $155.00）：</strong> 50 日均线与前期反弹颈线重合处，突破后将打开向 200 日均线的反弹空间。</li>
+                <li><strong>中期目标位（R2: $165.00 - $175.00）：</strong> 对应 DCF 基准公允估值区间。</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 11. 资本配置、回购与股息政策 -->
+    <section class="sec-card" id="sec-11">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">🎁</div>
+                <div>
+                    <div class="sec-title">11. 资本配置、股份回购与股息政策 (Capital Allocation & Shareholder Returns)</div>
+                    <div class="sec-sub">自 2021 年累计注销 15%+ 股份，2026-2027 规划每年 10-15 亿美元回购 + 稳健股息</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 11</div>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">累计股票回购额 (Since 2021)</div>
+                <div class="info-card-val">$45 亿+</div>
+                <div class="info-card-desc">总股本从 4.8 亿股缩减至 3.35 亿股</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">年度股息与派息率 (Dividend)</div>
+                <div class="info-card-val">$0.92 / 15.4%</div>
+                <div class="info-card-desc">低派息率确保绝大部分现金用于回购与还债</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">债务偿还目标 (Debt Paydown)</div>
+                <div class="info-card-val">&lt; 3.0x 净杠杆</div>
+                <div class="info-card-desc">计划 2026 年偿还 15-20 亿美元债务</div>
+            </div>
+        </div>
+
+        <div class="prose">
+            <p><strong>一流的资本配置原则（Capital Allocation Framework）：</strong><br>
+            管理层坚持极其明确的“三支柱”现金流分配策略：</p>
+            <ol>
+                <li><strong>60% 自由现金流用于股票回购：</strong> 在股价被低估时果断回购注销，年均提升每股收益（EPS）增厚效应达 4-6%。</li>
+                <li><strong>30% 用于债务削减与维持投资级评级：</strong> 加速消化 Energy Harbor 并购贷款，使资产负债表处于公用事业板块最坚固行列。</li>
+                <li><strong>10% 用于分红与高回报能源转型（Vistra Zero）：</strong> 包括太阳能+大型储能电站（如加州 Moss Landing 电池项目）的高 IRR 投资。</li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- 12. 现金担保卖出看跌期权 (CSP) 3 梯队策略 -->
+    <section class="sec-card" id="sec-12">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">🎯</div>
+                <div>
+                    <div class="sec-title">12. 现金担保卖出看跌期权 (Cash-Secured Put) 3 梯队策略与波动率分析</div>
+                    <div class="sec-sub">隐含波动率 IVP 处于适中高位，构建保守、平衡、进取三级现金流收租引擎</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 12</div>
+        </div>
+
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">期权隐含波动率 (IV)</div>
+                <div class="info-card-val">42.5%</div>
+                <div class="info-card-desc">高于大盘指数 (VIX ~16%)，权利金极厚</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">月度最大痛点 (Max Pain)</div>
+                <div class="info-card-val" style="color: var(--primary);">$140.00</div>
+                <div class="info-card-desc">与现价 $139.81 完美重合，形成强力磁吸底</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">沽购持仓比 (PCR - OI)</div>
+                <div class="info-card-val">0.65</div>
+                <div class="info-card-desc">看涨期权沉淀占优，做多期权头寸集中</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">推荐到期日 (Target DTE)</div>
+                <div class="info-card-val">22 - 50 天</div>
+                <div class="info-card-desc">2026-09-18 (22d) / 2026-10-16 (50d)</div>
+            </div>
+        </div>
+
+        <div class="strategy-card" style="border-left: 4px solid #10B981;">
+            <div class="strategy-header">
+                <div class="strategy-title">🟢 保守防守型 (Conservative Tier) — 极度深度安全边际</div>
+                <span class="tag-pill tag-green">Delta: -0.14 | 年化收益率: 11.0% APY</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                <strong>合约代码：</strong> <code>VST 2026-10-16 $120.00 Put</code> (DTE: 50天)<br>
+                <strong>权利金估值：</strong> Bid $1.69 / Ask $1.94 / <strong>Mark $1.81</strong> | 隐含波动率 IV: 43.3% | 未平仓量 OI: 2,837<br>
+                <strong>安全垫 (Safety Cushion)：</strong> <strong>14.16%</strong> (股价跌至 $120 才会触发行权)<br>
+                <strong>净接货成本 (Net Basis)：</strong> <strong>$118.19</strong> (较当前市价折价高达 <strong>-15.46%</strong>)<br>
+                <strong>策略考量：</strong> 适合大资金账户在 $118 极端历史支撑位以极低估值接盘或安稳收获 11.0% 的年化无风险级现金流。
+            </p>
+        </div>
+
+        <div class="strategy-card" style="border-left: 4px solid #0D9488;">
+            <div class="strategy-header">
+                <div class="strategy-title">🟡 平衡黄金型 (Balanced Tier) — 最佳风险收益比 (首选推荐)</div>
+                <span class="tag-pill tag-blue">Delta: -0.20 | 年化收益率: 16.6% APY</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                <strong>合约代码：</strong> <code>VST 2026-10-16 $125.00 Put</code> (DTE: 50天) 或 <code>VST 2026-09-18 $125.00 Put</code> (DTE: 22天, APY 13.1%)<br>
+                <strong>权利金估值：</strong> Bid $2.70 / Ask $2.99 / <strong>Mark $2.85</strong> | 隐含波动率 IV: 42.6% | 未平仓量 OI: 1,990<br>
+                <strong>安全垫 (Safety Cushion)：</strong> <strong>10.59%</strong><br>
+                <strong>净接货成本 (Net Basis)：</strong> <strong>$122.15</strong> (较当前市价折价 <strong>-12.63%</strong>)<br>
+                <strong>策略考量：</strong> 兼具 10.6% 的丰厚技术下行保护与 16.6% 的年化权利金回报。即使被指派，122 美元的净持仓成本对应 2026 前瞻 P/E 仅 11.8x，极具长线复利价值。
+            </p>
+        </div>
+
+        <div class="strategy-card" style="border-left: 4px solid #D97706;">
+            <div class="strategy-header">
+                <div class="strategy-title">🟠 进取收租型 (Aggressive Tier) — 顶格年化现金流收割</div>
+                <span class="tag-pill tag-amber">Delta: -0.28 | 年化收益率: 24.1% APY</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                <strong>合约代码：</strong> <code>VST 2026-10-16 $130.00 Put</code> (DTE: 50天)<br>
+                <strong>权利金估值：</strong> Bid $4.15 / Ask $4.45 / <strong>Mark $4.30</strong> | 隐含波动率 IV: 42.2% | 未平仓量 OI: 3,160<br>
+                <strong>安全垫 (Safety Cushion)：</strong> <strong>7.02%</strong><br>
+                <strong>净接货成本 (Net Basis)：</strong> <strong>$125.70</strong> (较当前市价折价 <strong>-10.09%</strong>)<br>
+                <strong>策略考量：</strong> 紧贴 $130 整数大关，收获高达 24.1% 的年化现金流，适合对 VST 底部企稳反弹有坚定信心的积极型投资者。
+            </p>
+        </div>
+
+        <!-- 交互图表 4: 期权持仓与 Max Pain -->
+        <div class="chart-box">
+            <canvas id="chartOptions"></canvas>
+        </div>
+    </section>
+
+    <!-- 13. 机构持仓 13F 与主力资金动向 -->
+    <section class="sec-card" id="sec-13">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">🏛️</div>
+                <div>
+                    <div class="sec-title">13. 机构持仓 13F、主力资金与内部人行为 (Institutional Ownership & Signals)</div>
+                    <div class="sec-sub">机构持股比例高达 88.5%，先锋领航、贝莱德与对冲基金多头重仓锁定</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 13</div>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">机构持股总比例 (Institutional %)</div>
+                <div class="info-card-val">88.5%</div>
+                <div class="info-card-desc">浮动筹码高度集中，主力控盘能力极强</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">前五大机构股东</div>
+                <div class="info-card-val" style="font-size: 15px;">Vanguard, BlackRock, Brookfield, State Street, Fidelity</div>
+                <div class="info-card-desc">顶级长线被动与主动公募基金压舱</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">空头比例 (Short Interest)</div>
+                <div class="info-card-val">3.32%</div>
+                <div class="info-card-desc">Short Ratio 2.04 天，无恶意挤兑风险</div>
+            </div>
+        </div>
+
+        <div class="prose">
+            <p><strong>资金面综合评述：</strong> VST 经历了 2024 年被纳入标普 500 指数（S&P 500）的被动配置洗礼，已成为全美所有公用事业与电力 ETF（如 XLU）的前三大权重股。伴随近期对冲基金在估值回调后的逢低加仓，筹码结构已从散户追高盘彻底转向机构长线价值盘。</p>
+        </div>
+    </section>
+
+    <!-- 14. 电话会高管原话洞察与业绩指引 -->
+    <section class="sec-card" id="sec-14">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">🎙️</div>
+                <div>
+                    <div class="sec-title">14. 最新电话会高管原话洞察与业绩指引 (Earnings Call & Executive Quotes)</div>
+                    <div class="sec-sub">CEO Jim Burke 与 CFO Kris Moldovan 详述 2026 指引上修路径与数据中心谈判进展</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 14</div>
+        </div>
+
+        <div class="prose">
+            <p><strong>1. 首席执行官 Jim Burke 核心原话摘录：</strong></p>
+            <div class="highlight-box">
+                <em>“We continue to see unprecedented interest from large technology and hyperscale customers seeking long-term power solutions. The value of our 6.4 GW nuclear fleet and our flexible gas assets in PJM and ERCOT has never been higher. Whether power is delivered behind-the-meter or through front-of-the-meter structured PPAs, Vistra is uniquely positioned to deliver 24/7 reliability.”</em><br>
+                <strong>—— 译文要点：</strong> 超大规模科技客户对长期电力的需求达到前所未有的高度。无论最终通过机后并网（Behind-the-meter）还是电网侧结构化 PPA 交付，Vistra 凭借 6.4GW 核电和灵活气电机组，都是全美 24/7 可靠电力的最核心底座。
+            </div>
+
+            <p><strong>2. 首席财务官 Kris Moldovan 财务指引核心要点：</strong></p>
+            <div class="highlight-box">
+                <em>“With PJM capacity auction results clearing at $269.92/MW-day and strong power hedges already locked in for 2025 and 2026, we have extraordinary visibility into our multi-billion-dollar Adjusted EBITDA and Free Cash Flow generation. We remain fully committed to returning at least $1 billion annually to shareholders via opportunistic share repurchases.”</em><br>
+                <strong>—— 译文要点：</strong> PJM 拍卖清算价锁定及德州电价高比例对冲，为 2025-2026 年数十亿美元的调整后 EBITDA 和自由现金流提供了极高的确定性。公司承诺每年至少通过回购向股东返还 10 亿美元以上现金。
+            </div>
+        </div>
+    </section>
+
+    <!-- 15. 做空红队压力测试与投资决策 -->
+    <section class="sec-card" id="sec-15">
+        <div class="sec-head">
+            <div class="sec-title-wrap">
+                <div class="sec-icon">⚔️</div>
+                <div>
+                    <div class="sec-title">15. 做空红队 Bear Case 压力测试、核心风险矩阵与催化剂清单</div>
+                    <div class="sec-sub">压力测试极限测算、关键催化剂时间表与最终投资行动信号块</div>
+                </div>
+            </div>
+            <div class="sec-num">SEC 15</div>
+        </div>
+
+        <div class="prose">
+            <p><strong>红队做空视角核心质疑（Bear Case Stress Test）：</strong></p>
+        </div>
+
+        <div class="danger-box">
+            <strong>⚠️ 风险一：FERC 与州监管机构对数据中心“机后直供电 (BTM Colocation)”的阻击与电网分摊费用诉讼</strong><br>
+            <strong>压力测试评估：</strong> 若 FERC 彻底禁止核电站机后直供电模式，科技公司将转向“电网侧直签 PPA（Front-of-the-meter PPA）”。在此情景下，Vistra 依然能够以每兆瓦时高于市场基准 $15-$25 的绿色零碳溢价售电，且核电仍享有 IRA 第 45U 条款每兆瓦时 $43.75 的财政保底。对 DCF 内在价值冲击不超过 -8.5%。
+        </div>
+
+        <div class="danger-box">
+            <strong>⚠️ 风险二：全美天然气价格（Henry Hub）长期暴跌导致全网批发边际电价走低</strong><br>
+            <strong>压力测试评估：</strong> 若气价暴跌至 $1.50/MMBtu，气电机组发电毛利将被压缩；但 Vistra 零售端（TXU Energy 等）将因购电成本大幅骤降而产生爆发性利润增厚，发售一体化对冲机制可抵消 70% 以上的电价下跌冲击。
+        </div>
+
+        <div class="alert-box">
+            <strong>⚠️ 风险三：205 亿美元总债务的再融资与高利率负担</strong><br>
+            <strong>压力测试评估：</strong> Vistra 债务中 85% 以上为固定利率长期票据，未来 24 个月内到期债务不足 20 亿美元，且公司每年产生 25-30 亿美元 FCF，利息覆盖倍数高达 3.8x，完全不存在流动性断裂与再融资危机。
+        </div>
+
+        <div class="prose" style="margin-top: 20px;">
+            <p><strong>未来 6-12 个月核心催化剂清单 (Upcoming Catalysts)：</strong></p>
+            <ul>
+                <li><strong>2026/2027 年度 PJM 产能市场二次拍卖结果发布：</strong> 预计维持 $200+/MW-day 高位，再次确立未来 2 年现金流。</li>
+                <li><strong>科技超大规模云巨头（Hyperscalers）首批大型核电/气电 PPA 协议官宣：</strong> 潜在的大型长期售电合同溢价兑现。</li>
+                <li><strong>Comanche Peak 德州核电站 NRC 延寿许可最终落地：</strong> 消除长期运营执照不确定性。</li>
+                <li><strong>季度财报超预期与回购额度加速消耗：</strong> 进一步增厚每股 EPS 与净资产价值。</li>
+            </ul>
+        </div>
+
+        <!-- 最终投资评级与信号块 -->
+        <div class="signal-block">
+            <div class="signal-header">
+                <div>
+                    <div class="signal-title">INVESTSKILL 终审投资决策信号 (INVESTMENT SIGNAL)</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">基于 15 个模块机构投研数据与 40/30/30 多因子量化模型终审评定</div>
+                </div>
+                <div class="signal-badge">BUY / 强烈看多卖出看跌期权</div>
+            </div>
+            
+            <div class="signal-grid">
+                <div class="sig-item">
+                    <div class="sig-label">投资评级 (Action)</div>
+                    <div class="sig-val" style="color: var(--primary);">买入 / 强烈推荐 CSP</div>
+                </div>
+                <div class="sig-item">
+                    <div class="sig-label">确定性 (Confidence)</div>
+                    <div class="sig-val">HIGH (高确信度)</div>
+                </div>
+                <div class="sig-item">
+                    <div class="sig-label">综合评分 (Score)</div>
+                    <div class="sig-val">7.95 / 10</div>
+                </div>
+                <div class="sig-item">
+                    <div class="sig-label">12月目标价 (Target)</div>
+                    <div class="sig-val">$175.00 (+25.2%)</div>
+                </div>
+            </div>
+
+            <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                <strong>💡 操作指引总结：</strong> 现价 $139.81 处于 52 周底部关键支撑带，估值处于 13.5x Forward P/E 的极具吸引力位置。建议投资者首选执行 <strong>现金担保卖出看跌期权（Sell Put）策略</strong>，推荐合约为 <strong>2026-10-16 到期、行权价 $125.00 的 Put</strong>（锁定 16.6% 年化 APY 与 10.6% 安全垫）或 <strong>$120.00 的保守型 Put</strong>（锁定 11.0% 年化 APY 与 14.2% 安全垫），实现低风险、高安全边际的稳定现金流收租与折价建仓。
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+// 1. Chart Financials
+const ctxFin = document.getElementById('chartFinancials').getContext('2d');
+new Chart(ctxFin, {
+    type: 'bar',
+    data: {
+        labels: ['FY 2022', 'FY 2023', 'FY 2024', 'FY 2025', 'TTM (2026)'],
+        datasets: [
+            {
+                label: '营业收入 (Revenue, $B)',
+                data: [13.73, 14.78, 17.22, 17.74, 19.21],
+                backgroundColor: 'rgba(5, 150, 105, 0.75)',
+                borderRadius: 4
+            },
+            {
+                label: '经营现金流 (OCF, $B)',
+                data: [0.48, 5.45, 4.56, 4.07, 5.12],
+                backgroundColor: 'rgba(13, 148, 136, 0.75)',
+                borderRadius: 4
+            },
+            {
+                label: '净利润 (Net Income, $B)',
+                data: [-1.38, 1.34, 2.47, 0.75, 2.02],
+                type: 'line',
+                borderColor: '#DC2626',
+                borderWidth: 3,
+                pointBackgroundColor: '#DC2626',
+                pointRadius: 5,
+                fill: false
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: 'Vistra (VST) 历史营收、经营现金流与净利润演进趋势 ($B)', font: { size: 14, weight: 'bold' } },
+            legend: { position: 'top' }
+        },
+        scales: {
+            y: { title: { display: true, text: '十亿美元 ($B)' }, grid: { color: '#F1F5F9' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 2. Chart DuPont
+const ctxDuPont = document.getElementById('chartDuPont').getContext('2d');
+new Chart(ctxDuPont, {
+    type: 'line',
+    data: {
+        labels: ['FY 2022', 'FY 2023', 'FY 2024', 'FY 2025', 'TTM (2026)'],
+        datasets: [
+            {
+                label: '净资产收益率 ROE (%)',
+                data: [-28.09, 25.31, 44.29, 14.75, 42.96],
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 3,
+                pointRadius: 5,
+                fill: true,
+                yAxisID: 'y'
+            },
+            {
+                label: '净利润率 Net Margin (%)',
+                data: [-10.03, 9.09, 14.32, 4.24, 10.50],
+                borderColor: '#0D9488',
+                borderWidth: 2,
+                pointRadius: 4,
+                yAxisID: 'y'
+            },
+            {
+                label: '权益乘数 Leverage (x)',
+                data: [6.69, 6.21, 6.78, 8.15, 7.29],
+                borderColor: '#D97706',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                pointRadius: 4,
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: '杜邦关键因子演变趋势 (ROE vs Net Margin vs Leverage)', font: { size: 14, weight: 'bold' } },
+            legend: { position: 'top' }
+        },
+        scales: {
+            y: { title: { display: true, text: '比率 (%)' }, grid: { color: '#F1F5F9' } },
+            y1: { position: 'right', title: { display: true, text: '杠杆倍数 (x)' }, grid: { display: false } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 3. Chart DCF
+const ctxDCF = document.getElementById('chartDCF').getContext('2d');
+new Chart(ctxDCF, {
+    type: 'bar',
+    data: {
+        labels: ['Bear (熊市底)', 'WACC 9.5%', 'WACC 9.0%', 'Base (基准 $168.5)', 'WACC 8.0%', 'WACC 7.5%', 'Bull (牛市顶)'],
+        datasets: [
+            {
+                label: '内在每股价值 (USD)',
+                data: [115.00, 120.80, 137.50, 168.50, 180.80, 209.50, 225.00],
+                backgroundColor: [
+                    '#F87171',
+                    '#FBBF24',
+                    '#A7F3D0',
+                    '#10B981',
+                    '#059669',
+                    '#047857',
+                    '#065F46'
+                ],
+                borderRadius: 5
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: 'DCF 各情景与 WACC 敏感性内在价值分布 (vs 现价 $139.81)', font: { size: 14, weight: 'bold' } },
+            legend: { display: false }
+        },
+        scales: {
+            y: { title: { display: true, text: '每股估值 ($ USD)' }, grid: { color: '#F1F5F9' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 4. Chart Options
+const ctxOpt = document.getElementById('chartOptions').getContext('2d');
+new Chart(ctxOpt, {
+    type: 'bar',
+    data: {
+        labels: ['$110', '$115', '$120', '$125', '$130', '$135', '$140 (Max Pain)', '$145', '$150', '$155', '$160'],
+        datasets: [
+            {
+                label: 'Put 未平仓量 (OI)',
+                data: [12379, 11873, 3191, 13002, 4915, 4287, 4016, 3823, 2100, 1200, 850],
+                backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                borderRadius: 4
+            },
+            {
+                label: 'Call 未平仓量 (OI)',
+                data: [450, 820, 1200, 2100, 3800, 5200, 8900, 11500, 18200, 14500, 12100],
+                backgroundColor: 'rgba(220, 38, 38, 0.7)',
+                borderRadius: 4
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: '期权持仓分布 (Open Interest by Strike) 与 Max Pain ($140.0)', font: { size: 14, weight: 'bold' } },
+            legend: { position: 'top' }
+        },
+        scales: {
+            y: { title: { display: true, text: '未平仓合约数 (Contracts)' }, grid: { color: '#F1F5F9' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

@@ -172,12 +172,15 @@ For equity holdings >= 100 shares:
 
 3. **Data File Guidance**: All data files in `data/` are internal runtime artifacts; overwrite silently without prompting for user confirmation.
 4. **TradingView Exchange Precision & Dynamic Auto-Discovery**: Mandatory official exchange prefix resolution (`format_tradingview_ticker`). When encountering any new ticker, dynamically query authentic exchanges via yfinance fast_info (`NMS/NGM/NCM` -> `NASDAQ`, `NYQ/NYSE` -> `NYSE`, `PCX/ASE/BATS/ARCA` -> `AMEX`) and automatically persist into `config/ticker_metadata.json` to permanently eliminate invalid symbol lookups.
-5. **InvestSkill 15-Module Institutional Standard & Universe Batch Research Rule (`research`)**:
+5. **InvestSkill 15-Module Institutional Standard & Top 30 Guaranteed Freshness Protocol (`research`)**:
    * **Full 15-Module Standard**: All generated research reports must strictly adhere to the comprehensive 15-module specifications defined in [`InvestSkill/prompts/full-report.md`](file:///Users/yuezh/Option/InvestSkill/prompts/full-report.md).
-   * **Mode A: Instant Delivery & Background Subagent Swarm Auto-Healing (模式 A：即时交付 + 后台子代理并发自愈铁律)**:
+   * **Top 30 & Active Positions 7-Day Guaranteed Freshness Iron Rule (Top 30 与持仓 7 天研报兜底铁律)**:
+     - **永久保证 Top 30 与全部持仓 100% 覆盖**：无论全市场池如何轮动，系统必须永远保证**量化排名前 30（Top 30）的标的**以及**当前全部实际持仓标的**拥有 **7 天以内**的 15 模块机构级深度研报。
+     - **7 天内免重复生成规则 (7-Day Freshness Exemption Rule)**：若标的已有 7 天以内的有效研报（且未在 7 天内发布最新财报或未发生 >5% 7d 剧烈异动），**坚决无需重复生成**，直接复用已有研报，避免资源浪费与无效开销。
+   * **Mode A: Instant Delivery & Continuous Swarm Auto-Healing (模式 A：即时交付 + 连续子代理自愈铁律)**:
      - **Phase 1 (Instant Delivery / 秒级即时交付)**: Immediately sync account positions, calculate Three-Pillar multi-factor scores, and render `report.html` so the user can immediately review positions, actions, and candidates without waiting.
-     - **Phase 2 (Background Swarm Auto-Healing / 后台并发补齐)**: Concurrently identify expired/missing reports (> 7d, fresh earnings, or > 5% 7d drop) across active portfolio positions and Top 20 candidates. Spawn `Subagent Swarm` (3~5 concurrent agents) to execute 100% full 15-module research in the background without blocking the UI.
-     - **Phase 3 (Seamless Live Binding / 自动重绘无缝绑定)**: Upon Subagent completion, automatically execute `node InvestSkill/scripts/generate-output-index.js` and re-render `report.html`. This instantly turns Table 2 badges emerald green, embeds new iframe previews in Tab 2, updates Table 1 assignment trade-offs, and auto-pushes to Git.
+     - **Phase 2 (Continuous Swarm Auto-Healing / 全自动连续并发自愈)**: Concurrently identify expired/missing reports (> 7d, fresh earnings, or > 5% 7d drop) across active portfolio positions and **Top 30 candidates**. Automatically and continuously dispatch `Subagent Swarm` (batches of 5~6 concurrent agents) in the background **without any manual pause or asking for confirmation**, seamlessly chaining until Top 30 coverage reaches 100%.
+     - **Phase 3 (Seamless Live Binding / 自动重绘无缝绑定)**: Upon completion of all batches, automatically execute `node InvestSkill/scripts/generate-output-index.js` and re-render `report.html`. This instantly turns Table 2 badges emerald green, embeds new iframe previews in Tab 2, updates Table 1 assignment trade-offs, and auto-pushes to Git.
    * **Three Research Trigger Conditions (Execute 15-module deep dive if ANY condition is met)**:
      1. **No Valid Report within 7 Days**: No report exists in `InvestSkill/output/` directory or the latest report is older than 7 days.
      2. **Fresh Earnings Released within 7 Days**: Company reported earnings in the past 7 days.
