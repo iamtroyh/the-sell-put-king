@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Carnival (CCL) 机构级深度投研与期权策略报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #0284C7;
+            --primary-dark:  #0369A1;
+            --primary-light: #F0F9FF;
+            --accent:        #0EA5E9;
+            --accent-light:  #E0F2FE;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #0C4A6E 0%, #0284C7 50%, #0EA5E9 100%);
+            --grad-accent:   linear-gradient(90deg, #0284C7, #0EA5E9);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 980px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #BAE6FD; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(2,132,199,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 19px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.45; }
+
+        .table-scroll { overflow-x: auto; margin: 14px 0; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left; }
+        thead { background: #F1F5F9; }
+        th { padding: 10px 12px; font-weight: 700; color: var(--text-secondary); border-bottom: 2px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; text-align: right; }
+
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #DCFCE7; color: #166534; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-amber { background: #FEF3C7; color: #92400E; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+
+        .chart-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+            height: 320px;
+            position: relative;
+        }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13.5px;
+            color: var(--primary-dark);
+            line-height: 1.6;
+        }
+        .callout-warn {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #78350F;
+        }
+        .callout-success {
+            border-left-color: var(--emerald);
+            background: var(--emerald-light);
+            color: #064E3B;
+        }
+
+        .signal-block {
+            background: linear-gradient(135deg, #0C4A6E 0%, #0284C7 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .signal-main { display: flex; align-items: center; gap: 16px; }
+        .signal-badge-lg {
+            background: #10B981;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 800;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(16,185,129,.7);
+        }
+        .signal-meta { font-size: 13px; opacity: .9; }
+
+        .score-progress-bar {
+            height: 8px;
+            background: #E2E8F0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .score-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0284C7, #10B981);
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 24px; }
+            .sec-card { padding: 18px 16px; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: CCL • 全球第一大远洋邮轮度假航旅集团</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-score">综合量化得分: 8.7 / 10</span>
+            <span class="badge badge-hero-stock">报告基准日: 2026-08-28</span>
+        </div>
+        <h1 class="hero-title">Carnival Corporation & plc (CCL) 机构级全维度投研与期权策略报告</h1>
+        <p class="hero-sub">全球船队规模最大、航线网络最广的邮轮度假霸主（占据全球约 43% 运力份额）。公司旗下拥有 Carnival Cruise Line、Princess Cruises、Holland America Line、AIDA、Costa、Cunard 等 9 大标志性品牌，运营超 90 艘超级邮轮。伴随体验式文旅消费升级、船上二次消费（Onboard Spending）客单价持续攀升以及“SEA Change 2026”去杠杆战略超预期兑现，TTM 经营现金流达 $67.9 亿美元，自由现金流达 $19.0 亿美元（FY2025 FCF 达 $26.1 亿美元）。当前股价回踩 52 周底部区间（$25.07，52W RP 14.5%，RSI 27.7 超卖），远期市盈率仅 9.50x，EV/EBITDA 仅 7.96x（相较同行 RCL 折价达 44%），华尔街目标均价 $35.30（潜在空间 +40.8%），机构持仓占比高达 71.6% 且持续大幅增持。结合 Cash-Secured Put 期权策略可构建极具安全边际的高赔率左侧建仓通道。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot)</div>
+                <div class="hero-kpi-val">$25.07</div>
+                <div class="hero-kpi-sub">52周区间: $23.45 - $34.03 (RP 14.5%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 / 企业价值</div>
+                <div class="hero-kpi-val">$34.33B</div>
+                <div class="hero-kpi-sub">EV: $58.12B | 现金储备 $22.4 亿</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 营收 / FCF</div>
+                <div class="hero-kpi-val">$26.62B / $1.90B</div>
+                <div class="hero-kpi-sub">FY2025 FCF: $2.61B | 净利润 $27.6B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">远期市盈率 / EV/EBITDA</div>
+                <div class="hero-kpi-val">9.50x / 7.96x</div>
+                <div class="hero-kpi-sub">静态 P/E: 11.30x (同行折价 44%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">技术面状态 (RSI / MA200)</div>
+                <div class="hero-kpi-val">27.7 / -9.1%</div>
+                <div class="hero-kpi-sub">超卖黄金坑 (SMA200: $27.57)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">华尔街评级 / 目标均价</div>
+                <div class="hero-kpi-val">Buy / $35.30</div>
+                <div class="hero-kpi-sub">23 买入 / 7 持有 / 0 卖出 (+40.8%)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+    
+    <!-- 目录导航 -->
+    <nav class="toc-bar">
+        <div class="toc-title">报告核心导航目录 (InvestSkill 15大专业投研模块)</div>
+        <div class="toc-links">
+            <a href="#sec-score" class="toc-link">综合多因子量化卡</a>
+            <a href="#sec-1" class="toc-link">1. 商业模式与护城河</a>
+            <a href="#sec-2" class="toc-link">2. 竞争格局 (RCL / NCLH)</a>
+            <a href="#sec-3" class="toc-link">3. 财务基本面与去杠杆</a>
+            <a href="#sec-4" class="toc-link">4. DCF 内在价值评估</a>
+            <a href="#sec-5" class="toc-link">5. 相对估值与同行对标</a>
+            <a href="#sec-6" class="toc-link">6. 资本分配与债务偿付</a>
+            <a href="#sec-7" class="toc-link">7. 内部人交易与 SEC 情绪</a>
+            <a href="#sec-8" class="toc-link">8. 机构持仓与 13F 动向</a>
+            <a href="#sec-9" class="toc-link">9. 财报电话会与预订曲线</a>
+            <a href="#sec-10" class="toc-link">10. 宏观与燃油/利率敏感性</a>
+            <a href="#sec-11" class="toc-link">11. 10-K 风险因子与债务到期</a>
+            <a href="#sec-12" class="toc-link">12. 技术分析与筹码分布</a>
+            <a href="#sec-13" class="toc-link">13. 空头仓位与轧空风险</a>
+            <a href="#sec-14" class="toc-link">14. 期权波动率与 Max Pain</a>
+            <a href="#sec-15" class="toc-link">15. Cash-Secured Put 策略</a>
+            <a href="#sec-verdict" class="toc-link">投资评级与执行路线</a>
+        </div>
+    </nav>
+
+    <!-- 综合量化卡 -->
+    <section id="sec-score" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🎯</span> 综合六因子量化得分卡 (6-Component Scorecard)</h2>
+            <span class="sec-tag">综合量化得分: 8.7 / 10 (强烈看多)</span>
+        </div>
+        
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 16px;">
+            InvestSkill 长期价值与现金流多因子评估系统结合商业壁垒、估值安全边际、自由现金流健康度、期权 Alpha 收益、聪明钱动向与左侧价值时机等六大维度，对嘉年华邮轮（CCL）进行加权综合评分：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>评分维度</th>
+                        <th>权重</th>
+                        <th>得分 (0-10)</th>
+                        <th>加权贡献</th>
+                        <th>核心驱动因素与量化依据</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 商业模式与护城河 (Business Quality)</strong></td>
+                        <td>25%</td>
+                        <td><span class="tag-pill tag-green">8.6 / 10</span></td>
+                        <td class="num-cell">2.15</td>
+                        <td>全球市占率超 43%，拥有 9 大全价格带品牌与专属私有岛屿，造船坞产能排期长达 5-7 年构筑极高物理壁垒。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 估值与安全边际 (Valuation & Safety)</strong></td>
+                        <td>25%</td>
+                        <td><span class="tag-pill tag-green">9.2 / 10</span></td>
+                        <td class="num-cell">2.30</td>
+                        <td>远期 P/E 仅 9.50x，EV/EBITDA 仅 7.96x（较 RCL 14.30x 折价 44%），去杠杆权益增厚 DCF 估值达 $34.50。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 自由现金流引擎 (FCF Engine)</strong></td>
+                        <td>20%</td>
+                        <td><span class="tag-pill tag-green">8.4 / 10</span></td>
+                        <td class="num-cell">1.68</td>
+                        <td>TTM 经营现金流达 $67.9 亿，自由现金流超 $19.0 亿，Piotroski F-Score 高达 8/9 分，利息覆盖倍数升至 3.05x。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 期权 Alpha 与收租年化 (Option Alpha)</strong></td>
+                        <td>15%</td>
+                        <td><span class="tag-pill tag-green">8.8 / 10</span></td>
+                        <td class="num-cell">1.32</td>
+                        <td>隐波 IV 处于 38%-44% 高位，卖出 30-45 天 OTM Cash-Secured Put 可获得 22%-32% 年化 APY，净承接成本折价显著。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. 聪明钱与机构信号 (Smart Money)</strong></td>
+                        <td>10%</td>
+                        <td><span class="tag-pill tag-green">8.6 / 10</span></td>
+                        <td class="num-cell">0.86</td>
+                        <td>机构持股 71.6%，Q2 BlackRock (+7.0%)、Vanguard (+13%)、富达 (+58.8%) 爆买，华尔街 23 买入 0 卖出。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>6. 逆向价值时机 (Value Timing)</strong></td>
+                        <td>5%</td>
+                        <td><span class="tag-pill tag-green">8.5 / 10</span></td>
+                        <td class="num-cell">0.43</td>
+                        <td>股价回踩 52 周底部（RP 14.5%），RSI(14) 达 27.7 深度超卖，相对 SMA200 偏离 -9.1%，触发优质资产黄金坑模式。</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>综合复合加权总分 (Composite Score)</strong></td>
+                        <td><strong>100%</strong></td>
+                        <td><span class="tag-pill tag-green" style="font-size: 13px;">8.74 / 10</span></td>
+                        <td class="num-cell" style="font-size: 14px; color: #166534;">8.74 / 10</td>
+                        <td><strong>评级：强烈看多 (STRONG BUY) — 困境反转与估值修复黄金窗口</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="data-grid-2">
+            <div class="chart-box">
+                <canvas id="radarChart"></canvas>
+            </div>
+            <div class="info-card" style="display: flex; flex-direction: column; justify-content: center;">
+                <div class="info-card-title">综合评分核心结论与投资启示</div>
+                <div style="font-size: 13.5px; color: var(--text-primary); line-height: 1.65; margin-top: 6px;">
+                    嘉年华（CCL）在疫情期间因承载巨额债务导致估值被极度压制。然而过去两年公司展现了极其惊人的经营性去杠杆能力：<strong>累计偿还债务近 $100 亿美元</strong>，息税折旧摊销前利润（EBITDA）跃升至 $69.1 亿美元历史新高。当前市场将其按 9.5x 远期市盈率与 8.0x EV/EBITDA 的“危机资产”定价，与其实际年化超 $25 亿自由现金流的造血能力严重错配。在 RSI<28 超卖及机构大幅增持共振下，当前位置具备极高的赔率与胜率。
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 1: 商业模式与护城河 -->
+    <section id="sec-1" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🚢</span> 1. 商业模式与护城河 (Business Quality & Moat)</h2>
+            <span class="sec-tag">护城河评分: 8.6 / 10</span>
+        </div>
+        <p class="prose-text">
+            Carnival Corporation & plc (NYSE: CCL) 成立于 1972 年，是全球规模最大的休闲度假与远洋邮轮集团。公司旗下拥有 9 个世界级标志性品牌：<strong>Carnival Cruise Line（大众家庭）、Princess Cruises（轻奢与探险）、Holland America Line（高端文化）、Seabourn（超豪华）、Cunard（英伦奢华旗舰）、Costa Cruises（南欧度假）、AIDA Cruises（德语区龙头）、P&O Cruises（英国大众）及 P&O Cruises Australia</strong>。
+        </p>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 规模经济与造船坞产能壁垒</div>
+                <div class="info-card-val">90+ 艘邮轮 / 43% 份额</div>
+                <div class="info-card-desc">全球具备建造 10-20 万吨级大型邮轮的船坞仅有欧洲 4 家（Fincantieri、Meyer Werft、Chantiers de l'Atlantique），新船交付排期已至 2030-2032 年，行业供给刚性极强。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 专属私有目的地与生态闭环</div>
+                <div class="info-card-val">Celebration Key / Half Moon</div>
+                <div class="info-card-desc">投资数亿美元自建加勒比私有岛屿与专属港口（如 2025/2026 陆续开放的 Celebration Key、RelaxAway），将原本流向第三方港口的消费 100% 截留在自身生态圈。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 预订曲线能见度与预收款</div>
+                <div class="info-card-val">$83 亿客户预存存款</div>
+                <div class="info-card-desc">2026 年全年航次预订率与票价均创历史新高，提前 6-12 个月锁定现金流，形成强大的负营运资本浮存金（Float）优势。</div>
+            </div>
+        </div>
+
+        <div class="callout">
+            <strong>护城河深度解析：</strong>邮轮度假相较于陆地度假酒店（Land-based Resort）具备天然的 25%-40% 性价比优势（包含住宿、餐饮、娱乐与跨国交通）。在通胀环境下，消费者对“全包式/高性价比体验”需求爆发，CCL 旗下大众品牌对家庭客群具备极强粘性。
+        </div>
+    </section>
+
+    <!-- 模块 2: 竞争格局与同行对标 -->
+    <section id="sec-2" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>⚔️</span> 2. 竞争格局与市场份额 (Competitive Landscape & Market Share)</h2>
+            <span class="sec-tag">寡头垄断格局</span>
+        </div>
+        <p class="prose-text">
+            全球远洋邮轮行业呈现高度集中的“三巨头”寡头垄断格局（CCL、RCL、NCLH 合计占据全球 75% 以上运力），新进入者由于数十亿美元的重资产门槛与船坞排期限制几乎无法入场。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>对比维度</th>
+                        <th>嘉年华邮轮 (CCL)</th>
+                        <th>皇家加勒比 (RCL)</th>
+                        <th>诺唯真邮轮 (NCLH)</th>
+                        <th>行业格局与战略差异</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>股票代码 / 股价</strong></td>
+                        <td><strong>CCL ($25.07)</strong></td>
+                        <td>RCL ($283.42)</td>
+                        <td>NCLH ($16.89)</td>
+                        <td>CCL 市值处于性价比最高区间</td>
+                    </tr>
+                    <tr>
+                        <td><strong>总市值 / 企业价值 (EV)</strong></td>
+                        <td><strong>$34.33B / $58.12B</strong></td>
+                        <td>$75.80B / $99.04B</td>
+                        <td>$7.76B / $23.41B</td>
+                        <td>CCL 运力最大，但市值仅为 RCL 的 45%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TTM 营业收入</strong></td>
+                        <td><strong>$266.2 亿美元</strong></td>
+                        <td>$168.5 亿美元</td>
+                        <td>$94.8 亿美元</td>
+                        <td>CCL 营收规模遥遥领先，为 RCL 的 1.6 倍</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TTM 自由现金流 (FCF)</strong></td>
+                        <td><strong>+$18.99 亿 (FY25: +$26.1亿)</strong></td>
+                        <td>-$15.16 亿美元 (受造船巨额资本开支影响)</td>
+                        <td>-$16.80 亿美元 (FCF 持续承压)</td>
+                        <td><strong>CCL 成为唯一实现强劲正向 FCF 的邮轮公司</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>EV / EBITDA 乘数</strong></td>
+                        <td><strong>7.96x (极度低估)</strong></td>
+                        <td>14.30x (高估值溢价)</td>
+                        <td>9.02x</td>
+                        <td>CCL 较 RCL 折价 44.3%，估值重估空间巨大</td>
+                    </tr>
+                    <tr>
+                        <td><strong>远期 P/E (Forward P/E)</strong></td>
+                        <td><strong>9.50x</strong></td>
+                        <td>13.97x</td>
+                        <td>9.95x</td>
+                        <td>CCL 为三巨头中市盈率最低标的</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净负债 / EBITDA</strong></td>
+                        <td><strong>3.46x (快速下降中)</strong></td>
+                        <td>3.34x</td>
+                        <td>5.65x (债务压力显著更高)</td>
+                        <td>CCL 财务杠杆已与 RCL 相当，远优于 NCLH</td>
+                    </tr>
+                    <tr>
+                        <td><strong>做空比例 (% of Float)</strong></td>
+                        <td><strong>2.89% (空头压力极低)</strong></td>
+                        <td>5.85%</td>
+                        <td>17.86% (高做空比例)</td>
+                        <td>机构对 CCL 的偿债能力信任度大幅提高</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="peerChart"></canvas>
+        </div>
+    </section>
+
+    <!-- 模块 3: 财务基本面与去杠杆轨迹 -->
+    <section id="sec-3" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📊</span> 3. 财务基本面与去杠杆轨迹 (Fundamental & Deleveraging Trajectory)</h2>
+            <span class="sec-tag">Piotroski F-Score: 8/9</span>
+        </div>
+        
+        <p class="prose-text">
+            嘉年华在 2020-2022 年承受了疫情停航的重创，但自 2023 年全面复航以来，公司展现了教科书级别的盈利反转与资产负债表修复能力。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (单位: 百万美元)</th>
+                        <th>FY2022</th>
+                        <th>FY2023</th>
+                        <th>FY2024</th>
+                        <th>FY2025</th>
+                        <th>TTM (最新)</th>
+                        <th>4年复合趋势分析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业收入 (Revenue)</strong></td>
+                        <td class="num-cell">$12,169</td>
+                        <td class="num-cell">$21,593</td>
+                        <td class="num-cell">$25,021</td>
+                        <td class="num-cell">$26,621</td>
+                        <td class="num-cell">$26,621</td>
+                        <td><span class="tag-pill tag-green">+118.8% 翻倍强劲增长</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="num-cell">$412</td>
+                        <td class="num-cell">$7,276</td>
+                        <td class="num-cell">$9,383</td>
+                        <td class="num-cell">$10,674</td>
+                        <td class="num-cell">$10,674</td>
+                        <td>毛利率由 3.4% 跃升至 40.1%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>息税折旧前利润 (EBITDA)</strong></td>
+                        <td class="num-cell">-$2,196</td>
+                        <td class="num-cell">+$4,374</td>
+                        <td class="num-cell">+$6,227</td>
+                        <td class="num-cell">+$6,911</td>
+                        <td class="num-cell">+$6,911</td>
+                        <td><span class="tag-pill tag-green">由巨亏转为近 $70 亿历史新高</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="num-cell">-$4,378</td>
+                        <td class="num-cell">+$1,956</td>
+                        <td class="num-cell">+$3,574</td>
+                        <td class="num-cell">+$4,482</td>
+                        <td class="num-cell">+$4,482</td>
+                        <td>营业利润率升至 16.8%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="num-cell">-$6,093</td>
+                        <td class="num-cell">-$74</td>
+                        <td class="num-cell">+$1,916</td>
+                        <td class="num-cell">+$2,760</td>
+                        <td class="num-cell">+$2,760</td>
+                        <td>全面扭亏为盈，EPS 达 $2.02</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (CFO)</strong></td>
+                        <td class="num-cell">-$1,670</td>
+                        <td class="num-cell">+$4,281</td>
+                        <td class="num-cell">+$5,923</td>
+                        <td class="num-cell">+$6,218</td>
+                        <td class="num-cell">+$6,794</td>
+                        <td>造血能力极其充沛</td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx)</strong></td>
+                        <td class="num-cell">-$4,940</td>
+                        <td class="num-cell">-$3,284</td>
+                        <td class="num-cell">-$4,626</td>
+                        <td class="num-cell">-$3,611</td>
+                        <td class="num-cell">-$4,895</td>
+                        <td>资本开支高峰已过，未来趋于克制</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (FCF)</strong></td>
+                        <td class="num-cell">-$6,610</td>
+                        <td class="num-cell">+$997</td>
+                        <td class="num-cell">+$1,297</td>
+                        <td class="num-cell">+$2,607</td>
+                        <td class="num-cell">+$1,899</td>
+                        <td><span class="tag-pill tag-green">自由现金流连续 3 年大幅正向</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>总债务 (Total Debt)</strong></td>
+                        <td class="num-cell">$35,881</td>
+                        <td class="num-cell">$31,891</td>
+                        <td class="num-cell">$28,876</td>
+                        <td class="num-cell">$27,993</td>
+                        <td class="num-cell">$26,170</td>
+                        <td><span class="tag-pill tag-green">累计减债近 $97.1 亿美元</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>净债务 (Net Debt)</strong></td>
+                        <td class="num-cell">$30,517</td>
+                        <td class="num-cell">$28,157</td>
+                        <td class="num-cell">$26,264</td>
+                        <td class="num-cell">$24,712</td>
+                        <td class="num-cell">$23,927</td>
+                        <td>净负债 / EBITDA 由 >7.0x 降至 3.46x</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="finChart"></canvas>
+        </div>
+    </section>
+
+    <!-- 模块 4: DCF 估值与债务去杠杆模型 -->
+    <section id="sec-4" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🧮</span> 4. DCF 现金流折现与去杠杆权益增厚模型 (DCF Valuation)</h2>
+            <span class="sec-tag">公允内在价值: $34.50 (空间 +37.6%)</span>
+        </div>
+        
+        <p class="prose-text">
+            对于 CCL 这类处于强劲去杠杆周期的重资产航运企业，传统的静态扣减总债务 DCF 会产生严重误导。<strong>核心逻辑：公司未来 5 年预计产生超过 $170 亿美元的累计自由现金流，这些现金流绝大部分用于偿还债务，债务的减少会 1:1 转化为股东权益价值的增厚（Equity Value Accretion）</strong>。
+        </p>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 悲观清算底线 (Bear Case)</div>
+                <div class="info-card-val">$22.50 / 股</div>
+                <div class="info-card-desc">假设 2026-2030 年遭遇宏观经济轻度衰退，年均 FCF 降至 $20 亿，WACC 取 10.5%，终值乘数仅 6.5x，较现价下行风险仅 -10.2%。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 基准去杠杆 DCF (Base Case)</div>
+                <div class="info-card-val">$34.50 / 股</div>
+                <div class="info-card-desc">2026-2030 年 FCF 分别为 $28.5亿、$32.0亿、$35.0亿、$37.5亿、$39.5亿，WACC 取 9.5%，净债务降至 $66.8 亿，潜在涨幅 <strong>+37.6%</strong>。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 乐观重估情景 (Bull Case)</div>
+                <div class="info-card-val">$43.00 / 股</div>
+                <div class="info-card-desc">私有岛屿高利润释放，净收益率年增 4.5%，信用评级提前重返投资级（BBB-），EV/EBITDA 估值中枢修复至 10.5x，潜在涨幅 <strong>+71.5%</strong>。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>EV / EBITDA 乘数敏感性矩阵</th>
+                        <th>6.5x (极端悲观)</th>
+                        <th>7.5x (当前偏低)</th>
+                        <th>8.5x (基准公允)</th>
+                        <th>9.5x (温和修复)</th>
+                        <th>10.5x (历史中枢)</th>
+                        <th>12.0x (RCL对标)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>隐含企业价值 (EV)</strong></td>
+                        <td class="num-cell">$481.0 亿</td>
+                        <td class="num-cell">$555.0 亿</td>
+                        <td class="num-cell">$629.0 亿</td>
+                        <td class="num-cell">$703.0 亿</td>
+                        <td class="num-cell">$777.0 亿</td>
+                        <td class="num-cell">$888.0 亿</td>
+                    </tr>
+                    <tr>
+                        <td><strong>扣除净债务后股东价值</strong></td>
+                        <td class="num-cell">$241.7 亿</td>
+                        <td class="num-cell">$315.7 亿</td>
+                        <td class="num-cell">$389.7 亿</td>
+                        <td class="num-cell">$463.7 亿</td>
+                        <td class="num-cell">$537.7 亿</td>
+                        <td class="num-cell">$648.7 亿</td>
+                    </tr>
+                    <tr>
+                        <td><strong>隐含每股价值 (Per Share)</strong></td>
+                        <td class="num-cell">$17.65</td>
+                        <td class="num-cell">$23.05</td>
+                        <td class="num-cell"><strong>$28.45</strong></td>
+                        <td class="num-cell"><strong>$33.86</strong></td>
+                        <td class="num-cell"><strong>$39.26</strong></td>
+                        <td class="num-cell">$47.36</td>
+                    </tr>
+                    <tr>
+                        <td><strong>相较当前股价 ($25.07) 空间</strong></td>
+                        <td><span class="tag-pill tag-red">-29.6%</span></td>
+                        <td><span class="tag-pill tag-amber">-8.0%</span></td>
+                        <td><span class="tag-pill tag-green"><strong>+13.5%</strong></span></td>
+                        <td><span class="tag-pill tag-green"><strong>+35.1%</strong></span></td>
+                        <td><span class="tag-pill tag-green"><strong>+56.6%</strong></span></td>
+                        <td><span class="tag-pill tag-green"><strong>+88.9%</strong></span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="dcfChart"></canvas>
+        </div>
+    </section>
+
+    <!-- 模块 5: 相对估值与历史分位数 -->
+    <section id="sec-5" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📈</span> 5. 相对估值与历史倍数折价 (Relative Valuation & Multiples)</h2>
+            <span class="sec-tag">估值分位数: 历史 12% 分位</span>
+        </div>
+        <p class="prose-text">
+            从相对估值来看，CCL 的当前估值指标处于过去 10 年非危机时期的极端底部区间。
+        </p>
+
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">远期市盈率 (Forward P/E)</div>
+                <div class="info-card-val">9.50x</div>
+                <div class="info-card-desc">历史 10 年中枢 14.5x，当前处于 12% 历史低分位。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">EV / EBITDA 乘数</div>
+                <div class="info-card-val">7.96x</div>
+                <div class="info-card-desc">较 RCL (14.30x) 折价 44.3%，较标普 500 (13.5x) 显著折价。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">市销率 (Price to Sales)</div>
+                <div class="info-card-val">1.29x</div>
+                <div class="info-card-desc">疫情前常态维持在 2.0x - 2.5x 区间。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">自由现金流收益率 (FCF Yield)</div>
+                <div class="info-card-val">7.6% (FY25: 7.6%)</div>
+                <div class="info-card-desc">极具吸引力的真实现金流回报水平。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 6: 资本配置与债务偿还时间表 -->
+    <section id="sec-6" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>💰</span> 6. 资本配置与债务偿付路线图 (Capital Allocation & Debt Schedule)</h2>
+            <span class="sec-tag">SEA Change 2026 战略</span>
+        </div>
+        <p class="prose-text">
+            公司管理层执行极其严谨的资本配置路线：“<strong>全力偿还高息债务 → 优化到期债务久期与利息成本 → 重返投资级评级 → 择机恢复股息与回购</strong>”。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>年份</th>
+                        <th>预计到期本金</th>
+                        <th>主要债务构成与再融资规划</th>
+                        <th>现金流覆盖能力与偿付策略</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026 年</strong></td>
+                        <td class="num-cell">$28.5 亿美元</td>
+                        <td>循环信贷额度与部分高成本优先担保票据</td>
+                        <td>以 $22.4 亿存量现金储备与年内 $28.5 亿 FCF 轻松全额覆盖</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 年</strong></td>
+                        <td class="num-cell">$34.0 亿美元</td>
+                        <td>出口信贷机构（ECA）担保贷款与无担保债券</td>
+                        <td>通过经营现金流偿还 + 发行低息投资级无担保债置换</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2028 年</strong></td>
+                        <td class="num-cell">$31.5 亿美元</td>
+                        <td>2020/2021 危机期间发行的部分第二留置权高息债</td>
+                        <td>优先以 FCF 提前赎回高息券，每年节约利息支出超 $2.5 亿</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2029-2030 年</strong></td>
+                        <td class="num-cell">$68.0 亿美元</td>
+                        <td>中长期固定利率抵押债券</td>
+                        <td>净负债 / EBITDA 降至 2.5x 以下，信用评级全面升至 BBB</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 7: 内部人交易与 SEC Form 4 -->
+    <section id="sec-7" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>👤</span> 7. 内部人交易与 SEC Form 4 情绪 (Insider Holdings & Sentiment)</h2>
+            <span class="sec-tag">管理层利益高度绑定</span>
+        </div>
+        <p class="prose-text">
+            根据 SEC Form 4 披露，嘉年华创始人家族（Micky Arison 及信托）与核心高管持有公司超过 <strong>7.11% 的直接股权</strong>，利益与普通股东高度一致。
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">CEO Joshua Weinstein</div>
+                <div class="info-card-val">1,215,880 股</div>
+                <div class="info-card-desc">薪酬与 EPS、ROIC 及温室气体减排指标深度挂钩，持续全额锁定股权激励。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">CFO David Bernstein</div>
+                <div class="info-card-val">144,906 股</div>
+                <div class="info-card-desc">主导完成多次低息再融资置换高息债，大幅降低年化利息支出。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">Arison 家族信托与董事会</div>
+                <div class="info-card-val">超 9,700 万股</div>
+                <div class="info-card-desc">长期核心战略股东，过去 2 年未出现任何恐慌性大额减持。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 8: 机构持仓与 13F 动向 -->
+    <section id="sec-8" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏛️</span> 8. 机构持仓与 13F 聪明钱动向 (Institutional 13F Trends)</h2>
+            <span class="sec-tag">机构持股 71.65% (大幅净流入)</span>
+        </div>
+        <p class="prose-text">
+            最新披露的 13F 季度报告显示，华尔街顶级机构在 2026 年 Q2 对嘉年华展开了强力加仓：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (Institutional Holder)</th>
+                        <th>持有股数 (Shares)</th>
+                        <th>持仓市值 ($)</th>
+                        <th>占总股本比例</th>
+                        <th>最新季度变动比例 (QoQ)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BlackRock Inc. (贝莱德)</strong></td>
+                        <td class="num-cell">96,304,948</td>
+                        <td class="num-cell">$24.13 亿</td>
+                        <td class="num-cell">7.03%</td>
+                        <td><span class="tag-pill tag-green">+7.03% (净增持 632 万股)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Group (先锋领航)</strong></td>
+                        <td class="num-cell">145,084,584</td>
+                        <td class="num-cell">$36.35 亿</td>
+                        <td class="num-cell">10.60%</td>
+                        <td><span class="tag-pill tag-green">+13.10% (大幅增持)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corp (道富银行)</strong></td>
+                        <td class="num-cell">58,217,260</td>
+                        <td class="num-cell">$14.59 亿</td>
+                        <td class="num-cell">4.25%</td>
+                        <td><span class="tag-pill tag-green">+15.88% (显著增持)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>FMR LLC (富达投资)</strong></td>
+                        <td class="num-cell">35,769,442</td>
+                        <td class="num-cell">$8.96 亿</td>
+                        <td class="num-cell">2.61%</td>
+                        <td><span class="tag-pill tag-green"><strong>+58.76% (爆发式建仓)</strong></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>JPMorgan Chase & Co (摩根大通)</strong></td>
+                        <td class="num-cell">24,508,386</td>
+                        <td class="num-cell">$6.14 亿</td>
+                        <td class="num-cell">1.79%</td>
+                        <td><span class="tag-pill tag-green">+23.71% (积极加仓)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 模块 9: 财报电话会与预订曲线 -->
+    <section id="sec-9" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🎙️</span> 9. 财报电话会要点与预订曲线 (Earnings Call & Booking Curve)</h2>
+            <span class="sec-tag">客座率超 104% (爆满)</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 净收益率 (Net Yields) 增长</div>
+                <div class="info-card-val">+4.5% 至 +5.5% 恒定汇率</div>
+                <div class="info-card-desc">票价提升与船上二销双轮驱动，同口径单位乘客每日消费持续打破纪录。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 预订曲线 (Booking Curve)</div>
+                <div class="info-card-val">2026/2027 创历史新高</div>
+                <div class="info-card-desc">提前预订窗口进一步拉长，且预订价格比上一年度同期高出显著溢价。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 专属海岛 Celebration Key</div>
+                <div class="info-card-val">巴哈马专属度假区</div>
+                <div class="info-card-desc">2025/2026 正式迎客，预计每年吸引超 200 万乘客，大幅增厚高毛利船上消费。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 10: 宏观与燃油/利率敏感性 -->
+    <section id="sec-10" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🌍</span> 10. 宏观环境与燃油/利率敏感性分析 (Macro & Sensitivities)</h2>
+            <span class="sec-tag">降息周期受益标的</span>
+        </div>
+        <p class="prose-text">
+            嘉年华对宏观利率与能源价格具备高度敏感性，当前宏观环境整体偏向利好：
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">美联储降息敏感性 (Interest Rate)</div>
+                <div class="info-card-desc">公司约 25%-30% 债务为浮动利率。<strong>基准利率每下降 100 bps（1%），每年可为公司直接节省约 $6,500 万至 $8,000 万美元税前利息支出</strong>。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">国际油价波动敏感性 (Bunker Fuel)</div>
+                <div class="info-card-desc">燃油成本占营业成本约 10%-12%。布伦特原油价格每波动 $10/桶，对年度 EPS 影响约为 $0.12-$0.15。公司新一代 LNG 双燃料邮轮占比提升有效降低了单客能耗。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">文旅消费韧性 (Consumer Spending)</div>
+                <div class="info-card-desc">邮轮旅行由于性价比较陆地游高出 30% 以上，在经济放缓期间表现出强烈的“口红效应”替代属性，需求刚性极高。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 11: 10-K 风险因子与债务到期 -->
+    <section id="sec-11" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>⚠️</span> 11. 10-K 风险因子与财务防线 (10-K Risks & Balance Sheet Moat)</h2>
+            <span class="sec-tag">流动性缓冲超 $50 亿</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">① 地缘政治与航线调整风险</div>
+                <div class="info-card-desc">中东红海局势及东欧地缘冲突促使公司灵活调整航线至加勒比海、地中海西部及阿拉斯加，运营展现极高韧性。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">② 极端气候与飓风季节</div>
+                <div class="info-card-desc">大西洋飓风季可能导致局部航次改道或取消，但全集团 90+ 艘分散运营有效平滑了单区域气象风险。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">③ 流动性与契约安全垫 (Liquidity)</div>
+                <div class="info-card-desc">截至最新季度，公司拥有 $22.4 亿现金及超 $30 亿未动用循环信贷，总流动性储备超 $50 亿，完全满足债务契约要求。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 12: 技术面与筹码分布 -->
+    <section id="sec-12" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>📉</span> 12. 技术分析与筹码分布 (Technical Analysis & Regime Engine)</h2>
+            <span class="sec-tag">高质量资产超卖模式 (RSI: 27.7)</span>
+        </div>
+        
+        <p class="prose-text">
+            根据 InvestSkill 质量约束型状态切换引擎（Quality-Conditioned Regime Engine），嘉年华商业质量得分 8.6、财务反转趋势确立，系统自动切换至<strong>“均值回归与价值底模式（Mean-Reversion Floor Mode）”</strong>。
+        </p>
+
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">52 周相对位置 (52W RP)</div>
+                <div class="info-card-val">14.5%</div>
+                <div class="info-card-desc">52W 区间 $23.45 - $34.03，触及底部支撑。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">14 日相对强弱指数 (RSI)</div>
+                <div class="info-card-val">27.7 (超卖)</div>
+                <div class="info-card-desc">进入深度超卖区间，技术性反弹动能积聚。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">200 日均线偏离度 (Dev200)</div>
+                <div class="info-card-val">-9.06%</div>
+                <div class="info-card-desc">现价 $25.07 低于 SMA200 ($27.57)。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">筹码密集峰 (POC Volume)</div>
+                <div class="info-card-val">$27.57 - $28.06</div>
+                <div class="info-card-desc">上方强阻力与筹码沉淀区。</div>
+            </div>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="technicalChart"></canvas>
+        </div>
+
+        <div class="callout callout-success">
+            <strong>关键支撑与阻力位：</strong>
+            <ul style="margin-left: 20px; margin-top: 4px;">
+                <li><strong>第一核心支撑区 (S1)：</strong>$24.00 - $24.50（前期波段强支撑与高成交密集区）</li>
+                <li><strong>极限安全边际底 (S2)：</strong>$23.45 - $23.65（52 周绝对低点，极低概率有效跌破）</li>
+                <li><strong>第一反弹目标阻力 (R1)：</strong>$27.50 - $28.00（200 日均线与 POC 筹码峰）</li>
+                <li><strong>中期公允突破目标 (R2)：</strong>$33.00 - $35.00（52 周高点与华尔街目标中枢）</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 模块 13: 做空比例与轧空风险 -->
+    <section id="sec-13" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🐻</span> 13. 空头仓位与轧空风险评估 (Short Interest & Squeeze Dynamics)</h2>
+            <span class="sec-tag">空头回补健康</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">做空比例 (% of Float)</div>
+                <div class="info-card-val">2.89%</div>
+                <div class="info-card-desc">流通盘做空比例极低，相比同行 NCLH (17.86%) 展现出机构对 CCL 偿债确定性的高度认可。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">空头回补天数 (Days to Cover)</div>
+                <div class="info-card-val">2.04 天</div>
+                <div class="info-card-desc">流动性极度充裕，不存在严重的被动轧空踩踏，股价走势完全由基本面主导。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">借券费率 (Borrow Fee)</div>
+                <div class="info-card-val">< 0.35% (极度宽松)</div>
+                <div class="info-card-desc">券源充足，未出现借券受限或空头异动风险。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模块 14: 期权波动率与 Max Pain -->
+    <section id="sec-14" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🎯</span> 14. 期权曲面与 Max Pain / IVP 分析 (Options Surface & Max Pain)</h2>
+            <span class="sec-tag">隐含波动率 IV: 38% - 44%</span>
+        </div>
+        <p class="prose-text">
+            CCL 当前 30-45 天隐含波动率（IV）约为 38.0% - 44.2%，明显高于标普 500 大盘指数（IV ~15%），为期权卖方（Option Seller）提供了极其丰厚的波动率溢价（Theta Decay Cushion）。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>到期日 (Exp Date)</th>
+                        <th>到期天数 (DTE)</th>
+                        <th>Call 持仓量 (OI)</th>
+                        <th>Put 持仓量 (OI)</th>
+                        <th>Put/Call OI 比例</th>
+                        <th>期权最大痛点 (Max Pain)</th>
+                        <th>期权异动与市场含义</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026-09-18</strong></td>
+                        <td class="num-cell">21 天</td>
+                        <td class="num-cell">96,634</td>
+                        <td class="num-cell">176,319</td>
+                        <td class="num-cell">1.82</td>
+                        <td class="num-cell"><strong>$28.00</strong></td>
+                        <td>月度主合约，Put OI 高达 17.6 万张，Max Pain 显著高于现价，具备向上牵引力</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026-09-25</strong></td>
+                        <td class="num-cell">28 天</td>
+                        <td class="num-cell">3,643</td>
+                        <td class="num-cell">1,430</td>
+                        <td class="num-cell">0.39</td>
+                        <td class="num-cell"><strong>$26.00</strong></td>
+                        <td>周度合约，痛点 $26.00</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026-10-02</strong></td>
+                        <td class="num-cell">35 天</td>
+                        <td class="num-cell">2,214</td>
+                        <td class="num-cell">3,421</td>
+                        <td class="num-cell">1.55</td>
+                        <td class="num-cell"><strong>$25.00</strong></td>
+                        <td>痛点紧扣 $25.00，下方 $23-24 提供坚实护城河</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026-10-16</strong></td>
+                        <td class="num-cell">49 天</td>
+                        <td class="num-cell">27,388</td>
+                        <td class="num-cell">35,332</td>
+                        <td class="num-cell">1.29</td>
+                        <td class="num-cell"><strong>$28.00</strong></td>
+                        <td>10月核心合约，$22-$24 聚集大量防御性 Put OI</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="optionsChart"></canvas>
+        </div>
+    </section>
+
+    <!-- 模块 15: Cash-Secured Put 策略 -->
+    <section id="sec-15" class="sec-card">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🛡️</span> 15. Cash-Secured Put 策略与实操推荐 (Actionable Strike Matrix)</h2>
+            <span class="sec-tag">首选策略: Sell Put $24.00</span>
+        </div>
+        
+        <p class="prose-text">
+            针对嘉年华当前的低估值、高现金流与技术超卖特征，<strong>卖出 28-49 天虚值看跌期权（Cash-Secured Put, CSP）</strong>是盈亏比最优策略。若股价横盘或上涨，可稳稳赚取 22% - 32% 的高额年化权利金；若股价遭遇黑天鹅下跌被行权指派，则可以 8% - 14% 的极深折价在历史大底安全接货。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>推荐合约与行权价</th>
+                        <th>DTE</th>
+                        <th>权利金 Mid ($)</th>
+                        <th>静态收益率</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>净承接成本 (Net Basis)</th>
+                        <th>较现价折价</th>
+                        <th>适合投资者类型与风控指引</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4;">
+                        <td><strong>🛡️ 保守防御型 (Conservative)</strong></td>
+                        <td><strong>2026-10-16 Put $22.00</strong></td>
+                        <td class="num-cell">49 天</td>
+                        <td class="num-cell">$0.45</td>
+                        <td class="num-cell">2.05%</td>
+                        <td><span class="tag-pill tag-green"><strong>15.24% APY</strong></span></td>
+                        <td class="num-cell"><strong>$21.55</strong></td>
+                        <td><span class="tag-pill tag-green"><strong>-14.04% 折价</strong></span></td>
+                        <td>极度安全，若被指派以 $21.55 历史冰点接货，安全垫极厚。</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><strong>⭐ 平衡收益型 (Balanced - 首选)</strong></td>
+                        <td><strong>2026-09-25 Put $24.00</strong></td>
+                        <td class="num-cell">28 天</td>
+                        <td class="num-cell">$0.57</td>
+                        <td class="num-cell">2.38%</td>
+                        <td><span class="tag-pill tag-blue"><strong>30.96% APY</strong></span></td>
+                        <td class="num-cell"><strong>$23.43</strong></td>
+                        <td><span class="tag-pill tag-blue"><strong>-6.54% 折价</strong></span></td>
+                        <td><strong>最佳性价比：锁定超 30% 年化收租，净成本 $23.43 直逼 52 周最低点。</strong></td>
+                    </tr>
+                    <tr style="background: #FEF3C7;">
+                        <td><strong>🚀 积极进攻型 (Aggressive)</strong></td>
+                        <td><strong>2026-09-25 Put $25.00</strong></td>
+                        <td class="num-cell">28 天</td>
+                        <td class="num-cell">$0.96</td>
+                        <td class="num-cell">3.82%</td>
+                        <td><span class="tag-pill tag-amber"><strong>49.80% APY</strong></span></td>
+                        <td class="num-cell"><strong>$24.04</strong></td>
+                        <td><span class="tag-pill tag-amber"><strong>-4.11% 折价</strong></span></td>
+                        <td>平值卖 Put，获取高达近 50% 的暴利年化，以 $24.04 极低净成本建仓现货。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <strong>备兑看涨期权 (Covered Call) 增益方案：</strong>
+            对于已持有现货的投资者，可同时卖出 <strong>2026-10-16 Call $28.00</strong>（权利金 $0.64，年化 APY 19.02%）。若股价未达 $28.00 稳赚 $0.64 现金流；若涨破 $28.00 则以 $28.64 收益率出场，实现 +14.2% 的波段收益。
+        </div>
+    </section>
+
+    <!-- 最终投资评级与执行路线 -->
+    <section id="sec-verdict" class="sec-card" style="border: 2px solid var(--primary);">
+        <div class="sec-head">
+            <h2 class="sec-title"><span>🏁</span> 投资评级与执行路线图 (Final Verdict & Execution Roadmap)</h2>
+            <span class="sec-tag">评级: 强烈看多 (STRONG BUY)</span>
+        </div>
+        
+        <div class="signal-block">
+            <div class="signal-main">
+                <div class="signal-badge-lg">强烈看多 (STRONG BUY)</div>
+                <div class="signal-meta">
+                    <div style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">公允内在价值: $34.50 (潜在空间 +37.6%) | 华尔街目标均价: $35.30</div>
+                    <div>当前股价: $25.07 | 远期 P/E: 9.50x | 建议配置仓位: 5% - 8% (核心价值反转仓)</div>
+                </div>
+            </div>
+            <div>
+                <span class="badge" style="background: rgba(255,255,255,.2); font-size: 13px; padding: 6px 16px;">首选策略: Sell Put $24.00 / 现价分批建仓</span>
+            </div>
+        </div>
+
+        <div style="margin-top: 20px; line-height: 1.7; font-size: 14px; color: var(--text-primary);">
+            <strong>具体执行路径与风控纪律：</strong>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+                <li><strong>现货分批建仓区间：</strong>$24.00 - $25.50。当前股价处于 52 周底部（RP 14.5%），RSI(14) 仅 27.7，分批建仓安全系数极高。</li>
+                <li><strong>期权策略执行：</strong>首推 <strong>2026-09-25 到期、行权价 $24.00 的 Cash-Secured Put</strong>，锁定年化高达 <strong>30.96% APY</strong> 的确定性现金流；保守资金可选择 <strong>2026-10-16 $22.00 Put (15.24% APY)</strong>。</li>
+                <li><strong>目标止盈梯位：</strong>第一目标位 $28.00（200 日线与 POC 阻力），第二目标位 $34.50 - $35.30（公允估值中枢与华尔街均价），终极牛市目标看至 $43.00。</li>
+                <li><strong>风控止损纪律：</strong>嘉年华年化自由现金流超 $20 亿，偿债破产风险已被彻底证伪。若因极端地缘冲突破位跌破 $21.50，可利用卖 Put 获得的充沛权利金继续追加保证金并下移展期（Roll Down）。</li>
+            </ul>
+        </div>
+    </section>
+
+</div>
+
+<script>
+// 1. Radar Chart
+const radarCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+        labels: ['商业质量与壁垒', '估值与安全边际', '自由现金流引擎', '期权 Alpha 收益', '聪明钱机构动向', '逆向价值时机'],
+        datasets: [{
+            label: 'CCL 因子量化得分 (0-10)',
+            data: [8.6, 9.2, 8.4, 8.8, 8.6, 8.5],
+            backgroundColor: 'rgba(2, 132, 199, 0.25)',
+            borderColor: '#0284C7',
+            pointBackgroundColor: '#0EA5E9',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#0284C7',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                angleLines: { color: 'rgba(0,0,0,0.1)' },
+                grid: { color: 'rgba(0,0,0,0.06)' },
+                suggestedMin: 0,
+                suggestedMax: 10,
+                ticks: { stepSize: 2, font: { family: 'JetBrains Mono', size: 10 } },
+                pointLabels: { font: { size: 11, weight: '600' } }
+            }
+        },
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+
+// 2. Peer Comparison Chart
+const peerCtx = document.getElementById('peerChart').getContext('2d');
+new Chart(peerCtx, {
+    type: 'bar',
+    data: {
+        labels: ['EV / EBITDA 乘数', '远期市盈率 (Forward P/E)', '做空比例 (% Float)', '净负债/EBITDA (倍)'],
+        datasets: [
+            {
+                label: 'Carnival (CCL)',
+                data: [7.96, 9.50, 2.89, 3.46],
+                backgroundColor: '#0284C7'
+            },
+            {
+                label: 'Royal Caribbean (RCL)',
+                data: [14.30, 13.97, 5.85, 3.34],
+                backgroundColor: '#10B981'
+            },
+            {
+                label: 'Norwegian (NCLH)',
+                data: [9.02, 9.95, 17.86, 5.65],
+                backgroundColor: '#F59E0B'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'top', labels: { font: { weight: '600' } } }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.05)' }
+            }
+        }
+    }
+});
+
+// 3. Financial History Chart
+const finCtx = document.getElementById('finChart').getContext('2d');
+new Chart(finCtx, {
+    type: 'bar',
+    data: {
+        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'TTM (最新)'],
+        datasets: [
+            {
+                label: '营业收入 ($M)',
+                data: [12169, 21593, 25021, 26621, 26621],
+                backgroundColor: '#0284C7'
+            },
+            {
+                label: 'EBITDA ($M)',
+                data: [-2196, 4374, 6227, 6911, 6911],
+                backgroundColor: '#10B981'
+            },
+            {
+                label: '净利润 ($M)',
+                data: [-6093, -74, 1916, 2760, 2760],
+                backgroundColor: '#0D9488'
+            },
+            {
+                label: '自由现金流 FCF ($M)',
+                data: [-6610, 997, 1297, 2607, 1899],
+                backgroundColor: '#3B82F6'
+            },
+            {
+                label: '总债务 ($M)',
+                data: [35881, 31891, 28876, 27993, 26170],
+                backgroundColor: '#EF4444',
+                type: 'line',
+                borderColor: '#EF4444',
+                borderWidth: 3,
+                pointRadius: 4,
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: {
+                beginAtZero: false,
+                title: { display: true, text: '收入与利润 ($M)' },
+                grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            y1: {
+                position: 'right',
+                title: { display: true, text: '总债务 ($M)' },
+                grid: { display: false },
+                min: 20000,
+                max: 40000
+            }
+        }
+    }
+});
+
+// 4. DCF Valuation Scenarios Chart
+const dcfCtx = document.getElementById('dcfChart').getContext('2d');
+new Chart(dcfCtx, {
+    type: 'bar',
+    data: {
+        labels: ['当前股价', '悲观底线', '8.5x 乘数公允', '去杠杆 DCF', '华尔街目标均价', '乐观情景', '华尔街最高目标'],
+        datasets: [{
+            label: '每股价值 ($)',
+            data: [25.07, 22.50, 28.45, 34.50, 35.30, 43.00, 43.00],
+            backgroundColor: [
+                '#64748B',
+                '#F59E0B',
+                '#0EA5E9',
+                '#0284C7',
+                '#10B981',
+                '#3B82F6',
+                '#6366F1'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: {
+                beginAtZero: false,
+                min: 15,
+                title: { display: true, text: '美元 ($/股)' },
+                grid: { color: 'rgba(0,0,0,0.05)' }
+            }
+        }
+    }
+});
+
+// 5. Technical Chart
+const techCtx = document.getElementById('technicalChart').getContext('2d');
+new Chart(techCtx, {
+    type: 'line',
+    data: {
+        labels: ['52周低点', '保守支撑S2', '第一支撑S1', '当前股价', 'SMA30', 'SMA200', '第一阻力R1', '52周高点', '公允目标'],
+        datasets: [{
+            label: '价格及关键技术位 ($)',
+            data: [23.45, 23.65, 24.50, 25.07, 27.08, 27.57, 28.00, 34.03, 35.30],
+            borderColor: '#0284C7',
+            backgroundColor: 'rgba(2, 132, 199, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 6,
+            pointBackgroundColor: ['#EF4444', '#F59E0B', '#10B981', '#0284C7', '#64748B', '#64748B', '#F59E0B', '#3B82F6', '#10B981']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: {
+                min: 20,
+                max: 38,
+                title: { display: true, text: '美元 ($)' },
+                grid: { color: 'rgba(0,0,0,0.05)' }
+            }
+        }
+    }
+});
+
+// 6. Options Open Interest Chart
+const optCtx = document.getElementById('optionsChart').getContext('2d');
+new Chart(optCtx, {
+    type: 'bar',
+    data: {
+        labels: ['$21.00', '$22.00', '$23.00', '$24.00', '$25.00 (现价)', '$26.00', '$27.00', '$28.00 (MaxPain)', '$29.00', '$30.00'],
+        datasets: [
+            {
+                label: 'Call 未平仓量 (OI)',
+                data: [50, 120, 250, 800, 1740, 854, 2113, 2380, 999, 3995],
+                backgroundColor: '#10B981'
+            },
+            {
+                label: 'Put 未平仓量 (OI)',
+                data: [965, 4261, 2795, 5160, 2929, 1453, 620, 850, 210, 150],
+                backgroundColor: '#EF4444'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: { display: true, text: '未平仓合约张数 (Contracts)' },
+                grid: { color: 'rgba(0,0,0,0.05)' }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

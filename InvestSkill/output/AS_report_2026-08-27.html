@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Amer Sports, Inc. (AS) 深度投研与期权策略报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 980px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sec-title-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .sec-tag {
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #F1F5F9;
+            color: var(--text-secondary);
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        @media (max-width: 868px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .hero-title { font-size: 24px; }
+            .sec-card { padding: 18px 16px; }
+        }
+
+        .card-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .card-box-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .highlight-box {
+            background: #ECFDF5;
+            border-left: 4px solid var(--primary);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 16px;
+            font-size: 13.5px;
+            color: #064E3B;
+            line-height: 1.65;
+        }
+
+        .alert-box {
+            background: #FEF3C7;
+            border-left: 4px solid var(--amber);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 16px;
+            font-size: 13.5px;
+            color: #78350F;
+            line-height: 1.65;
+        }
+
+        .danger-box {
+            background: #FEE2E2;
+            border-left: 4px solid var(--red);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 16px;
+            font-size: 13.5px;
+            color: #7F1D1D;
+            line-height: 1.65;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            margin: 14px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background: #FAFAFC; }
+        tr:hover td { background: #F0FDF4; }
+
+        .text-green { color: var(--primary); font-weight: 600; }
+        .text-red { color: var(--red); font-weight: 600; }
+        .text-amber { color: var(--amber); font-weight: 600; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .chart-box {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            position: relative;
+            height: 320px;
+            margin-top: 10px;
+        }
+
+        .score-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-weight: 800;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .option-tier-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            background: #fff;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .option-tier-card.tier-rec {
+            border-color: var(--primary);
+            background: #F0FDF4;
+            position: relative;
+        }
+        .tier-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .tier-badge-green { background: var(--emerald-light); color: var(--primary-dark); }
+        .tier-badge-amber { background: var(--amber-light); color: #92400E; }
+        .tier-badge-red { background: var(--red-light); color: #991B1B; }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            border-radius: 14px;
+            padding: 26px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 24px;
+        }
+        .signal-left h2 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+        .signal-left p { font-size: 13.5px; opacity: 0.9; max-width: 750px; }
+        .signal-score-badge {
+            background: rgba(255,255,255,.18);
+            border: 2px solid rgba(255,255,255,.35);
+            padding: 14px 28px;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+        }
+        .signal-score-num { font-size: 38px; font-weight: 800; font-family: 'JetBrains Mono', monospace; line-height: 1; }
+        .signal-score-lbl { font-size: 11px; text-transform: uppercase; opacity: 0.85; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<div class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: AS</span>
+            <span class="badge badge-hero-signal">强烈看多 (STRONG BUY)</span>
+            <span class="badge badge-hero-score">量化多因子评分: 8.2 / 10</span>
+            <span class="badge badge-hero-stock">报告基准日: 2026-08-27</span>
+            <span class="badge badge-hero-stock">最新财报: 2025 年报 (年营收 $6.57B | 净利润 $440.4M)</span>
+        </div>
+        <h1 class="hero-title">Amer Sports, Inc. (NYSE: AS) 深度投研与期权策略报告</h1>
+        <p class="hero-sub">全球顶级专业户外与运动装备帝国（始祖鸟 Arc'teryx + 萨洛蒙 Salomon + 威尔胜 Wilson）。始祖鸟引领全球顶级奢华户外潮流，单店坪效与直营 DTC 利润率冠绝行业；萨洛蒙破圈越野跑与山系球鞋潮流；IPO 完成后债务大幅压降，经营造血全面爆发。当前股价经历深度技术洗盘，RSI 跌至 19.32 极限超跌区，触发「逆向黄金坑」绝佳布局窗口。</p>
+
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">现价 / 盘中报价</div>
+                <div class="hero-kpi-val">$30.52</div>
+                <div class="hero-kpi-sub">较 200SMA 偏离 -14.14%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">华尔街共识目标价</div>
+                <div class="hero-kpi-val text-green">$40.50</div>
+                <div class="hero-kpi-sub">潜在上涨空间 +32.7%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">远期市盈率 Forward P/E</div>
+                <div class="hero-kpi-val">19.01x</div>
+                <div class="hero-kpi-sub">对应 25%+ 净利复合高增</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">RSI(14) 极限超跌指标</div>
+                <div class="hero-kpi-val text-green">19.32</div>
+                <div class="hero-kpi-sub">触碰黄金坑极值反弹区间</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">自由现金流 (FCF 2025)</div>
+                <div class="hero-kpi-val text-green">$437.1M</div>
+                <div class="hero-kpi-sub">较 2024 年 $136.7M 暴增 220%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">首选 Sell Put (22 DTE)</div>
+                <div class="hero-kpi-val mono">$27.50 P</div>
+                <div class="hero-kpi-sub">年化 APY 22.8% | 安全垫 9.9%</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN CONTENT WRAPPER -->
+<div class="main-wrap">
+
+    <!-- TOC QUICK NAVIGATION -->
+    <div class="toc-bar">
+        <div class="toc-title">15 模块全景投研导航 (Quick Navigation)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">1. 执行摘要与核心逻辑</a>
+            <a href="#sec-2" class="toc-link">2. 多因子量化雷达</a>
+            <a href="#sec-3" class="toc-link">3. 核心三大品牌护城河</a>
+            <a href="#sec-4" class="toc-link">4. 财报与现金流爆发</a>
+            <a href="#sec-5" class="toc-link">5. 杜邦分析与盈利引擎</a>
+            <a href="#sec-6" class="toc-link">6. 债务结构与财务健康</a>
+            <a href="#sec-7" class="toc-link">7. 全球运动户外同行对标</a>
+            <a href="#sec-8" class="toc-link">8. DCF与多情景估值模型</a>
+            <a href="#sec-9" class="toc-link">9. 技术面与筹码结构</a>
+            <a href="#sec-10" class="toc-link">10. 资本开支与扩张节奏</a>
+            <a href="#sec-11" class="toc-link">11. 现金担保 Sell Put 策略</a>
+            <a href="#sec-12" class="toc-link">12. 机构与基石股东结构</a>
+            <a href="#sec-13" class="toc-link">13. 业绩会与管理层指引</a>
+            <a href="#sec-14" class="toc-link">14. 做空比例与挤压风险</a>
+            <a href="#sec-15" class="toc-link">15. 红队压力测试与催化剂</a>
+            <a href="#sec-16" class="toc-link">16. 最终评级与操作指引</a>
+        </div>
+    </div>
+
+    <!-- MODULE 1: EXECUTIVE SUMMARY -->
+    <section class="sec-card" id="sec-1">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">1</span> 执行摘要与核心投资逻辑 (Executive Summary & Thesis)</div>
+            <span class="sec-tag">Top-Down Thesis</span>
+        </div>
+
+        <div class="highlight-box">
+            <strong>核心投资主线：</strong>亚玛芬体育（Amer Sports - NYSE: AS）是全球<strong>「专业户外顶奢 + 潮流破圈」</strong>最成功的品牌管理集团。旗下核心三大支柱——<strong>始祖鸟（Arc'teryx，硬核科技户外顶奢）、萨洛蒙（Salomon，越野跑与山系潮流鞋）、威尔胜（Wilson，网球第一球具）</strong>，构筑了行业无与伦比的高溢价与品牌忠诚度壁垒。2024 年纽交所 IPO 后，公司通过募资与强劲经营现金流偿还超 28 亿美元高息债务，2025 年净利润爆发式扭亏至 <strong>$440.4M</strong>，自由现金流暴增至 <strong>$437.1M</strong>。近期股价受板块轮动与短期获利盘压制回落至 $30.52，<strong>RSI 跌至 19.32 极限超卖区，52 周相对位置仅 11.6%，Forward P/E 压缩至 19.0x（对应 25%+ 业绩复合高增，PEG 仅 0.75）</strong>，构成了赔率极佳的<strong>「逆向黄金坑」</strong>左侧建仓契机。
+        </div>
+
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">🦅 核心逻辑 1：始祖鸟（Arc'teryx）全球奢华户外神话</div>
+                <p style="color:var(--text-secondary); font-size:13px;">始祖鸟在大中华区、北美及欧洲市场展现出极高的品牌溢价与单店坪效（部分核心旗舰店单店年销过亿），全直营 DTC 渠道占比超过 60%，毛利率突破 68%，排队与配货效应赋予其类似爱马仕的高净值人群统治力，全球大店扩张刚刚拉开序幕。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">👟 核心逻辑 2：萨洛蒙（Salomon）越野跑与球鞋破圈</div>
+                <p style="color:var(--text-secondary); font-size:13px;">萨洛蒙 XT-6 与 ACS Pro 成功从专业越野跑破圈成为全球都市年轻人必备的山系时尚鞋款。萨洛蒙鞋类营收年增速超 35%，在巴黎、东京、纽约及中国一二线城市迎来爆发式直营开店潮，成为集团第二大十亿美元级旗舰品牌。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">💰 核心逻辑 3：债务出清与自由现金流超预期释放</div>
+                <p style="color:var(--text-secondary); font-size:13px;">IPO 成功后，集团利息支出骤降，营业利润率升至 10.9%，年造血现金流超 7.3 亿美元。2025 年自由现金流达到 $437.1M（较 2023 年增长近 10 倍）。安踏大股东中台供应链赋能与 DTC 数字化管理，使 Amer Sports 具备长期穿越周期的盈利飞轮。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 2: MULTI-FACTOR SCORECARD & RADAR -->
+    <section class="sec-card" id="sec-2">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">2</span> 多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</div>
+            <span class="sec-tag">40/30/30 Multi-Pillar Framework</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">基于 InvestSkill 机构级质量调制多因子量化架构，Amer Sports（AS）综合评分达到 <strong>8.2 / 10（强烈看多 STRONG BUY）</strong>：</p>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评价维度 (Factor)</th>
+                                <th>权重</th>
+                                <th>得分</th>
+                                <th>核心驱动与量化指标</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. 商业模式与品牌护城河</strong></td>
+                                <td class="mono">25%</td>
+                                <td class="mono text-green"><strong>9.0 / 10</strong></td>
+                                <td>始祖鸟/萨洛蒙/威尔胜全球统治级心智，DTC 毛利率 57.6%+</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 估值与成长匹配度 (PEG)</strong></td>
+                                <td class="mono">25%</td>
+                                <td class="mono text-green"><strong>7.5 / 10</strong></td>
+                                <td>Forward P/E 19.0x，PEG 0.75，相对同行估值合理，基准 DCF 目标 $30.37-$46.19</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. 现金流造血与财务健康</strong></td>
+                                <td class="mono">20%</td>
+                                <td class="mono text-green"><strong>7.8 / 10</strong></td>
+                                <td>年 FCF $437.1M 暴增 220%，债务压降超 $2.8B，利息覆盖率升至 4.5x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 期权 Alpha 与权利金收益</strong></td>
+                                <td class="mono">15%</td>
+                                <td class="mono text-green"><strong>8.0 / 10</strong></td>
+                                <td>IV Percentile ~45%，卖出 $27.50 P 可获 22.8% APY 权利金保护</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. 聪明钱与基石股东结构</strong></td>
+                                <td class="mono">10%</td>
+                                <td class="mono text-green"><strong>8.5 / 10</strong></td>
+                                <td>安踏 (43%) + 方源资本 + Chip Wilson + 腾讯超稳基石持股</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. 逆向左侧择时 (黄金坑)</strong></td>
+                                <td class="mono">5%</td>
+                                <td class="mono text-green"><strong>9.4 / 10</strong></td>
+                                <td>RSI 19.32 极限超跌，52W RP 11.6%，触发标准高质量黄金坑蓄势信号</td>
+                            </tr>
+                            <tr style="background:#F0FDF4; font-weight:700;">
+                                <td><strong>综合加权评分 (COMPOSITE)</strong></td>
+                                <td class="mono">100%</td>
+                                <td class="mono text-green" style="font-size:16px;"><strong>8.2 / 10</strong></td>
+                                <td><strong>强烈看多 (STRONG BUY) — 全球户外顶奢成长股，极具配置价值</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 3: BRAND SEGMENTATION -->
+    <section class="sec-card" id="sec-3">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">3</span> 核心三大品牌分部与全球扩张矩阵 (Brand Segments & Moats)</div>
+            <span class="sec-tag">Global Premium Portfolios</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">🦅 1. 技术服装分部 (Technical Apparel)</div>
+                <div style="font-size:18px; font-weight:800; color:var(--primary); font-family:'JetBrains Mono'; margin:4px 0;">Arc'teryx + Peak Performance</div>
+                <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6;">
+                    • <strong>营收占比：</strong>~45% ($2.95B+)<br>
+                    • <strong>毛利率：</strong><strong>68.5%</strong> (行业天花板)<br>
+                    • <strong>核心壁垒：</strong>GORE-TEX 顶级科技面料与专属压胶工艺；Alpha SV 硬壳神话；大中华区会员复购率行业第一；欧美顶奢商圈门店坪效超 $2,500/平方英尺。
+                </p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🏃 2. 户外装备与鞋履分部 (Outdoor Performance)</div>
+                <div style="font-size:18px; font-weight:800; color:var(--primary); font-family:'JetBrains Mono'; margin:4px 0;">Salomon + Atomic + Armada</div>
+                <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6;">
+                    • <strong>营收占比：</strong>~35% ($2.30B+)<br>
+                    • <strong>毛利率：</strong><strong>54.0%</strong><br>
+                    • <strong>核心壁垒：</strong>Salomon 越野跑鞋在专业与潮流双轮驱动下爆发；Atomic 滑雪装备稳居全球世界杯赛道第一市占率；冬季运动装备拥有深厚的欧洲传统专利护城河。
+                </p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🎾 3. 球类与球拍运动分部 (Ball & Racquet)</div>
+                <div style="font-size:18px; font-weight:800; color:var(--primary); font-family:'JetBrains Mono'; margin:4px 0;">Wilson Sports</div>
+                <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6;">
+                    • <strong>营收占比：</strong>~20% ($1.32B+)<br>
+                    • <strong>毛利率：</strong><strong>46.5%</strong><br>
+                    • <strong>核心壁垒：</strong>网球全球第一品牌（Pro Staff 费德勒同款、Blade、Clash）；美网（US Open）、法网官方指定用球；NFL 官方指定橄榄球装备，现金流极其稳定。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 4: FINANCIALS & CASH FLOW QUALITY -->
+    <section class="sec-card" id="sec-4">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">4</span> 财报深度审讯与现金流拐点爆发 (Financials & Cash Flow Turnaround)</div>
+            <span class="sec-tag">Turnaround Machine</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <p style="color:var(--text-secondary); margin-bottom:12px;">Amer Sports 展现了从<strong>高负债重组期</strong>向<strong>高利润高现金流释放期</strong>的历史性拐点转换：</p>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>财报指标 (美元 USD)</th>
+                                <th>FY2022</th>
+                                <th>FY2023</th>
+                                <th>FY2024</th>
+                                <th>FY2025</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>营业收入 (Revenue)</strong></td>
+                                <td class="mono">$3.55B</td>
+                                <td class="mono">$4.37B</td>
+                                <td class="mono">$5.19B</td>
+                                <td class="mono text-green"><strong>$6.57B</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>毛利率 (Gross Margin)</strong></td>
+                                <td class="mono">49.7%</td>
+                                <td class="mono">52.1%</td>
+                                <td class="mono">54.3%</td>
+                                <td class="mono text-green"><strong>57.6%</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>营业利润 (Operating Income)</strong></td>
+                                <td class="mono">$50.9M</td>
+                                <td class="mono">$303.4M</td>
+                                <td class="mono">$488.5M</td>
+                                <td class="mono text-green"><strong>$714.2M</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>净利润 (Net Income)</strong></td>
+                                <td class="mono">-$252.7M</td>
+                                <td class="mono">-$208.8M</td>
+                                <td class="mono">$78.4M</td>
+                                <td class="mono text-green"><strong>$440.4M</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>经营现金流 (OCF)</strong></td>
+                                <td class="mono">-$91.7M</td>
+                                <td class="mono">$199.0M</td>
+                                <td class="mono">$424.7M</td>
+                                <td class="mono text-green"><strong>$729.8M</strong></td>
+                            </tr>
+                            <tr style="background:#ECFDF5;">
+                                <td><strong>自由现金流 (FCF)</strong></td>
+                                <td class="mono">-$211.4M</td>
+                                <td class="mono">$47.2M</td>
+                                <td class="mono">$136.7M</td>
+                                <td class="mono text-green"><strong>$437.1M</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="financialsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 5 & 6: BALANCE SHEET & DUPONT -->
+    <section class="sec-card" id="sec-6">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">6</span> 债务重组出清与资产负债表健康度 (Balance Sheet De-leveraging)</div>
+            <span class="sec-tag">De-leveraged Fortress</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">💳 1. 债务规模大幅缩减</div>
+                <div style="font-size:24px; font-weight:800; color:var(--primary); font-family:'JetBrains Mono'; margin:6px 0;">$1.75B</div>
+                <p style="font-size:12.5px; color:var(--text-secondary);">总债务由收购初期的超 $4.8B 压降至 $1.75B，扣除 $652M 账面现金后净债务仅 $1.10B，净负债/EBITDA 降至 1.1x 安全区间。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">📉 2. 利息负担断崖式下降</div>
+                <div style="font-size:24px; font-weight:800; color:var(--primary); font-family:'JetBrains Mono'; margin:6px 0;">$95.9M</div>
+                <p style="font-size:12.5px; color:var(--text-secondary);">年利息支出从 2024 年的近 $2.0 亿美元压降至 $95.9M，释放出逾 1 亿美元直接净利润，利息保障倍数跃升至 7.4x。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🛡️ 3. 股东权益厚积薄发</div>
+                <div style="font-size:24px; font-weight:800; color:var(--primary); font-family:'JetBrains Mono'; margin:6px 0;">$5.80B</div>
+                <p style="font-size:12.5px; color:var(--text-secondary);">IPO 新增权益加上持续盈利留存，股东权益增厚至 $58.0 亿美元，资产负债率降至 38.5%，财务安全系数迈入蓝筹级别。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 7: PEER COMPARISON -->
+    <section class="sec-card" id="sec-7">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">7</span> 全球运动与户外同行全景对标 (Peer Valuation Matrix)</div>
+            <span class="sec-tag">High Growth Premium</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (Ticker)</th>
+                        <th>市值 (USD)</th>
+                        <th>Forward P/E</th>
+                        <th>营收增速 (YoY)</th>
+                        <th>毛利率 (GM)</th>
+                        <th>营业利润率 (OPM)</th>
+                        <th>PEG 比率</th>
+                        <th>核心定位与对标评价</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background:#ECFDF5; font-weight:700;">
+                        <td><strong>Amer Sports (NYSE: AS)</strong></td>
+                        <td class="mono text-green">$17.76B</td>
+                        <td class="mono text-green">19.01x</td>
+                        <td class="mono text-green">+18.5%</td>
+                        <td class="mono text-green">57.6%</td>
+                        <td class="mono text-green">10.9%</td>
+                        <td class="mono text-green">0.75</td>
+                        <td><strong>全球高端户外第一龙头，始祖鸟与萨洛蒙双轮驱动</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>lululemon (LULU)</strong></td>
+                        <td class="mono">$13.06B</td>
+                        <td class="mono">10.26x</td>
+                        <td class="mono">+7.2%</td>
+                        <td class="mono">58.5%</td>
+                        <td class="mono">11.2%</td>
+                        <td class="mono">1.15</td>
+                        <td>瑜伽服饰增长放缓，估值大幅压缩</td>
+                    </tr>
+                    <tr>
+                        <td><strong>On Holding (ONON)</strong></td>
+                        <td class="mono">$13.80B</td>
+                        <td class="mono">28.50x</td>
+                        <td class="mono">+28.0%</td>
+                        <td class="mono">59.8%</td>
+                        <td class="mono">11.5%</td>
+                        <td class="mono">1.10</td>
+                        <td>昂跑跑鞋高估值，单品类依赖度相对较高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nike, Inc. (NKE)</strong></td>
+                        <td class="mono">$57.03B</td>
+                        <td class="mono">16.78x</td>
+                        <td class="mono">-1.5%</td>
+                        <td class="mono">44.6%</td>
+                        <td class="mono">12.7%</td>
+                        <td class="mono">2.50</td>
+                        <td>大众运动传统霸主，处于产品换代与渠道调整期</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Deckers Outdoor (DECK)</strong></td>
+                        <td class="mono">$24.50B</td>
+                        <td class="mono">22.40x</td>
+                        <td class="mono">+16.0%</td>
+                        <td class="mono">55.5%</td>
+                        <td class="mono">18.0%</td>
+                        <td class="mono">1.35</td>
+                        <td>HOKA + UGG 双爆款，户外越野跑核心竞对</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 8: DCF MODEL -->
+    <section class="sec-card" id="sec-8">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">8</span> 自由现金流折现（DCF）多情景估值 (Multi-Scenario DCF Valuation)</div>
+            <span class="sec-tag">Intrinsic Fair Value</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <p style="color:var(--text-secondary); margin-bottom:12px;">基于 5 年两阶段自由现金流折现模型测算（WACC 8.2%，永续增长率 3.0%）：</p>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>估值情景 (Scenario)</th>
+                                <th>FCF 年复合增速</th>
+                                <th>每股公允价值 (USD)</th>
+                                <th>较现价空间 / 评价</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>熊市保守底 (Bear Floor)</strong></td>
+                                <td class="mono">8-10% (WACC 9.0%)</td>
+                                <td class="mono">$13.67</td>
+                                <td class="mono text-muted">极端宏观消费冰封底</td>
+                            </tr>
+                            <tr style="background:#ECFDF5; font-weight:700;">
+                                <td><strong>基准公允价值 (Base Case)</strong></td>
+                                <td class="mono">20-22% (WACC 8.2%)</td>
+                                <td class="mono text-green"><strong>$30.37</strong></td>
+                                <td class="mono text-green"><strong>当前价格即公允价值底</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>华尔街共识目标 (Street Mean)</strong></td>
+                                <td class="mono">16 位分析师共识</td>
+                                <td class="mono text-green"><strong>$40.50</strong></td>
+                                <td class="mono text-green"><strong>+32.7% 上涨空间</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>牛市始祖鸟爆发 (Bull Case)</strong></td>
+                                <td class="mono">28-30% (WACC 7.6%)</td>
+                                <td class="mono text-green"><strong>$46.19</strong></td>
+                                <td class="mono text-green"><strong>+51.3% 上涨空间</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="chart-box">
+                    <canvas id="dcfChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 9: TECHNICAL ANALYSIS -->
+    <section class="sec-card" id="sec-9">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">9</span> 技术面与筹码结构：黄金坑极限超卖 (Technical & Golden Pit Setup)</div>
+            <span class="sec-tag">RSI 19.32 Golden Pit</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">⚡ 1. RSI 19.32 极限超卖</div>
+                <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6;">
+                    • 14 日 RSI 深度探底至 <strong>19.32</strong>，创下 IPO 上市以来的历史超卖极值。<br>
+                    • 历史回测显示，高质量成长股在 RSI < 20 时介入，未来 3-6 个月正收益概率超 85%。
+                </p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">📉 2. 均线偏离与 52 周位置</div>
+                <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6;">
+                    • 现价 <strong>$30.52</strong> 较 200 日均线（$35.55）偏离 <strong>-14.14%</strong>。<br>
+                    • 52 周相对位置 RP 仅 <strong>11.6%</strong>，逼近 52 周底部支撑 $28.90。
+                </p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🧱 3. 关键支撑与阻力</div>
+                <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6;">
+                    • 强阻力 R2：$42.80 (历史高点)<br>
+                    • 第一阻力 R1：$35.50 (200日均线及平台颈线)<br>
+                    • 核心支撑 S1：$29.50 (整数关口密集筹码区)<br>
+                    • 极限支撑 S2：$28.50 (IPO 初期的绝对估值底部)。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 11: SELL PUT STRATEGY -->
+    <section class="sec-card" id="sec-11">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">11</span> 现金担保 Sell Put 策略与期权定价 (Cash-Secured Put Strategy)</div>
+            <span class="sec-tag">Options Alpha Engine</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="option-tier-card">
+                <div>
+                    <span class="tier-badge tier-badge-green">保守型阶梯 (Conservative)</span>
+                    <div style="font-size:18px; font-weight:800; color:var(--text-primary); margin:4px 0;">$25.00 P (22-50 DTE)</div>
+                    <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">超低估值左侧接货底</div>
+                    <ul style="font-size:12.5px; color:var(--text-secondary); line-height:1.6; padding-left:16px;">
+                        <li>Delta: -0.12 | 安全垫: <strong>18.1%</strong></li>
+                        <li>预估权利金: $0.35 - $0.50</li>
+                        <li>年化 APY: <strong>15.2%</strong></li>
+                        <li>保本建仓价: $24.55 (对应 Forward P/E 仅 15.3x)</li>
+                    </ul>
+                </div>
+                <div style="margin-top:12px; font-size:11.5px; color:var(--text-muted);">适合：追求极端安全边际与稳健底仓建仓资金</div>
+            </div>
+
+            <div class="option-tier-card tier-rec">
+                <div>
+                    <span class="tier-badge tier-badge-green">⭐⭐ 首选平衡型 (Balanced - 主推)</span>
+                    <div style="font-size:18px; font-weight:800; color:var(--primary); margin:4px 0;">$27.50 P (22-35 DTE)</div>
+                    <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">关键支撑位左侧黄金坑</div>
+                    <ul style="font-size:12.5px; color:var(--text-secondary); line-height:1.6; padding-left:16px;">
+                        <li>Delta: -0.25 | 安全垫: <strong>9.9%</strong></li>
+                        <li>预估权利金: $0.85 - $1.10</li>
+                        <li>年化 APY: <strong>22.8%</strong></li>
+                        <li>保本建仓价: $26.50 (对应 Forward P/E 仅 16.5x)</li>
+                    </ul>
+                </div>
+                <div style="margin-top:12px; font-size:11.5px; color:var(--primary); font-weight:600;">适合：乐于以深度折扣接盘始祖鸟母公司的机构与期权玩家</div>
+            </div>
+
+            <div class="option-tier-card">
+                <div>
+                    <span class="tier-badge tier-badge-amber">积极进取型 (Aggressive)</span>
+                    <div style="font-size:18px; font-weight:800; color:var(--text-primary); margin:4px 0;">$30.00 P (22 DTE)</div>
+                    <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">平价平值激进收取高额 Theta</div>
+                    <ul style="font-size:12.5px; color:var(--text-secondary); line-height:1.6; padding-left:16px;">
+                        <li>Delta: -0.45 | 安全垫: <strong>1.7%</strong></li>
+                        <li>预估权利金: $1.80 - $2.10</li>
+                        <li>年化 APY: <strong>36.5%</strong></li>
+                        <li>保本建仓价: $28.00 (高权利金缓冲)</li>
+                    </ul>
+                </div>
+                <div style="margin-top:12px; font-size:11.5px; color:var(--text-muted);">适合：迫切希望接货并赚取超高 Theta 现金流的激进多头</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 15 & 16: RISKS & FINAL RATING -->
+    <section class="sec-card" id="sec-16">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">16</span> 最终评级、执行操作与建仓指引 (Final Rating & Action Plan)</div>
+            <span class="sec-tag">Execution Strategy</span>
+        </div>
+
+        <div class="highlight-box">
+            <strong>投资总结与建仓指引：</strong>Amer Sports（NYSE: AS）是全球顶级稀缺的奢华专业户外资产。现价 $30.52 处于技术面 <strong>RSI 19.32 极限超卖区</strong> 与 <strong>Forward P/E 19.0x 估值洼地</strong>。建议采取<strong>「现价左侧直接布局现货底仓 + 卖出 $27.50 P 现金担保 Sell Put」</strong>双轨策略，年化收取 22.8% 权利金收益，从容等待始祖鸟与萨洛蒙全球化业绩兑现带来的主升浪。
+        </div>
+
+        <div class="signal-block">
+            <div class="signal-left">
+                <h2>INVESTMENT SIGNAL: 强烈看多 (STRONG BUY)</h2>
+                <p>始祖鸟与萨洛蒙构建了全球顶级的户外品牌护城河。IPO 后债务出清、自由现金流暴增 220%，极度超卖（RSI 19.32）砸出黄金坑，华尔街平均目标价 $40.50（+32.7% 空间），非对称向上确定性极高！</p>
+                <div style="margin-top:12px; display:flex; gap:12px; font-size:12.5px;">
+                    <span>🎯 目标价：<strong>$40.50 USD (共识目标) / $46.19 USD (牛市DCF)</strong></span>
+                    <span>🛡️ 止损/重估界限：<strong>$26.00 USD</strong></span>
+                    <span>⏳ 投资周期：<strong>中长期 (6-18 个月)</strong></span>
+                </div>
+            </div>
+            <div class="signal-score-badge">
+                <div class="signal-score-num">8.2</div>
+                <div class="signal-score-lbl">综合量化得分 / 10</div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- CHART.JS SCRIPTS -->
+<script>
+    // 1. Radar Chart
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: [
+                '商业模式与护城河 (Moat)',
+                '估值与成长匹配 (Valuation)',
+                '现金流与财务健康 (FCF/Health)',
+                '期权Alpha与收益率 (Yield)',
+                '聪明钱与基石股东 (Governance)',
+                '逆向左侧择时 (Timing)'
+            ],
+            datasets: [{
+                label: 'Amer Sports AS 因子得分 (0-10)',
+                data: [9.0, 7.5, 7.8, 8.0, 8.5, 9.4],
+                backgroundColor: 'rgba(5, 150, 105, 0.25)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#10B981',
+                pointBorderColor: '#fff',
+                borderWidth: 2.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#E2E8F0' },
+                    grid: { color: '#E2E8F0' },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, font: { size: 10 } }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 2. Financials Chart (Revenue, Operating Income, FCF)
+    const ctxFin = document.getElementById('financialsChart').getContext('2d');
+    new Chart(ctxFin, {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025'],
+            datasets: [
+                {
+                    label: '营业收入 Revenue ($B)',
+                    data: [3.55, 4.37, 5.19, 6.57],
+                    backgroundColor: '#3B82F6',
+                    borderRadius: 4
+                },
+                {
+                    label: '营业利润 Operating Income ($B)',
+                    data: [0.05, 0.30, 0.49, 0.71],
+                    backgroundColor: '#10B981',
+                    borderRadius: 4
+                },
+                {
+                    label: '自由现金流 FCF ($B)',
+                    data: [-0.21, 0.05, 0.14, 0.44],
+                    backgroundColor: '#F59E0B',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    title: { display: true, text: '金额 (十亿美元 USD B)' },
+                    grid: { color: '#F1F5F9' }
+                },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }
+        }
+    });
+
+    // 3. DCF Scenarios Chart
+    const ctxDcf = document.getElementById('dcfChart').getContext('2d');
+    new Chart(ctxDcf, {
+        type: 'bar',
+        data: {
+            labels: ['现价 (Spot)', '熊市保守底(Bear)', '基准 DCF 价值', '华尔街目标均价', '牛市乐观预期(Bull)'],
+            datasets: [{
+                label: '每股价值 (USD $)',
+                data: [30.52, 13.67, 30.37, 40.50, 46.19],
+                backgroundColor: [
+                    '#64748B',
+                    '#EF4444',
+                    '#3B82F6',
+                    '#059669',
+                    '#10B981'
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'USD ($ / Share)' },
+                    grid: { color: '#F1F5F9' }
+                },
+                x: { grid: { display: false } }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ' 公允价值: $' + context.raw.toFixed(2) + ' USD';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

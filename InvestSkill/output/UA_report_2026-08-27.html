@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>Under Armour (UA / UAA) 深度投研与期权策略报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #1E293B 0%, #334155 50%, #475569 100%);
+            --grad-accent:   linear-gradient(90deg, #D97706, #F59E0B);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #D97706; color: #fff; box-shadow: 0 0 14px rgba(217,119,6,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 950px; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.10);
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #CBD5E1; font-weight: 600; }
+        .hero-kpi-val { font-size: 21px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.85; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: #334155; color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-title-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        @media (max-width: 868px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .hero-title { font-size: 24px; }
+            .sec-card { padding: 18px 16px; }
+        }
+
+        .card-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .card-box-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .highlight-box {
+            background: #ECFDF5;
+            border-left: 4px solid var(--primary);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 16px;
+            font-size: 13.5px;
+            color: #064E3B;
+            line-height: 1.65;
+        }
+
+        .alert-box {
+            background: #FEF3C7;
+            border-left: 4px solid var(--amber);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 16px;
+            font-size: 13.5px;
+            color: #78350F;
+            line-height: 1.65;
+        }
+
+        .danger-box {
+            background: #FEE2E2;
+            border-left: 4px solid var(--red);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 16px;
+            font-size: 13.5px;
+            color: #7F1D1D;
+            line-height: 1.65;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            margin: 14px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background: #FAFAFC; }
+        tr:hover td { background: #F8FAFC; }
+
+        .text-green { color: var(--primary); font-weight: 600; }
+        .text-red { color: var(--red); font-weight: 600; }
+        .text-amber { color: var(--amber); font-weight: 600; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .chart-box {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 14px;
+        }
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        .score-bar-bg {
+            background: #E2E8F0;
+            border-radius: 6px;
+            height: 8px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: UA (Class C) / UAA (Class A)</span>
+            <span class="badge badge-hero-stock">Apparel & Footwear / Consumer Discretionary</span>
+            <span class="badge badge-hero-signal">🟡 观察 / 极度左侧困境反转 (Turnaround Speculative)</span>
+            <span class="badge badge-hero-score">综合评分: 4.8 / 10 (高风险重组期)</span>
+        </div>
+        <h1 class="hero-title">Under Armour (UA / UAA) 机构级深度研究与期权收益策略报告</h1>
+        <p class="hero-sub">创始人 Kevin Plank 重掌帅印推进 Protect This House 3.0 重组。估值压缩至 0.43x P/S 的历史极限低位，但受北美市场萎缩、库存出清与负自由现金流拖累，基本面处于由衰转稳的左侧筑底攻坚期。</p>
+        
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (UA / UAA)</div>
+                <div class="hero-kpi-val">$4.96 / $5.07</div>
+                <div class="hero-kpi-sub">52周区间: $3.95 - $7.91</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 / 企业价值</div>
+                <div class="hero-kpi-val">$2.13B / $3.11B</div>
+                <div class="hero-kpi-sub">P/S 0.43x | EV/EBITDA 17.9x</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">DCF 基准公允价值</div>
+                <div class="hero-kpi-val">$3.30</div>
+                <div class="hero-kpi-sub">基准 WACC 10.0%, g 2.0%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">Piotroski F-Score</div>
+                <div class="hero-kpi-val text-amber">2 / 9</div>
+                <div class="hero-kpi-sub">Altman Z-Score: 1.88 (灰色区)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">净债务与现金</div>
+                <div class="hero-kpi-val">$980M / $396M</div>
+                <div class="hero-kpi-sub">总债务 $1.38B | 现金充裕度中等</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">期权 Sell Put 建议</div>
+                <div class="hero-kpi-val text-green">$4.00 / $4.50</div>
+                <div class="hero-kpi-sub">深度虚值保护，防范下行违约</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-wrap">
+
+    <!-- TOC Navigation Bar -->
+    <div class="toc-bar">
+        <div class="toc-title">报告核心导航 (15 大机构模块)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">1. 执行摘要与逻辑</a>
+            <a href="#sec-2" class="toc-link">2. 量化评分雷达</a>
+            <a href="#sec-3" class="toc-link">3. 商业模式与护城河</a>
+            <a href="#sec-4" class="toc-link">4. 财务报表与现金流</a>
+            <a href="#sec-5" class="toc-link">5. 杜邦三因子拆解</a>
+            <a href="#sec-6" class="toc-link">6. 会计质地与法证</a>
+            <a href="#sec-7" class="toc-link">7. 同行全景对标</a>
+            <a href="#sec-8" class="toc-link">8. DCF 与敏感性矩阵</a>
+            <a href="#sec-9" class="toc-link">9. 技术面与筹码位</a>
+            <a href="#sec-10" class="toc-link">10. 资本配置与负债</a>
+            <a href="#sec-11" class="toc-link">11. Sell Put 期权策略</a>
+            <a href="#sec-12" class="toc-link">12. 机构 13F 动向</a>
+            <a href="#sec-13" class="toc-link">13. 内部人与管理层</a>
+            <a href="#sec-14" class="toc-link">14. 做空与轧空风险</a>
+            <a href="#sec-15" class="toc-link">15. 红队压力测试</a>
+        </div>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="sec-card" id="sec-1">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">1</span> 执行摘要与核心投资逻辑 (Executive Summary & Thesis)</div>
+            <span class="sec-tag">核心定调: 困境反转期</span>
+        </div>
+        
+        <div class="grid-2">
+            <div>
+                <h4 style="margin-bottom: 8px; font-weight: 700;">核心投资逻辑 (Bull Thesis & Turnaround Catalysts)</h4>
+                <ul style="padding-left: 18px; margin-bottom: 14px; line-height: 1.7;">
+                    <li><strong>创始人回归聚焦核心 DNA</strong>：Kevin Plank 重新出任 CEO，终止前任分散化打法，回归高性能专业运动（Performance Training/Running），大幅削减低毛利折扣促销渠道（Off-price Wholesale）。</li>
+                    <li><strong>毛利率企稳反弹</strong>：FY2027 Q1 毛利率回升至 54.1%（同比提升明显），供应链去库存成效初显，供应链运费与产品定价结构性优化。</li>
+                    <li><strong>极度压缩的估值安全垫</strong>：市销率（P/S）仅 0.43x，远低于行业中枢（Nike 1.23x, Lululemon 1.17x, Deckers 2.13x, On 3.00x），任何微小的盈利修复均能带来巨大的估值弹性。</li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 8px; font-weight: 700;">关键风险与承压阻力 (Bear Risks & Structural Challenges)</h4>
+                <ul style="padding-left: 18px; margin-bottom: 14px; line-height: 1.7;">
+                    <li><strong>北美大本营收入持续负增长</strong>：北美市场营收占比超 60%，但受 Nike、Lululemon、Vuori 及新锐跑鞋品牌（On, Hoka）挤压，品牌心智老化。</li>
+                    <li><strong>自由现金流承压与债务到期</strong>：FY2026 自由现金流录得 -$162.2M，总计有息负债约 $1.38B，当前流动负债承压（Current Debt $599.8M 需展期置换）。</li>
+                    <li><strong>低财务质量评分</strong>：Piotroski F-Score 为 2/9 分，属于典型的结构性重组期资产，期权卖方必须严格控制行权价与仓位。</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="alert-box" style="margin-top: 10px;">
+            <strong>投资策略定调</strong>：Under Armour 属于典型的<strong>「高赔率、左侧困境反转型标的」</strong>。不宜大举重仓抄底正股；针对期权策略，建议采取 <strong>DTE 30~45天、行权价 $4.00 ~ $4.50（Delta -0.15 ~ -0.25）的保守 Cash-Secured Put</strong>，利用高引伸波动率（HV 50%+）收取高额权利金，净持仓成本降至 $3.70 以下（接近 52 周最低价与净资产支撑位）。
+        </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="sec-card" id="sec-2">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">2</span> 多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</div>
+            <span class="sec-tag">量化模型得分: 4.8 / 10</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="card-box">
+                    <div class="card-box-title">六大维度多因子评分细拆</div>
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                            <span>1. 商业模式与护城河 (Moat & Brand)</span>
+                            <span class="text-amber">4.2 / 10</span>
+                        </div>
+                        <div class="score-bar-bg"><div class="score-bar-fill" style="width: 42%; background: var(--amber);"></div></div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                            <span>2. 财务健康与偿债安全 (Financial Health)</span>
+                            <span class="text-red">3.5 / 10</span>
+                        </div>
+                        <div class="score-bar-bg"><div class="score-bar-fill" style="width: 35%; background: var(--red);"></div></div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                            <span>3. 估值折扣与安全边际 (Valuation Margin)</span>
+                            <span class="text-green">6.8 / 10</span>
+                        </div>
+                        <div class="score-bar-bg"><div class="score-bar-fill" style="width: 68%; background: var(--primary);"></div></div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                            <span>4. 盈利能力与现金流质量 (Profitability & FCF)</span>
+                            <span class="text-red">3.2 / 10</span>
+                        </div>
+                        <div class="score-bar-bg"><div class="score-bar-fill" style="width: 32%; background: var(--red);"></div></div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                            <span>5. 技术面与筹码结构 (Technical & Trend)</span>
+                            <span class="text-amber">5.0 / 10</span>
+                        </div>
+                        <div class="score-bar-bg"><div class="score-bar-fill" style="width: 50%; background: var(--amber);"></div></div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                            <span>6. 期权 Alpha 与波动率溢价 (Option Alpha)</span>
+                            <span class="text-green">6.2 / 10</span>
+                        </div>
+                        <div class="score-bar-bg"><div class="score-bar-fill" style="width: 62%; background: var(--primary);"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-box" style="margin-top: 0;">
+                <div class="chart-container">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="sec-card" id="sec-3">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">3</span> 商业模式、业务拆解与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="sec-tag">Moat Rating: 窄护城河 / 侵蚀中 (Narrow-to-None)</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">👕 服装业务 (Apparel ~65%)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">以 HeatGear、ColdGear 与 Compression 紧身衣为基本盘。功能性专业训练服仍具一定粘性，但在大众休闲运动（Athleisure）领域面临 Lululemon 与 Alo 激烈竞争。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">👟 鞋类业务 (Footwear ~24%)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">以 Curry 库里签名篮球鞋与 HOVR/Infinite 跑鞋为主。跑鞋领域技术突破偏慢，面对 On (Cloudtec) 与 Deckers (Hoka) 的爆发式分流，份额处于守势。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🎒 配件与授权 (Accessories ~11%)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">包含运动包袋、手套、帽子与袜类。毛利率相对稳定，主要通过品牌专卖店与批发商超（Dick's, Kohl's）走量。</p>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 16px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>波特五力维度</th>
+                        <th>强度等级</th>
+                        <th>行业与公司现状深度解析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>供应商议价能力 (Supplier Power)</strong></td>
+                        <td><span class="text-green">低 (Low)</span></td>
+                        <td>代工厂主要分布在东南亚（越南、印尼、柬埔寨），制衣与制鞋供应链产能充沛，可替代性极强。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>买方议价能力 (Buyer Power)</strong></td>
+                        <td><span class="text-red">极高 (Very High)</span></td>
+                        <td>下游零售商（Dick's Sporting Goods, TJX, 亚马逊）和终端消费者选择极其丰富，品牌溢价能力较 2015 盛期大幅削弱。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>新进入者威胁 (Threat of Entry)</strong></td>
+                        <td><span class="text-red">高 (High)</span></td>
+                        <td>DTC 模式降低了运动服饰门槛，Vuori、Gymshark、Nobull、On、Hoka 等新兴垂直品牌迅速抢占年轻专业圈层。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品威胁 (Threat of Substitutes)</strong></td>
+                        <td><span class="text-amber">中高 (Moderate-High)</span></td>
+                        <td>户外机能风（Arc'teryx, Salomon）与潮流休闲品牌不断侵蚀传统运动服饰市场份额。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>行业内竞争激烈程度 (Industry Rivalry)</strong></td>
+                        <td><span class="text-red">极高 (Severe)</span></td>
+                        <td>Nike、Adidas、Puma、Lululemon 巨头间价格战与库存周期相互交织，促销折扣压力常态化。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="sec-card" id="sec-4">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">4</span> 核心财务报表与盈利质量深度剖析 (Financial Statements & Cash Flow)</div>
+            <span class="sec-tag">历史 4 年财务追踪</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (美元)</th>
+                        <th>FY2023 (2023-03)</th>
+                        <th>FY2024 (2024-03)</th>
+                        <th>FY2025 (2025-03)</th>
+                        <th>FY2026 (2026-03)</th>
+                        <th>TTM / 最新季度 (2026-06)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业收入 (Revenue)</strong></td>
+                        <td class="mono">$5,903M</td>
+                        <td class="mono">$5,702M</td>
+                        <td class="mono">$5,164M</td>
+                        <td class="mono">$4,966M</td>
+                        <td class="mono">$1,098M (Q1)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利率 (Gross Margin)</strong></td>
+                        <td class="mono">44.8%</td>
+                        <td class="mono">46.1%</td>
+                        <td class="mono">47.9%</td>
+                        <td class="mono">45.5%</td>
+                        <td class="mono text-green">54.1% (Q1 回升)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="mono">$264M</td>
+                        <td class="mono">$230M</td>
+                        <td class="mono text-red">-$127M</td>
+                        <td class="mono text-red">-$35M</td>
+                        <td class="mono text-green">+$50.7M (Q1 扭亏)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="mono">$374M</td>
+                        <td class="mono">$232M</td>
+                        <td class="mono text-red">-$201M</td>
+                        <td class="mono text-red">-$496M</td>
+                        <td class="mono">+$0.5M (Q1 持平)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (CFO)</strong></td>
+                        <td class="mono">-$39.9M</td>
+                        <td class="mono text-green">+$354M</td>
+                        <td class="mono text-red">-$59.3M</td>
+                        <td class="mono text-red">-$75.1M</td>
+                        <td class="mono">-$14.8M (TTM)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (FCF)</strong></td>
+                        <td class="mono">-$198M</td>
+                        <td class="mono text-green">+$204M</td>
+                        <td class="mono text-red">-$228M</td>
+                        <td class="mono text-red">-$162M</td>
+                        <td class="mono">+$102M (TTM 企稳)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>期末现金与等价物</strong></td>
+                        <td class="mono">$711M</td>
+                        <td class="mono">$859M</td>
+                        <td class="mono">$501M</td>
+                        <td class="mono">$309M</td>
+                        <td class="mono">$396M</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <div class="chart-container">
+                <canvas id="finChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="sec-card" id="sec-5">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">5</span> 杜邦三因子拆解与资本运营效率 (DuPont 3-Factor Analysis)</div>
+            <span class="sec-tag">ROE = 净利率 × 资产周转率 × 权益乘数</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财年</th>
+                        <th>净资产收益率 (ROE)</th>
+                        <th>净利润率 (Net Margin)</th>
+                        <th>总资产周转率 (Turnover)</th>
+                        <th>权益乘数 (Leverage Multiplier)</th>
+                        <th>杜邦核心归因分析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td class="mono text-green">+19.05%</td>
+                        <td class="mono">+6.34%</td>
+                        <td class="mono">1.22x</td>
+                        <td class="mono">2.46x</td>
+                        <td>疫情后供应链正常化，全渠道全价销售比例健康。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td class="mono text-green">+10.78%</td>
+                        <td class="mono">+4.07%</td>
+                        <td class="mono">1.20x</td>
+                        <td class="mono">2.21x</td>
+                        <td>去库存降价开始侵蚀利润率，但整体仍维持微盈利。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025</strong></td>
+                        <td class="mono text-red">-10.65%</td>
+                        <td class="mono text-red">-3.90%</td>
+                        <td class="mono">1.20x</td>
+                        <td class="mono">2.28x</td>
+                        <td>北美需求放缓，大幅计提重组及清仓费用导致净亏损。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2026</strong></td>
+                        <td class="mono text-red">-35.04%</td>
+                        <td class="mono text-red">-9.98%</td>
+                        <td class="mono">1.12x</td>
+                        <td class="mono">3.12x</td>
+                        <td>计提大额一次性资产减值与法律和解金，杠杆因净资产萎缩而被动推高。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="highlight-box">
+            <strong>杜邦深度洞察</strong>：UA 近 4 年的 ROE 塌陷主要是<strong>「净利润率归零并转负」</strong>驱动，而非周转率崩溃（总资产周转率仍保持在 1.12x~1.22x，表明货品仍在流动）。随着一次性重组费用出清及毛利率回升至 50%+，净利率只要恢复到 3%~4% 的常态水平，ROE 即有望快速重返 8%~12% 轨道。
+        </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="sec-card" id="sec-6">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">6</span> 财务真实性、Sloan 应计比率与 会计质地 (Accounting Quality & Forensics)</div>
+            <span class="sec-tag">法证会计检验</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">📊 Piotroski F-Score</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono';" class="text-amber">2 / 9</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">扣分点：负 ROA、负 CFO、流动比率下降、毛利与周转率同比下滑。处于警示级。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">⚖️ Sloan 应计比率 (Accrual Ratio)</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono';" class="text-green">-9.65%</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">处于安全区间 (-10% 至 +10%)。表明会计处理偏向保守，并无激进确认收入做高利润的迹象。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🛡️ Altman Z-Score 破产风险</div>
+                <div style="font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono';" class="text-amber">1.88 (Grey Zone)</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">临界于灰色区域（1.81~2.99）。短期无即时破产清算风险，但需密切关注 2026-2027 债务再融资。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 7 -->
+    <div class="sec-card" id="sec-7">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">7</span> 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="sec-tag">对标品牌: NKE, LULU, DECK, ONON</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司标的</th>
+                        <th>最新股价</th>
+                        <th>总市值</th>
+                        <th>远期 P/E</th>
+                        <th>市销率 (P/S)</th>
+                        <th>EV/EBITDA</th>
+                        <th>毛利率</th>
+                        <th>营业利润率</th>
+                        <th>做空比例</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #FEF3C7; font-weight: 700;">
+                        <td>Under Armour (UA / UAA)</td>
+                        <td class="mono">$4.96 / $5.07</td>
+                        <td class="mono">$2.13B</td>
+                        <td class="mono">13.05x</td>
+                        <td class="mono text-green">0.43x (最低)</td>
+                        <td class="mono">17.98x</td>
+                        <td class="mono">45.6%</td>
+                        <td class="mono text-red">-1.6%</td>
+                        <td class="mono">5.9% / 11.8%</td>
+                    </tr>
+                    <tr>
+                        <td>Nike (NKE)</td>
+                        <td class="mono">$38.44</td>
+                        <td class="mono">$57.03B</td>
+                        <td class="mono">16.77x</td>
+                        <td class="mono">1.23x</td>
+                        <td class="mono">11.97x</td>
+                        <td class="mono">43.2%</td>
+                        <td class="mono">+12.7%</td>
+                        <td class="mono">4.6%</td>
+                    </tr>
+                    <tr>
+                        <td>Lululemon (LULU)</td>
+                        <td class="mono">$115.00</td>
+                        <td class="mono">$13.06B</td>
+                        <td class="mono">10.26x</td>
+                        <td class="mono">1.17x</td>
+                        <td class="mono">5.33x</td>
+                        <td class="mono text-green">55.7%</td>
+                        <td class="mono">+11.2%</td>
+                        <td class="mono">9.5%</td>
+                    </tr>
+                    <tr>
+                        <td>Deckers Outdoor (DECK)</td>
+                        <td class="mono">$86.33</td>
+                        <td class="mono">$11.76B</td>
+                        <td class="mono">10.32x</td>
+                        <td class="mono">2.13x</td>
+                        <td class="mono">8.02x</td>
+                        <td class="mono text-green">57.8%</td>
+                        <td class="mono">+15.2%</td>
+                        <td class="mono">5.8%</td>
+                    </tr>
+                    <tr>
+                        <td>On Holding (ONON)</td>
+                        <td class="mono">$28.95</td>
+                        <td class="mono">$9.68B</td>
+                        <td class="mono">13.87x</td>
+                        <td class="mono">3.00x</td>
+                        <td class="mono">18.35x</td>
+                        <td class="mono text-green">64.8%</td>
+                        <td class="mono">+14.0%</td>
+                        <td class="mono">5.2%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <div class="chart-container">
+                <canvas id="peerChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 8 -->
+    <div class="sec-card" id="sec-8">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">8</span> DCF 现金流折现与 WACC 6×5 敏感性矩阵 (DCF Valuation)</div>
+            <span class="sec-tag">估值锚定</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">🐻 悲观清算情景 (Bear Case)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono';" class="text-red">$0.50 / 股</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">重组失败，营收每年衰退 -2%~-3%，FCF 仅 $90M，WACC 11.5%，无溢价。</p>
+            </div>
+            <div class="card-box" style="background: #ECFDF5; border-color: var(--primary);">
+                <div class="card-box-title">🎯 基准公允情景 (Base Case)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono';" class="text-green">$3.30 / 股</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">重组局部见效，营收增速企稳至 1%~4%，FCF 恢复至 $180M，WACC 10.0%, g 2.0%。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🐂 乐观反转情景 (Bull Case)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono';" class="text-green">$9.95 / 股</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">重组大获成功，毛利率稳定超 52%，FCF 达 $280M+，估值向行业平均 1.0x P/S 修复。</p>
+            </div>
+        </div>
+
+        <h4 style="margin: 18px 0 10px; font-weight: 700;">WACC × 永续增长率 (g) 敏感性定价矩阵 (基准情景每股公允价值)</h4>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th>g = 1.0%</th>
+                        <th>g = 1.5%</th>
+                        <th>g = 2.0% (基准)</th>
+                        <th>g = 2.5%</th>
+                        <th>g = 3.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 8.5%</strong></td>
+                        <td class="mono">$3.88</td>
+                        <td class="mono">$4.22</td>
+                        <td class="mono text-green">$4.60</td>
+                        <td class="mono text-green">$5.06</td>
+                        <td class="mono text-green">$5.59</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 9.0%</strong></td>
+                        <td class="mono">$3.49</td>
+                        <td class="mono">$3.78</td>
+                        <td class="mono">$4.11</td>
+                        <td class="mono">$4.49</td>
+                        <td class="mono text-green">$4.93</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 9.5%</strong></td>
+                        <td class="mono">$3.14</td>
+                        <td class="mono">$3.39</td>
+                        <td class="mono">$3.68</td>
+                        <td class="mono">$4.00</td>
+                        <td class="mono">$4.38</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>WACC 10.0% (基准)</strong></td>
+                        <td class="mono">$2.84</td>
+                        <td class="mono">$3.05</td>
+                        <td class="mono text-green" style="font-size: 15px;">$3.30</td>
+                        <td class="mono">$3.58</td>
+                        <td class="mono">$3.90</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 10.5%</strong></td>
+                        <td class="mono">$2.56</td>
+                        <td class="mono">$2.75</td>
+                        <td class="mono">$2.97</td>
+                        <td class="mono">$3.21</td>
+                        <td class="mono">$3.48</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 11.0%</strong></td>
+                        <td class="mono">$2.31</td>
+                        <td class="mono">$2.48</td>
+                        <td class="mono">$2.67</td>
+                        <td class="mono">$2.88</td>
+                        <td class="mono">$3.12</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Section 9 -->
+    <div class="sec-card" id="sec-9">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">9</span> 技术面量化、均线系统与关键筹码位 (Technical & Chips Analysis)</div>
+            <span class="sec-tag">RSI: 24.1 (极度超卖)</span>
+        </div>
+
+        <div class="grid-4">
+            <div class="card-box">
+                <div class="card-box-title">📉 均线系统 (SMA)</div>
+                <div style="font-size: 12.5px; line-height: 1.6;">
+                    SMA20: <span class="mono">$5.55</span><br>
+                    SMA50: <span class="mono">$6.11</span><br>
+                    SMA200: <span class="mono">$5.80</span><br>
+                    200日偏离: <span class="mono text-red">-14.5%</span>
+                </div>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">⚡ 动量与震荡 (RSI/MACD)</div>
+                <div style="font-size: 12.5px; line-height: 1.6;">
+                    RSI (14日): <span class="mono text-green">24.06</span> (超卖)<br>
+                    MACD: 柱状图低位收敛<br>
+                    52周相对位置: <span class="mono">25.5%</span><br>
+                    52周低点: <span class="mono">$3.95</span>
+                </div>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🌊 历史波动率 (HV)</div>
+                <div style="font-size: 12.5px; line-height: 1.6;">
+                    HV_30: <span class="mono">50.9%</span><br>
+                    HV_60: <span class="mono">49.9%</span><br>
+                    HV_90: <span class="mono">57.3%</span><br>
+                    HV_252: <span class="mono">52.4%</span>
+                </div>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🧱 关键支撑与阻力</div>
+                <div style="font-size: 12.5px; line-height: 1.6;">
+                    第一阻力位: <span class="mono">$5.80</span> (200 SMA)<br>
+                    强阻力位: <span class="mono">$6.50</span> (筹码密集区)<br>
+                    第一支撑位: <span class="mono">$4.50</span> (整数心理位)<br>
+                    终极强支撑: <span class="mono">$3.95</span> (52周历史底)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 10 -->
+    <div class="sec-card" id="sec-10">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">10</span> 资本配置、回购政策与股东回报披露 (Capital Allocation & Buybacks)</div>
+            <span class="sec-tag">资本分配策略</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <h4 style="margin-bottom: 8px; font-weight: 700;">股息与回购现状</h4>
+                <ul style="padding-left: 18px; margin-bottom: 12px; line-height: 1.7;">
+                    <li><strong>股息政策</strong>：零股息派发（Dividend Yield 0.0%）。公司处于重组与保现金阶段，全部自由现金流优先用于流动性储备。</li>
+                    <li><strong>股票回购</strong>：FY2026 执行了约 $2,500 万美元的零星回购，但管理层已明确未来 12 个月将暂停大规模回购，优先保障资产负债表稳健。</li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 8px; font-weight: 700;">债务到期与流动性管理</h4>
+                <ul style="padding-left: 18px; margin-bottom: 12px; line-height: 1.7;">
+                    <li><strong>流动负债与有息负债</strong>：总有息负债 $1.38B，其中流动借款及一年内到期负债约 $5.99B 需展期。</li>
+                    <li><strong>未动用信贷额度</strong>：公司拥有约 $11 亿美元的循环信贷额度（Revolving Credit Facility），目前流动性足以支撑业务运营过渡。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 11 -->
+    <div class="sec-card" id="sec-11">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">11</span> 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="sec-tag">期权收益模型</span>
+        </div>
+
+        <div class="highlight-box">
+            <strong>Sell Put 策略核心原则</strong>：由于 Under Armour 目前处于重组期（F-Score 2/9），期权卖方<strong>坚决不可平值或浅虚值盲目追高权利金</strong>。必须锁定在 <strong>$4.00 ~ $4.50 的深度虚值行权价</strong>，将实际建仓成本（Net Basis）压低至 <strong>$3.60 ~ $4.10</strong>，处于 52 周最低价（$3.95）附近，即使被行权也能在历史大底安全承接并启动 Covered Call 轮动。
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略风险梯度</th>
+                        <th>标的代码与到期日</th>
+                        <th>行权价 (Strike)</th>
+                        <th>Delta</th>
+                        <th>安全垫 (Cushion)</th>
+                        <th>预估权利金 (Mark)</th>
+                        <th>净持仓成本 (Net Basis)</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>量化行动评级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 600;">
+                        <td>🟢 保守安全型 (Conservative)</td>
+                        <td>UAA / 2026-10-16 (50d)</td>
+                        <td class="mono">$4.00</td>
+                        <td class="mono">-0.14</td>
+                        <td class="mono text-green">21.1%</td>
+                        <td class="mono">$0.20</td>
+                        <td class="mono text-green">$3.80</td>
+                        <td class="mono text-green">36.5%</td>
+                        <td><strong>💎 深度折价接盘 / 极高安全垫</strong></td>
+                    </tr>
+                    <tr style="font-weight: 600;">
+                        <td>🟡 平衡收益型 (Balanced)</td>
+                        <td>UA / 2026-10-16 (50d)</td>
+                        <td class="mono">$4.50</td>
+                        <td class="mono">-0.26</td>
+                        <td class="mono text-green">9.3%</td>
+                        <td class="mono">$0.32</td>
+                        <td class="mono">$4.18</td>
+                        <td class="mono">51.9%</td>
+                        <td><strong>🟢 稳健 Theta 收割 / 高胜率</strong></td>
+                    </tr>
+                    <tr style="background: #FEF3C7; font-weight: 600;">
+                        <td>🟠 进取激进型 (Aggressive)</td>
+                        <td>UA / 2026-09-18 (22d)</td>
+                        <td class="mono">$5.00 (ATM)</td>
+                        <td class="mono">-0.52</td>
+                        <td class="mono text-red">-0.8%</td>
+                        <td class="mono">$0.28</td>
+                        <td class="mono">$4.72</td>
+                        <td class="mono text-amber">92.8%</td>
+                        <td><strong>⚠️ 高权利金 / 做好接盘准备</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Section 12 -->
+    <div class="sec-card" id="sec-12">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">12</span> 机构持仓与主力 13F 资金动向 (Institutional Ownership & 13F)</div>
+            <span class="sec-tag">机构持股比例: 89.2%</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <h4 style="margin-bottom: 8px; font-weight: 700;">主要机构股东格局</h4>
+                <ul style="padding-left: 18px; margin-bottom: 12px; line-height: 1.7;">
+                    <li><strong>被动指数与头部基金</strong>：Vanguard Group (持股 ~11.2%)、BlackRock (~9.8%)、State Street (~4.5%) 为主要被动持仓机构。</li>
+                    <li><strong>主动型价值基金</strong>：包括 Artisan Partners 与 Dimensional Fund Advisors 在 $4.50-$5.50 区间有增持迹象，看好估值均值回归。</li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 8px; font-weight: 700;">聪明钱流向信号</h4>
+                <ul style="padding-left: 18px; margin-bottom: 12px; line-height: 1.7;">
+                    <li>机构总持股比例高达 <strong>89.25%</strong>，筹码高度锁定在长线机构手中，散户投机盘较少。</li>
+                    <li>近两季度 13F 申报显示机构出现轻微净流出（-2.3%），主要系部分量化动量基金因股价跌破 200 SMA 触发被动止损。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 13 -->
+    <div class="sec-card" id="sec-13">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">13</span> 内部人交易、管理层语气与财报电话会原话洞察 (Insider & Earnings Tone)</div>
+            <span class="sec-tag">内部人持股: 10.3%</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <h4 style="margin-bottom: 8px; font-weight: 700;">SEC Form 4 内部人交易</h4>
+                <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.65;">
+                    创始人兼 CEO Kevin Plank 持有大量投票权及 Class B / Class C 股份，内部人整体持股比例为 <strong>10.31%</strong>。过去 6 个月内无大规模内部人抛售，高管薪酬结构已与股价反转及自由现金流修复指标深度挂钩。
+                </p>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 8px; font-weight: 700;">管理层电话会核心定调 (CEO Quote)</h4>
+                <div class="highlight-box" style="margin-bottom: 0;">
+                    <em>"We are prioritizing brand strength over short-term revenue volume. We will not chase low-margin wholesale at the expense of premium positioning. Under Armour is returning to its roots in authentic performance."</em>
+                    <div style="font-size: 11px; margin-top: 4px; font-weight: 700;">— Kevin Plank, CEO (2026 Earnings Call)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 14 -->
+    <div class="sec-card" id="sec-14">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">14</span> 做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze)</div>
+            <span class="sec-tag">空头回补天数: 9.02 天</span>
+        </div>
+
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">🎯 做空股数 (Short Shares)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono';" class="text-amber">25.26M 股</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">占流通股比率：UA 为 5.92%，UAA 达 11.8%。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">⏱️ 空头回补天数 (Days to Cover)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono';" class="text-green">9.02 天</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">日均成交量约 280 万股，平仓周期较长。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🔥 轧空潜力评级 (Squeeze Risk)</div>
+                <div style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono';" class="text-green">中等偏高 (Moderate-High)</div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">若重组财报超预期或毛利继续跳升，极易触发剧烈空头回补逼空行情。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 15 -->
+    <div class="sec-card" id="sec-15">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-title-icon">15</span> 红队 Bear Case 压力测试、风险矩阵与催化剂日历 (Risk Matrix & Catalysts)</div>
+            <span class="sec-tag">综合风控与催化剂</span>
+        </div>
+
+        <h4 style="margin-bottom: 8px; font-weight: 700;">红队极端压力测试场景 (Red Team Bear Scenarios)</h4>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>压力场景</th>
+                        <th>触发诱因</th>
+                        <th>对 EPS / 估值冲击</th>
+                        <th>应对预案与期权防御</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>宏观深度衰退 + 北美消费骤降</strong></td>
+                        <td>美国高利率长尾效应导致中低收入家庭削减非必需服饰开支。</td>
+                        <td>营收下滑 10%，EBITDA 下跌 30%，股价下探至 $3.50。</td>
+                        <td>Sell Put 严格维持 $4.00 以下行权价；若被行权立即卖出 $4.50 Covered Call 降成本。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>库里效应减弱与鞋类研发失利</strong></td>
+                        <td>Curry 品牌号召力随运动员生涯后期衰减，新跑鞋未能破圈。</td>
+                        <td>鞋类毛利承压，品牌溢价进一步剥落。</td>
+                        <td>关注毛利率 50% 警戒线，若跌破 48% 则终止 CSP 开仓。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h4 style="margin: 18px 0 8px; font-weight: 700;">未来 3~6 个月核心催化剂日历 (Catalysts)</h4>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title">📅 下一季财报披露 (2026-11)</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">重点关注北美批发渠道削减进度与毛利率能否稳在 53%+。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">👟 2026 秋季新品与跑鞋发布</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">检验 Kevin Plank 主导的全新专业训练与跑步产品线市场反馈。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title">🏦 债务置换与流动性优化</div>
+                <p style="font-size: 12.5px; color: var(--text-secondary);">关注 2026 短期债务的长期低息再融资进展，消除破产担忧。</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Chart 1: Radar Chart for Scorecard
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['商业护城河', '财务健康', '估值折扣', '盈利与现金流', '技术面形态', '期权Alpha'],
+            datasets: [{
+                label: 'UA 多因子量化得分 (满分10)',
+                data: [4.2, 3.5, 6.8, 3.2, 5.0, 6.2],
+                backgroundColor: 'rgba(217, 119, 6, 0.25)',
+                borderColor: '#D97706',
+                borderWidth: 2,
+                pointBackgroundColor: '#D97706',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    min: 0,
+                    max: 10,
+                    ticks: { stepSize: 2, display: false },
+                    pointLabels: { font: { size: 11, weight: '600' } }
+                }
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12 } } }
+            }
+        }
+    });
+
+    // Chart 2: Financial History
+    const ctxFin = document.getElementById('finChart').getContext('2d');
+    new Chart(ctxFin, {
+        type: 'bar',
+        data: {
+            labels: ['FY2023', 'FY2024', 'FY2025', 'FY2026', 'FY27 Q1 (TTM)'],
+            datasets: [
+                {
+                    label: '营业收入 ($M)',
+                    data: [5903, 5702, 5164, 4966, 4930],
+                    backgroundColor: '#94A3B8',
+                    yAxisID: 'y'
+                },
+                {
+                    label: '营业利润 EBIT ($M)',
+                    data: [264, 230, -127, -35, 51],
+                    backgroundColor: '#D97706',
+                    yAxisID: 'y'
+                },
+                {
+                    label: '毛利率 (%)',
+                    data: [44.8, 46.1, 47.9, 45.5, 54.1],
+                    type: 'line',
+                    borderColor: '#059669',
+                    borderWidth: 3,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: { display: true, text: '金额 (百万美元)' }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: '毛利率 (%)' },
+                    min: 35,
+                    max: 60
+                }
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12 } } }
+            }
+        }
+    });
+
+    // Chart 3: Peer Comparison
+    const ctxPeer = document.getElementById('peerChart').getContext('2d');
+    new Chart(ctxPeer, {
+        type: 'bar',
+        data: {
+            labels: ['UA (Under Armour)', 'NKE (Nike)', 'LULU (Lululemon)', 'DECK (Deckers)', 'ONON (On)'],
+            datasets: [
+                {
+                    label: '市销率 P/S (倍)',
+                    data: [0.43, 1.23, 1.17, 2.13, 3.00],
+                    backgroundColor: ['#D97706', '#3B82F6', '#10B981', '#8B5CF6', '#EC4899']
+                },
+                {
+                    label: '远期市盈率 Forward P/E',
+                    data: [13.05, 16.77, 10.26, 10.32, 13.87],
+                    backgroundColor: ['#F59E0B', '#60A5FA', '#34D399', '#A78BFA', '#F472B6']
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    title: { display: true, text: '倍数 (x)' }
+                }
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12 } } }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
