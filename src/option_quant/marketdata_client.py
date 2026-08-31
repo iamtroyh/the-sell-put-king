@@ -568,32 +568,86 @@ def calculate_roll_candidate(
     current_mark: float,
     current_dte: int = 10,
     client: Optional[MarketDataClient] = None,
+    dte_earnings: Optional[int] = None,
+    earnings_date_str: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Calculate optimal Roll Down & Out contract and Net Credit/Debit.
+    Institutional Roll Suitability Engine:
+    Evaluates whether an existing option position is suitable for rolling (Roll Down & Out / Roll Out).
+    Enforces:
+      1. Earnings Event Blocker: Strictly prohibits closing high-IV front month right before earnings.
+      2. Net Credit Gating: Strictly vetoes debit rolls (paying out-of-pocket).
+      3. Roll Down & Out Optimization: Identifies contracts offering strike reduction and positive net credit.
     """
     sym = normalize_symbol(symbol)
     c = client or MarketDataClient()
 
-    target_dtes = [max(35, current_dte + 21), max(50, current_dte + 35)]
+    # 1. Earnings Event Blocker: Event Volatility Distortion Defense
+    if dte_earnings is not None and 0 <= dte_earnings <= 7 and current_dte >= dte_earnings:
+        ed_label = f"{earnings_date_str}" if earnings_date_str else f"距今 {dte_earnings}D"
+        return {
+            "has_roll": False,
+            "status": "EARNINGS_BLOCKER",
+            "badge_html": f"<span style='display:inline-block; margin-top:3px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 600;'>🚫 禁展期 · 财报在即 ({ed_label})</span>",
+            "summary_text": f"标的将于 {ed_label} 发布财报，当前近月隐波(IV)高企，严禁买高IV卖低IV展期，待财报后吃IV塌缩",
+            "summary_html": f"<b>🚫 禁展期 · 财报在即</b>：标的将于 <b>{ed_label}</b> 发布财报。当前近月合约正处事件波动率溢价极值，现在买回展期属于严重'买高卖低'。建议坚守现有仓位，坐享财报后 IV Crush 塌缩红利！"
+        }
+
+    target_dtes = [max(30, current_dte + 21), max(45, current_dte + 35)]
     all_chains = []
     for td in target_dtes:
         ch = c.get_option_chain(
             symbol=sym,
             side="put",
-            range_type="otm",
+            range_type="all",
             dte=td,
-            min_open_interest=10,
-            strike_limit=16,
+            min_open_interest=5,
+            strike_limit=30,
         )
         if ch and ch.get("s") == "ok":
             all_chains.append(ch)
 
     if not all_chains:
-        return {"has_roll": False, "summary_text": "无法获取远期期权链报价"}
+        try:
+            import yfinance as yf
+            t_obj = yf.Ticker(to_yf_symbol(sym))
+            today_d = datetime.date.today()
+            for exp in (t_obj.options or []):
+                try:
+                    exp_d = datetime.datetime.strptime(exp, "%Y-%m-%d").date()
+                    dte_yf = (exp_d - today_d).days
+                    if 25 <= dte_yf <= 65:
+                        ch_yf = t_obj.option_chain(exp)
+                        puts = ch_yf.puts
+                        if puts is not None and not puts.empty:
+                            all_chains.append({
+                                "s": "ok",
+                                "strike": puts["strike"].tolist(),
+                                "dte": [dte_yf] * len(puts),
+                                "expiration": [exp] * len(puts),
+                                "bid": puts["bid"].tolist(),
+                                "delta": [None] * len(puts),
+                            })
+                except Exception:
+                    continue
+        except Exception:
+            pass
 
-    best_candidate: Optional[Dict[str, Any]] = None
-    best_net_credit = -999.0
+    if not all_chains:
+        return {
+            "has_roll": False,
+            "status": "NO_CHAIN",
+            "badge_html": "<span style='display:inline-block; margin-top:3px; background: rgba(161, 161, 170, 0.15); color: #a1a1aa; border: 1px solid rgba(161, 161, 170, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px;'>⚪ 展期无优势 (准备接股)</span>",
+            "summary_text": "无法获取远期期权链报价",
+            "summary_html": "无法获取远期期权链报价，建议直接准备全额现金低价接股并开启车轮 CC"
+        }
+
+    best_roll_down: Optional[Dict[str, Any]] = None
+    best_roll_down_score = -999.0
+    best_roll_out: Optional[Dict[str, Any]] = None
+    best_roll_out_credit = -999.0
+    best_debit_candidate: Optional[Dict[str, Any]] = None
+    smallest_debit = -999.0
 
     for chain in all_chains:
         strikes = chain.get("strike", [])
@@ -606,12 +660,12 @@ def calculate_roll_candidate(
             dte = int(dtes[i] or 0) if i < len(dtes) else 0
             strike = float(strikes[i] or 0.0)
 
-            # Roll Down condition: Strike should be <= 98% of current strike (down at least 2%)
-            if strike > current_strike * 0.98 or strike < current_strike * 0.75:
+            # Only examine strikes <= current strike
+            if strike > current_strike or strike < current_strike * 0.70:
                 continue
 
             bid = float(bids[i] or 0.0) if i < len(bids) and bids[i] else 0.0
-            if bid <= 0.10:
+            if bid <= 0.05:
                 continue
 
             net_credit = bid - current_mark
@@ -620,41 +674,94 @@ def calculate_roll_candidate(
             exp_raw = expirations[i] if i < len(expirations) else ""
             exp_str = datetime.datetime.fromtimestamp(exp_raw).strftime("%Y-%m-%d") if isinstance(exp_raw, (int, float)) else str(exp_raw)[:10]
 
-            # Score: prioritize net credit with reasonable strike drop
-            score = net_credit * 2.0 + ((current_strike - strike) / current_strike) * 5.0
-            if score > best_net_credit:
-                best_net_credit = score
-                best_candidate = {
-                    "has_roll": True,
-                    "target_exp": exp_str,
-                    "target_strike": strike,
-                    "target_dte": dte,
-                    "target_bid": bid,
-                    "target_delta": delta,
-                    "net_credit": net_credit,
-                    "strike_drop": current_strike - strike,
-                    "strike_drop_pct": ((current_strike - strike) / current_strike) * 100.0,
-                }
+            cand = {
+                "target_exp": exp_str,
+                "target_strike": strike,
+                "target_dte": dte,
+                "target_bid": bid,
+                "target_delta": delta,
+                "net_credit": net_credit,
+                "strike_drop": current_strike - strike,
+                "strike_drop_pct": ((current_strike - strike) / current_strike) * 100.0 if current_strike > 0 else 0.0,
+            }
 
-    if not best_candidate:
-        return {"has_roll": False, "summary_text": "未找到满足净收入且下移安全垫的远期合约"}
+            # Scenario A: Roll Down & Out (strike dropped at least 1%) with net credit >= 0
+            if strike <= current_strike * 0.99 and net_credit >= 0.0:
+                score = net_credit * 2.0 + cand["strike_drop_pct"] * 3.0
+                if score > best_roll_down_score:
+                    best_roll_down_score = score
+                    best_roll_down = cand
+            # Scenario B: Roll Out (same strike or drop < 1%) with net credit >= 0
+            elif abs(strike - current_strike) <= 1.0 and net_credit >= 0.0:
+                if net_credit > best_roll_out_credit:
+                    best_roll_out_credit = net_credit
+                    best_roll_out = cand
+            # Scenario C: Debit candidates (when no credit is found)
+            elif strike <= current_strike * 0.99 and net_credit < 0.0:
+                if net_credit > smallest_debit:
+                    smallest_debit = net_credit
+                    best_debit_candidate = cand
 
-    nc = best_candidate["net_credit"]
-    k_drop = best_candidate["strike_drop"]
-    exp_t = best_candidate["target_exp"]
-    k_t = best_candidate["target_strike"]
-    bid_t = best_candidate["target_bid"]
+    # Decision Priority 1: Optimal Roll Down & Out (Down Strike + Net Credit)
+    if best_roll_down:
+        nc = best_roll_down["net_credit"]
+        k_drop = best_roll_down["strike_drop"]
+        exp_t = best_roll_down["target_exp"]
+        k_t = best_roll_down["target_strike"]
+        bid_t = best_roll_down["target_bid"]
+        short_exp = exp_t[5:] if len(exp_t) >= 10 else exp_t
+        return {
+            "has_roll": True,
+            "status": "ROLL_RECOMMENDED",
+            "target_exp": exp_t,
+            "target_strike": k_t,
+            "target_dte": best_roll_down["target_dte"],
+            "net_credit": nc,
+            "strike_drop": k_drop,
+            "badge_html": f"<span style='display:inline-block; margin-top:3px; background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 600;'>✅ 适宜展期 · 移至 {short_exp} ${k_t:.0f}P (+${nc:.2f})</span>",
+            "summary_text": f"建议展期至 {exp_t} ${k_t:.1f} Put (净收 +${nc:.2f}, 下移 -${k_drop:.1f})",
+            "summary_html": f"<b>🔄 建议 Roll Down & Out</b>：平本期付 ${current_mark:.2f}，开 {exp_t} ${k_t:.1f} Put 收 ${bid_t:.2f} (<span style='color: #34d399; font-weight: bold;'>净收信用 +${nc:.2f}</span>，<b>行权价下移 -${k_drop:.1f}</b>)"
+        }
 
-    if nc >= 0.0:
-        credit_badge = f"<span style='color: #34d399; font-weight: bold;'>净收信用 +${nc:.2f}</span>"
-    else:
-        credit_badge = f"<span style='color: #fbbf24; font-weight: bold;'>微付借记 -${abs(nc):.2f}</span>"
+    # Decision Priority 2: Roll Out Only (Same strike + Net Credit)
+    if best_roll_out:
+        nc = best_roll_out["net_credit"]
+        exp_t = best_roll_out["target_exp"]
+        k_t = best_roll_out["target_strike"]
+        bid_t = best_roll_out["target_bid"]
+        short_exp = exp_t[5:] if len(exp_t) >= 10 else exp_t
+        return {
+            "has_roll": True,
+            "status": "ROLL_OUT_ONLY",
+            "target_exp": exp_t,
+            "target_strike": k_t,
+            "target_dte": best_roll_out["target_dte"],
+            "net_credit": nc,
+            "strike_drop": 0.0,
+            "badge_html": f"<span style='display:inline-block; margin-top:3px; background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 600;'>🟡 仅可平移 · 移至 {short_exp} ${k_t:.0f}P (+${nc:.2f})</span>",
+            "summary_text": f"仅可同价平移至 {exp_t} ${k_t:.1f} Put (净收 +${nc:.2f})",
+            "summary_html": f"<b>🔄 仅可同价平移 (Roll Out)</b>：平本期付 ${current_mark:.2f}，开 {exp_t} ${k_t:.1f} Put 收 ${bid_t:.2f} (<span style='color: #fbbf24; font-weight: bold;'>净收信用 +${nc:.2f}</span>，行权价无法下移)"
+        }
 
-    best_candidate["summary_html"] = (
-        f"<b>🔄 建议 Roll</b>: 平本期付 ${current_mark:.2f}，开 {exp_t} ${k_t:.1f} Put 收 ${bid_t:.2f} "
-        f"({credit_badge}, <b>行权价下移 -${k_drop:.1f}</b>)"
-    )
-    return best_candidate
+    # Decision Priority 3: Debit Veto (Paying out of pocket is prohibited)
+    if best_debit_candidate:
+        deb = abs(best_debit_candidate["net_credit"])
+        k_t = best_debit_candidate["target_strike"]
+        return {
+            "has_roll": False,
+            "status": "DEBIT_VETO",
+            "badge_html": "<span style='display:inline-block; margin-top:3px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 600;'>🚫 禁展期 · 需倒贴借记 (安心接股)</span>",
+            "summary_text": f"远期权利金不足以覆盖下移成本 (倒贴 -${deb:.2f})，严禁倒贴展期，建议安心接股开启 CC",
+            "summary_html": f"<b>🚫 禁展期 · 需倒贴借记</b>：若下移行权价至 ${k_t:.1f} 需倒贴借记 -${deb:.2f}。CSP 严禁贴钱展期，建议直接准备现金安心接股并开启车轮 Covered Call！"
+        }
+
+    return {
+        "has_roll": False,
+        "status": "NO_CANDIDATE",
+        "badge_html": "<span style='display:inline-block; margin-top:3px; background: rgba(161, 161, 170, 0.15); color: #a1a1aa; border: 1px solid rgba(161, 161, 170, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px;'>⚪ 展期无优势 (准备接股)</span>",
+        "summary_text": "未找到满足净收入且下移安全垫的远期合约",
+        "summary_html": "未找到满足净收入且下移安全垫的远期合约，建议按原计划持有或直接准备现金接股开启 CC"
+    }
 
 
 def batch_fetch_fast_options_cache(
