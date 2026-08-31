@@ -191,72 +191,21 @@ For equity holdings >= 100 shares:
    * **Williams VixFix Synthetic Implied Volatility**: Integrates Larry Williams VixFix (`VixFix = (Highest(Close, 22) - Low) / Highest(Close, 22) * 100`) as synthetic proxy IV when historical option IV is unavailable. Triggers `[VixFix Panic Alert]` when 30d VixFix IVP >= 75% and 252d VixFix IVP >= 60%.
    * **Thesis Invalidation Triggers**: Explicit invalidation criteria for open positions and recommendation candidates.
 
-# InvestSkill Deep Research & Report Generation Rules (Institutional Standard)
+# InvestSkill Institutional Research Architecture
+For all individual stock research report generation guidelines, 15-module institutional standards, HTML styling, output indexing, price integrity, and score-verdict deterministic binding rules, strictly adhere to [`InvestSkill/AGENTS.md`](file:///Users/yuezh/Option/InvestSkill/AGENTS.md) and [`InvestSkill/CLAUDE.md`](file:///Users/yuezh/Option/InvestSkill/CLAUDE.md).
 
-1. **Output Directory Index Rule (Mandatory)**:
-   - Whenever an AI agent generates or updates any `.html` report in `InvestSkill/output/`, the agent **MUST dynamically update `InvestSkill/output/index.html`** by running `node InvestSkill/scripts/generate-output-index.js`.
-   - `InvestSkill/output/index.html` serves as the single entry directory for all generated reports with direct clickable links (`<a href="./filename.html">`) and metadata (Ticker, Title, Signal & Score, Date, File Size).
-   - **Ground-Truth Signal Verdict Preservation Rule**: Index generator scripts and AI agents **MUST strictly respect and extract the exact investment verdict text from the HTML report** (`看多 (BULLISH)`, `强烈看多 (STRONG BUY)`, `中立 (NEUTRAL)`, `看空 (BEARISH)`, `强烈看空 (STRONG SELL)`). **NEVER override or alter the report's verdict based on numeric score thresholds**.
-   - **Index Signal Badge Gradient & Score Display**: Badges on `InvestSkill/output/index.html` must display both the exact verdict text and score (e.g. `强烈看多 (STRONG BUY) • 8.6/10`), styled with continuous glowing gradients (Emerald for Bullish, Amber for Neutral, Red for Bearish).
+# Option Quant Strategy Execution Rules
 
-2. **Mandatory Comprehensive 15-Module Depth by Default (满血研报严禁偷懒缩水铁律)**:
-   - **严禁偷懒省略与凭空猜测 (Zero Guesswork & Anti-Laziness)**: 生成任何个股研报时，**永远一定必须生成 100% 满血版机构级深度研报**。绝对禁止使用几句简写敷衍概括代替完整数据！所有财务数据、期权报价、估值参数必须来自真实数据与模型推导。
-   - **权威规范唯一定义源**: 研报必须严格执行 [`InvestSkill/prompts/full-report.md`](file:///Users/yuezh/Option/InvestSkill/prompts/full-report.md) 定义的完整 15 模块全景架构，包含全部业务细分拆解、4年历史财务报表、杜邦分析、同行对标、WACC 6×5 交叉敏感性矩阵、3梯队期权合约、13F 机构表、电话会原话实录、熊市压力测试与 4 大 Chart.js 交互图表。具体每个模块的输入规范、Prompt 模板与数据契约，统一以 [`InvestSkill/prompts/full-report.md`](file:///Users/yuezh/Option/InvestSkill/prompts/full-report.md) 为唯一标准。
-
-3. **Report Language Requirement (中文报告规范)**:
-   - All generated stock research reports, HTML analysis documents, and summaries **MUST be rendered in Chinese (中文)** unless explicitly requested otherwise.
-
-4. **Report Signal Color Theme Rules (报告信号主题配色规范)**:
-   - All generated HTML reports MUST align their internal CSS theme (`:root` `--primary`, `--grad-hero`, accent borders, badges, table highlights) to match their Signal:
-     - **Bullish (看多 / BUY / STRONG BUY)**: Primary theme, hero gradient, accent borders, badges, table highlights, and key links **MUST use a Green / Emerald color palette** (`#059669`, `#10B981`, `#047857`, emerald gradients).
-     - **Neutral (中立 / HOLD)**: Primary theme, hero gradient, accent borders, badges, table highlights, and key links **MUST use an Amber / Orange color palette** (`#D97706`, `#F59E0B`, `#B45309`, amber/orange gradients).
-     - **Bearish (看空 / SELL / STRONG SELL)**: Primary theme, hero gradient, accent borders, badges, table highlights, and key links **MUST use a Red / Crimson color palette** (`#DC2626`, `#EF4444`, `#991B1B`, red gradients).
-
-5. **Mandatory Dividend Disclosure Rule (股息披露规范)**:
-   - Whenever generating stock research, executive summaries, financial tables, key metrics cards, or HTML reports, the AI agent **MUST explicitly state the company's dividend status** (Dividend Yield, Annual Payout, Payout Ratio, Ex-Dividend Date).
-   - **If the company does not pay dividends (Zero Dividend)**, the AI agent **MUST explicitly write "无 / 没有 (无股息派发 / Dividend: None / N/A)"** and explain shareholder return alternatives if applicable (e.g. 股票回购 / Share Buybacks). Never omit or leave blank.
-
-6. **Price Integrity & Zero-Truncation Execution Rule (价格完整性与零截断防错规范)**:
-   - AI agents **MUST NEVER** execute double-quoted inline shell commands containing currency symbols (e.g. `python3 -c "..."` with `$125.00`).
-   - Always use dedicated script files, safe single-quoted heredocs (`cat << 'EOF' > ...`), or native safe file writing tools (`write_to_file`).
-   - Immediately after generating or modifying any HTML report, verify that price numbers are intact and uncorrupted.
-
-7. **Mobile Compatibility & Responsive Layout Rule (移动端兼容与响应式排版规范)**:
-   - Every generated HTML report MUST include `<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">` and `<meta name="format-detection" content="telephone=no">`.
-   - Fluid responsive layout (`max-width: 1100px; width: 100%`) with adaptive padding.
-   - All data tables MUST be enclosed in `<div class="table-scroll" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">`.
-   - Charts (`Chart.js`) MUST be configured with `responsive: true, maintainAspectRatio: false` inside a constrained-height canvas wrapper.
-
-8. **Workspace Cleanliness & Zero-Random-Script Isolation Iron Rule (工作区数据与代码卫生隔离铁律)**:
-   - **严禁在工作区污染随机脚本**：绝对禁止在工作区根目录、`scripts/` 或任何子目录下随意创建临时的、非官方管线的一次性构建脚本（如 `build_xxx.py`, `test_xxx.py`, `temp_xxx.py`, `rebuild_xxx.py` 等）。
-   - **临时脚本强制沙盒隔离**：所有临时数据抓取、报表临时渲染、中间转换、调试与试算脚本，**必须 100% 写入对话临时隔离区**（`<appDataDir>/brain/<conversation-id>/scratch/` 或 `/tmp/`），并在执行完毕后由 Agent 自动销毁清理。
-   - **工作区仅保留核心官方资产**：工作区内仅允许保留官方核心流水线代码（`scripts/generate_report.py`, `scripts/sync_investskill.py`, `scripts/sync_watchlist_mcp.py` 等）与正式产物（`InvestSkill/output/*.html`, `report.html`），保持代码库绝对纯净。
-   - **自动自我审查与清理**：在每次任务结束汇报前，Agent 必须自动执行 `git status --porcelain` 检查，一旦发现任何意外生成的非官方临时文件，必须立即删除，坚决不给工作区留下任何垃圾文件。
-
-9. **Report Title Conciseness & Minimalist Professional Style Rule (报告标题精炼与极简专业语言风格规范)**:
-   - **Zero Boilerplate Titles (标题严禁冗长模板化废话)**: 严禁使用“`15模块全景深度投研与多因子量化评估`”、“`全模块深度研究与多因子量化评估报告`”、“`深度投资研究与多因子评估报告`”等冗长陈词滥调。
-   - **Standardized Concise Title Format (标准精炼标题格式)**: 
-     - `<title>` 格式固定为 `{公司名/标的} ({TICKER}) 深度投研报告 - InvestSkill`
-     - `<h1>` 格式固定为 `{公司名/标的} ({TICKER}) 深度投研报告`
-   - **Concise & Direct Institutional Tone (极简、专业、客观、零废话风格)**: 语言风格力求极简、克制、专业、高信息密度，坚决剔除任何口水话、套话与冗余形容词。
-
-10. **Auto Commit & Push on InvestSkill Output (研报输出自动提交与推送规范)**:
-    - 凡是仅涉及 `InvestSkill/output/` 目录内的文件变更（新增/更新研报 HTML 或重新生成 `index.html`），且工作区无其他代码文件变动时，AI Agent **无需等待用户手动输入 `commit`，直接自动执行 `git add InvestSkill/output/`、精准语义 Commit 并立即执行 `git push`** 同步至远程仓库。
-
-11. **Epistemic Independence & Clean-Slate Analysis Iron Rule (独立思考与样式内容严格隔离铁律)**:
-    - **格式与样式可借鉴，内容绝对零污染**：在读取历史已有研报时，**仅学习其 CSS 视觉风格、Chart.js 交互图表骨架、HTML 布局与排版规范**；
-    - **严禁内容与逻辑互相影响**：每一只标的的深度投研必须基于第一性原理，从零开始抓取该公司的最新一手财务报表（10-K/10-Q）、实时市场行情、期权链、具体商业模式、护城河特征与精准 DCF/量化模型，**严格做到独立思考、实事求是，绝不套用、迁移或受任何其他标的研报观点的先入为主影响**。
-
-12. **Single-Share Price Cap Iron Rule (单股股价 > $1,000 USD 过滤铁律)**:
+1. **Single-Share Price Cap Iron Rule (单股股价 > $1,000 USD 过滤铁律)**:
     - 全市场扫描、期权推荐与观察列表过滤时，**直接自动过滤掉单股股价超过 $1,000 美元的标的（Price > $1,000.00，如 `AZO`、`MELI`、`TDG`、`FICO`）**，避免单张看跌期权名义本金与现金担保保证金过大（> $100,000+）挤占账户流动性，仅针对当前实际持仓标的予以保留。
 
-13. **Cross-Report Delta & Significant Shift Tracking Rule (跨期报告边际重大异动追踪铁律)**:
+2. **Cross-Report Delta & Significant Shift Tracking Rule (跨期报告边际重大异动追踪铁律)**:
     - 每次用户执行 `research`（全量流水线或主看板研判）时，AI Agent **必须自动与前一份 report / 历史扫描基线进行深度对齐，显式 Highlight 出变化较大的关键标的并深度剖析原因**：
       * **新晋入选标的 (Newly Entered Top Candidates)**：新进入 Watchlist 与 Top 30 精选榜的标的及触发条件；
       * **排名大幅跃升标的 (Major Rank Gainers)**：排名显著上升（+15位以上）的标的及核心驱动（如超跌触底、IV 爆发、基本面修复）；
       * **排名大幅下滑 / 跌出标的 (Major Rank Losers & Drops)**：排名显著下滑或被移出的标的及归因（如触发 30d 暴跌熔断、单股股价 > $1,000 过滤、隐波压缩或财报黑天鹅）；
       * **板块轮动与宏观归因 (Macro & Sector Attribution)**：宏观防线、GICS 行业偏好与资金风格切换深度总结。
 
-14. **Pure Objective Quant Scoring & Zero Portfolio/Sector Interference Iron Rule (客观量化评分与零持仓/行业调配干扰铁律)**:
+3. **Pure Objective Quant Scoring & Zero Portfolio/Sector Interference Iron Rule (客观量化评分与零持仓/行业调配干扰铁律)**:
     - **打分与排序 100% 客观独立**：所有标的与期权合约的评分与榜单排序必须严格基于第一性原理的三支柱量化模型（估值底线、安全垫、数学期望与隐含波动率），**严禁因用户个人当前持仓变动或行业集中度调配进行任何人为降权、顺延、重排或调配扣分**；
     - **真实反映市场期望**：全市场 Watchlist 与推荐榜单必须 100% 精确反映标的自身的客观量化得分与风险收益比，保持模型的纯粹性与一致性。

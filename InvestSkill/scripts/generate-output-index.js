@@ -21,11 +21,25 @@ function generateIndex() {
   const reports = files.map(file => {
     const filePath = path.join(OUTPUT_DIR, file);
     const stat = fs.statSync(filePath);
-    const content = fs.readFileSync(filePath, 'utf8');
+    let content = fs.readFileSync(filePath, 'utf8');
 
-    // Extract title
+    // Extract and normalize title (Contract 1)
     const titleMatch = content.match(/<title>(.*?)<\/title>/i);
-    const title = titleMatch ? titleMatch[1].trim() : file;
+    let rawTitle = titleMatch ? titleMatch[1].trim() : file;
+    let cleanTitle = rawTitle
+      .replace(/\s*(?:[-–—|•]\s*)?(?:15模块全景机构版|15模块满血版|机构级全景量化研报|机构级全景研报|全模块深度研究与多因子量化评估报告|15模块机构级深度投研报告|深度投研与期权策略报告|机构级投研与期权策略全景报告).*/gi, '')
+      .replace(/\s*-\s*InvestSkill.*/gi, '')
+      .trim();
+    if (!cleanTitle.includes('深度投研报告')) {
+      cleanTitle = `${cleanTitle} 深度投研报告`;
+    }
+    const title = `${cleanTitle} - InvestSkill`;
+
+    if (titleMatch && titleMatch[1].trim() !== title && (titleMatch[1].includes('满血') || titleMatch[1].includes('全景') || titleMatch[1].includes('15模块') || titleMatch[1].includes('期权策略报告'))) {
+      content = content.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`);
+      fs.writeFileSync(filePath, content, 'utf8');
+      console.log(`📝 [Title-Normalized] Standardized title for ${file} -> "${title}"`);
+    }
 
     // Price integrity sanity check (detect truncated $ amounts due to shell expansion)
     const brokenPriceMatches = content.match(/(?:Strike|保本价|权利金|行权价|现价|支撑|阻力|止损|tier-val[^>]*>)\s*(\.\d{2})/gi);
@@ -51,6 +65,20 @@ function generateIndex() {
                        content.match(/(\d\.\d+)\s*\/\s*10/);
     if (scoreMatch) {
       score = parseFloat(scoreMatch[1]);
+    }
+
+    // Score-Verdict Deterministic Alignment Check & Auto-Healing
+    if (score !== null && score >= 8.0) {
+      let patched = false;
+      let newContent = content;
+      if (/<span class="badge badge-hero-signal">\s*买入\s*\(\s*BUY\s*\)\s*<\/span>/i.test(newContent)) {
+        newContent = newContent.replace(/<span class="badge badge-hero-signal">\s*买入\s*\(\s*BUY\s*\)\s*<\/span>/gi, '<span class="badge badge-hero-signal">强力买入 (Strong Buy)</span>');
+        patched = true;
+      }
+      if (patched) {
+        fs.writeFileSync(filePath, newContent, 'utf8');
+        console.log(`🔧 [Auto-Healed] Aligned verdict badge to '强力买入 (Strong Buy)' in ${file} based on score ${score.toFixed(1)}/10`);
+      }
     }
 
     // Exact Signal Verdict Extraction (Ground Truth from Report HTML)
@@ -84,8 +112,8 @@ function generateIndex() {
       signalText = '强烈看多 (STRONG BUY)';
     } else if (/看多|bullish|买入|buy/i.test(verdictStr) ||
                /看多|bullish|买入|buy/i.test(actionStr)) {
-      signalType = 'BULLISH';
-      signalText = '看多 (BULLISH)';
+      signalType = (score !== null && score >= 8.0) ? 'STRONG_BUY' : 'BULLISH';
+      signalText = signalType === 'STRONG_BUY' ? '强烈看多 (STRONG BUY)' : '看多 (BULLISH)';
     } else if (/强烈看空|strong sell|强烈卖出|strong bearish/i.test(verdictStr) ||
                /强烈看空|strong sell|强烈卖出|strong bearish/i.test(actionStr) ||
                /强烈看空|strong sell|强烈卖出|strong bearish/i.test(heroStr)) {
@@ -127,6 +155,72 @@ function generateIndex() {
         signalType = 'NEUTRAL';
         signalText = '中立 (NEUTRAL)';
       }
+    }
+
+    // Automatic Theme Color Normalizer & CSS Auto-Healer
+    let cssModified = false;
+    let currentContent = content;
+
+    // 1. Ensure body background is uniformly #F8FAFC
+    if (/body\s*\{[^}]*background:\s*#F1F5F9;/i.test(currentContent)) {
+      currentContent = currentContent.replace(/(body\s*\{[^}]*background:\s*)#F1F5F9;/gi, '$1#F8FAFC;');
+      cssModified = true;
+    }
+
+    // 2. Normalize Hero Gradient and Primary color based on signalType
+    if (signalType === 'STRONG_BUY' || signalType === 'BULLISH') {
+      const stdPrimary = '#059669';
+      const stdGradHero = 'linear-gradient(135deg, #064E3B 0%, #065F46 45%, #059669 80%, #10B981 100%)';
+      const stdGradAccent = 'linear-gradient(90deg, #059669, #10B981)';
+      
+      const primaryMatch = currentContent.match(/--primary:\s*([^;]+);/i);
+      if (primaryMatch && !['#059669', '#047857', '#10B981'].includes(primaryMatch[1].trim())) {
+        currentContent = currentContent.replace(/--primary:\s*[^;]+;/i, `--primary: ${stdPrimary};`);
+        currentContent = currentContent.replace(/--primary-dark:\s*[^;]+;/i, `--primary-dark: #064E3B;`);
+        currentContent = currentContent.replace(/--primary-light:\s*[^;]+;/i, `--primary-light: #ECFDF5;`);
+        currentContent = currentContent.replace(/--accent:\s*[^;]+;/i, `--accent: #10B981;`);
+        currentContent = currentContent.replace(/--accent-light:\s*[^;]+;/i, `--accent-light: #D1FAE5;`);
+        currentContent = currentContent.replace(/--grad-hero:\s*[^;]+;/i, `--grad-hero: ${stdGradHero};`);
+        currentContent = currentContent.replace(/--grad-accent:\s*[^;]+;/i, `--grad-accent: ${stdGradAccent};`);
+        cssModified = true;
+      }
+    } else if (signalType === 'NEUTRAL') {
+      const stdPrimary = '#D97706';
+      const stdGradHero = 'linear-gradient(135deg, #78350F 0%, #B45309 45%, #D97706 80%, #F59E0B 100%)';
+      const stdGradAccent = 'linear-gradient(90deg, #D97706, #F59E0B)';
+      
+      const primaryMatch = currentContent.match(/--primary:\s*([^;]+);/i);
+      if (primaryMatch && !['#D97706', '#B45309', '#F59E0B'].includes(primaryMatch[1].trim())) {
+        currentContent = currentContent.replace(/--primary:\s*[^;]+;/i, `--primary: ${stdPrimary};`);
+        currentContent = currentContent.replace(/--primary-dark:\s*[^;]+;/i, `--primary-dark: #78350F;`);
+        currentContent = currentContent.replace(/--primary-light:\s*[^;]+;/i, `--primary-light: #FEF3C7;`);
+        currentContent = currentContent.replace(/--accent:\s*[^;]+;/i, `--accent: #F59E0B;`);
+        currentContent = currentContent.replace(/--accent-light:\s*[^;]+;/i, `--accent-light: #FDE68A;`);
+        currentContent = currentContent.replace(/--grad-hero:\s*[^;]+;/i, `--grad-hero: ${stdGradHero};`);
+        currentContent = currentContent.replace(/--grad-accent:\s*[^;]+;/i, `--grad-accent: ${stdGradAccent};`);
+        cssModified = true;
+      }
+    } else if (signalType === 'BEARISH' || signalType === 'STRONG_SELL') {
+      const stdPrimary = '#DC2626';
+      const stdGradHero = 'linear-gradient(135deg, #7F1D1D 0%, #991B1B 45%, #DC2626 80%, #EF4444 100%)';
+      const stdGradAccent = 'linear-gradient(90deg, #DC2626, #EF4444)';
+      
+      const primaryMatch = currentContent.match(/--primary:\s*([^;]+);/i);
+      if (primaryMatch && !['#DC2626', '#EF4444', '#991B1B'].includes(primaryMatch[1].trim())) {
+        currentContent = currentContent.replace(/--primary:\s*[^;]+;/i, `--primary: ${stdPrimary};`);
+        currentContent = currentContent.replace(/--primary-dark:\s*[^;]+;/i, `--primary-dark: #7F1D1D;`);
+        currentContent = currentContent.replace(/--primary-light:\s*[^;]+;/i, `--primary-light: #FEE2E2;`);
+        currentContent = currentContent.replace(/--accent:\s*[^;]+;/i, `--accent: #EF4444;`);
+        currentContent = currentContent.replace(/--accent-light:\s*[^;]+;/i, `--accent-light: #FECACA;`);
+        currentContent = currentContent.replace(/--grad-hero:\s*[^;]+;/i, `--grad-hero: ${stdGradHero};`);
+        currentContent = currentContent.replace(/--grad-accent:\s*[^;]+;/i, `--grad-accent: ${stdGradAccent};`);
+        cssModified = true;
+      }
+    }
+
+    if (cssModified) {
+      fs.writeFileSync(filePath, currentContent, 'utf8');
+      console.log(`🎨 [Theme-Normalized] Standardized CSS background & hero palette for ${file} (${signalType})`);
     }
 
     // Extract Date
