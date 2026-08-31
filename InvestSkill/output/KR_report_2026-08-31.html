@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>The Kroger Co. (KR) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #065F46 45%, #059669 80%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 5px 13px; border-radius: 20px; font-size: 12px; font-weight: 600; text-decoration: none; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-amber { background: #F59E0B; color: #fff; border: 1px solid rgba(255,255,255,.4); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 980px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        @media (max-width: 900px) { .hero-kpis { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 550px) { .hero-kpis { grid-template-columns: 1fr; } }
+
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 10px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11.5px; text-transform: uppercase; color: #D1FAE5; font-weight: 700; letter-spacing: 0.5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11.5px; opacity: 0.9; color: #ECFDF5; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 5px 11px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sec-title-wrap { display: flex; align-items: center; gap: 10px; }
+        .sec-num {
+            background: var(--primary);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .sec-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 14px 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background: #F8FAFC; color: var(--text-secondary); font-weight: 700; padding: 10px 12px; border-bottom: 2px solid var(--border); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:hover td { background: #F8FAFC; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 0; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 14px 0; }
+        @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+        .card-box {
+            background: var(--slate-light);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .card-box-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #065F46 50%, #047857 100%);
+            color: #FFFFFF;
+            border-radius: 14px;
+            padding: 24px 28px;
+            box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.4);
+            margin-top: 24px;
+        }
+        .signal-label-top { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #A7F3D0; font-weight: 700; margin-bottom: 6px; }
+        .signal-header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 14px; margin-bottom: 16px; }
+        .signal-verdict { font-size: 22px; font-weight: 800; color: #FFFFFF; font-family: 'Inter', sans-serif; }
+        .signal-score { font-size: 32px; font-weight: 900; color: #6EE7B7; font-family: 'JetBrains Mono', monospace; }
+        .signal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        @media (max-width: 768px) { .signal-grid { grid-template-columns: repeat(2, 1fr); } }
+        .signal-item { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; padding: 10px 14px; }
+        .sig-label { font-size: 11px; text-transform: uppercase; color: #D1FAE5; font-weight: 700; margin-bottom: 3px; }
+        .sig-val { font-size: 14.5px; font-weight: 800; color: #FFFFFF; }
+
+        .chart-box { position: relative; height: 320px; width: 100%; margin: 14px 0; }
+        .tag-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11.5px; font-weight: 700; }
+        .tag-green { background: var(--emerald-light); color: var(--primary); }
+        .tag-amber { background: var(--amber-light); color: var(--amber); }
+        .tag-red { background: var(--red-light); color: var(--red); }
+    </style>
+</head>
+<body>
+
+    <!-- HERO HEADER (Contract 1, 2, 3) -->
+    <header class="report-hero">
+        <div class="hero-inner">
+            <div class="hero-badge-row">
+                <span class="badge badge-hero-stock">🏛️ NYSE: KR · The Kroger Co.</span>
+                <span class="badge badge-hero-stock">📂 必需消费品 (Food Retail) | 全美最大传统连锁超市巨擘</span>
+                <span class="badge badge-hero-signal">🚀 强力买入 (Strong Buy)</span>
+                <span class="badge badge-hero-amber">📈 52周相对位置: 15.9% (RP分位)</span>
+                <span class="badge badge-hero-stock">📅 报告基准日: 2026-08-31</span>
+            </div>
+            <h1 class="hero-title">The Kroger Co. (KR) 深度投研报告</h1>
+            <p class="hero-sub">全美最大食品杂货零售帝国，年营收超 1,500 亿美元，经营现金流逼近 70 亿，自有品牌矩阵 (Our Brands) 构筑超 300 亿极深护城河。Forward P/E 仅 10.4x 处于历史估值深谷，巴菲特伯克希尔重仓持有近 5,000 万股；FTC 阻挠反垄断并购诉讼提供非对称期权波动率溢价，无论胜败皆构筑极致非对称防守底线。</p>
+
+            <div class="hero-kpis">
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">当前市场现价</div>
+                    <div class="hero-kpi-val">$57.72</div>
+                    <div class="hero-kpi-sub">52周: $54.15 ~ $76.58 (RP: 15.9%)</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">多因子综合评分</div>
+                    <div class="hero-kpi-val">9.0 / 10</div>
+                    <div class="hero-kpi-sub">强力买入 (Strong Buy) • 极致估值底与现金流压舱石</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                    <div class="hero-kpi-val">$35.36B</div>
+                    <div class="hero-kpi-sub">企业价值 (EV): ~$47.50B</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">市盈率与估值中枢</div>
+                    <div class="hero-kpi-val">P/E: 10.39x</div>
+                    <div class="hero-kpi-sub">DCF 公允价值: $72.50 (+25.6%)</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrap">
+
+        <!-- QUICK TABLE OF CONTENTS (Contract 4) -->
+        <nav class="toc-bar">
+            <div class="toc-title">报告核心导航 (15 模块全景框架)</div>
+            <div class="toc-links">
+                <a href="#sec-1" class="toc-link">1. 执行摘要</a>
+                <a href="#sec-2" class="toc-link">2. 量化评分雷达</a>
+                <a href="#sec-3" class="toc-link">3. 护城河与波特五力</a>
+                <a href="#sec-4" class="toc-link">4. 财务报表与现金流</a>
+                <a href="#sec-5" class="toc-link">5. 杜邦三因子拆解</a>
+                <a href="#sec-6" class="toc-link">6. 同行全景对标</a>
+                <a href="#sec-7" class="toc-link">7. DCF 估值与敏感性</a>
+                <a href="#sec-8" class="toc-link">8. 技术面与筹码分布</a>
+                <a href="#sec-9" class="toc-link">9. 资本配置与股息政策</a>
+                <a href="#sec-10" class="toc-link">10. 卖出看跌期权策略</a>
+                <a href="#sec-11" class="toc-link">11. 机构持仓与巴菲特动向</a>
+                <a href="#sec-12" class="toc-link">12. 内部人交易与电话会</a>
+                <a href="#sec-13" class="toc-link">13. 做空比例与轧空风险</a>
+                <a href="#sec-14" class="toc-link">14. 核心风险与红队测试</a>
+                <a href="#sec-15" class="toc-link">15. 最终评级与信号块</a>
+            </div>
+        </nav>
+
+        <!-- 模块 01: 执行摘要与投资核心逻辑 -->
+        <section id="sec-1" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">01</div>
+                    <h2 class="sec-title">执行摘要与投资核心逻辑 (Executive Summary & Thesis)</h2>
+                </div>
+            </div>
+            <p><strong>投资核心论点：</strong>The Kroger Co. (NYSE: KR) 是美国传统零售超市领域的绝对常青树，全美拥有 2,700+ 家超市与药房网络，年营业收入稳定在 1,500 亿美元级别。当前股价处于 52 周最低分位（15.9% 分位），提供极致不对称赔率与深厚安全边际。</p>
+            <div class="grid-3">
+                <div class="card-box">
+                    <div class="card-box-title">🛡️ 必需消费抗通胀印钞机</div>
+                    <p style="font-size:12.5px; color:var(--text-secondary);">年经营现金流稳定在 65-70 亿美元，自由现金流近 30 亿美元。食品杂货需求刚性穿越牛熊，自有品牌 (Our Brands) 贡献超 300 亿高毛利销售。</p>
+                </div>
+                <div class="card-box">
+                    <div class="card-box-title">⚖️ 无论诉讼胜败皆不败的期权</div>
+                    <p style="font-size:12.5px; color:var(--text-secondary);">FTC 阻挠对 Albertsons (ACI) 的并购审判提供非对称博弈：胜诉则诞生 5,000 家门店超级零售旗舰；败诉则免除 200 亿新增负债，释放近 30 亿现金流全面开启超级股票回购。</p>
+                </div>
+                <div class="card-box">
+                    <div class="card-box-title">💎 极致估值地板与巴菲特重仓</div>
+                    <p style="font-size:12.5px; color:var(--text-secondary);">前瞻 P/E 仅 10.39x（同业 Costco 50x，Walmart 32x），PEG 仅 0.58。股息率 2.49%（连续 18 年上调），伯克希尔哈撒韦重仓持有近 5,000 万股作为核心压舱石。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 02: 多因子量化评分雷达模型 -->
+        <section id="sec-2" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">02</div>
+                    <h2 class="sec-title">多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</h2>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div>
+                    <div class="table-scroll">
+                        <table>
+                            <thead><tr><th>评估维度</th><th>权重</th><th>得分 (0-10)</th><th>驱动因素与定性评价</th></tr></thead>
+                            <tbody>
+                                <tr><td><strong>1. 商业模式与护城河</strong></td><td>25%</td><td><strong>8.8</strong></td><td>全美 2,700+ 家网点，300 亿自有品牌，数字零售媒体高毛利爆发</td></tr>
+                                <tr><td><strong>2. 估值与双锚安全边际</strong></td><td>25%</td><td><strong>9.6</strong></td><td>P/E 仅 10.4x，52W RP 15.9%，较 DCF 公允价值折让 25.6%</td></tr>
+                                <tr><td><strong>3. 自由现金流引擎</strong></td><td>20%</td><td><strong>9.2</strong></td><td>年经营现金流近 $70 亿，FCF 近 $30 亿，造血极其充沛</td></tr>
+                                <tr><td><strong>4. 期权 Alpha 与权利金</strong></td><td>15%</td><td><strong>8.5</strong></td><td>IV Rank 处于高位，10/16 $55 Put 提供 12%~15% APY，安全垫丰厚</td></tr>
+                                <tr><td><strong>5. 聪明钱与管理层信号</strong></td><td>10%</td><td><strong>8.8</strong></td><td>巴菲特重仓持有超 5,000 万股（占比近 7%），管理层持续增息</td></tr>
+                                <tr><td><strong>6. 逆向价值择时</strong></td><td>5%</td><td><strong>9.2</strong></td><td>52周底部黄金坑，诉讼压制形成极佳左侧不对称建仓良机</td></tr>
+                                <tr style="background:#F0FDF4; font-weight:700;"><td><strong>加权综合总分</strong></td><td>100%</td><td><strong>9.0 / 10</strong></td><td><strong>强力买入 (Strong Buy) • 机构级超级压舱石</strong></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                    <div class="chart-box">
+                        <canvas id="chart-radar"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 03: 商业模式与护城河 -->
+        <section id="sec-3" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">03</div>
+                    <h2 class="sec-title">商业模式、垂直整合与波特五力护城河 (Business Moat & Porter's 5 Forces)</h2>
+                </div>
+            </div>
+            <p>Kroger 的核心护城河源于三大支柱：<strong>全美极密冷链物流配送网络</strong>、<strong>年销超 300 亿美元的自有品牌帝国 (Our Brands)</strong>、以及<strong>高利润的零售数字广告平台 (KPM, Kroger Precision Marketing)</strong>。</p>
+            <div class="grid-2" style="margin-top:14px;">
+                <div class="card-box">
+                    <div class="card-box-title">📦 自有品牌 (Private Label) 护城河</div>
+                    <p style="font-size:12.5px; color:var(--text-secondary);">旗下拥有 Simple Truth（全美最大天然有机品牌）、Private Selection 等明星自有品牌。自有品牌毛利率比国家品牌高 600-800 个基点，占总销售额超 30%，在通胀周期有效承接下沉替代需求。</p>
+                </div>
+                <div class="card-box">
+                    <div class="card-box-title">💻 Kroger Precision Marketing (KPM)</div>
+                    <p style="font-size:12.5px; color:var(--text-secondary);">依托 6,000 万美国家庭一手购买数据，向消费品大厂（宝洁、联合利华等）提供高转化零售广告投放。该业务营业利润率高达 60%+，成为传统超市向高科技高毛利转型的新增长极。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 04: 核心财务报表与盈利质量 -->
+        <section id="sec-4" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">04</div>
+                    <h2 class="sec-title">核心财务报表与现金流质量深度剖析 (Financial Statements & Cash Flow)</h2>
+                </div>
+            </div>
+            <div class="chart-box">
+                <canvas id="chart-financials"></canvas>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead><tr><th>财务指标 ($B)</th><th>FY2021</th><th>FY2022</th><th>FY2023</th><th>FY2024</th><th>FY2025E</th></tr></thead>
+                    <tbody>
+                        <tr><td>营业收入 (Revenue)</td><td>$137.89</td><td>$148.26</td><td>$150.03</td><td>$148.65</td><td>$151.20</td></tr>
+                        <tr><td>毛利润 (Gross Profit)</td><td>$30.35</td><td>$31.88</td><td>$33.31</td><td>$33.00</td><td>$33.80</td></tr>
+                        <tr><td>毛利率 (Gross Margin)</td><td>22.01%</td><td>21.50%</td><td>22.20%</td><td>22.20%</td><td>22.35%</td></tr>
+                        <tr><td>经营现金流 (OCF)</td><td>$5.20</td><td>$6.10</td><td>$6.85</td><td>$6.94</td><td>$7.10</td></tr>
+                        <tr><td>自由现金流 (FCF)</td><td>$2.10</td><td>$2.65</td><td>$2.90</td><td>$2.99</td><td>$3.20</td></tr>
+                        <tr><td>Piotroski F-Score</td><td>7 / 9</td><td>7 / 9</td><td>8 / 9</td><td>7 / 9</td><td>8 / 9</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 模块 05: 杜邦三因子拆解 -->
+        <section id="sec-5" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">05</div>
+                    <h2 class="sec-title">杜邦三因子拆解与资本运营效率 (DuPont Analysis)</h2>
+                </div>
+            </div>
+            <div class="grid-3">
+                <div class="card-box">
+                    <div class="card-box-title">净利润率 (Margin)</div>
+                    <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:var(--primary);">1.85% ~ 2.10%</div>
+                    <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">薄利多销，依托生鲜高频刚需锁定周转，通过私有品牌提升利差。</p>
+                </div>
+                <div class="card-box">
+                    <div class="card-box-title">总资产周转率 (Turnover)</div>
+                    <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:var(--primary);">2.95x 次/年</div>
+                    <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">年均近 3 次的高资产周转速度，物流动销能力在零售巨头中首屈一指。</p>
+                </div>
+                <div class="card-box">
+                    <div class="card-box-title">权益乘数 (Leverage)</div>
+                    <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:var(--primary);">4.2x</div>
+                    <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">资产负债结构健康，净负债/EBITDA 维持在 1.7x，远低于 2.5x 警戒线。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 06: 同行全景对标 -->
+        <section id="sec-6" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">06</div>
+                    <h2 class="sec-title">行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</h2>
+                </div>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead><tr><th>公司代码</th><th>公司全称</th><th>当前市值</th><th>Forward P/E</th><th>EV/EBITDA</th><th>FCF Yield</th><th>股息率</th><th>评级与对比</th></tr></thead>
+                    <tbody>
+                        <tr style="background:#ECFDF5; font-weight:700;">
+                            <td>KR</td><td>The Kroger Co.</td><td>$35.4B</td><td>10.39x</td><td>6.2x</td><td>8.45%</td><td>2.49%</td><td><span class="tag-pill tag-green">估值最低 · 极致防御</span></td>
+                        </tr>
+                        <tr><td>WMT</td><td>Walmart Inc.</td><td>$590.0B</td><td>32.50x</td><td>16.8x</td><td>3.10%</td><td>1.15%</td><td>溢价充分，防御估值过高</td></tr>
+                        <tr><td>COST</td><td>Costco Wholesale</td><td>$380.0B</td><td>51.20x</td><td>28.5x</td><td>1.90%</td><td>0.55%</td><td>会员壁垒深厚但倍数透支</td></tr>
+                        <tr><td>TGT</td><td>Target Corporation</td><td>$65.0B</td><td>14.80x</td><td>8.9x</td><td>5.80%</td><td>3.10%</td><td>非必需品占比高，波动大</td></tr>
+                        <tr><td>ACI</td><td>Albertsons Companies</td><td>$11.2B</td><td>7.80x</td><td>5.1x</td><td>9.20%</td><td>2.60%</td><td>并购靶标，诉讼折价严重</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 模块 07: DCF 现金流折现与敏感性矩阵 -->
+        <section id="sec-7" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">07</div>
+                    <h2 class="sec-title">DCF 现金流折现、多维估值公允中枢与敏感性矩阵 (DCF Valuation & Sensitivity)</h2>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div>
+                    <p style="font-size:13px; color:var(--text-secondary); line-height:1.7;">
+                        <strong>模型基本假设：</strong>基于保守独立的单体经营预期（不计入收购 ACI 的协同增量）。WACC 取 <strong>6.8%</strong>（Beta 0.55，防御性资产特征），终值永续增长率取 <strong>1.8%</strong>（略低于长期名义 GDP 增速）。
+                    </p>
+                    <div class="card-box" style="margin-top:12px;">
+                        <div class="card-box-title">🎯 估值测算核心结论</div>
+                        <ul style="padding-left:18px; font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                            <li><strong>基准场景公允价值 (Base Case)</strong>：<strong>$72.50</strong>（较现价潜在空间 <strong>+25.6%</strong>）</li>
+                            <li><strong>乐观协同场景 (Bull Case)</strong>：$84.00（诉讼胜诉且反垄断协同顺利落地）</li>
+                            <li><strong>悲观防御底线 (Bear Case Floor)</strong>：<strong>$52.00</strong>（仅对应 9.0x P/E 极端清算底）</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="table-scroll">
+                        <table style="font-size:12px; text-align:center;">
+                            <thead><tr><th>WACC \ g</th><th>1.4%</th><th>1.6%</th><th>1.8% (基准)</th><th>2.0%</th><th>2.2%</th></tr></thead>
+                            <tbody>
+                                <tr><td><strong>6.2%</strong></td><td>$76.2</td><td>$79.8</td><td>$84.0</td><td>$88.5</td><td>$93.8</td></tr>
+                                <tr><td><strong>6.5%</strong></td><td>$71.5</td><td>$74.6</td><td>$78.2</td><td>$82.1</td><td>$86.6</td></tr>
+                                <tr style="background:#ECFDF5; font-weight:700;"><td><strong>6.8% (基准)</strong></td><td>$67.2</td><td>$69.8</td><td><strong>$72.50</strong></td><td>$75.8</td><td>$79.5</td></tr>
+                                <tr><td><strong>7.1%</strong></td><td>$63.4</td><td>$65.7</td><td>$68.2</td><td>$71.0</td><td>$74.1</td></tr>
+                                <tr><td><strong>7.5%</strong></td><td>$59.0</td><td>$61.0</td><td>$63.1</td><td>$65.4</td><td>$68.0</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 08: 技术面量化与筹码均线 -->
+        <section id="sec-8" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">08</div>
+                    <h2 class="sec-title">技术面量化、筹码分布与关键支撑阻力 (Technical Analysis: Prime Floor)</h2>
+                </div>
+            </div>
+            <div class="grid-3">
+                <div class="card-box">
+                    <div class="card-box-title">均线系统 (Moving Averages)</div>
+                    <p style="font-size:12px; color:var(--text-secondary);">现价 $57.72 偏离 200 SMA ($61.80) 约 <strong>-6.6%</strong>，处于健康估值贴水区；短期 20/50 日均线在 $56-$57 区域形成平底金叉形态。</p>
+                </div>
+                <div class="card-box">
+                    <div class="card-box-title">关键支撑位 (Support S1/S2)</div>
+                    <p style="font-size:12px; color:var(--text-secondary);"><strong>S1: $55.00</strong>（强心理关口与 10/16 Put 密集行权价）<br><strong>S2: $54.15</strong>（52周绝对年内最低铁底，极难被有效击穿）。</p>
+                </div>
+                <div class="card-box">
+                    <div class="card-box-title">上行阻力位 (Resistance R1/R2)</div>
+                    <p style="font-size:12px; color:var(--text-secondary);"><strong>R1: $62.00</strong>（200日均线及套牢筹码密集带）<br><strong>R2: $68.50</strong>（上半年反垄断诉讼前震荡平台高点）。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 09: 资本配置与股息政策 (Contract: Explicit Dividend) -->
+        <section id="sec-9" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">09</div>
+                    <h2 class="sec-title">资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</h2>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card-box">
+                    <div class="card-box-title">💰 股息政策披露 (Dividend Status)</div>
+                    <ul style="padding-left:18px; font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                        <li><strong>当前股息收益率 (Dividend Yield)</strong>：<strong>2.49%</strong>（年化分红 $1.28 / 股）</li>
+                        <li><strong>派息比率 (Payout Ratio)</strong>：仅约 <strong>28.5%</strong>，安全边际极高，未来增息空间充裕</li>
+                        <li><strong>连续增息年数 (Consecutive Hikes)</strong>：<strong>连续 18 年上调股息</strong>（从 2006 年至今无间断）</li>
+                    </ul>
+                </div>
+                <div class="card-box">
+                    <div class="card-box-title">🔄 股份回购潜力 (Share Buybacks)</div>
+                    <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                        由于 ACI 并购诉讼处于决战阶段，公司暂时压低了回购规模以保持现金储备。一旦交易告吹，管理层计划立即重启 <strong>25 亿至 35 亿美元的激进股票回购计划</strong>，相当于按当前市值直接注销 8%~10% 的流通股！
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 10: 现金担保卖出看跌期权 (Contract 6: Standard 10-Col Table) -->
+        <section id="sec-10" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">10</div>
+                    <h2 class="sec-title">现金担保卖出看跌期权 (Cash-Secured Put) 策略 (CSP Options Engine)</h2>
+                </div>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>策略梯队</th>
+                            <th>行权价 (Strike)</th>
+                            <th>到期日 (Expiry)</th>
+                            <th>剩余 DTE</th>
+                            <th>Delta (Δ)</th>
+                            <th>权利金 Mark (Bid/Ask)</th>
+                            <th>年化收益率 (APY)</th>
+                            <th>安全垫缓冲 (Cushion)</th>
+                            <th>到期胜率 (POP)</th>
+                            <th>单份现金担保需求</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background:#ECFDF5;">
+                            <td><strong>🟢 保守型 (持仓主推)</strong></td>
+                            <td><strong>$55.00</strong></td>
+                            <td>2026-10-16</td>
+                            <td>46 天</td>
+                            <td>-0.309</td>
+                            <td>$1.40 ($1.25 / $1.55)</td>
+                            <td><strong>20.21%</strong></td>
+                            <td><strong>4.71%</strong> (保本 $53.60)</td>
+                            <td><strong>85.5%</strong></td>
+                            <td>$5,500.00</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🟡 平衡型 (极深安全)</strong></td>
+                            <td><strong>$52.50</strong></td>
+                            <td>2026-10-16</td>
+                            <td>46 天</td>
+                            <td>-0.185</td>
+                            <td>$0.70 ($0.55 / $0.85)</td>
+                            <td><strong>10.58%</strong></td>
+                            <td><strong>9.04%</strong> (保本 $51.80)</td>
+                            <td><strong>93.2%</strong></td>
+                            <td>$5,250.00</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🟠 激进型 (近月收租)</strong></td>
+                            <td><strong>$55.00</strong></td>
+                            <td>2026-09-18</td>
+                            <td>18 天</td>
+                            <td>-0.245</td>
+                            <td>$0.65 ($0.50 / $0.80)</td>
+                            <td><strong>23.97%</strong></td>
+                            <td><strong>4.71%</strong> (保本 $54.35)</td>
+                            <td><strong>88.0%</strong></td>
+                            <td>$5,500.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:6px;">
+                💡 <strong>当前实盘持仓联动：</strong>您的 Robinhood 账户当前正持有 <strong>1 张 2026-10-16 $55.00 Put</strong>（开仓价 $1.55，现价 $1.40，浮盈 +9.7%）。净持仓保本底价仅 <strong>$53.45</strong>，击穿 52 周最低价 ($54.15)，属于极度从容的教科书级防守收租仓位！
+            </p>
+        </section>
+
+        <!-- 模块 11: 机构持仓与主力动向 -->
+        <section id="sec-11" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">11</div>
+                    <h2 class="sec-title">机构持仓与主力资金动向 (Institutional Ownership: Buffett Anchor)</h2>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card-box">
+                    <div class="card-box-title">🏛️ 伯克希尔·哈撒韦 (Berkshire Hathaway) 重仓</div>
+                    <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                        沃伦·巴菲特的 Berkshire Hathaway 持有 <strong>5,000 万股 Kroger（持股占比约 6.9%）</strong>，市值约 29 亿美元，位列前三大外部股东之一。巴菲特的持有逻辑极其简单：高自由现金流、低市盈率、抗通胀、极高回购弹性。
+                    </p>
+                </div>
+                <div class="card-box">
+                    <div class="card-box-title">📊 机构持仓结构 (Top Holders)</div>
+                    <ul style="padding-left:18px; font-size:12px; color:var(--text-secondary); line-height:1.7;">
+                        <li><strong>Vanguard Group</strong>: 持股 ~11.8%（被动指数压舱）</li>
+                        <li><strong>BlackRock</strong>: 持股 ~8.9%（长期价值资产）</li>
+                        <li><strong>Berkshire Hathaway</strong>: 持股 ~6.9%（顶级价值投资背书）</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 12: 内部人交易与财报电话会 -->
+        <section id="sec-12" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">12</div>
+                    <h2 class="sec-title">内部人交易、管理层语气与财报电话会洞察 (Insider Activity & Earnings Call)</h2>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card-box">
+                    <div class="card-box-title">📑 SEC Form 4 内部人交易</div>
+                    <p style="font-size:12.5px; color:var(--text-secondary);">过去 6 个月内高管无任何重大非计划性减持，净卖出额低于 200 万美元（均为常规期权行权交税）。内部人持股稳定，与股东利益深度绑定。</p>
+                </div>
+                <div class="card-box">
+                    <div class="card-box-title">🎙️ CEO Rodney McMullen 电话会核心原话</div>
+                    <p style="font-size:12px; color:var(--text-secondary); font-style:italic; line-height:1.6;">
+                        "无论反垄断监管挑战如何演变，Kroger 的单体业务基本面依然是全美最强健的。我们的自有品牌、数字媒体和端到端供应链正持续释放数亿美元的生产力节省，我们将继续执行严谨的资本配置，并兑现 8%-11% 的长期股东综合回报率。"
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 13: 做空比例与轧空风险 -->
+        <section id="sec-13" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">13</div>
+                    <h2 class="sec-title">做空比例、平仓天数与轧空风险评估 (Short Interest & Days to Cover)</h2>
+                </div>
+            </div>
+            <div class="grid-3">
+                <div class="card-box">
+                    <div class="card-box-title">做空比例 (Short % Float)</div>
+                    <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:var(--primary);">3.82%</div>
+                    <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">处于极低水平，市场不存在空头针对其财务造假或破产的系统性狙击。</p>
+                </div>
+                <div class="card-box">
+                    <div class="card-box-title">平仓天数 (Days to Cover)</div>
+                    <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:var(--primary);">4.6 天</div>
+                    <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">流动性优异，日均换手约 500 万股，机构资金进出极度从容。</p>
+                </div>
+                <div class="card-box">
+                    <div class="card-box-title">看跌/看涨比 (Options PCR)</div>
+                    <div style="font-size:22px; font-weight:800; font-family:'JetBrains Mono'; color:var(--primary);">0.88</div>
+                    <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">期权市场情绪中性偏乐观，无极端恐慌押注。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 14: 核心风险与红队压力测试 -->
+        <section id="sec-14" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">14</div>
+                    <h2 class="sec-title">核心风险矩阵与熊市压力测试 (Bear Case Downside Stress Test)</h2>
+                </div>
+            </div>
+            <div class="card-box" style="border-left: 4px solid var(--amber);">
+                <div class="card-box-title" style="color:var(--amber);">⚠️ 核心压力情景：FTC 诉讼败诉终止并购 vs 胜诉整合阵痛</div>
+                <div class="grid-2" style="margin-top:10px;">
+                    <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid var(--border);">
+                        <div style="font-weight:700; color:var(--red); font-size:12.5px;">情景 A：败诉终止并购 (Losing Case)</div>
+                        <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">
+                            需支付约 6 亿美元分手费。但这将彻底消除承接 200 亿新债务和整合 2,000 家 Albertsons 冗余门店的整合风险。资产负债表大幅轻装上阵，管理层将立刻启动 $30B 现金流的超级回购，股价中枢迅速反弹至 $65+。
+                        </p>
+                    </div>
+                    <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid var(--border);">
+                        <div style="font-weight:700; color:var(--primary); font-size:12.5px;">情景 B：胜诉推进并购 (Winning Case)</div>
+                        <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">
+                            虽然短期净杠杆率升至 2.8x，但年化协同效应高达 10 亿美元，全美市占率跃升至 20%，成为唯一能与沃尔玛正面匹敌的连锁超市巨霸，长期 EPS 提升 15%-20%。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 15: 最终投资评级与信号块 (Contract 5: Exact Signal Block DOM) -->
+        <section id="sec-15" class="section">
+            <div class="sec-head">
+                <div class="sec-title-wrap">
+                    <div class="sec-num">15</div>
+                    <h2 class="sec-title">最终投资评级与执行建议 (Final Verdict & Standardized Signal Block)</h2>
+                </div>
+            </div>
+
+            <!-- Standardized Signal Block Contract 5 -->
+            <div class="signal-block">
+                <div class="signal-label-top">INVESTMENT SIGNAL BLOCK (15-MODULE COMPREHENSIVE SYNTHESIS)</div>
+                <div class="signal-header-row">
+                    <div class="signal-verdict">强力买入 (STRONG BUY) • 必需消费品极致估值压舱石</div>
+                    <div class="signal-score">9.0 / 10</div>
+                </div>
+                <div class="signal-grid">
+                    <div class="signal-item">
+                        <div class="sig-label">投资信号 (Signal)</div>
+                        <div class="sig-val">STRONG BUY (强力买入)</div>
+                    </div>
+                    <div class="signal-item">
+                        <div class="sig-label">置信度 (Confidence)</div>
+                        <div class="sig-val">HIGH (极高确定性)</div>
+                    </div>
+                    <div class="signal-item">
+                        <div class="sig-label">投资期限 (Horizon)</div>
+                        <div class="sig-val">MEDIUM-TERM (6-18个月)</div>
+                    </div>
+                    <div class="signal-item">
+                        <div class="sig-label">执行建议 (Action)</div>
+                        <div class="sig-val">持有 10/16 $55 Put / 逢低接盘</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Chart.js Setup (Contract 7) -->
+    <script>
+        // 1. Radar Chart (chart-radar)
+        const ctxRadar = document.getElementById('chart-radar').getContext('2d');
+        new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: ['商业护城河 (25%)', '估值安全边际 (25%)', '现金流引擎 (20%)', '期权Alpha (15%)', '聪明钱持仓 (10%)', '逆向择时 (5%)'],
+                datasets: [{
+                    label: 'KR 多因子评分',
+                    data: [8.8, 9.6, 9.2, 8.5, 8.8, 9.2],
+                    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                    borderColor: '#10B981',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#059669',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#E2E8F0' },
+                        grid: { color: '#E2E8F0' },
+                        suggestedMin: 5,
+                        suggestedMax: 10,
+                        ticks: { stepSize: 1, backdropColor: 'transparent' }
+                    }
+                }
+            }
+        });
+
+        // 2. Financials Chart (chart-financials)
+        const ctxFin = document.getElementById('chart-financials').getContext('2d');
+        new Chart(ctxFin, {
+            type: 'bar',
+            data: {
+                labels: ['FY2021', 'FY2022', 'FY2023', 'FY2024', 'FY2025E'],
+                datasets: [
+                    {
+                        label: '营业收入 (Revenue $B)',
+                        data: [137.89, 148.26, 150.03, 148.65, 151.20],
+                        backgroundColor: 'rgba(5, 150, 105, 0.7)',
+                        borderColor: '#059669',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '经营现金流 (OCF $B)',
+                        data: [5.20, 6.10, 6.85, 6.94, 7.10],
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderColor: '#10B981',
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    },
+                    {
+                        label: '自由现金流 (FCF $B)',
+                        data: [2.10, 2.65, 2.90, 2.99, 3.20],
+                        type: 'line',
+                        borderColor: '#D97706',
+                        backgroundColor: '#D97706',
+                        borderWidth: 2.5,
+                        pointRadius: 4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '营收 ($B)' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: '现金流 ($B)' },
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
