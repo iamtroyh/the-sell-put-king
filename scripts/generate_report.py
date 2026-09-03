@@ -550,19 +550,23 @@ def main():
             ocf = f_info.get('operatingCashflow')
             ebitda_margin = f_info.get('ebitdaMargins')
             
-            if fcf is not None and rev is not None and rev > 0:
-                fcf_margin = (fcf / rev) * 100.0
-
             if is_fin_or_reit:
                 is_fcf_negative = False
-                fcf_margin = None
-            elif fcf is not None and fcf < 0:
-                # If operating cashflow is positive and EBITDA margin is healthy, it is M&A amortization/Capex, not operational burn
-                if ocf is not None and ocf > 0 and ebitda_margin is not None and ebitda_margin > 0.08:
-                    is_fcf_negative = False
-                    fcf_margin = None
+                if ocf is not None and rev is not None and rev > 0:
+                    # Utilities / REITs / Financials: Operating Cash Flow Margin discounted by 30% for routine maintenance
+                    fcf_margin = (ocf / rev) * 0.70
                 else:
-                    is_fcf_negative = True
+                    fcf_margin = None
+            elif fcf is not None and rev is not None and rev > 0:
+                fcf_margin = fcf / rev
+                if fcf < 0:
+                    # If operating cashflow is positive and EBITDA margin is healthy, it is M&A amortization/Capex, not operational burn
+                    if ocf is not None and ocf > 0 and ebitda_margin is not None and ebitda_margin > 0.08:
+                        is_fcf_negative = False
+                    else:
+                        is_fcf_negative = True
+            elif fcf is not None and fcf < 0:
+                is_fcf_negative = True
 
         # True IVP & IVR via Market Data API
         true_iv_info = get_true_ivp_and_ivr(display_ticker)
@@ -840,32 +844,47 @@ def main():
                     elif 0.17 <= abs_delta <= 0.20:
                         risk_profile = "激进"
                 elif is_low_position:
-                    if 0.08 <= abs_delta < 0.20:
+                    if 0.08 <= abs_delta < 0.16:
                         risk_profile = "保守"
-                    elif 0.20 <= abs_delta < 0.30:
+                    elif 0.16 <= abs_delta <= 0.25:
                         risk_profile = "平衡"
-                    elif 0.30 <= abs_delta <= 0.40:
+                    elif 0.25 < abs_delta <= 0.40:
                         risk_profile = "激进"
                 else:
-                    if 0.08 <= abs_delta < 0.17:
+                    if 0.08 <= abs_delta < 0.16:
                         risk_profile = "保守"
-                    elif 0.17 <= abs_delta < 0.24:
+                    elif 0.16 <= abs_delta <= 0.25:
                         risk_profile = "平衡"
-                    elif 0.24 <= abs_delta <= 0.30:
+                    elif 0.25 < abs_delta <= 0.30:
                         risk_profile = "激进"
                         
                 if not risk_profile:
                     continue
 
-                if is_falling_knife:
-                    if risk_profile == "保守":
-                        risk_profile = "平衡"
-                    elif risk_profile == "平衡":
-                        risk_profile = "激进"
-                
                 annualized_yield = (exec_price / strike) * (365.0 / max(1, dte)) * 100.0
                 curr_hv_30 = ticker_market_data[display_ticker].get('current_hv_30', 30.0)
                 eff_hv = ticker_market_data[display_ticker].get('effective_hv', curr_hv_30)
+                is_high_vol_asset = (eff_hv > 35.0) or is_high_vol_growth(display_ticker)
+
+                # Inefficient Yield & Absolute Premium Gatekeeper:
+                # 1. Filter out economically unviable contracts with microscopic gross premium (< $0.15 mark)
+                # 2. Balanced/Aggressive candidates must provide at least $0.20 mark ($20 gross premium)
+                # 3. On high-volatility assets (HV > 35%), mandate minimum APY >= 12% (and >= 15% for Balanced/Aggressive)
+                if not is_etf_symbol(display_ticker):
+                    if mark < 0.15:
+                        continue
+                    if risk_profile in ["平衡", "激进"] and mark < 0.20:
+                        continue
+                    if is_high_vol_asset and annualized_yield < 12.0:
+                        continue
+                    if is_high_vol_asset and risk_profile in ["平衡", "激进"] and annualized_yield < 15.0:
+                        continue
+
+                # Volatility Damping for Black-Scholes lognormal EV estimator:
+                # Prevent single-day jump-down crash outliers from inflating diffusion HV and collapsing EV on fair strikes
+                damped_hv = (eff_hv / 100.0) if eff_hv > 0 else iv
+                if iv > 0:
+                    damped_hv = min(damped_hv, iv * 1.25)
 
                 # Quantitative EV & POP Calculation under lognormal distribution (Dual-Damping Volatility Estimator)
                 ev_res = calculate_option_ev_and_pop(
@@ -874,7 +893,7 @@ def main():
                     dte=dte,
                     premium=exec_price,
                     iv=iv,
-                    hv=(eff_hv / 100.0) if eff_hv > 0 else iv,
+                    hv=damped_hv,
                 )
                 pop = ev_res["pop"]
                 ev_dollar = ev_res["ev_dollar"]
@@ -891,7 +910,7 @@ def main():
                 sec = SECTOR_MAP.get(display_ticker) or (fund_info.get("sector") if fund_info else None) or ("ETF" if is_etf_symbol(display_ticker) else "Other")
                 is_financial_or_utility = (sec in ["Financial Services", "Financials & Crypto", "ETF", "Financials", "Utilities", "Real Estate"]) or (display_ticker in ["XLU", "XLF", "VNQ", "XLRE"])
                 de_ratio = fund_info.get("debtToEquity") if fund_info else None
-                is_heavy_debt = (float(de_ratio) if (de_ratio is not None and not is_financial_or_utility and not is_etf_symbol(display_ticker)) else False)
+                is_heavy_debt = float(de_ratio) if (de_ratio is not None and not is_etf_symbol(display_ticker)) else False
 
                 deriv = ticker_market_data[display_ticker].get('derivative_metrics', {})
                 put_skew = deriv.get('put_skew')
@@ -1089,13 +1108,31 @@ def main():
         t_m1 = [opt for opt in t_opts if opt['dte'] <= 40]
         t_m2 = [opt for opt in t_opts if opt['dte'] > 40]
 
-        # Scheme 1: Dual-Horizon Adaptive Max-Opportunity Scoring
-        # Automatically pick the highest opportunity passed contract in each horizon
-        p_m1 = [opt for opt in t_m1 if opt.get('passed_gatekeeper', False)]
-        s_m1 = max(p_m1, key=lambda x: x['total_score'])['total_score'] if p_m1 else (max(t_m1, key=lambda x: x['total_score'])['total_score'] if t_m1 else None)
+        # Standardized Apple-to-Apple Balanced Horizon Scoring:
+        # Cross-ticker ranking must evaluate each ticker on its TRUE Balanced contract score (or safe conservative baseline).
+        # Prohibit high-yield aggressive contracts from distorting ticker rankings without a cross-profile penalty.
+        def _get_horizon_balanced_score(opts_list):
+            if not opts_list:
+                return None
+            passed = [o for o in opts_list if o.get('passed_gatekeeper', False)]
+            cand_pool = passed if passed else opts_list
+            # Priority 1: True "平衡" contract
+            bal_opts = [o for o in cand_pool if o.get('risk_profile') == '平衡']
+            if bal_opts:
+                return max(bal_opts, key=lambda x: x['total_score'])['total_score']
+            # Priority 2: "保守" contract (safe baseline, 0 penalty)
+            cons_opts = [o for o in cand_pool if o.get('risk_profile') == '保守']
+            if cons_opts:
+                return max(cons_opts, key=lambda x: x['total_score'])['total_score']
+            # Priority 3: "激进" contract (apply cross-profile penalty of -4.0 pts to prevent high-yield aggressive bias)
+            agg_opts = [o for o in cand_pool if o.get('risk_profile') == '激进']
+            if agg_opts:
+                best_agg = max(agg_opts, key=lambda x: x['total_score'])
+                return max(0.0, best_agg['total_score'] - 4.0)
+            return max(cand_pool, key=lambda x: x['total_score'])['total_score']
 
-        p_m2 = [opt for opt in t_m2 if opt.get('passed_gatekeeper', False)]
-        s_m2 = max(p_m2, key=lambda x: x['total_score'])['total_score'] if p_m2 else (max(t_m2, key=lambda x: x['total_score'])['total_score'] if t_m2 else None)
+        s_m1 = _get_horizon_balanced_score(t_m1)
+        s_m2 = _get_horizon_balanced_score(t_m2)
 
         ticker_m1_score[t] = s_m1
         ticker_m2_score[t] = s_m2
@@ -1103,8 +1140,9 @@ def main():
         if s_m1 is not None and s_m2 is not None:
             # DTE-Adaptive Dual-Horizon Dynamic Weighting
             # When near-month DTE >= 25: near-month is primary (60% Month 1 / 40% Month 2)
-            # When near-month DTE < 25 (entering expiry / rollout): shift primary capital weight smoothly to next-month (up to 80% Month 2)
-            best_m1_opt = max(p_m1, key=lambda x: x['total_score']) if p_m1 else (max(t_m1, key=lambda x: x['total_score']) if t_m1 else None)
+            p_m1 = [o for o in t_m1 if o.get('passed_gatekeeper', False)]
+            cand_m1 = [o for o in p_m1 if o.get('risk_profile') == '平衡'] or p_m1 or t_m1
+            best_m1_opt = max(cand_m1, key=lambda x: x['total_score']) if cand_m1 else None
             m1_dte = best_m1_opt['dte'] if best_m1_opt else 30
             if m1_dte >= 25:
                 w_m1 = 0.60
@@ -1947,7 +1985,14 @@ def main():
             health_cell = f"<span style='color: {health_color}; font-weight: 600;'>{icon} {pass_cnt}/{avail_cnt} {health_lbl}</span><br><span style='font-size: 10.5px; color: #a1a1aa;'>{fpe_str}</span>"
         
         rp_color = "#34d399" if rp <= 20.0 else ("#f87171" if rp >= 60.0 else "#e4e4e7")
-        rp_lbl = "底端超跌" if rp <= 20.0 else ("中性阻力小" if rp <= 60.0 else "偏高区间")
+        if rp <= 8.0:
+            rp_lbl = "底端超跌"
+        elif rp <= 20.0:
+            rp_lbl = "历史低位区"
+        elif rp <= 60.0:
+            rp_lbl = "中性阻力小"
+        else:
+            rp_lbl = "偏高区间"
         rp_cell = f"<span style='color: #ffffff;'>${low_52:.2f} - ${high_52:.2f}</span><br><span style='color: {rp_color}; font-size: 11px; font-weight: 600;'>RP: {rp:.1f}% ({rp_lbl})</span>"
         
         dev_color = "#34d399" if dev <= 0.0 else "#f87171"
@@ -1964,12 +2009,22 @@ def main():
         t_m1 = [o for o in t_opts if o['dte'] <= 40]
         t_m2 = [o for o in t_opts if o['dte'] > 40]
 
-        # Scheme 1: Pick the highest opportunity passed contract for each horizon
-        p_m1 = [o for o in t_m1 if o.get('passed_gatekeeper', False)]
-        best_m1 = max(p_m1, key=lambda x: x['total_score'], default=None) if p_m1 else (max(t_m1, key=lambda x: x['total_score'], default=None) if t_m1 else None)
+        # Table 2 Master Row: Prioritize authentic Balanced contracts for display
+        def _get_best_display_opt(opts_list):
+            if not opts_list:
+                return None
+            passed = [o for o in opts_list if o.get('passed_gatekeeper', False)]
+            cand_pool = passed if passed else opts_list
+            bal = [o for o in cand_pool if o.get('risk_profile') == '平衡']
+            if bal:
+                return max(bal, key=lambda x: x['total_score'])
+            cons = [o for o in cand_pool if o.get('risk_profile') == '保守']
+            if cons:
+                return max(cons, key=lambda x: x['total_score'])
+            return max(cand_pool, key=lambda x: x['total_score'])
 
-        p_m2 = [o for o in t_m2 if o.get('passed_gatekeeper', False)]
-        best_m2 = max(p_m2, key=lambda x: x['total_score'], default=None) if p_m2 else (max(t_m2, key=lambda x: x['total_score'], default=None) if t_m2 else None)
+        best_m1 = _get_best_display_opt(t_m1)
+        best_m2 = _get_best_display_opt(t_m2)
 
         best_opt = best_m1 or best_m2 or (t_opts[0] if t_opts else None)
         comp_score = ticker_balanced_score.get(t, 80.0)

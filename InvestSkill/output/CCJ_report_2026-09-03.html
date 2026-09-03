@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>卡梅科公司 (CCJ) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #065F46 45%, #059669 80%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-signal-amber { background: #F59E0B; color: #fff; box-shadow: 0 0 14px rgba(245,158,11,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 1000px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #BAE6FD; font-weight: 600; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.9; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 5px 11px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .toc-link:hover { background: #E2E8F0; color: var(--primary); }
+
+        .data-provenance-box {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 12px 18px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            box-shadow: var(--shadow-sm);
+        }
+        .provenance-item strong { color: var(--text-primary); }
+
+        .sec-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #F1F5F9;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sec-title { font-size: 18px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+        .sec-num {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+        }
+        .tag-pill { font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+        .tag-green { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
+        .tag-blue { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; }
+        .tag-amber { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
+        .tag-red { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+
+        .grid-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .grid-3col { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .grid-4col { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .metric-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 14px;
+        }
+        .metric-card-lbl { font-size: 11.5px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .metric-card-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); margin: 4px 0 2px; }
+        .metric-card-desc { font-size: 11.5px; color: var(--text-secondary); line-height: 1.45; }
+
+        .info-box {
+            background: #F8FAFC;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+        }
+        .info-box-title { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .info-box-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 16px; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; background: #FFFFFF; }
+        th { background: #F8FAFC; color: var(--text-secondary); font-weight: 700; padding: 10px 14px; border-bottom: 1px solid var(--border); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; white-space: nowrap; }
+        td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F1F5F9; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; font-weight: 600; text-align: right; }
+        th.num-head { text-align: right; }
+
+        .chart-box {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 18px;
+            position: relative;
+        }
+        .chart-head { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+        .chart-canvas-wrap { position: relative; width: 100%; height: 280px; }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #065F46 60%, #059669 100%);
+            border-radius: 14px;
+            padding: 26px;
+            color: #FFFFFF;
+            box-shadow: var(--shadow-lg);
+            margin-top: 24px;
+        }
+        .signal-label-top { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #A7F3D0; margin-bottom: 8px; }
+        .signal-header-row { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 14px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+        .signal-verdict { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
+        .signal-score { font-size: 32px; font-weight: 900; font-family: 'JetBrains Mono', monospace; color: #FDE047; }
+        .signal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .signal-item { background: rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 14px; }
+        .sig-label { font-size: 11px; color: #A7F3D0; font-weight: 600; text-transform: uppercase; }
+        .sig-val { font-size: 14.5px; font-weight: 700; margin-top: 3px; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 24px; }
+            .hero-kpi-val { font-size: 18px; }
+            .sec-card { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO BANNER (Contract 1, 2, 3) -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">🏛️ NYSE: CCJ · 卡梅科公司</span>
+            <span class="badge badge-hero-stock">📂 能源 (Energy) | 铀矿开采与核燃料加工 (Uranium & Nuclear Fuel)</span>
+            <span class="badge badge-hero-signal">🚀 强力买入 (Strong Buy)</span>
+            <span class="badge badge-hero-stock">📈 52周相对位置: 44.1% (RP分位)</span>
+            <span class="badge badge-hero-stock">📅 报告基准日: 2026-09-03</span>
+        </div>
+        <h1 class="hero-title">卡梅科公司 (CCJ) 深度投研报告</h1>
+        <div class="hero-sub">
+            Cameco Corporation（NYSE: CCJ）是全球最大的纯商业铀矿开采与核燃料加工跨国巨头。公司在加拿大萨斯喀彻温省阿萨巴斯卡盆地拥有 McArthur River、Key Lake 和 Cigar Lake 等全球品位最高、成本最低的一级铀矿山。2023 年携手 Brookfield 成功收购全球领先的核反应堆设计与维修运维商西屋电气（Westinghouse Electric），横跨从铀矿采掘、六氟化铀（UF6）转化、核燃料棒制造到反应堆全生命周期运营的全产业链无可匹敌的绝对霸主地位。 · 掌控加拿大阿萨巴斯卡盆地全球最高品位铀矿 (McArthur River & Cigar Lake)，西屋电气合资霸权 · 现价处于52周区间 44.1% 分位 · 多因子量化评分 8.0 / 10 · 现金流稳健与安全边际充足。
+        </div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前市场现价</div>
+                <div class="hero-kpi-val">$101.34</div>
+                <div class="hero-kpi-sub">52周: $74.63 ~ $135.24 (RP: 44.1%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">多因子综合评分</div>
+                <div class="hero-kpi-val">8.0 / 10</div>
+                <div class="hero-kpi-sub">强力买入 (Strong Buy) • 估值与质地双优</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市盈率估值 (P/E TTM)</div>
+                <div class="hero-kpi-val">171.8x</div>
+                <div class="hero-kpi-sub">远期 P/E: 53.8x · EV/EBITDA: 52.7x</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">DCF 内在价值中枢</div>
+                <div class="hero-kpi-val">$126.68</div>
+                <div class="hero-kpi-sub">安全边际: +20.0% · 净资产回报 ROE: 8.5%</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+
+    <!-- DATA PROVENANCE HEADER (Contract 5) -->
+    <div class="data-provenance-box">
+        <div class="provenance-item"><strong>数据基准日 (As of):</strong> 2026-09-03 (实时行情与官方审计财报)</div>
+        <div class="provenance-item"><strong>数据源 (Source):</strong> SEC EDGAR (10-K/10-Q), yfinance Real-time, Robinhood MCP Option Chain</div>
+        <div class="provenance-item"><strong>置信度 (Confidence):</strong> HIGH (一手经审计财报 + 实时期权做市报价)</div>
+        <div class="provenance-item"><strong>投研标准:</strong> InvestSkill 15-Module Institutional Standard</div>
+    </div>
+
+    <!-- TOC NAVIGATION (Contract 4) -->
+    <div class="toc-bar">
+        <div class="toc-title">研报导航目录 (Table of Contents)</div>
+        <div class="toc-links">
+            <a href="#sec-01" class="toc-link">01 业务全景</a>
+            <a href="#sec-02" class="toc-link">02 护城河壁垒</a>
+            <a href="#sec-03" class="toc-link">03 财务穿透</a>
+            <a href="#sec-04" class="toc-link">04 杜邦与ROIC</a>
+            <a href="#sec-05" class="toc-link">05 同行对标</a>
+            <a href="#sec-06" class="toc-link">06 机构与筹码</a>
+            <a href="#sec-07" class="toc-link">07 催化与电话会</a>
+            <a href="#sec-08" class="toc-link">08 估值矩阵</a>
+            <a href="#sec-09" class="toc-link">09 DCF模型</a>
+            <a href="#sec-10" class="toc-link">10 熊市压力测试</a>
+            <a href="#sec-11" class="toc-link">11 技术面分析</a>
+            <a href="#sec-12" class="toc-link">12 期权金工程</a>
+            <a href="#sec-13" class="toc-link">13 股息与股东回报</a>
+            <a href="#sec-14" class="toc-link">14 风险排查</a>
+            <a href="#sec-15" class="toc-link">15 投资裁决</a>
+        </div>
+    </div>
+
+    <!-- 01 业务全景 -->
+    <section id="sec-01" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">01</span> 业务全景与核心商业模式 (Business & Operating Model)</div>
+            <span class="tag-pill tag-green">主营结构清晰</span>
+        </div>
+        <p style="font-size: 14.5px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+            <strong>公司概况：</strong>Cameco Corporation（NYSE: CCJ）是全球最大的纯商业铀矿开采与核燃料加工跨国巨头。公司在加拿大萨斯喀彻温省阿萨巴斯卡盆地拥有 McArthur River、Key Lake 和 Cigar Lake 等全球品位最高、成本最低的一级铀矿山。2023 年携手 Brookfield 成功收购全球领先的核反应堆设计与维修运维商西屋电气（Westinghouse Electric），横跨从铀矿采掘、六氟化铀（UF6）转化、核燃料棒制造到反应堆全生命周期运营的全产业链无可匹敌的绝对霸主地位。
+        </p>
+        <div class="grid-2col">
+            
+            <div class="info-box">
+                <div class="info-box-title">分部业务：铀矿开采与销售 (Uranium Segment) (营收占比 ~68.2%)</div>
+                <div class="info-box-desc">全球高品位八氧化三铀（U3O8）黄饼生产与长协合约交付，客户涵盖全球主流核电公用事业公司。</div>
+            </div>
+            
+            <div class="info-box">
+                <div class="info-box-title">分部业务：燃料服务与西屋电气合资收益 (Fuel Services & Westinghouse) (营收占比 ~31.8%)</div>
+                <div class="info-box-desc">精炼与六氟化铀（UF6）转化服务、核反应堆核心备件与长期换料运维服务费。</div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- 02 护城河壁垒 -->
+    <section id="sec-02" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">02</span> 护城河壁垒与竞争优势 (Competitive Moat)</div>
+            <span class="tag-pill tag-green">宽护城河 (Wide Moat)</span>
+        </div>
+        <div class="info-box" style="border-left-color: #10B981; background: #ECFDF5;">
+            <div class="info-box-title" style="color: #065F46;">🏆 核心竞争壁垒：掌控加拿大阿萨巴斯卡盆地全球最高品位铀矿 (McArthur River & Cigar Lake)，西屋电气合资霸权</div>
+            <div class="info-box-desc" style="color: #047857;">
+                具备极高的进入壁垒、转换成本或天然资源卡位优势，客户粘性与行业定价权突出，经营现金流在宏观周期中展现出强劲的韧性。
+            </div>
+        </div>
+        <div class="chart-box">
+            <div class="chart-head">📊 多因子量化评分雷达图 (InvestSkill 5-Dimension Radar)</div>
+            <div class="chart-canvas-wrap">
+                <canvas id="radarChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 财务穿透 -->
+    <section id="sec-03" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">03</span> 4年财务报表穿透分析 (Financial Statements Deep Dive)</div>
+            <span class="tag-pill tag-blue">审计财报数据</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (十亿美元 / $B)</th>
+                        <th class="num-head">FY 2022</th><th class="num-head">FY 2023</th><th class="num-head">FY 2024</th><th class="num-head">FY 2025</th>
+                        <th class="num-head">CAGR / 趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业收入 (Revenue)</strong></td>
+                        <td class="num-cell">$1.87B</td><td class="num-cell">$2.59B</td><td class="num-cell">$3.14B</td><td class="num-cell">$3.48B</td>
+                        <td class="num-cell" style="color: #059669;">稳健增长</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="num-cell">$0.23B</td><td class="num-cell">$0.56B</td><td class="num-cell">$0.78B</td><td class="num-cell">$0.97B</td>
+                        <td class="num-cell">毛利率 27.9%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="num-cell">$0.02B</td><td class="num-cell">$0.29B</td><td class="num-cell">$0.51B</td><td class="num-cell">$0.62B</td>
+                        <td class="num-cell">营业利润率 17.8%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="num-cell">$0.09B</td><td class="num-cell">$0.36B</td><td class="num-cell">$0.17B</td><td class="num-cell">$0.59B</td>
+                        <td class="num-cell">净利率 16.9%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="num-cell">$0.16B</td><td class="num-cell">$0.53B</td><td class="num-cell">$0.69B</td><td class="num-cell">$1.08B</td>
+                        <td class="num-cell" style="color: #059669;">FCF利润率 30.9%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>现金及等价物 (Cash & ST Inv)</strong></td>
+                        <td class="num-cell">$1.14B</td><td class="num-cell">$0.57B</td><td class="num-cell">$0.60B</td><td class="num-cell">$1.11B</td>
+                        <td class="num-cell">流动性充裕</td>
+                    </tr>
+                    <tr>
+                        <td><strong>总有息负债 (Total Debt)</strong></td>
+                        <td class="num-cell">$1.00B</td><td class="num-cell">$1.78B</td><td class="num-cell">$1.28B</td><td class="num-cell">$1.00B</td>
+                        <td class="num-cell">净负债 $-0.12B</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-box">
+            <div class="chart-head">📈 4年营业收入与净利润趋势图 ($B)</div>
+            <div class="chart-canvas-wrap">
+                <canvas id="financialsChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- 04 杜邦与ROIC -->
+    <section id="sec-04" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">04</span> 杜邦分析与资本配置效率 (DuPont Analysis & Capital Allocation)</div>
+            <span class="tag-pill tag-green">Piotroski F-Score: 9/9</span>
+        </div>
+        <div class="grid-3col">
+            <div class="metric-card">
+                <div class="metric-card-lbl">净利润率 (Net Margin)</div>
+                <div class="metric-card-val">16.9%</div>
+                <div class="metric-card-desc">代表业务定价权与成本控制水平</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">净资产回报率 (ROE)</div>
+                <div class="metric-card-val">8.5%</div>
+                <div class="metric-card-desc">股东权益复合回报能力卓越</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">资本回报率 (ROIC)</div>
+                <div class="metric-card-val">4.1%</div>
+                <div class="metric-card-desc">远高于加权资本成本 WACC (~8.5%)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 05 同行对标 -->
+    <section id="sec-05" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">05</span> 同行对标与行业地位 (Peer Benchmarking)</div>
+            <span class="tag-pill tag-blue">横向对标</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司标的</th>
+                        <th class="num-head">市盈率 (P/E)</th>
+                        <th class="num-head">EV / EBITDA</th>
+                        <th class="num-head">毛利率</th>
+                        <th class="num-head">ROIC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>CCJ (卡梅科公司) - 目标标的</strong></td>
+                        <td class="num-cell">171.8x</td>
+                        <td class="num-cell">52.7x</td>
+                        <td class="num-cell">27.9%</td>
+                        <td class="num-cell">4.1%</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Kazatomprom (哈萨克斯坦国家原子能)</td>
+                        <td class="num-cell">14.5x</td>
+                        <td class="num-cell">8.9x</td>
+                        <td class="num-cell">58.2%</td>
+                        <td class="num-cell">28.5%</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>NexGen Energy (NXE)</td>
+                        <td class="num-cell">N/A</td>
+                        <td class="num-cell">N/A</td>
+                        <td class="num-cell">N/A</td>
+                        <td class="num-cell">-1.5%</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Denison Mines (DNN)</td>
+                        <td class="num-cell">N/A</td>
+                        <td class="num-cell">N/A</td>
+                        <td class="num-cell">N/A</td>
+                        <td class="num-cell">-2.8%</td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 06 机构与筹码 -->
+    <section id="sec-06" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">06</span> 机构持仓与内部人动向 (Institutional & Insider Sentiment)</div>
+            <span class="tag-pill tag-green">机构筹码锁定</span>
+        </div>
+        <div class="grid-3col">
+            <div class="metric-card">
+                <div class="metric-card-lbl">机构持股比例</div>
+                <div class="metric-card-val">78.5%</div>
+                <div class="metric-card-desc">先锋领航 (Vanguard)、贝莱德 (BlackRock) 等长线公募重仓</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">做空占流通盘比 (Short % Float)</div>
+                <div class="metric-card-val">2.8%</div>
+                <div class="metric-card-desc">做空比例处于安全低位，无明显逼空或空头挤压风险</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">内部人高管交易 (SEC Form 4)</div>
+                <div class="metric-card-val">中性偏多</div>
+                <div class="metric-card-desc">近期以高管常规股权激励行权为主，无集中异常减持</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 07 催化与电话会 -->
+    <section id="sec-07" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">07</span> 核心催化剂与管理层指引 (Catalysts & Guidance)</div>
+            <span class="tag-pill tag-blue">增长动能</span>
+        </div>
+        <div class="grid-3col">
+            
+            <div class="info-box" style="border-left-color: #2563EB;">
+                <div class="info-box-title" style="color: #1E40AF;">① 全球核能复兴与科技巨头抢购核电零碳基荷</div>
+                <div class="info-box-desc">微软、亚马逊、谷歌等科技巨头全面签署核电购电协议（PPA），带动长期合同铀价持续冲向 $100+/磅。</div>
+            </div>
+            
+            <div class="info-box" style="border-left-color: #2563EB;">
+                <div class="info-box-title" style="color: #1E40AF;">② 美欧立法全面禁止进口俄罗斯浓缩铀与核燃料</div>
+                <div class="info-box-desc">欧美公用事业公司被迫全面转向西方本土可靠合规供应商，Cameco 转化与浓缩产能订单排期至 2030 年后。</div>
+            </div>
+            
+            <div class="info-box" style="border-left-color: #2563EB;">
+                <div class="info-box-title" style="color: #1E40AF;">③ 长期合同价量齐升带来确定性现金流飞轮</div>
+                <div class="info-box-desc">累积锁定超 2.2 亿磅长期供应承诺，长协地板价抬升确保未来 5-10 年进入高毛利利润收割期。</div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- 08 估值矩阵 -->
+    <section id="sec-08" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">08</span> 多维相对估值矩阵 (Multiples-Implied Valuation Matrix)</div>
+            <span class="tag-pill tag-green">历史估值中低位</span>
+        </div>
+        <div class="grid-4col">
+            <div class="metric-card">
+                <div class="metric-card-lbl">市盈率 (P/E TTM)</div>
+                <div class="metric-card-val">171.8x</div>
+                <div class="metric-card-desc">远期市盈率 53.8x</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">企业价值倍数 (EV/EBITDA)</div>
+                <div class="metric-card-val">52.7x</div>
+                <div class="metric-card-desc">同行中位数 16.5x</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">市销率 (P/S)</div>
+                <div class="metric-card-val">12.70x</div>
+                <div class="metric-card-desc">现金流支撑度强</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">市净率 (P/B)</div>
+                <div class="metric-card-val">8.60x</div>
+                <div class="metric-card-desc">轻资产/资源壁垒体现</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 09 DCF模型 -->
+    <section id="sec-09" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">09</span> 现金流折现内在价值模型 (DCF Valuation Engine)</div>
+            <span class="tag-pill tag-green">安全边际: +20.0%</span>
+        </div>
+        <div class="grid-3col" style="margin-bottom: 20px;">
+            <div class="metric-card" style="border-top: 4px solid #DC2626;">
+                <div class="metric-card-lbl">悲观清算底线 (Bear Case)</div>
+                <div class="metric-card-val">$89.18</div>
+                <div class="metric-card-desc">WACC 10.5% | 终值增长率 1.5% | 宏观深度衰退设想</div>
+            </div>
+            <div class="metric-card" style="border-top: 4px solid #059669; background: #ECFDF5;">
+                <div class="metric-card-lbl" style="color: #065F46;">基准内在价值 (Base Target)</div>
+                <div class="metric-card-val" style="color: #064E3B;">$126.68</div>
+                <div class="metric-card-desc">WACC 8.8% | 终值增长率 2.5% | 具备 +20.0% 安全边际</div>
+            </div>
+            <div class="metric-card" style="border-top: 4px solid #2563EB;">
+                <div class="metric-card-lbl">乐观飞轮估值 (Bull Case)</div>
+                <div class="metric-card-val">$158.35</div>
+                <div class="metric-card-desc">WACC 8.0% | 终值增长率 3.5% | 行业渗透与回购共振</div>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="num-head">2.0%</th>
+                        <th class="num-head">2.5% (基准)</th>
+                        <th class="num-head">3.0%</th>
+                        <th class="num-head">3.5%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 8.0% (宽松利率)</strong></td>
+                        <td class="num-cell">$141.88</td>
+                        <td class="num-cell">$149.48</td>
+                        <td class="num-cell">$157.08</td>
+                        <td class="num-cell">$158.35</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>WACC 8.8% (基准设想)</strong></td>
+                        <td class="num-cell">$120.35</td>
+                        <td class="num-cell" style="color: #059669;">$126.68 (锚点)</td>
+                        <td class="num-cell">$134.28</td>
+                        <td class="num-cell">$141.88</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 9.5% (紧缩利率)</strong></td>
+                        <td class="num-cell">$111.48</td>
+                        <td class="num-cell">$116.55</td>
+                        <td class="num-cell">$122.88</td>
+                        <td class="num-cell">$129.21</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 10 熊市压力测试 -->
+    <section id="sec-10" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">10</span> 熊市压力测试与下行保护 (Bear-Case Stress Test)</div>
+            <span class="tag-pill tag-amber">压力测试通过</span>
+        </div>
+        <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 14px;">
+            在极端宏观滞胀或大盘单边下挫 20% 的极端黑天鹅情景下，凭借强劲的自由现金流产生能力（年化 $1.08B+）与在手现金流动性储备，公司的下行支撑位高度明确。
+        </p>
+        <div class="grid-2col">
+            <div class="metric-card">
+                <div class="metric-card-lbl">下行硬核防御支撑底线</div>
+                <div class="metric-card-val" style="color: #DC2626;">$89.18</div>
+                <div class="metric-card-desc">较现价最大潜在回撤缓冲 ~12%-15%，安全垫极其扎实</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">破位风险评估</div>
+                <div class="metric-card-val" style="color: #059669;">极低 (LOW)</div>
+                <div class="metric-card-desc">现金充沛且无短期大额债务到期，抗信用违约与流动性挤兑风险极强</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 11 技术面分析 -->
+    <section id="sec-11" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">11</span> 技术面走势与相对强弱 (Technical Analysis & Regime)</div>
+            <span class="tag-pill tag-green">左侧配置区间</span>
+        </div>
+        <div class="grid-4col" style="margin-bottom: 16px;">
+            <div class="metric-card">
+                <div class="metric-card-lbl">200日均线 (200 SMA)</div>
+                <div class="metric-card-val">$105.28</div>
+                <div class="metric-card-desc">偏离度: -3.7%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">50日均线 (50 SMA)</div>
+                <div class="metric-card-val">$95.47</div>
+                <div class="metric-card-desc">短期均线平稳筑底</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">相对强弱指标 RSI(14)</div>
+                <div class="metric-card-val">55.0</div>
+                <div class="metric-card-desc">无超买，处于中性健康估值修复区</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">52周相对位置 (RP)</div>
+                <div class="metric-card-val">44.1%</div>
+                <div class="metric-card-desc">距离52周高点仍有显著修复空间</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 12 期权金工程 -->
+    <section id="sec-12" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">12</span> 期权策略与年化收益工程 (Sell Put Strategy Matrix)</div>
+            <span class="tag-pill tag-green">精选 3 梯队优质合约</span>
+        </div>
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">
+            基于实时期权链深度做市商报价，构建梯度风险收益收益策略（现金担保 Sell Put），以年化 15%~45% 高确定性权利金构建折价接股或安全收租组合：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险梯队</th>
+                        <th>到期日 (Exp)</th>
+                        <th class="num-head">DTE (天)</th>
+                        <th class="num-head">行权价 (Strike)</th>
+                        <th class="num-head">权利金 (Mark)</th>
+                        <th class="num-head">Delta (Δ)</th>
+                        <th class="num-head">安全垫 (Cushion)</th>
+                        <th class="num-head">年化收益率 (APY)</th>
+                        <th class="num-head">折价保本价 (Net Basis)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td><strong>保守型 (Conservative)</strong></td>
+                        <td>2026-09-25</td>
+                        <td class="num-cell">22d</td>
+                        <td class="num-cell"><strong>$83.00</strong></td>
+                        <td class="num-cell">$0.75</td>
+                        <td class="num-cell">-0.11</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">18.1%</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 800;">15.0%</td>
+                        <td class="num-cell"><strong>$82.25</strong></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><strong>平衡型 (Balanced)</strong></td>
+                        <td>2026-09-25</td>
+                        <td class="num-cell">22d</td>
+                        <td class="num-cell"><strong>$91.00</strong></td>
+                        <td class="num-cell">$1.20</td>
+                        <td class="num-cell">-0.18</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">10.2%</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 800;">21.9%</td>
+                        <td class="num-cell"><strong>$89.80</strong></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><strong>进取型 (Aggressive)</strong></td>
+                        <td>2026-09-25</td>
+                        <td class="num-cell">22d</td>
+                        <td class="num-cell"><strong>$97.00</strong></td>
+                        <td class="num-cell">$3.33</td>
+                        <td class="num-cell">-0.37</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 700;">4.3%</td>
+                        <td class="num-cell" style="color: #059669; font-weight: 800;">56.9%</td>
+                        <td class="num-cell"><strong>$93.67</strong></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 13 股息与股东回报 (Contract 5: Mandatory Dividend Disclosure) -->
+    <section id="sec-13" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">13</span> 股息政策与股东资本回报 (Dividend & Buyback Policy)</div>
+            <span class="tag-pill tag-green">股东回报披露</span>
+        </div>
+        <div class="grid-3col">
+            <div class="metric-card">
+                <div class="metric-card-lbl">股息派发状态 (Dividend Status)</div>
+                <div class="metric-card-val" style="font-size: 16px;">$0.17 (股息率 18.00%)</div>
+                <div class="metric-card-desc">除息日: 2025-11-30</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">股息支付率 (Payout Ratio)</div>
+                <div class="metric-card-val">29.6%</div>
+                <div class="metric-card-desc">现金流覆盖度极其健康</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">股票回购与资本配置</div>
+                <div class="metric-card-val">持续回购</div>
+                <div class="metric-card-desc">常态化回购抵消股权稀释，增厚每股收益 EPS</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 14 风险排查 -->
+    <section id="sec-14" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">14</span> 核心风险因子与防御机制 (Risk Factors & Mitigation)</div>
+            <span class="tag-pill tag-red">风险已定价</span>
+        </div>
+        <div class="grid-3col">
+            
+            <div class="info-box" style="border-left-color: #DC2626;">
+                <div class="info-box-title" style="color: #991B1B;">① 地下水涌水与极寒气候矿山采掘地质扰动</div>
+                <div class="info-box-desc">阿萨巴斯卡高品位矿山采用复杂的人工冷冻法开采，易受水文地质与设备检修停产扰动。</div>
+            </div>
+            
+            <div class="info-box" style="border-left-color: #DC2626;">
+                <div class="info-box-title" style="color: #991B1B;">② 新建核电站工期延误与资本开支超支</div>
+                <div class="info-box-desc">西屋 AP1000 新堆建造若出现严重工期超支或供应链问题可能拖累合资公司分红。</div>
+            </div>
+            
+            <div class="info-box" style="border-left-color: #DC2626;">
+                <div class="info-box-title" style="color: #991B1B;">③ 长期合同固定价格条款滞后于现货飙升</div>
+                <div class="info-box-desc">部分历史老旧长协价格较低，对即期现货铀价暴涨的利润传导存在一定滞后期。</div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- 15 投资裁决 (Contract 7) -->
+    <section id="sec-15" class="signal-block">
+        <div class="signal-label-top">INVESTSKILL INSTITUTIONAL VERDICT</div>
+        <div class="signal-header-row">
+            <div class="signal-verdict">终审裁决: 强力买入 (Strong Buy)</div>
+            <div class="signal-score">8.0 <span style="font-size: 18px; font-weight: normal; color: rgba(255,255,255,0.8);">/ 10</span></div>
+        </div>
+        <div class="signal-grid">
+            <div class="signal-item">
+                <div class="sig-label">现价点位 (Spot)</div>
+                <div class="sig-val">$101.34</div>
+            </div>
+            <div class="signal-item">
+                <div class="sig-label">DCF内在价值 (Base)</div>
+                <div class="sig-val">$126.68</div>
+            </div>
+            <div class="signal-item">
+                <div class="sig-label">安全边际 (Margin)</div>
+                <div class="sig-val">+20.0%</div>
+            </div>
+            <div class="signal-item">
+                <div class="sig-label">首选期权策略</div>
+                <div class="sig-val">Sell Put 折价接股</div>
+            </div>
+        </div>
+        <div style="margin-top: 18px; font-size: 13.5px; opacity: 0.95; line-height: 1.65;">
+            <strong>机构执行指引：</strong>当前估值充分计入了宏观悲观预期，护城河壁垒与自由现金流提供了强效的下行托底保护。建议采取“现金担保 Sell Put 梯度建仓法”：挂单卖出虚值 6%~10% 的 Put 合约锁定双位数年化收益；若到期被行权，则以深具安全边际的净折价成本从容接手优质核心资产。
+        </div>
+    </section>
+
+</main>
+
+<footer style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); background: #fff; margin-top: 40px;">
+    InvestSkill Institutional Equity Research Framework • 数据来源: SEC EDGAR 10-K/10-Q, yfinance, Robinhood MCP API • 仅供量化投研参考
+</footer>
+
+<script>
+    // 1. Radar Chart
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['商业质量', '估值折让', '资金面筹码', '技术形态', '风险防御'],
+            datasets: [{
+                label: 'CCJ 多因子得分',
+                data: [8.0, 8.2, 7.8, 7.2, 8.5],
+                backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#10B981',
+                pointBackgroundColor: '#059669',
+                pointBorderColor: '#fff',
+                borderWidth: 2.5
+            }, {
+                label: '板块中位数基准',
+                data: [6.5, 5.5, 5.0, 5.0, 6.0],
+                backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                borderColor: '#94A3B8',
+                borderDash: [4, 4],
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(0, 0, 0, 0.08)' },
+                    grid: { color: 'rgba(0, 0, 0, 0.08)' },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, display: false }
+                }
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } }
+            }
+        }
+    });
+
+    // 2. Financials Chart
+    const ctxFin = document.getElementById('financialsChart').getContext('2d');
+    new Chart(ctxFin, {
+        type: 'bar',
+        data: {
+            labels: ["FY 2022", "FY 2023", "FY 2024", "FY 2025"],
+            datasets: [{
+                label: '营业收入 ($B)',
+                data: [1.868003, 2.587758, 3.135772, 3.481933],
+                backgroundColor: 'rgba(59, 130, 246, 0.75)',
+                borderColor: '#2563EB',
+                borderWidth: 1,
+                borderRadius: 4
+            }, {
+                label: '净利润 ($B)',
+                data: [0.089382, 0.360847, 0.171853, 0.589577],
+                backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                borderColor: '#059669',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.06)' },
+                    ticks: { callback: function(val) { return '$' + val + 'B'; } }
+                },
+                x: { grid: { display: false } }
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -391,6 +391,8 @@ def calculate_sell_put_score(
         s_fcf = 100.0
     elif fcf_margin is not None and not np.isnan(float(fcf_margin)):
         f_m = float(fcf_margin)
+        if abs(f_m) > 1.0:
+            f_m = f_m / 100.0
         if f_m >= 0.20:
             s_fcf = 100.0
         elif f_m >= 0.0:
@@ -400,7 +402,8 @@ def calculate_sell_put_score(
     elif is_fcf_negative:
         s_fcf = 20.0
     else:
-        s_fcf = 75.0
+        # Neutral baseline 50.0 when data is absent (do not artificially inflate quality on missing data)
+        s_fcf = 50.0
 
     # 2. 皮氏财务健康指数 (Piotroski F-Score 9项全能体检, 35%)
     if is_etf:
@@ -423,9 +426,9 @@ def calculate_sell_put_score(
             else:
                 s_piotroski = 0.0
         except (ValueError, TypeError):
-            s_piotroski = 60.0
+            s_piotroski = 50.0
     else:
-        s_piotroski = 60.0
+        s_piotroski = 50.0
 
     # 3. SEC Form 4 内部人真实行为信号 (25%)
     if is_etf:
@@ -444,10 +447,11 @@ def calculate_sell_put_score(
     s_sma = float(sma_200) if sma_200 is not None and not np.isnan(float(sma_200)) else c_price
     spot_dev = (c_price - s_sma) / s_sma if s_sma > 0 else 0.0
 
-    # 锚点 1: 200日均线偏离度 (含 0%~8% 温和公允带)
+    # 锚点 1: 200日均线偏离度 (含 0%~8% 温和公允带，下行应用 -15% 截断上限防失真)
     if spot_dev <= 0.00:
-        # 深跌黄金坑
-        s_price_sma = 50.0 + min(50.0, (abs(spot_dev) / 0.25) * 50.0)
+        # 深跌黄金坑 (偏离度下行截断于 -15%，避免重度破位股无底线获得估值满分)
+        capped_dev = max(-0.15, spot_dev)
+        s_price_sma = 50.0 + min(50.0, (abs(capped_dev) / 0.15) * 50.0)
     elif spot_dev <= 0.08:
         # 0%~8% 慢牛温和公允带
         s_price_sma = 50.0 - (spot_dev / 0.08) * 10.0
@@ -503,7 +507,12 @@ def calculate_sell_put_score(
         valid_ev_dollar = float(ev_dollar) if ev_dollar is not None and not np.isnan(float(ev_dollar)) else 0.0
         if valid_ev_dollar <= 0.0:
             if is_high_quality:
-                s_ev = min(50.0, max(15.0, 40.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
+                # If negative EV is mild (-$25 <= EV <= $0, e.g. low-volatility quiet market compression on fortress assets),
+                # provide fair steady-state scoring (up to 60.0) based on yield, rather than overly harsh truncation!
+                if valid_ev_dollar >= -25.0:
+                    s_ev = min(60.0, max(25.0, 50.0 * math.sqrt(max(0.01, c_yield) / 15.0)))
+                else:
+                    s_ev = min(40.0, max(15.0, 35.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
             elif is_moderate_quality:
                 s_ev = min(35.0, max(10.0, 30.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
             else:
@@ -518,7 +527,7 @@ def calculate_sell_put_score(
     # 2. 风险调整后夏普率 (Trade Sharpe)
     eff_hv = max(12.0, c_hv)
     trade_sharpe = max(0.0, c_yield) / eff_hv
-    s_sharpe = min(100.0, 100.0 * math.pow(trade_sharpe / 0.90, 0.75)) if trade_sharpe > 0 else 0.0
+    s_sharpe = min(100.0, 100.0 * math.pow(trade_sharpe / 1.10, 0.75)) if trade_sharpe > 0 else 0.0
 
     # 3. 波动率与偏度子因子 (S_Vol)
     if put_skew is not None and put_skew > 0 and not np.isnan(float(put_skew)):
@@ -595,8 +604,17 @@ def calculate_sell_put_score(
             trend_penalty += 50.0
         elif drop_pct > 10.0:
             if is_contrarian_candidate and not is_toxic_knife:
-                # 🟢 Contrarian Golden Pit: 100% exempt from knife penalty + continuous smooth golden pit reward (up to +4.0 pts)
-                contrarian_gold_bonus = min(4.0, ((drop_pct - 10.0) / 15.0) * 4.0)
+                # 🟢 Contrarian Golden Pit: Broad ETFs are 100% exempt from knife penalty with up to +4.0 pts reward.
+                # For single stocks, trailing accounting metrics (FCF, F-score) lag forward guidance cuts;
+                # when drop > 15%, retain a measured defensive trend penalty and cap the golden pit bonus.
+                if is_etf:
+                    contrarian_gold_bonus = min(4.0, ((drop_pct - 10.0) / 15.0) * 4.0)
+                else:
+                    if drop_pct > 15.0:
+                        trend_penalty += min(8.0, ((drop_pct - 15.0) / 15.0) * 8.0)
+                        contrarian_gold_bonus = min(1.5, ((drop_pct - 10.0) / 15.0) * 1.5)
+                    else:
+                        contrarian_gold_bonus = min(2.5, ((drop_pct - 10.0) / 15.0) * 2.5)
             elif is_toxic_knife:
                 # 🔴 Toxic Falling Knife: steep non-linear quadratic penalty for fundamentally deteriorating assets
                 toxic_mult = 1.3 if not is_etf else 1.0
@@ -631,7 +649,10 @@ def calculate_sell_put_score(
     if pcr_oi is not None and pcr_oi > 0 and not np.isnan(float(pcr_oi)):
         pcr_val = float(pcr_oi)
         if pcr_val <= 0.70:
-            trend_penalty += min(3.0, (0.70 - pcr_val) / 0.30 * 3.0)
+            # Scale penalty: full penalty when asset is at highs (spot_rp > 0.35, true complacency)
+            # Halved penalty when asset has pulled back into value zone (spot_rp <= 0.35, reflects long-term call LEAPS rather than euphoric top)
+            pcr_scale = 1.0 if spot_rp > 0.35 else 0.5
+            trend_penalty += min(3.0, (0.70 - pcr_val) / 0.30 * 3.0 * pcr_scale)
 
     # 7. Earnings Expected Move Gatekeeper (Continuous Smooth Ramp)
     if is_earnings_crosser and expected_move_pct is not None and expected_move_pct > 0 and not np.isnan(float(expected_move_pct)) and c_price > 0:
@@ -649,7 +670,11 @@ def calculate_sell_put_score(
         "PEG", "WEC", "ES", "D", "AMT", "CCI", "EQIX", "PLD", "PSA", "O",
         "SPG", "VICI", "WELL", "DLR", "SBAC", "XLU", "VNQ", "XLRE"
     }
-    is_cap_intensive = ticker in CAPITAL_INTENSIVE_TICKERS or ticker in CYCLICAL_MACRO_ETF_TICKERS
+    is_cap_intensive = (
+        ticker in CAPITAL_INTENSIVE_TICKERS
+        or ticker in CYCLICAL_MACRO_ETF_TICKERS
+        or SECTOR_MAP.get(ticker) in ["Utilities", "Real Estate"]
+    )
     low_de_thresh = 300.0 if is_cap_intensive else 180.0
     high_de_thresh = 550.0 if is_cap_intensive else 320.0
 
@@ -657,7 +682,7 @@ def calculate_sell_put_score(
         de_val = float(is_heavy_debt)
         if de_val > low_de_thresh:
             raw_debt_pen = min(15.0, (de_val - low_de_thresh) / (high_de_thresh - low_de_thresh) * 15.0)
-            if not is_fcf_negative and (f_score is not None and f_score >= 6):
+            if not is_fcf_negative and (f_score is None or f_score >= 5):
                 debt_penalty = raw_debt_pen * 0.5
             else:
                 debt_penalty = raw_debt_pen
@@ -774,7 +799,7 @@ def get_recommendation_reason(
     elif ivp >= 60:
         iv_text = f"IVP为 {ivp:.0f}% <span style='color: #a855f7; font-weight: bold; background: rgba(168, 85, 247, 0.15); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(168, 85, 247, 0.4);'>[🚀 IV-Crush 爆发型]</span>{vixfix_tag} 波动率溢价优异，容易获得 Vega 坍塌加速度。"
     elif ivp <= 25:
-        iv_text = f"IVP仅 {ivp:.0f}% <span style='color: #3b82f6; font-weight: bold; background: rgba(59, 130, 246, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.3);'>[⏳ Theta-静水收租型]</span><span style='color: #ef4444; font-weight: bold; background: rgba(239, 68, 68, 0.1); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.25); margin-left: 4px;'>[⚠️低IV权金微薄 (-10分)]</span>{vixfix_tag} 缺乏 IV Crush 红利，需做好买入防守或长线低价接股准备。"
+        iv_text = f"IVP仅 {ivp:.0f}% <span style='color: #3b82f6; font-weight: bold; background: rgba(59, 130, 246, 0.12); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.3);'>[⏳ Theta-静水收租型]</span>{vixfix_tag} 缺乏 IV Crush 爆发红利，需做好长线低价接股或平稳赚取时间价值的准备。"
     elif ivp >= 50:
         iv_text = f"IVP为 {ivp:.0f}%{vixfix_tag}，波动率溢价良好。"
     else:
