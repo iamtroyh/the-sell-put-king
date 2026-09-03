@@ -910,7 +910,7 @@ def main():
                     ivr = None
                     has_true_iv = False
 
-                total_score, s_price, s_safety, s_option_alpha, s_yield, trend_penalty = calculate_sell_put_score(
+                total_score, s_price, s_safety, s_option_alpha, s_ev_val, trend_penalty = calculate_sell_put_score(
                     ticker=display_ticker,
                     current_price=current_price,
                     strike=strike,
@@ -943,6 +943,31 @@ def main():
                     is_monthly=is_monthly,
                 )
                     
+                # Calculate S_Quality for 50/50 Dual-Core Breakdown
+                if is_etf_symbol(display_ticker):
+                    s_qual = 100.0
+                else:
+                    f_m_raw = ticker_market_data[display_ticker].get('fcf_margin')
+                    if f_m_raw is not None and not np.isnan(float(f_m_raw)):
+                        f_m_val = float(f_m_raw)
+                        s_fcf = 100.0 if f_m_val >= 0.20 else (50.0 + (f_m_val / 0.20) * 50.0 if f_m_val >= 0.0 else max(0.0, 50.0 - (abs(f_m_val) / 0.20) * 50.0))
+                    elif is_fcf_negative:
+                        s_fcf = 20.0
+                    else:
+                        s_fcf = 75.0
+
+                    if f_score is not None:
+                        f_map = {8: 100.0, 7: 85.0, 6: 70.0, 5: 50.0, 4: 40.0, 3: 20.0}
+                        s_pio = f_map.get(int(f_score), 100.0 if int(f_score) >= 8 else 0.0)
+                    else:
+                        s_pio = 60.0
+
+                    s_ins = 100.0 if insider_sent == 'net_buying' else (0.0 if insider_sent == 'heavy_selling' else 50.0)
+                    s_qual = float(np.clip(0.40 * s_fcf + 0.35 * s_pio + 0.25 * s_ins, 0.0, 100.0))
+
+                dte_eff_opt = 1.0 if (28 <= dte <= 45) else (0.82 if dte < 28 else 0.90)
+                s_yield_val = float(np.clip((annualized_yield / 25.0) * 100.0 * dte_eff_opt, 0.0, 100.0))
+
                 opt_info = {
                     'ticker': display_ticker,
                     'current_price': current_price,
@@ -969,11 +994,13 @@ def main():
                     'trade_sharpe': trade_sharpe,
                     'breakeven': breakeven,
                     'half_kelly_pct': half_kelly_pct,
-                    's_yield': s_yield,
+                    's_quality': s_qual,
+                    's_yield': s_yield_val,
                     's_safety': s_safety,
                     's_option_alpha': s_option_alpha,
                     's_iv': s_option_alpha,
                     's_price': s_price,
+                    's_ev': s_ev_val,
                     'total_score': total_score,
                     'trend_penalty': trend_penalty,
                     'passed_gatekeeper': passed_gatekeeper,
@@ -1074,8 +1101,18 @@ def main():
         ticker_m2_score[t] = s_m2
 
         if s_m1 is not None and s_m2 is not None:
-            # Both Month 1 and Month 2 available: 50/50 Dual-Horizon Average
-            ticker_balanced_score[t] = (s_m1 + s_m2) / 2.0
+            # DTE-Adaptive Dual-Horizon Dynamic Weighting
+            # When near-month DTE >= 25: near-month is primary (60% Month 1 / 40% Month 2)
+            # When near-month DTE < 25 (entering expiry / rollout): shift primary capital weight smoothly to next-month (up to 80% Month 2)
+            best_m1_opt = max(p_m1, key=lambda x: x['total_score']) if p_m1 else (max(t_m1, key=lambda x: x['total_score']) if t_m1 else None)
+            m1_dte = best_m1_opt['dte'] if best_m1_opt else 30
+            if m1_dte >= 25:
+                w_m1 = 0.60
+                w_m2 = 0.40
+            else:
+                w_m2 = min(0.80, 0.50 + ((25 - m1_dte) / 15.0) * 0.30)
+                w_m1 = 1.0 - w_m2
+            ticker_balanced_score[t] = w_m1 * s_m1 + w_m2 * s_m2
         elif s_m1 is not None:
             # Single horizon available (e.g. Cycle 3 stocks with no CBOE listing in next 100 days): 100% Month 1 score
             ticker_balanced_score[t] = s_m1
@@ -1808,7 +1845,7 @@ def main():
             <th style="padding: 12px 8px; font-weight: 600; text-align: center; min-width: 55px; white-space: nowrap;" title="252日真实历史隐含波动率百分位 (IVP)">IVP</th>
             <th style="padding: 12px 10px; font-weight: 600; text-align: center; min-width: 85px; white-space: nowrap;">GICS 板块</th>
             <th style="padding: 12px 10px; font-weight: 600; text-align: center; min-width: 95px; white-space: nowrap;">InvestSkill 研报</th>
-            <th style="padding: 12px 10px; font-weight: 600; text-align: center; min-width: 110px; white-space: nowrap;" title="双周期综合均分: (近月分 + 次月分)/2">综合均分 (平衡型)<br><span style="font-size: 10px; font-weight: normal; color: #a1a1aa;">(近月 / 次月)</span></th>
+            <th style="padding: 12px 10px; font-weight: 600; text-align: center; min-width: 110px; white-space: nowrap;" title="50/50双核模型 (0~100分): 50% 资产底座 (质量+估值) + 50% 期权收租 (安全+溢价+周转)">综合均分 (平衡型)<br><span style="font-size: 10px; font-weight: normal; color: #a1a1aa;">(近月 / 次月)</span></th>
           </tr>
         </thead>
         <tbody>"""
@@ -2006,11 +2043,17 @@ def main():
         m_breakdown = f"<div style='font-size: 10px; color: #a1a1aa; margin-top: 2px;' title='近月与次月综合均分: (近月 + 次月)/2'><span style='color: #34d399;'>{m1_str}</span> <span style='color: #52525b;'>/</span> <span style='color: #38bdf8;'>{m2_str}</span></div>"
 
         if best_opt:
+            s_q_val = best_opt.get('s_quality', 80.0)
             s_p_val = best_opt.get('s_price', 0.0)
             s_s_val = best_opt.get('s_safety', 0.0)
             s_a_val = best_opt.get('s_option_alpha', 0.0)
+            s_y_val = best_opt.get('s_yield', 0.0)
             pen_val = best_opt.get('trend_penalty', 0.0)
             pen_str = f"<span style='color: #ef4444; font-size: 10px;'> -{pen_val:.0f}</span>" if pen_val > 0 else ""
+
+            # 50/50 Dual-Core Macro Layer Scores
+            s_asset_val = float(np.clip(0.50 * s_q_val + 0.50 * s_p_val, 0.0, 100.0))
+            s_opt_val = float(np.clip((0.20 * s_s_val + 0.18 * s_a_val + 0.12 * s_y_val) / 0.50, 0.0, 100.0))
 
             ev_d_val = best_opt.get('ev_dollar', 0.0)
             b_ivp = best_opt.get('ivp', 50.0)
@@ -2030,13 +2073,11 @@ def main():
                 f"<div style='text-align: center;'>"
                 f"<strong style='{score_s} font-size: 15px;'>{comp_score:.1f}</strong>"
                 f"{m_breakdown}"
-                f"<div style='font-size: 10.5px; display: flex; gap: 2px; align-items: center; justify-content: center; margin-top: 2px; font-family: monospace;' "
-                f"title='三支柱得分: 估值底 (50%) {s_p_val:.0f} / 接股安全 (30%) {s_s_val:.0f} / 期权Alpha (20%) {s_a_val:.0f}'>"
-                f"<span style='color: #60a5fa;' title='Pillar 1: 估值底 (50%)'>估{s_p_val:.0f}</span>"
-                f"<span style='color: #52525b;'>/</span>"
-                f"<span style='color: #34d399;' title='Pillar 2: 接股安全 (30%)'>安{s_s_val:.0f}</span>"
-                f"<span style='color: #52525b;'>/</span>"
-                f"<span style='color: #c084fc;' title='Pillar 3: 期权Alpha (20%)'>α{s_a_val:.0f}</span>"
+                f"<div style='font-size: 10.5px; display: flex; gap: 3px; align-items: center; justify-content: center; margin-top: 2px; font-family: monospace;' "
+                f"title='50/50双核明细: 资产底座 (50%) 质量 {s_q_val:.0f} / 估值 {s_p_val:.0f} | 期权收租 (50%) 安全 {s_s_val:.0f} / 溢价 {s_a_val:.0f} / 周转 {s_y_val:.0f}'>"
+                f"<span style='color: #60a5fa;' title='资产底座 (50%): 质量 {s_q_val:.0f} / 估值 {s_p_val:.0f}'>底{s_asset_val:.0f}</span>"
+                f"<span style='color: #52525b;'>·</span>"
+                f"<span style='color: #34d399;' title='期权收租 (50%): 安全 {s_s_val:.0f} / 溢价 {s_a_val:.0f} / 周转 {s_y_val:.0f}'>权{s_opt_val:.0f}</span>"
                 f"{pen_str}"
                 f"</div>"
                 f"{neg_ev_tag}"
@@ -2250,9 +2291,13 @@ def main():
                     iv_cell2 = f"<span style='color: #f4f4f5;'>{opt['iv']:.1f}%</span><br><span style='{ivp_text_style2} font-size: 10px;' title='True 252d IVP: {opt['ivp']:.0f}%, True 252d IVR: {opt['ivr']:.0f}%'>真IVP:{opt['ivp']:.0f}% <span style=\"color:#38bdf8;\">IVR:{opt['ivr']:.0f}%</span></span>"
                 else:
                     iv_cell2 = f"<span style='color: #f4f4f5;'>{opt['iv']:.1f}%</span><br><span style='{ivp_text_style2} font-size: 10px;'>IVP: {opt['ivp']:.0f}%</span>"
+                s_q_c = opt.get('s_quality', 80.0)
                 s_p_c = opt.get('s_price', 0.0)
                 s_s_c = opt.get('s_safety', 0.0)
                 s_a_c = opt.get('s_option_alpha', 0.0)
+                s_y_c = opt.get('s_yield', 0.0)
+                s_asset_c = float(np.clip(0.50 * s_q_c + 0.50 * s_p_c, 0.0, 100.0))
+                s_opt_c = float(np.clip((0.20 * s_s_c + 0.18 * s_a_c + 0.12 * s_y_c) / 0.50, 0.0, 100.0))
                 penalty_str2 = f" <span style='color: #ef4444;'>-{opt['trend_penalty']:.0f}</span>" if opt.get('trend_penalty', 0.0) > 0 else ""
                 ev_c_val = opt.get('ev_dollar', 0.0)
                 o_ivp = opt.get('ivp', 50.0)
@@ -2270,10 +2315,10 @@ def main():
                 score_cell2 = (
                     f"<strong style='{score_s2} font-size: 13.5px;'>{opt['total_score']:.1f}</strong><br>"
                     f"<span style='font-size: 10px; color: #a1a1aa; font-family: monospace;' "
-                    f"title='三支柱明细: 估值底 {s_p_c:.0f} / 接股安全 {s_s_c:.0f} / 期权Alpha {s_a_c:.0f}'>"
-                    f"<span style='color: #60a5fa;' title='Pillar 1: 估值底 (50%)'>估{s_p_c:.0f}</span>/"
-                    f"<span style='color: #34d399;' title='Pillar 2: 接股安全 (30%)'>安{s_s_c:.0f}</span>/"
-                    f"<span style='color: #c084fc;' title='Pillar 3: 期权Alpha (20%)'>α{s_a_c:.0f}</span>"
+                    f"title='50/50双核明细: 资产底座 (50%) 质量 {s_q_c:.0f} / 估值 {s_p_c:.0f} | 期权收租 (50%) 安全 {s_s_c:.0f} / 溢价 {s_a_c:.0f} / 周转 {s_y_c:.0f}'>"
+                    f"<span style='color: #60a5fa;' title='资产底座 (50%): 质量 {s_q_c:.0f} / 估值 {s_p_c:.0f}'>底{s_asset_c:.0f}</span>"
+                    f"<span style='color: #52525b;'>·</span>"
+                    f"<span style='color: #34d399;' title='期权收租 (50%): 安全 {s_s_c:.0f} / 溢价 {s_a_c:.0f} / 周转 {s_y_c:.0f}'>权{s_opt_c:.0f}</span>"
                     f"{penalty_str2}"
                     f"</span>"
                     f"{neg_ev_tag2}"

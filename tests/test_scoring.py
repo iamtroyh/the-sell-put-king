@@ -66,8 +66,8 @@ def test_sell_put_scoring():
         insider_sentiment="neutral",
     )
 
-    assert total > 60.0
-    assert s_safety >= 80.0
+    assert total > 55.0
+    assert s_safety >= 40.0
     assert penalty == 0.0
 
 
@@ -218,14 +218,9 @@ def test_scoring_missing_data_compatibility():
 
 
 def test_three_pillars_weighting_distribution():
-    # Verify 40% Price + 30% Safety + 30% Option Alpha base score exactness under 50-baseline normalization
-    # Long bull SPYM at valuation trough Dev <= 0:
-    # Net basis = 95 - 2 = 93.0 -> Dev = (93 - 110)/110 = -15.45% -> s_price = 50 + (0.154545/0.35)*50 = 72.078
-    # Spot Dev = (100 - 110)/110 = -9.09% -> val_safety_bonus = min(10.0, 0.0909*50) = 4.545 -> s_safety = 80 + 4.545 = 84.545
-    # s_ev = 100 * sqrt(15/20) = 86.6025, s_vol = 0.5(75) + 0.2(75) + 0.3(50) = 67.5, s_sharpe = 79.444
-    # s_alpha = 0.40(86.6025) + 0.35(79.444) + 0.25(67.5) = 79.46
-    # Base = 0.40(72.078) + 0.30(84.545) + 0.30(79.46) = 28.831 + 25.364 + 23.838 = 78.03
-    total, s_price, s_safety, s_alpha, _, penalty = calculate_sell_put_score(
+    # Verify V3.0 50/50 Dual-Core Multi-Factor Base Score Exactness:
+    # 50% Asset Layer (25% Quality + 25% Spot Valuation) + 50% Option Layer (20% Physical Safety + 18% Alpha + 12% Yield)
+    total, s_price, s_safety, s_alpha, s_yield, penalty = calculate_sell_put_score(
         ticker="SPYM",
         current_price=100.0,
         strike=95.0,
@@ -240,14 +235,16 @@ def test_three_pillars_weighting_distribution():
         curr_hv=30.0,
         ev_dollar=80.0,
         ev_apy=15.0,
-        put_skew=1.10,  # s_skew = 50.0
+        put_skew=1.10,
         ivr=75.0,
     )
 
-    assert abs(s_price - 72.08) < 1e-1
-    assert abs(s_safety - 84.55) < 1e-1
+    assert abs(s_price - 68.18) < 1e-1
+    assert abs(s_safety - 38.75) < 1e-1
     assert abs(s_alpha - 79.46) < 1e-1
-    assert abs(total - 80.03) < 1e-1
+    assert abs(s_yield - 86.60) < 1e-1  # 5th element is s_ev
+    assert abs(total - 72.45) < 1e-1
+    assert penalty == 0.0
 
 
 def test_option_ev_and_pop_calculation():
@@ -324,11 +321,12 @@ def test_multi_horizon_hv_calculation():
     assert hv_res["effective_hv"] > 10.0
 
 
-def test_net_basis_valuation_rewards_deep_otm():
+def test_spot_valuation_decoupling_and_otm_safety_advantage():
     # Long bull stock at Spot=210 (above SMA200=200, dev=+5%)
-    # Case A: ATM Put strike=210, mark=5.0 -> eval_price = 205 (above SMA200)
-    # Case B: OTM Put strike=180, mark=2.0 -> eval_price = 178 (well below SMA200, dev=-11%)
-    total_atm, s_price_atm, _, _, _, _ = calculate_sell_put_score(
+    # Case A: ATM Put strike=210, delta=-0.50 -> Z=0 (s_safety = 0)
+    # Case B: OTM Put strike=180, delta=-0.15 -> Z=2.12σ (s_safety = 100)
+    # Valuation is 100% decoupled from strike (s_price_atm == s_price_otm = 43.75 in 0~8% neutral band)
+    total_atm, s_price_atm, s_safety_atm, _, _, _ = calculate_sell_put_score(
         ticker="AAPL",
         current_price=210.0,
         strike=210.0,
@@ -343,7 +341,7 @@ def test_net_basis_valuation_rewards_deep_otm():
         curr_hv=25.0,
     )
 
-    total_otm, s_price_otm, _, _, _, _ = calculate_sell_put_score(
+    total_otm, s_price_otm, s_safety_otm, _, _, _ = calculate_sell_put_score(
         ticker="AAPL",
         current_price=210.0,
         strike=180.0,
@@ -358,9 +356,13 @@ def test_net_basis_valuation_rewards_deep_otm():
         curr_hv=25.0,
     )
 
-    # Net basis for OTM (178) is below SMA200 (200), so s_price should be significantly higher (+19.88 pts)
-    assert s_price_otm > s_price_atm
-    assert s_price_otm >= 65.0
+    # Valuation is purely asset-level and identical across strikes
+    assert s_price_otm == s_price_atm
+    assert abs(s_price_otm - 43.75) < 1e-2
+    # OTM advantage is purely captured in physical sigma safety (100 vs 0)
+    assert s_safety_otm > s_safety_atm
+    assert s_safety_otm == 100.0
+    assert s_safety_atm == 0.0
 
 
 def test_quality_aware_ev_protects_moat_assets():

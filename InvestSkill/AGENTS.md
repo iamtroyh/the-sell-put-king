@@ -170,3 +170,11 @@ All interactive Chart.js elements MUST use standardized semantic canvas IDs:
   * **内文分析属于大模型的自主智慧 (Intellectual Primacy)**：研报的核心价值 100% 取决于大语言模型（LLM）的深度思考、长上下文推理与穿透性财务洞察。**绝对严禁将研报退化为脚本机械填词、八股文模板拼装或空洞套话**！
   * **深度挖掘标的独特商业灵魂 (Deep Specificity)**：每一份研报必须深入剖析该标的所独有的护城河、行业周期与异动归因（例如 HDB 的存贷比置换与印度国运、LULU 的品类扩展与库存周转、ACN 的生成式 AI 落地新签订单周期、FSLR 的 IRA 补贴与薄膜壁垒），确保每一篇研报都具备华尔街顶级 Buy-Side 机构的深度与实战穿透力；
   * **脚本零篡改正文铁律 (Zero Text Tampering by Scripts)**：任何下游门禁、构建或归一化脚本（如 `generate-output-index.js`），**绝对严禁修改、覆盖或篡改 HTML 正文中的任何一段财务分析文字、辩论论点或估值推导逻辑**，投研内容永远受大模型自主推理最高统辖！
+
+---
+
+## 11. Single-Ticker Forced Instant Research Rule (单代码即强制实时调研铁律)
+- **无条件强制重研**: 当用户单独输入一个 Ticker（如 `ACN`、`NVDA`、`AAPL`、`TSLA`）或个股查询指令（如 `分析 AAPL`、`深度分析 NVDA`）时，系统**无条件将其识别为单标的强制深度调研指令**；
+- **突破 7 天缓存免生成限制**: 即使用户查询的标的在 7 天内已有历史研报，**也必须立即突破 7 天免重复生成规则**，以**今日最新日期（Today's Date）与最新实时行情（Live Spot & Greeks）**重新执行完整的 15 模块满血版深度研报生成流程；
+- **自动索引与看板嵌入**: 研报生成后，必须自动执行 `node InvestSkill/scripts/generate-output-index.js` 更新目录，并触发 `python3 scripts/generate_report.py` 将最新研报无缝嵌入主看板 `report.html` Tab 2。
+

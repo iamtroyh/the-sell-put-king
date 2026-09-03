@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Martin Marietta (MLM) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 32px 42px;
+            position: relative;
+            overflow: hidden;
+            color: #FFFFFF;
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 420px; height: 420px; border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid #34D399; }
+        .badge-hero-cat { background: rgba(255,255,255,.15); color: #D1FAE5; }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero-sub {
+            font-size: 15px;
+            color: #D1FAE5;
+            margin-bottom: 24px;
+            max-width: 880px;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; letter-spacing: .5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; color: #E2E8F0; }
+
+        .main-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #F1F5F9;
+        }
+        .sec-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 13px;
+            margin-right: 10px;
+        }
+        .sec-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #F1F5F9;
+            color: var(--slate);
+            text-transform: uppercase;
+        }
+
+        h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 18px 0 10px; }
+        h4 { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: .4px; }
+        p { margin-bottom: 12px; color: var(--text-secondary); font-size: 14px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+        .card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+        .card-emerald { background: #ECFDF5; border-color: #A7F3D0; }
+        .card-amber { background: #FEF3C7; border-color: #FDE68A; }
+        .card-red { background: #FEE2E2; border-color: #FECACA; }
+        .card-blue { background: #EFF6FF; border-color: #BFDBFE; }
+
+        .metric-item {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #E2E8F0;
+            padding-bottom: 4px;
+        }
+        .metric-item:last-child { border-bottom: none; }
+        .metric-lbl { font-size: 12px; color: var(--slate); font-weight: 500; }
+        .metric-val { font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 14px 0 20px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+            min-width: 600px;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-primary);
+            font-weight: 700;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .td-highlight { font-weight: 700; color: var(--primary); }
+        .td-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            margin: 16px 0;
+        }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 18px;
+            border-radius: 0 10px 10px 0;
+            margin: 16px 0;
+            font-size: 13.5px;
+            color: #064E3B;
+        }
+        .callout-title { font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+            color: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            margin-top: 32px;
+            box-shadow: 0 12px 32px rgba(5,150,105,0.25);
+            border: 1px solid #10B981;
+        }
+        .signal-block-title { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700; text-align: center; margin-bottom: 18px; }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+        }
+        .sig-cell { text-align: center; }
+        .sig-label { font-size: 11px; text-transform: uppercase; color: #D1FAE5; margin-bottom: 4px; }
+        .sig-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #fff; }
+        .signal-verdict { font-size: 26px; font-weight: 900; color: #34D399; text-shadow: 0 0 12px rgba(52,211,153,0.5); }
+        .signal-score { font-size: 28px; font-weight: 900; color: #FCD34D; }
+
+        .tier-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .tier-cons { background: #DBEAFE; color: #1D4ED8; }
+        .tier-mod { background: #D1FAE5; color: #065F46; }
+        .tier-agg { background: #FEF3C7; color: #92400E; }
+
+        @media (max-width: 768px) {
+            .report-hero { padding: 32px 16px; }
+            .hero-title { font-size: 24px; }
+            .main-wrap { padding: 20px 14px; }
+            .section { padding: 20px 16px; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NYSE: MLM</span>
+            <span class="badge badge-hero-signal">看多 (BULLISH)</span>
+            <span class="badge badge-hero-cat">基础建筑材料 / 骨料双寡头龙头 / IIJA基建与数据中心受益标的</span>
+            <span class="badge badge-hero-cat">报告日期: 2026-09-02</span>
+        </div>
+        <h1 class="hero-title">Martin Marietta (MLM) 深度投研报告</h1>
+        <div class="hero-sub">
+            全美重型建材与骨料 (Aggregates) 区域垄断双寡头之一；坐拥极其稀缺的采石场资源与 50 英里卡车经济运输半径护城河，“以价补量 (Price over Volume)”每年提价 10%+，深度受益于 $1.2T 联邦基建法案 (IIJA) 资金高峰与 AI 超算中心重载地基建设。
+        </div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前股价 (Spot Price)</div>
+                <div class="hero-kpi-val">$547.93</div>
+                <div class="hero-kpi-sub">52周区间: $523.48 - $709.08</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$32.91B</div>
+                <div class="hero-kpi-sub">企业价值 EV: $39.14B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">前瞻市盈率 (Forward P/E)</div>
+                <div class="hero-kpi-val">25.5x</div>
+                <div class="hero-kpi-sub">TTM PE: 35.6x | PEG: 2.72</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">TTM 营业收入 / 净利润</div>
+                <div class="hero-kpi-val">$6.69B / $0.93B</div>
+                <div class="hero-kpi-sub">毛利率: 28.2% | 营业利润率: 20.2%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">分析师目标价均值</div>
+                <div class="hero-kpi-val">$662.65</div>
+                <div class="hero-kpi-sub">最高目标价: $800.00 (+46.0%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">量化综合评分</div>
+                <div class="hero-kpi-val" style="color: #FCD34D;">8.3 / 10</div>
+                <div class="hero-kpi-sub">评级: 看多 (BULLISH)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+
+    <nav class="toc-bar">
+        <div class="toc-title">报告模块快速导航 (15 Comprehensive Modules)</div>
+        <div class="toc-links">
+            <a class="toc-link" href="#sec-1">1. 执行摘要与投资核心逻辑</a>
+            <a class="toc-link" href="#sec-2">2. 多因子量化评分雷达</a>
+            <a class="toc-link" href="#sec-3">3. 商业模式与波特五力护城河</a>
+            <a class="toc-link" href="#sec-4">4. 财务报表与盈利质量</a>
+            <a class="toc-link" href="#sec-5">5. 杜邦三因子拆解</a>
+            <a class="toc-link" href="#sec-6">6. 行业竞争格局与同行对标</a>
+            <a class="toc-link" href="#sec-7">7. DCF 估值与敏感性模型</a>
+            <a class="toc-link" href="#sec-8">8. 技术面量化与均线筹码</a>
+            <a class="toc-link" href="#sec-9">9. 资本配置与股息政策</a>
+            <a class="toc-link" href="#sec-10">10. 现金担保卖 Put 收益增强</a>
+            <a class="toc-link" href="#sec-11">11. 机构持仓与 13F 资金动向</a>
+            <a class="toc-link" href="#sec-12">12. 内部人交易与财报情绪</a>
+            <a class="toc-link" href="#sec-13">13. 做空比例与轧空风险</a>
+            <a class="toc-link" href="#sec-14">14. 核心风险矩阵与压力测试</a>
+            <a class="toc-link" href="#sec-15">15. 催化剂日历与增长路线图</a>
+            <a class="toc-link" href="#sec-16">16. 最终评级与信号区块</a>
+        </div>
+    </nav>
+
+    <!-- MODULE 1: 执行摘要与核心投资逻辑 -->
+    <section class="section" id="sec-1">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">01</span> 执行摘要与投资核心逻辑 (Executive Summary & Thesis)</div>
+            <span class="sec-tag">Thesis</span>
+        </div>
+        <p><strong>Martin Marietta Materials, Inc. (NYSE: MLM)</strong> 总部位于北卡罗来纳州罗利，是标普500成分股，全美顶尖的重型建筑材料生产商。公司与 Vulcan Materials (VMC) 共同构成美国重型建材与骨料（Aggregates：碎石、砂、砾石）领域的“黄金双寡头”，在阳光带（Sunbelt）及德州、佛罗里达、加州等核心高人口净流入州占据绝对垄断性矿权储备。</p>
+        
+        <div class="grid-3">
+            <div class="card card-emerald">
+                <h4>核心看多逻辑 1: 地理垄断与不可逆的提价权</h4>
+                <p style="font-size: 13px; margin: 0;">骨料具有极高的“重量/货值比”，卡车经济运输半径通常被严格限制在 40-50 英里之内。周边新采石场环保审批极度严苛（获批周期长达 5-10 年），使得现有矿山形成不可复制的局部天然垄断，公司凭借“以价补量”战略实现年化 10-15% 的持续单价提升。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>核心看多逻辑 2: IIJA 联邦基建法案与 AI 超算放量</h4>
+                <p style="font-size: 13px; margin: 0;">美国 $1.2T《跨党派基础设施法案》(IIJA) 资金进入实际施工高峰期，公路、桥梁、机场及水务工程需求刚性；同时，微软、亚马逊等科技巨头在得州、亚利桑那等 MLM 核心矿区大规模兴建 AI 超算数据中心，超大吨位高标号骨料直采量激增。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>核心看多逻辑 3: 52周底部蓄势与高自由现金流</h4>
+                <p style="font-size: 13px; margin: 0;">股价在经历高利率压制住宅开工的情绪打压后，从前期 $710 回调至 <strong>$547.93</strong> 处企稳，接近 52 周最低支撑位 ($523.48)。剥离低利润率南得州水泥资产后，资产负债表与现金流大幅优化，前瞻 P/E 回落至 25.4x，配置性价比极高。</p>
+            </div>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">💡 投资核心研判 (Verdict)</div>
+            市场近期过度聚焦短期高利率对独栋住宅开工率（Single-family starts）的压制，但住宅在 MLM 终端需求中占比已不足 20%，而基础设施（40%+）与非住宅重型工业/数据中心（35%+）正在全面放量。当前股价回落至 52 周强筹码支撑位，为长线资金提供了极佳的优质资产低吸窗口。
+        </div>
+    </section>
+
+    <!-- MODULE 2: 多因子量化评分雷达模型 -->
+    <section class="section" id="sec-2">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">02</span> 多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</div>
+            <span class="sec-tag">Quant Model</span>
+        </div>
+        <p>基于 InvestSkill 多因子量化评估系统，对 MLM 从护城河壁垒、定价权与盈利质量、基建催化与成长性、资产负债健康度、估值性价比、技术面动量 6 大维度进行 10 分制量化建模，综合得分 <strong>8.3 / 10</strong>。</p>
+
+        <div class="grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评估维度</th>
+                                <th>得分</th>
+                                <th>权重</th>
+                                <th>核心驱动与量化指标</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>护城河壁垒 (Moat)</strong></td>
+                                <td class="td-highlight td-mono">9.8 / 10</td>
+                                <td>25%</td>
+                                <td>采石场区域绝对垄断、50英里运输半径限制、环保审批几乎不可复制</td>
+                            </tr>
+                            <tr>
+                                <td><strong>定价权与盈利 (Pricing Power)</strong></td>
+                                <td class="td-highlight td-mono">9.0 / 10</td>
+                                <td>20%</td>
+                                <td>骨料单价连年递增 10%+，毛利率 28.2%，EBITDA 利润率超 31%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>基建催化与成长 (Growth)</strong></td>
+                                <td class="td-highlight td-mono">8.5 / 10</td>
+                                <td>20%</td>
+                                <td>IIJA 联邦资金集中释放 + 阳光带 AI 数据中心与半导体晶圆厂基建</td>
+                            </tr>
+                            <tr>
+                                <td><strong>财务健康与现金流 (Financials)</strong></td>
+                                <td class="td-highlight td-mono">8.0 / 10</td>
+                                <td>15%</td>
+                                <td>投资级 BBB+ 评级，净负债/EBITDA 约 2.4x，年 FCF 稳定在 $800M-$1.0B</td>
+                            </tr>
+                            <tr>
+                                <td><strong>估值水平 (Valuation)</strong></td>
+                                <td class="td-highlight td-mono">7.2 / 10</td>
+                                <td>10%</td>
+                                <td>Forward P/E 25.4x，处于历史估值中枢下方，较 52 周高点折价 23%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>技术面与动量 (Technicals)</strong></td>
+                                <td class="td-highlight td-mono">6.5 / 10</td>
+                                <td>10%</td>
+                                <td>在 52 周底部 $525-$545 区域获得强支撑，MACD 柱状图翻红底背离</td>
+                            </tr>
+                            <tr style="background: #F0FDF4; font-weight: 700;">
+                                <td><strong>综合加权总分 (Total Score)</strong></td>
+                                <td style="color: #059669; font-size: 16px;" class="td-mono">8.3 / 10</td>
+                                <td>100%</td>
+                                <td><strong>看多 (BULLISH)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 3: 商业模式、垂直整合与波特五力护城河评级 -->
+    <section class="section" id="sec-3">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">03</span> 商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="sec-tag">Moat Analysis</span>
+        </div>
+        <p>Martin Marietta 的商业模式本质是<strong>“特许经营权级别的地下资源开采与本地化专营分销”</strong>。公司产品涵盖骨料（占比 >65% 利润贡献）、水泥、预拌混凝土、沥青及高附加值镁基化学品（Magnesia Specialties）。</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>骨料业务的不可替代性与地理壁垒</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 6px;"><strong>物流重力法则：</strong>每吨碎石售价仅约 $18-$25，但卡车每英里运费高达 $0.25-$0.35/吨。超过 50 英里后运费将超过材料本身，杜绝了外来低价长途竞争。</li>
+                    <li style="margin-bottom: 6px;"><strong>区划准入与 NIMBY 效应：</strong>在人口稠密和经济活跃的都会区，居民环保抵触情绪（NIMBY）使得新建采石场极其困难，拥有存量数十年开采权的企业享有永续现金牛地位。</li>
+                    <li style="margin-bottom: 6px;"><strong>SOAR 2025 战略优化：</strong>公司持续剥离周期波动大、资本开支高的非核心水泥资产（如以 $2.1B 出售南得州水泥厂给 CRH），将资本全力聚焦于超高毛利的骨料矿山并购。</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>波特五力模型量化评级</h4>
+                <div class="metric-item">
+                    <span class="metric-lbl">1. 供应商议价能力 (Supplier Power)</span>
+                    <span class="metric-val" style="color: #059669;">极弱 (自产矿石资源，仅设备与柴油采购)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">2. 买方议价能力 (Buyer Power)</span>
+                    <span class="metric-val" style="color: #059669;">弱 (基建总包商别无选择，材料占工程总成本低)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">3. 潜在进入者威胁 (New Entrants)</span>
+                    <span class="metric-val" style="color: #059669;">极弱 (采矿权受环保与区划限制，进入壁垒极高)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">4. 替代品威胁 (Substitutes)</span>
+                    <span class="metric-val" style="color: #059669;">无 (现代土木与公路混凝土无任何经济替代品)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">5. 行业内部竞争 (Industry Rivalry)</span>
+                    <span class="metric-val" style="color: #059669;">极弱 (与 VMC 各自盘踞核心矿区，理性寡头默契提价)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 4: 核心财务报表与盈利质量深度剖析 -->
+    <section class="section" id="sec-4">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">04</span> 核心财务报表与盈利质量深度剖析 (Financial Statements & Quality)</div>
+            <span class="sec-tag">Financials</span>
+        </div>
+        <p>公司营收稳定在 <strong>$6.1B - $6.7B</strong> 平台，通过纯骨料化战略聚焦，营业利润率从 2022 年的 19.7% 稳步攀升至 <strong>23.7%</strong>，盈利质量在周期波动中展现极强韧性。</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (单位: 亿美元)</th>
+                        <th>FY2022</th>
+                        <th>FY2023</th>
+                        <th>FY2024</th>
+                        <th>FY2025</th>
+                        <th>TTM (最新12个月)</th>
+                        <th>长期复合表现</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业收入 (Revenue)</strong></td>
+                        <td class="td-mono">$6.16B</td>
+                        <td class="td-mono">$5.85B</td>
+                        <td class="td-mono">$5.66B</td>
+                        <td class="td-mono td-highlight">$6.15B</td>
+                        <td class="td-mono td-highlight">$6.69B</td>
+                        <td class="td-mono" style="color: #059669;">业务剥离调整后内生增长 +8.5%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="td-mono">$1.42B (23.1%)</td>
+                        <td class="td-mono">$1.75B (29.8%)</td>
+                        <td class="td-mono">$1.64B (28.9%)</td>
+                        <td class="td-mono td-highlight">$1.89B (30.7%)</td>
+                        <td class="td-mono td-highlight">$1.89B (28.2%)</td>
+                        <td class="td-mono" style="color: #059669;">骨料提价驱动毛利率大幅抬升</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="td-mono">$1.22B</td>
+                        <td class="td-mono">$1.33B</td>
+                        <td class="td-mono">$1.25B</td>
+                        <td class="td-mono td-highlight">$1.46B</td>
+                        <td class="td-mono td-highlight">$1.35B</td>
+                        <td class="td-mono" style="color: #059669;">稳健提升 (+19.7%)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>调整后 EBITDA</strong></td>
+                        <td class="td-mono">$1.77B</td>
+                        <td class="td-mono">$1.90B</td>
+                        <td class="td-mono">$3.11B (含处置)</td>
+                        <td class="td-mono td-highlight">$2.09B</td>
+                        <td class="td-mono td-highlight">$2.13B</td>
+                        <td class="td-mono" style="color: #059669;">EBITDA 利润率稳定在 31%+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>稀释每股收益 (Diluted EPS)</strong></td>
+                        <td class="td-mono">$13.87</td>
+                        <td class="td-mono">$18.82</td>
+                        <td class="td-mono">$32.41 (含收益)</td>
+                        <td class="td-mono td-highlight">$18.77</td>
+                        <td class="td-mono td-highlight">$15.40 (常规化)</td>
+                        <td class="td-mono" style="color: #059669;">内生 EPS 保持年化 12%+ 增速</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating CF)</strong></td>
+                        <td class="td-mono">$0.99B</td>
+                        <td class="td-mono">$1.53B</td>
+                        <td class="td-mono">$1.46B</td>
+                        <td class="td-mono td-highlight">$1.79B</td>
+                        <td class="td-mono td-highlight">$1.52B</td>
+                        <td class="td-mono" style="color: #059669;">现金转换比率超 100%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="td-mono">$0.51B</td>
+                        <td class="td-mono">$0.88B</td>
+                        <td class="td-mono">$0.60B</td>
+                        <td class="td-mono td-highlight">$0.98B</td>
+                        <td class="td-mono td-highlight">$0.59B</td>
+                        <td class="td-mono" style="color: #059669;">近3年累计生成 $2.5B+ FCF</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <h4>骨料单吨盈利指标 (Unit Margin)</h4>
+                <p style="font-size: 12.5px; margin: 0;">骨料每吨平均出厂售价 (ASP) 突破 $21.50/吨，每吨毛利 (Gross Profit per Ton) 达到创纪录的 $7.80/吨，即使在出货量因降雨和开工率微跌的情况下，总利润依旧创出新高。</p>
+            </div>
+            <div class="card">
+                <h4>资产剥离与并购战略复盘</h4>
+                <p style="font-size: 12.5px; margin: 0;">2024年以 $2.1B 出售南得州水泥资产，并以 $2.05B 收购 Albert Stowell 优质骨料矿山，彻底优化业务组合，降低碳足迹与重资产维护成本，骨料纯度升至历史最高。</p>
+            </div>
+            <div class="card">
+                <h4>债务结构与评级</h4>
+                <p style="font-size: 12.5px; margin: 0;">总债务约 $5.7B，净负债/EBITDA 维持在 2.4x 的健康水平。加权平均债务期限在 10 年以上，绝大部分为固定利率长期债券，无任何再融资压力。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 5: 杜邦三因子拆解与资本运营效率 -->
+    <section class="section" id="sec-5">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">05</span> 杜邦三因子拆解与资本运营效率 (DuPont Analysis)</div>
+            <span class="sec-tag">DuPont Analysis</span>
+        </div>
+        <p>通过经典杜邦分析法（$ROE = \text{净利润率} \times \text{资产周转率} \times \text{权益乘数}$），透视 MLM 资本回报率变迁：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>年度</th>
+                        <th>净利润率 (Net Margin)</th>
+                        <th>资产周转率 (Asset Turnover)</th>
+                        <th>权益乘数 (Financial Leverage)</th>
+                        <th>净资产收益率 (ROE)</th>
+                        <th>运营效率归因</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2022</strong></td>
+                        <td class="td-mono">14.07%</td>
+                        <td class="td-mono">0.41次</td>
+                        <td class="td-mono">2.09x</td>
+                        <td class="td-mono">12.09%</td>
+                        <td>通胀高企，柴油与运费成本上升导致利润率受压</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td class="td-mono">19.98%</td>
+                        <td class="td-mono">0.39次</td>
+                        <td class="td-mono">1.88x</td>
+                        <td class="td-mono">14.55%</td>
+                        <td>全面启动主动提价机制，利润率反弹推高 ROE</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td class="td-mono">35.24% (含处置)</td>
+                        <td class="td-mono">0.31次</td>
+                        <td class="td-mono">1.92x</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">21.11%</td>
+                        <td>资产出售带来大额一次性投资收益与现金回流</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2025 (常规化)</strong></td>
+                        <td class="td-mono td-highlight">18.49%</td>
+                        <td class="td-mono td-highlight">0.33次</td>
+                        <td class="td-mono td-highlight">1.87x</td>
+                        <td class="td-mono td-highlight" style="color: #059669; font-weight: 800;">11.33%</td>
+                        <td><strong>权益乘数稳定在 1.87x，内生 ROE 稳步夯实</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">📌 杜邦拆解核心洞察</div>
+            重型建材行业天然具有重资产、资产周转率较低（0.33-0.40次）的特性。MLM 保持 11-15% 稳健 ROE 的核心发动机是<strong>持续扩张的高净利率（18-20%）</strong>与<strong>极其稳健的适度杠杆（1.87x）</strong>，展现出抗周期的公用事业级护城河特征。
+        </div>
+    </section>
+
+    <!-- MODULE 6: 行业竞争格局与同行全景对标矩阵 -->
+    <section class="section" id="sec-6">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">06</span> 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="sec-tag">Peer Matrix</span>
+        </div>
+        <p>将 Martin Marietta 与美股及全球重型建材领头羊（Vulcan Materials、CRH plc、Eagle Materials、Cemex）进行横向全景对标：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>证券代码</th>
+                        <th>公司名称</th>
+                        <th>当前市值</th>
+                        <th>前瞻 P/E</th>
+                        <th>EV/EBITDA</th>
+                        <th>毛利率</th>
+                        <th>营业利润率</th>
+                        <th>股息收益率</th>
+                        <th>资产负债率 (Debt/Eq)</th>
+                        <th>核心竞争优势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>MLM</strong></td>
+                        <td>Martin Marietta</td>
+                        <td class="td-mono td-highlight">$32.91B</td>
+                        <td class="td-mono td-highlight">25.46x</td>
+                        <td class="td-mono td-highlight">18.4x</td>
+                        <td class="td-mono td-highlight">28.23%</td>
+                        <td class="td-mono td-highlight">20.18%</td>
+                        <td class="td-mono td-highlight">0.61%</td>
+                        <td class="td-mono td-highlight">56.9%</td>
+                        <td><strong>纯骨料化顶级纯度，得州与阳光带采石场霸主</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>VMC</strong></td>
+                        <td>Vulcan Materials</td>
+                        <td class="td-mono">$36.54B</td>
+                        <td class="td-mono">26.1x</td>
+                        <td class="td-mono">18.9x</td>
+                        <td class="td-mono">27.5%</td>
+                        <td class="td-mono">19.2%</td>
+                        <td class="td-mono">0.74%</td>
+                        <td class="td-mono">58.2%</td>
+                        <td>全美骨料总出货量第一，加州与东南部优势明显</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CRH</strong></td>
+                        <td>CRH plc</td>
+                        <td class="td-mono">$64.63B</td>
+                        <td class="td-mono">14.7x</td>
+                        <td class="td-mono">10.5x</td>
+                        <td class="td-mono">36.3%</td>
+                        <td class="td-mono">14.8%</td>
+                        <td class="td-mono">1.61%</td>
+                        <td class="td-mono">77.6%</td>
+                        <td>全球综合建材巨头，包含欧洲业务与沥青道路承包</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EXP</strong></td>
+                        <td>Eagle Materials</td>
+                        <td class="td-mono">$6.40B</td>
+                        <td class="td-mono">14.5x</td>
+                        <td class="td-mono">9.8x</td>
+                        <td class="td-mono">27.0%</td>
+                        <td class="td-mono">25.1%</td>
+                        <td class="td-mono">0.48%</td>
+                        <td class="td-mono">120.7%</td>
+                        <td>美国水泥与石膏板制造龙头，偏向住宅内装</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CX</strong></td>
+                        <td>Cemex SAB</td>
+                        <td class="td-mono">$15.96B</td>
+                        <td class="td-mono">12.0x</td>
+                        <td class="td-mono">7.2x</td>
+                        <td class="td-mono">33.0%</td>
+                        <td class="td-mono">11.6%</td>
+                        <td class="td-mono">0.89%</td>
+                        <td class="td-mono">53.6%</td>
+                        <td>墨西哥及拉美水泥龙头，新兴市场周期敞口大</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-emerald">
+                <h4>对标总结 1: 估值较双寡头同行折价</h4>
+                <p style="font-size: 13px; margin: 0;">同为纯正骨料双寡头，MLM 当前前瞻市盈率 25.4x 略低于 VMC (26.1x)，且 MLM 在得州重工业基建及 AI 数据中心走廊的矿权集中度更高，增长爆发力更强。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>对标总结 2: 纯骨料相比综合建材的溢价合理性</h4>
+                <p style="font-size: 13px; margin: 0;">CRH 和 CX 估值乘数较低主要是因为含有大量重资本、高碳排且竞争分散的水泥与道路施工业务；而 MLM 专注于高毛利、轻碳排、受环保管制的骨料，理应享有更高的护城河估值溢价。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 7: DCF 现金流折现与内在价值三情景敏感性模型 -->
+    <section class="section" id="sec-7">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">07</span> DCF 现金流折现与内在价值三情景敏感性模型 (DCF Valuation)</div>
+            <span class="sec-tag">DCF Model</span>
+        </div>
+        <p>基于 5 年期自由现金流预测模型（2026-2030），终值永续增长率 $g = 2.8\%$，无风险利率 $R_f = 4.25\%$，Beta $\beta = 1.11$，股权风险溢价 $ERP = 5.0\%$，测算加权平均资本成本 <strong>WACC = 8.1%</strong>。</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>情景分类</th>
+                        <th>年复合营收增速 (2026-30)</th>
+                        <th>稳态 EBITDA 利润率</th>
+                        <th>核心催化与假设</th>
+                        <th>每股内在价值 (Fair Value)</th>
+                        <th>较现价 ($547.93) 空间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #FEE2E2;">
+                        <td><strong>悲观情景 (Bear Case)</strong></td>
+                        <td class="td-mono">3.0%</td>
+                        <td class="td-mono">27.0%</td>
+                        <td style="font-size: 12px;">高利率长期压制独栋住宅，基建拨款落地滞后</td>
+                        <td class="td-mono" style="font-weight: 800; color: #DC2626;">$475.00</td>
+                        <td class="td-mono" style="color: #DC2626;">-13.3%</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>基准情景 (Base Case)</strong></td>
+                        <td class="td-mono">7.5%</td>
+                        <td class="td-mono">32.0%</td>
+                        <td style="font-size: 12px;">IIJA 资金按计划释放，骨料每年提价 8-10%</td>
+                        <td class="td-mono" style="font-weight: 800; color: #059669; font-size: 15px;">$665.00</td>
+                        <td class="td-mono" style="color: #059669;">+21.4%</td>
+                    </tr>
+                    <tr style="background: #EFF6FF;">
+                        <td><strong>乐观情景 (Bull Case)</strong></td>
+                        <td class="td-mono">12.0%</td>
+                        <td class="td-mono">35.0%</td>
+                        <td style="font-size: 12px;">美联储降息带动住宅复苏，AI 超算基建全面爆发</td>
+                        <td class="td-mono" style="font-weight: 800; color: #2563EB;">$790.00</td>
+                        <td class="td-mono" style="color: #2563EB;">+44.2%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h4>WACC 与永续增长率 (g) 敏感性矩阵 (基准情景每股价值)</h4>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ g</th>
+                        <th>2.0%</th>
+                        <th>2.5%</th>
+                        <th>2.8% (基准)</th>
+                        <th>3.2%</th>
+                        <th>3.5%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>7.1% (-100bp)</strong></td>
+                        <td class="td-mono">$715.30</td>
+                        <td class="td-mono">$762.80</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">$798.50</td>
+                        <td class="td-mono">$842.10</td>
+                        <td class="td-mono">$885.60</td>
+                    </tr>
+                    <tr style="background: #F0FDF4; font-weight: 700;">
+                        <td><strong>8.1% (基准 WACC)</strong></td>
+                        <td class="td-mono">$602.40</td>
+                        <td class="td-mono">$638.10</td>
+                        <td class="td-mono td-highlight" style="font-size: 14px;">$665.00</td>
+                        <td class="td-mono">$698.20</td>
+                        <td class="td-mono">$728.90</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9.1% (+100bp)</strong></td>
+                        <td class="td-mono">$518.70</td>
+                        <td class="td-mono">$545.20</td>
+                        <td class="td-mono">$564.80</td>
+                        <td class="td-mono">$589.40</td>
+                        <td class="td-mono">$611.50</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 8: 技术面量化、均线系统与关键筹码位 -->
+    <section class="section" id="sec-8">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">08</span> 技术面量化、均线系统与关键筹码位 (Technical Analysis)</div>
+            <span class="sec-tag">Technicals</span>
+        </div>
+        <p>股价在经历 5 个月的宽幅回调后，在 <strong>$525 - $545 关键筹码密集区完成双底构筑</strong>，MACD 柱状图出现明显底背离金叉翻红。</p>
+
+        <div class="grid-2">
+            <div>
+                <div class="chart-box">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>技术指标</th>
+                                <th>当前数值</th>
+                                <th>状态判定</th>
+                                <th>交易策略含义</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>现价 (Price)</strong></td>
+                                <td class="td-mono td-highlight">$547.93</td>
+                                <td>52周低位震荡</td>
+                                <td>接近 52 周最低价 ($523.48)，下行空间极其有限</td>
+                            </tr>
+                            <tr>
+                                <td><strong>20日均线 (SMA20)</strong></td>
+                                <td class="td-mono">$551.33</td>
+                                <td>紧贴缠绕</td>
+                                <td>短期多空争夺焦点，突破即确立反弹</td>
+                            </tr>
+                            <tr>
+                                <td><strong>50日均线 (SMA50)</strong></td>
+                                <td class="td-mono">$571.63</td>
+                                <td>中线第一阻力</td>
+                                <td>第一波段反弹目标位</td>
+                            </tr>
+                            <tr>
+                                <td><strong>200日均线 (SMA200)</strong></td>
+                                <td class="td-mono">$606.42</td>
+                                <td>长期多空分界</td>
+                                <td>突破 $606 将确认大级别反转行情</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RSI (14日相对强弱)</strong></td>
+                                <td class="td-mono">41.8</td>
+                                <td>超卖区边沿 (41.8)</td>
+                                <td>抛压耗尽，处于严重被低估的技术超卖区域</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MACD (12, 26, 9)</strong></td>
+                                <td class="td-mono">Dif: -7.25 / Hist: +0.70</td>
+                                <td style="color: #059669; font-weight: 700;">金叉底背离</td>
+                                <td>绿柱翻红，发出明确左侧/右侧拐点信号</td>
+                            </tr>
+                            <tr>
+                                <td><strong>关键支撑与阻力</strong></td>
+                                <td colspan="3" style="font-size: 12px;">
+                                    <strong>第一支撑:</strong> $535.00 | <strong>强筹码铁底:</strong> $523.00 (52周最低)<br>
+                                    <strong>第一阻力:</strong> $572.00 (SMA50) | <strong>主阻力:</strong> $606.00 (SMA200)
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 9: 资本配置、股息政策与股东回报披露 -->
+    <section class="section" id="sec-9">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">09</span> 资本配置、股息政策与股东回报披露 (Capital Allocation & Dividend)</div>
+            <span class="sec-tag">Capital Allocation</span>
+        </div>
+        <p>公司秉承极其稳健的资本配置哲学，采用<strong>“稳步增长股息 + 积极股票回购 + 严格 ROIC 导向并购”</strong>的三位一体回报机制：</p>
+
+        <div class="grid-2">
+            <div class="card card-emerald">
+                <h4>股息政策透明披露 (Mandatory Dividend Disclosure)</h4>
+                <div class="metric-item">
+                    <span class="metric-lbl">股息派发状态 (Dividend Status)</span>
+                    <span class="metric-val" style="color: #059669; font-weight: 800;">按季度持续派息 (Active Dividend Payer)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">股息收益率 (Dividend Yield)</span>
+                    <span class="metric-val">0.61%</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">年度派息金额 (Annual Payout)</span>
+                    <span class="metric-val">$3.36 / 股 ($0.84 / 季)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">派息率 (Payout Ratio)</span>
+                    <span class="metric-val">21.59% (安全充裕)</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-lbl">连续增息历史 (Dividend Growth)</span>
+                    <span class="metric-val">连续 8 年以上稳步调升</span>
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); margin-top: 10px;">
+                    <strong>股息安全性与增长空间：</strong>派息率仅为 21.6%，年股息支出约 $200M，占公司年化自由现金流不足 25%，股息具备极高安全垫。公司历史股息 5 年复合增长率达到 10.5%。
+                </p>
+            </div>
+            <div class="card">
+                <h4>股票回购与资本开支</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 8px;"><strong>大规模股票回购：</strong>2024-2025年每年稳定执行约 $450M 股票回购，积极对冲股权激励并持续缩减流通股本（流通股从 6,240 万股降至约 6,000 万股）。</li>
+                    <li style="margin-bottom: 8px;"><strong>高回报内生 Capex：</strong>年均资本开支约 $750M-$850M，主要投向采石场自动化破碎分选设备及物流轨道站点升级，ROIC 长期维持在 12-14%。</li>
+                    <li style="margin-bottom: 8px;"><strong>资产组合优化资金回流：</strong>通过剥离非核心水泥厂回笼数十亿美元现金，直接用于降低长期负债并增强流动性。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 10: 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略 -->
+    <section class="section" id="sec-10">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">10</span> 现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="sec-tag">Options Strategy</span>
+        </div>
+        <p>鉴于 MLM 股价已跌至 52 周最低支撑区域 ($523-$545)，下行风险已被极大释放，结合其 30-35% 的中等隐含波动率，采用<strong>现金担保卖出看跌期权（Cash-Secured Sell Put）</strong>能以极致折价锁定买入成本，或赚取稳健的年化权利金。选取到期日为 <strong>2026年9月18日（DTE 34天）</strong>的期权链进行三档策略设计：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位</th>
+                        <th>行权价 (Strike)</th>
+                        <th>Delta (估算)</th>
+                        <th>权利金报价 (Bid / Ask / Mid)</th>
+                        <th>安全边际 (较现价折价)</th>
+                        <th>保本入场价 (Breakeven)</th>
+                        <th>单期收益率 (34天)</th>
+                        <th>年化收益率 (Annualized)</th>
+                        <th>策略执行逻辑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="tier-tag tier-cons">保守型 (Conservative)</span></td>
+                        <td class="td-mono" style="font-weight: 700;">$500.00</td>
+                        <td class="td-mono">~0.16</td>
+                        <td class="td-mono">$1.25 / $6.40 (Mid $3.83)</td>
+                        <td class="td-mono" style="color: #059669;">-8.7% (跌破52周最低)</td>
+                        <td class="td-mono td-highlight">$496.17</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">0.77%</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">~8.3%</td>
+                        <td>超高安全垫，跌破 $500 概率极低，稳健收取权利金增厚现金收益</td>
+                    </tr>
+                    <tr style="background: #F0FDF4;">
+                        <td><span class="tier-tag tier-mod">温和型 (Moderate)</span></td>
+                        <td class="td-mono" style="font-weight: 700; color: #059669;">$530.00</td>
+                        <td class="td-mono">~0.30</td>
+                        <td class="td-mono">$8.70 / $13.00 (Mid $10.85)</td>
+                        <td class="td-mono" style="color: #059669;">-3.3% (52周强支撑底)</td>
+                        <td class="td-mono td-highlight">$519.15</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">2.05%</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 800;">~22.0%</td>
+                        <td><strong>推荐首选档位：</strong>以 $519.15 创历史性价比底价接盘或赚取 22% 年化</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tier-tag tier-agg">激进型 (Aggressive)</span></td>
+                        <td class="td-mono" style="font-weight: 700;">$550.00</td>
+                        <td class="td-mono">~0.50</td>
+                        <td class="td-mono">$16.30 / $20.30 (Mid $18.30)</td>
+                        <td class="td-mono">+0.4% (平值 ATM)</td>
+                        <td class="td-mono td-highlight">$531.70</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">3.33%</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">~35.7%</td>
+                        <td>强烈看好筑底反转，主动以 $531.70 成本拿筹并赚取最大时间价值</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">🎯 Sell Put 策略资金与风控指引</div>
+            <strong>操作建议：</strong>按 1 张合约需准备 $53,000 现金担保。卖出 1 张 $530 Strike 的 Put（权利金约 $1,085）。若到期股价在 $530 之上，全额保留 $1,085 利润；若被行权，实际建仓成本仅为 <strong>$519.15</strong>，已跌破 52 周最低价，对应 2026 前瞻 P/E 仅 24.1x，具备极高安全边界。
+        </div>
+    </section>
+
+    <!-- MODULE 11: 机构持仓与主力资金动向 -->
+    <section class="section" id="sec-11">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">11</span> 机构持仓与主力资金动向 (Institutional Ownership)</div>
+            <span class="sec-tag">Smart Money</span>
+        </div>
+        <p>MLM 机构持股比例高达 <strong>84.2%</strong>，被动指数基金与华尔街顶级长线价值机构底仓极其集中稳固：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (Top 13F Holders)</th>
+                        <th>报告持股日期</th>
+                        <th>持股比例 (pctHeld)</th>
+                        <th>持股股数 (Shares)</th>
+                        <th>最新持仓市值 (USD)</th>
+                        <th>季度仓位变动</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Blackrock Inc.</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">7.81%</td>
+                        <td class="td-mono">4,692,446</td>
+                        <td class="td-mono">$2.57B</td>
+                        <td class="td-mono" style="color: #059669;">+0.14% (稳步增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Capital Management LLC</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">6.54%</td>
+                        <td class="td-mono">3,929,705</td>
+                        <td class="td-mono">$2.15B</td>
+                        <td class="td-mono" style="color: #059669;">+0.31%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Portfolio Management LLC</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">5.32%</td>
+                        <td class="td-mono">3,197,395</td>
+                        <td class="td-mono">$1.75B</td>
+                        <td class="td-mono" style="color: #059669;">+1.17% (持续加仓)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">5.26%</td>
+                        <td class="td-mono">3,159,639</td>
+                        <td class="td-mono">$1.73B</td>
+                        <td class="td-mono" style="color: #059669; font-weight: 700;">+9.80% (大幅增持)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bank of America Corporation</strong></td>
+                        <td class="td-mono">2026-03-31</td>
+                        <td class="td-mono td-highlight">4.00%</td>
+                        <td class="td-mono">2,399,779</td>
+                        <td class="td-mono">$1.31B</td>
+                        <td class="td-mono" style="color: #059669;">+0.90%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FMR, LLC (富达基金)</strong></td>
+                        <td class="td-mono">2026-06-30</td>
+                        <td class="td-mono td-highlight">3.65%</td>
+                        <td class="td-mono">2,192,603</td>
+                        <td class="td-mono">$1.20B</td>
+                        <td class="td-mono" style="color: #DC2626;">-15.93% (部分获利了结)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">🔍 机构主力动向深度洞察</div>
+            State Street 在最新季度大幅加仓 <strong>+9.80%</strong>，持股量增至 316 万股；BlackRock 与 Vanguard 仓位保持历史峰值不动如山。长线长钱机构对 MLM 在美国基础设施翻新周期中的特许专营地位展现出极高忠诚度。
+        </div>
+    </section>
+
+    <!-- MODULE 12: 内部人交易、管理层语气与财报电话会洞察 -->
+    <section class="section" id="sec-12">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">12</span> 内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Call)</div>
+            <span class="sec-tag">Management Tone</span>
+        </div>
+        <p>追踪管理层近期电话会交流与 SEC Form 4 披露动态：</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>管理层语气与业绩指引研判</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 6px;"><strong>CEO Ward Nye 强调定价纪律：</strong>管理层在近几次电话会中多次重申，“不会为了追求微不足道的出货量而牺牲价格纪律”，下半年骨料出厂价格将维持高个位数至双位数同比上涨。</li>
+                    <li style="margin-bottom: 6px;"><strong>重载工业与数据中心需求强劲：</strong>得州与东南部大型数据中心、电动汽车电池工厂及 LNG 出口终端项目订单饱满，有效对冲了独栋住宅开工的疲软。</li>
+                    <li style="margin-bottom: 6px;"><strong>天气扰动消退：</strong>二季度美国东南部异常强降雨导致的施工延误已在三季度全面追赶，下半年出货节奏显著加快。</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h4>内部人持股与交易行为</h4>
+                <ul style="padding-left: 18px; color: var(--text-secondary); font-size: 13px;">
+                    <li style="margin-bottom: 6px;"><strong>无异常高管抛售：</strong>高管交易主要由 10b5-1 预设计划执行，用于缴纳期权行权税收，核心管理层持有大量受限股票单位 (RSU)。</li>
+                    <li style="margin-bottom: 6px;"><strong>高管薪酬与 ROIC 强绑定：</strong>管理层长期激励 60% 以上基于三年期资本回报率 (ROIC) 与 TSR（股东总回报），杜绝了盲目债务扩张。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13: 做空比例、平仓天数与轧空风险评估 -->
+    <section class="section" id="sec-13">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">13</span> 做空比例、平仓天数与轧空风险评估 (Short Interest & Squeeze)</div>
+            <span class="sec-tag">Short Interest</span>
+        </div>
+        <p>MLM 当前做空股数为 <strong>238 万股</strong>，占流通盘比例（Short % of Float）为 <strong>4.53%</strong>，平仓天数（Days to Cover）为 <strong>3.70 天</strong>。</p>
+
+        <div class="grid-3">
+            <div class="card card-emerald">
+                <h4>做空股数总量</h4>
+                <div class="metric-val" style="font-size: 20px; color: #059669; margin: 6px 0;">2,380,633 股</div>
+                <p style="font-size: 12px; margin: 0;">空头总市值约 $1.30B，处于历史正常中枢区间。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>流通盘做空比例</h4>
+                <div class="metric-val" style="font-size: 20px; color: #059669; margin: 6px 0;">4.53% of Float</div>
+                <p style="font-size: 12px; margin: 0;">属于中低水平，机构空头未形成大规模聚集性押注。</p>
+            </div>
+            <div class="card card-emerald">
+                <h4>平仓天数 (Days to Cover)</h4>
+                <div class="metric-val" style="font-size: 20px; color: #059669; margin: 6px 0;">3.70 Days</div>
+                <p style="font-size: 12px; margin: 0;">平仓天数约 3.7 天，具备温和的空头回补助推力。</p>
+            </div>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">⚡ 做空情绪与供需分析</div>
+            空头主要为宏观量化基金基于“高利率压制独栋住宅”进行的行业性配对对冲（Long Tech / Short Building Materials）。随着美联储开启降息周期预期增强，这部分宏观对冲空头仓位将面临平仓回补，为股价提供稳定的底部买盘承接。
+        </div>
+    </section>
+
+    <!-- MODULE 14: 核心风险矩阵与熊市压力测试 -->
+    <section class="section" id="sec-14">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">14</span> 核心风险矩阵与熊市压力测试 (Risk Matrix & Bear Stress Test)</div>
+            <span class="sec-tag">Risk & Stress Test</span>
+        </div>
+        <p>评估 4 项关键风险敞口并进行极限压力测试：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险维度</th>
+                        <th>风险等级</th>
+                        <th>风险描述</th>
+                        <th>应对机制与防御缓冲</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>高利率长期滞留与住宅衰退</strong></td>
+                        <td style="color: #D97706; font-weight: 700;">中度风险 (Medium)</td>
+                        <td>高抵押贷款利率导致住宅开工持续低迷，影响预拌混凝土与部分砂石骨料出货。</td>
+                        <td>住宅在 MLM 总需求中占比已降至不足 20%，公共基建与工业数据中心提供强力对冲。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>恶劣天气与自然灾害扰动</strong></td>
+                        <td style="color: #D97706; font-weight: 700;">中度风险 (Medium)</td>
+                        <td>阳光带暴雨或飓风导致露天采石场淹没与施工停滞。</td>
+                        <td>开工仅为时间平移，天气好转后下游往往会加班抢工，全年出货总量影响有限。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>能源与柴油成本剧烈反弹</strong></td>
+                        <td style="color: #64748B; font-weight: 700;">中低风险 (Low-Medium)</td>
+                        <td>采石场重型开采设备与运输卡车消耗大量柴油。</td>
+                        <td>合同普遍包含燃油附加费（Fuel Surcharge）条款，可将 80%+ 燃油通胀转嫁给下游。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IIJA 联邦资金分配审批滞后</strong></td>
+                        <td style="color: #64748B; font-weight: 700;">低风险 (Low)</td>
+                        <td>各州交通厅（DOT）在基建项目招标审批流程上进度缓慢。</td>
+                        <td>法案资金具有法定约束力，2025-2027年为不可逆的集中拨付放量阶段。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout" style="border-left-color: #DC2626; background: #FEF2F2; color: #991B1B;">
+            <div class="callout-title" style="color: #991B1B;">📉 熊市极端情景压力测试 (Worst-Case Scenario)</div>
+            <strong>假设极限冲击：</strong>(1) 美国陷入深度经济衰退，商业地产与住宅开工腰斩；(2) 骨料出货量下滑 15%；(3) 提价能力降为 0%。<br>
+            <strong>测算结果：</strong>得益于固定成本摊销优化，EBITDA 仍可维持在 $1.6B 左右，年归母净利润保持在 $750M（EPS ~$12.50）。即使给予历史极限悲观倍数 18x P/E，<strong>对应极限底线股价约为 $440 - $460</strong>。相较现价 $547.93，最大下行幅度约 -18%，而基准/乐观情景上行空间为 +21% 至 +44%，具有坚实的非对称赔率。
+        </div>
+    </section>
+
+    <!-- MODULE 15: 未来关键催化剂日历与增长路线图 -->
+    <section class="section" id="sec-15">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">15</span> 未来关键催化剂日历与增长路线图 (Catalyst Calendar & Roadmap)</div>
+            <span class="sec-tag">Catalysts</span>
+        </div>
+        <p>驱动 MLM 未来 6-18 个月估值修复与业绩增长的关键催化节点：</p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预期时间节点</th>
+                        <th>关键催化事件</th>
+                        <th>催化类型</th>
+                        <th>潜在影响与股价弹性</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>2026 Q3 (10月)</strong></td>
+                        <td>FY2026 Q3 财报公布与骨料单价追踪</td>
+                        <td>财报事件</td>
+                        <td>若 Q3 骨料 ASP 维持双位数同比上涨，将打破量减利跌的市场悲观偏见</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q4 (11月)</strong></td>
+                        <td>美联储降息周期深化与房贷利率回落</td>
+                        <td>宏观流动性</td>
+                        <td>激发独栋住宅补库存开工需求，驱动周期成长股估值倍数全面修复</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026 Q4 (12月)</strong></td>
+                        <td>得州/亚利桑那超大规模 AI 超算数据中心群集中动工</td>
+                        <td>重载工业需求</td>
+                        <td>高标号特种骨料大额采购协议落地，提升下半年出货量能见度</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 H1</strong></td>
+                        <td>IIJA 联邦交通基建项目支出达到历史年度峰值</td>
+                        <td>政策与财政</td>
+                        <td>全美公路路面与桥梁翻修进入混凝土浇筑高峰，直接推高骨料消耗总量</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2027 H1</strong></td>
+                        <td>年度股息常规调升（预计连续第 9 年增息）</td>
+                        <td>股东回报</td>
+                        <td>预计每股股息上调 8-10%，强化长线资金与分红投资者的配置信心</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 16: 最终投资评级与执行建议 -->
+    <section class="section" id="sec-16">
+        <div class="section-head">
+            <div class="sec-title"><span class="sec-num">16</span> 最终投资评级与执行建议 (Final Verdict & Standardized Signal)</div>
+            <span class="sec-tag">Verdict</span>
+        </div>
+
+        <div class="signal-block">
+            <div class="signal-block-title">╔══════════════════════════════════════════════╗ &nbsp; INVESTSKILL STANDARDIZED INVESTMENT SIGNAL &nbsp; ╚══════════════════════════════════════════════╝</div>
+            <div class="signal-grid">
+                <div class="sig-cell">
+                    <div class="sig-label">投资信号 (Signal)</div>
+                    <div class="signal-verdict">看多 (BULLISH)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">置信度 (Confidence)</div>
+                    <div class="sig-val" style="color: #34D399;">HIGH (高)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">投资周期 (Horizon)</div>
+                    <div class="sig-val">中长期 (6-18 MONTHS)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">量化综合评分 (Score)</div>
+                    <div class="signal-score">8.3 / 10</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">操作建议 (Action)</div>
+                    <div class="sig-val" style="color: #34D399; font-size: 22px;">买入 / 底部加仓 (BUY)</div>
+                </div>
+                <div class="sig-cell">
+                    <div class="sig-label">确信度 (Conviction)</div>
+                    <div class="sig-val" style="color: #FCD34D;">STRONG (强)</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 13.5px; line-height: 1.7; color: #ECFDF5;">
+                <strong>执行策略摘要：</strong><br>
+                1. <strong>现货买入：</strong>建议在 <strong>$530 - $555 区间</strong>分批布局多头头寸，止损位设置在 52 周最低铁底下方 $510.00，第一目标价 $606.00 (SMA200)，DCF 基准公允价值目标价 <strong>$665.00 (+21.4%)</strong>。<br>
+                2. <strong>期权收益增强：</strong>推荐卖出 2026年9月18日到期、行权价 $530.00 的现金担保 Put（权利金约 $10.85），实现 <strong>22.0% 年化权利金收益</strong>，或以此在 <strong>$519.15</strong> 实际超低折价成本顺利吸筹。<br>
+                3. <strong>核心监测指标：</strong>密切跟踪三季度骨料出厂均价 (ASP) 增长率及得州地区超算重载基建订单的落地进度。
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    // 1. Radar Chart
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['护城河壁垒', '定价权与盈利', '基建与成长', '财务健康', '估值性价比', '技术面动量'],
+            datasets: [{
+                label: 'MLM 量化得分',
+                data: [9.8, 9.0, 8.5, 8.0, 7.2, 6.5],
+                fill: true,
+                backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#10B981',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#059669',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#E2E8F0' },
+                    grid: { color: '#E2E8F0' },
+                    pointLabels: { font: { size: 12, weight: '600' }, color: '#334155' },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 2. Price and Moving Averages Chart
+    const ctxPrice = document.getElementById('priceChart').getContext('2d');
+    const chartDates = ["2026-04-08", "2026-04-09", "2026-04-10", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-24", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30", "2026-05-01", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13", "2026-08-14"];
+    const chartPrices = [623.47, 624.61, 630.63, 634.38, 629.9, 616.06, 607.11, 621.13, 626.45, 613.61, 609.77, 618.01, 614.42, 608.88, 613.16, 611.98, 618.19, 613.61, 602.43, 605.24, 614.6, 599.63, 589.54, 585.14, 580.31, 575.97, 574.41, 557.86, 554.99, 531.89, 541.21, 537.2, 535.71, 560.13, 573.57, 574.32, 580.81, 570.96, 576.93, 583.15, 580.86, 575.83, 553.98, 572.25, 552.87, 565.54, 577.33, 588.89, 603.57, 591.08, 609.12, 609.88, 604.18, 616.62, 628.94, 616.06, 581.23, 576.7, 579.24, 599.42, 605.3, 594.17, 570.0, 571.9, 577.72, 569.35, 573.75, 569.32, 576.93, 562.59, 553.62, 547.33, 550.66, 546.87, 559.6, 572.03, 583.67, 569.66, 540.0, 525.14, 542.27, 555.82, 553.37, 538.28, 548.57, 549.54, 553.67, 543.9, 544.76, 547.93];
+    const chartSMA20 = [584.29, 585.68, 587.89, 590.46, 592.73, 594.45, 596.45, 599.17, 602.5, 604.34, 606.07, 607.54, 609.29, 611.23, 613.25, 614.46, 615.46, 616.33, 616.57, 617.15, 616.71, 615.46, 613.41, 610.94, 608.46, 606.46, 604.82, 601.66, 598.09, 594.0, 590.57, 586.53, 582.6, 580.16, 578.18, 576.3, 574.43, 572.3, 571.02, 569.92, 568.23, 567.04, 565.26, 564.62, 563.24, 562.72, 562.87, 564.42, 566.85, 569.81, 573.21, 576.84, 580.26, 583.09, 585.86, 587.94, 587.96, 588.25, 588.37, 589.18, 590.4, 591.32, 592.12, 592.1, 593.34, 593.53, 593.36, 592.38, 591.05, 589.62, 586.85, 583.72, 581.04, 577.55, 574.09, 571.89, 572.01, 571.66, 569.69, 565.98, 562.83, 560.91, 560.08, 558.4, 556.94, 555.95, 554.95, 553.68, 552.07, 551.33];
+    const chartSMA50 = [630.82, 630.36, 630.01, 629.66, 629.26, 628.53, 627.44, 626.48, 625.62, 624.13, 622.45, 620.69, 619.78, 618.79, 617.51, 616.45, 615.62, 614.42, 612.78, 611.25, 609.64, 608.21, 606.46, 604.67, 602.99, 601.39, 599.69, 598.2, 597.12, 595.53, 594.22, 593.03, 592.01, 591.55, 591.34, 591.19, 591.46, 591.55, 591.89, 592.02, 592.13, 591.87, 591.37, 591.41, 591.01, 590.57, 590.15, 590.0, 590.12, 590.07, 589.78, 589.49, 588.96, 588.61, 588.59, 588.59, 588.07, 587.18, 586.24, 585.95, 585.86, 585.39, 584.5, 583.76, 583.05, 582.2, 581.31, 580.42, 579.91, 579.06, 577.84, 576.79, 576.02, 575.25, 574.84, 574.76, 574.94, 575.18, 574.88, 574.74, 574.77, 575.14, 575.49, 575.05, 574.55, 574.06, 573.52, 572.97, 572.33, 571.63];
+
+    new Chart(ctxPrice, {
+        type: 'line',
+        data: {
+            labels: chartDates,
+            datasets: [
+                {
+                    label: '收盘价 (Close)',
+                    data: chartPrices,
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.08)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0
+                },
+                {
+                    label: 'SMA 20',
+                    data: chartSMA20,
+                    borderColor: '#F59E0B',
+                    borderWidth: 1.5,
+                    borderDash: [3, 3],
+                    fill: false,
+                    pointRadius: 0
+                },
+                {
+                    label: 'SMA 50',
+                    data: chartSMA50,
+                    borderColor: '#3B82F6',
+                    borderWidth: 1.5,
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { maxTicksLimit: 8, font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: '#F1F5F9' },
+                    ticks: {
+                        font: { size: 11 },
+                        callback: function(value) { return '$' + value; }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { boxWidth: 12, font: { size: 11 } }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

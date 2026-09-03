@@ -385,44 +385,148 @@ def calculate_sell_put_score(
     is_high_quality = is_etf or (f_score is not None and f_score >= 7 and not is_fcf_negative) or (insider_sentiment == "net_buying")
     is_moderate_quality = (f_score is not None and f_score >= 5 and not is_fcf_negative)
 
-    # 1. Option Alpha & Mathematical Expectation Factor (S_OptionAlpha - 30% Weight)
-    # Blends 70% Pure EV APY (Square-Root Smooth Saturation Mapping) + 30% Volatility/Skew Structure
+    # ==================== PILLAR 1: 商业质量与造血能力 (S_Quality - 25% Weight) ====================
+    # 1. 真实自由现金流造血率 (FCF Margin, 40%)
+    if is_etf:
+        s_fcf = 100.0
+    elif fcf_margin is not None and not np.isnan(float(fcf_margin)):
+        f_m = float(fcf_margin)
+        if f_m >= 0.20:
+            s_fcf = 100.0
+        elif f_m >= 0.0:
+            s_fcf = 50.0 + (f_m / 0.20) * 50.0
+        else:
+            s_fcf = max(0.0, 50.0 - (abs(f_m) / 0.20) * 50.0)
+    elif is_fcf_negative:
+        s_fcf = 20.0
+    else:
+        s_fcf = 75.0
+
+    # 2. 皮氏财务健康指数 (Piotroski F-Score 9项全能体检, 35%)
+    if is_etf:
+        s_piotroski = 100.0
+    elif f_score is not None:
+        try:
+            f_val = int(f_score)
+            if f_val >= 8:
+                s_piotroski = 100.0
+            elif f_val == 7:
+                s_piotroski = 85.0
+            elif f_val == 6:
+                s_piotroski = 70.0
+            elif f_val == 5:
+                s_piotroski = 50.0
+            elif f_val == 4:
+                s_piotroski = 40.0
+            elif f_val == 3:
+                s_piotroski = 20.0
+            else:
+                s_piotroski = 0.0
+        except (ValueError, TypeError):
+            s_piotroski = 60.0
+    else:
+        s_piotroski = 60.0
+
+    # 3. SEC Form 4 内部人真实行为信号 (25%)
+    if is_etf:
+        s_insider = 80.0
+    elif insider_sentiment == "net_buying":
+        s_insider = 100.0
+    elif insider_sentiment == "heavy_selling":
+        s_insider = 0.0
+    else:
+        s_insider = 50.0
+
+    s_quality = float(np.clip(0.40 * s_fcf + 0.35 * s_piotroski + 0.25 * s_insider, 0.0, 100.0))
+
+    # ==================== PILLAR 2: 现货周期估值底 (S_Price / S_Valuation - 25% Weight) ====================
+    # 100% 由底层资产自身现价决定，彻底解耦行权价与期权费
+    s_sma = float(sma_200) if sma_200 is not None and not np.isnan(float(sma_200)) else c_price
+    spot_dev = (c_price - s_sma) / s_sma if s_sma > 0 else 0.0
+
+    # 锚点 1: 200日均线偏离度 (含 0%~8% 温和公允带)
+    if spot_dev <= 0.00:
+        # 深跌黄金坑
+        s_price_sma = 50.0 + min(50.0, (abs(spot_dev) / 0.25) * 50.0)
+    elif spot_dev <= 0.08:
+        # 0%~8% 慢牛温和公允带
+        s_price_sma = 50.0 - (spot_dev / 0.08) * 10.0
+    else:
+        # 超过 8% 加速扣分，超过 28% 泡沫彻底归零
+        s_price_sma = max(0.0, 40.0 - ((spot_dev - 0.08) / 0.20) * 40.0)
+
+    # 锚点 2: 52周高低相对分位 (RP_spot)
+    s_low = float(low_52w) if low_52w is not None and not np.isnan(float(low_52w)) else c_price * 0.8
+    s_high = float(high_52w) if high_52w is not None and not np.isnan(float(high_52w)) else c_price * 1.2
+    spot_rp = (c_price - s_low) / (s_high - s_low) if (s_high - s_low) > 0 else 0.5
+
+    if spot_rp <= 0.20:
+        s_price_rp = 50.0 + min(50.0, ((0.20 - spot_rp) / 0.20) * 50.0)
+    else:
+        s_price_rp = max(0.0, 50.0 - ((spot_rp - 0.20) / 0.80) * 50.0)
+
+    # 双锚点融合取最大低估优势
+    s_price = float(np.clip(max(s_price_sma, s_price_rp), 0.0, 100.0))
+
+    # ==================== PILLAR 3: 真实物理西格玛安全垫 (S_Safety / S_Sigma - 20% Weight) ====================
+    # 消除 IV 反馈闭环污染，采用真实物理实现波动率 (HV) 计算标准差距离 Z_cushion
+    t_years = max(1, c_dte) / 365.0
+    hv_vol = max(0.12, c_hv / 100.0)
+    if c_price > 0 and c_strike > 0 and c_price >= c_strike:
+        z_cushion = math.log(c_price / c_strike) / (hv_vol * math.sqrt(t_years))
+    elif c_price > 0 and c_strike > 0:
+        z_cushion = -math.log(c_strike / c_price) / (hv_vol * math.sqrt(t_years))
+    else:
+        z_cushion = 1.0
+
+    if z_cushion >= 2.0:
+        s_z = 100.0
+    elif z_cushion >= 1.0:
+        s_z = 65.0 + ((z_cushion - 1.0) / 1.0) * 35.0
+    elif z_cushion >= 0.0:
+        s_z = max(0.0, (z_cushion / 1.0) * 65.0)
+    else:
+        s_z = 0.0
+
+    # Max Pain 引力对冲屏障微调 (+/- 4分)
+    delta_pain = 0.0
+    if max_pain is not None and max_pain > 0 and not np.isnan(float(max_pain)) and c_price > 0:
+        d_pain = (float(max_pain) - c_strike) / c_price * 100.0
+        delta_pain = float(np.clip(d_pain / 5.0 * 4.0, -4.0, 4.0))
+
+    s_safety = float(np.clip(s_z + delta_pain, 0.0, 100.0))
+
+    # ==================== PILLAR 4: 波动率真实风险溢价与数学期望 (S_OptionAlpha / S_VRP - 18% Weight) ====================
+    # 1. 闭式对数正态数学期望 (EV APY)
     if ev_apy is not None and not np.isnan(float(ev_apy)):
         valid_ev_apy = float(ev_apy) * dte_eff
         valid_ev_dollar = float(ev_dollar) if ev_dollar is not None and not np.isnan(float(ev_dollar)) else 0.0
         if valid_ev_dollar <= 0.0:
             if is_high_quality:
-                # Quality moat assets: In a vol-compressed dip, assignment is equity accumulation, not a cash loss
-                s_ev = min(60.0, max(15.0, 50.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
+                s_ev = min(50.0, max(15.0, 40.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
             elif is_moderate_quality:
-                # Moderate quality with positive cash flow: mild assignment discount value
-                s_ev = min(40.0, max(10.0, 35.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
+                s_ev = min(35.0, max(10.0, 30.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
             else:
                 s_ev = 0.0
-            # NOTE: Eliminated external trend_penalty += 15.0 double penalty.
-            # Compressed EV naturally yields low s_ev (0~15) without artificial double-counting.
         else:
-            # Square-root smooth saturation mapping: sqrt(EV_APY / 20.0%) * 100
             s_ev = min(100.0, max(0.0, 100.0 * math.sqrt(max(0.0, valid_ev_apy) / 20.0)))
     else:
         hv_factor = max(10.0, c_hv) / 100.0
         adj_annualized_yield = c_yield / (1.0 + 1.5 * hv_factor)
         s_ev = min(100.0, max(0.0, 100.0 * math.sqrt(max(0.0, adj_annualized_yield) / 20.0)))
 
-    # Trade Sharpe Sub-Component (S_Sharpe): Risk-adjusted return per unit of volatility (Collateral simultaneously earns cash sweep interest)
-    eff_hv = max(12.0, c_hv)  # Volatility protection floor (12.0%) to prevent divide-by-near-zero distortion
+    # 2. 风险调整后夏普率 (Trade Sharpe)
+    eff_hv = max(12.0, c_hv)
     trade_sharpe = max(0.0, c_yield) / eff_hv
-    # Concave power law mapping: Sharpe 0.50 -> ~60 pts, Sharpe 0.70 -> ~80 pts, Sharpe 0.85 -> ~92 pts, Sharpe >= 1.0 -> 100 pts
     s_sharpe = min(100.0, 100.0 * math.pow(trade_sharpe / 0.90, 0.75)) if trade_sharpe > 0 else 0.0
 
-    # Volatility / Skew sub-component (S_Vol)
+    # 3. 波动率与偏度子因子 (S_Vol)
     if put_skew is not None and put_skew > 0 and not np.isnan(float(put_skew)):
         s_skew = float(np.clip(50.0 + (float(put_skew) - 1.10) * 200.0, 0.0, 100.0))
     else:
         s_skew = None
 
     valid_ivr = float(ivr) if (ivr is not None and not np.isnan(float(ivr))) else None
-
     if valid_ivr is not None and s_skew is not None:
         s_vol = float(np.clip(0.50 * safe_ivp + 0.20 * valid_ivr + 0.30 * s_skew, 0.0, 100.0))
     elif valid_ivr is not None:
@@ -432,68 +536,19 @@ def calculate_sell_put_score(
     else:
         s_vol = float(np.clip(safe_ivp, 0.0, 100.0))
 
-    # Unified Option Alpha Factor: 40% BS EV + 35% Trade Sharpe + 25% Vol/Skew
     s_option_alpha = float(np.clip(0.40 * s_ev + 0.35 * s_sharpe + 0.25 * s_vol, 0.0, 100.0))
 
-    # 2. Base Safety & Price Factors (S_Price - 40%, S_Safety - 30%, S_OptionAlpha - 30%)
-    # Net Acquisition Basis = Strike - Premium (Actual net cost if assigned)
-    net_basis = (c_strike - mark) if (mark is not None and mark > 0) else c_strike
-    eval_price = min(c_price, net_basis)  # Reward OTM strike & premium discount
+    # ==================== PILLAR 5: 资本周转率与年化效率 (S_Yield / S_Velocity - 12% Weight) ====================
+    s_yield = float(np.clip((c_yield / 25.0) * 100.0 * dte_eff, 0.0, 100.0))
 
-    base_safety = (1.0 - abs(c_delta)) * 100.0
-
-    # ==================== Dual-Anchor Max-Discount Valuation Engine ====================
-    # Simultaneously evaluates both Long-Cycle 200 SMA Deviation and 52-Week High-Low Relative Position,
-    # fusing the maximum advantage discount to eliminate single-indicator blind spots (e.g. post-spike drops & bottom lag).
-
-    # Anchor 1: 200-day Moving Average Deviation
-    s_sma = float(sma_200) if sma_200 is not None and not np.isnan(float(sma_200)) else c_price
-    dev = (eval_price - s_sma) / s_sma if s_sma > 0 else 0.0
-    spot_dev = (c_price - s_sma) / s_sma if s_sma > 0 else 0.0
-
-    if dev <= 0.00:
-        s_price_sma = 50.0 + min(50.0, (abs(dev) / 0.35) * 50.0)
-    else:
-        s_price_sma = max(0.0, 50.0 - (dev / 0.30) * 50.0)
-
-    if spot_dev <= 0.00:
-        val_safety_bonus_sma = min(10.0, abs(spot_dev) * 50.0)
-    elif spot_dev <= 0.05:
-        val_safety_bonus_sma = max(0.0, (0.05 - spot_dev) * 200.0)
-    else:
-        val_safety_bonus_sma = 0.0
-
-    # Anchor 2: 52-Week High-Low Relative Position (RP)
-    s_low = float(low_52w) if low_52w is not None and not np.isnan(float(low_52w)) else c_price * 0.8
-    s_high = float(high_52w) if high_52w is not None and not np.isnan(float(high_52w)) else c_price * 1.2
-    rp = (eval_price - s_low) / (s_high - s_low) if (s_high - s_low) > 0 else 0.5
-    spot_rp = (c_price - s_low) / (s_high - s_low) if (s_high - s_low) > 0 else 0.5
-
-    if rp <= 0.50:
-        s_price_rp = 50.0 + min(50.0, ((0.50 - rp) / 0.60) * 50.0)
-    else:
-        s_price_rp = max(0.0, 50.0 - ((rp - 0.50) / 0.50) * 50.0)
-
-    if spot_rp <= 0.20:
-        val_safety_bonus_rp = min(10.0, (0.20 - spot_rp) * 50.0)
-    elif spot_rp <= 0.35:
-        val_safety_bonus_rp = max(0.0, (0.35 - spot_rp) / 0.15 * 10.0)
-    else:
-        val_safety_bonus_rp = 0.0
-
-    # Dual-Anchor Fusion: Maximize valuation & safety edge across both 200 SMA and 52w Range
-    s_price = float(max(s_price_sma, s_price_rp))
-    val_safety_bonus = float(max(val_safety_bonus_sma, val_safety_bonus_rp))
-    s_safety = float(np.clip(base_safety + val_safety_bonus, 0.0, 100.0))
-
-    # Max Pain gravitational adjustment (continuous smooth ramp between -5% and +5% deviation)
-    if max_pain is not None and max_pain > 0 and not np.isnan(float(max_pain)) and c_price > 0:
-        d_pain = (float(max_pain) - c_strike) / c_price * 100.0
-        delta_pain = float(np.clip(d_pain / 5.0 * 4.0, -4.0, 4.0))
-        s_safety = float(np.clip(s_safety + delta_pain, 0.0, 100.0))
-
-    # Three-Pillars Base Score: 40% Price + 30% Safety + 30% Option Alpha
-    base_score = 0.40 * s_price + 0.30 * s_safety + 0.30 * s_option_alpha
+    # ==================== 50/50 对称多因子基准总分 ====================
+    base_score = (
+        0.25 * s_quality
+        + 0.25 * s_price
+        + 0.20 * s_safety
+        + 0.18 * s_option_alpha
+        + 0.12 * s_yield
+    )
 
     # 3. Continuous Free Cash Flow (FCF) Margin Penalty
     fcf_penalty = 0.0
@@ -557,60 +612,37 @@ def calculate_sell_put_score(
                     ((drop_pct - 10.0) / (black_swan_threshold - 10.0)) ** 1.2 * 15.0 * norm_mult,
                 )
 
-    # Piotroski F-Score Multi-Tier Smooth Health Ladder
-    f_score_bonus = 0.0
+    # 4. Piotroski F-Score Hard Collapse Veto (F <= 2 triggers 100 pt veto; F >= 3 is handled inside S_Quality)
     if f_score is not None and not is_etf:
         try:
             f_val = int(f_score)
             if f_val <= 2:
-                trend_penalty += 100.0  # Collapse / severe distress veto (hard elimination)
+                trend_penalty += 100.0  # Hard collapse veto
             elif f_val == 3:
-                trend_penalty += 20.0  # High financial risk alert
-            elif f_val == 4:
-                trend_penalty += 5.0   # Sub-optimal health
-            elif f_val == 5:
-                pass                   # Neutral baseline
-            elif f_val == 6:
-                f_score_bonus = 2.5    # Good financial health
-            elif f_val == 7:
-                f_score_bonus = 5.0    # Fortress quality
-            elif f_val >= 8:
-                f_score_bonus = 7.0    # Supreme monopoly fortress quality
+                trend_penalty += 10.0  # Elevated distress warning
         except (ValueError, TypeError):
             pass
 
-    insider_bonus = 0.0
-    if not is_etf:
-        if insider_sentiment == "heavy_selling":
-            trend_penalty += 5.0
-        elif insider_sentiment == "net_buying":
-            insider_bonus = 5.0
+    # 5. Heavy Insider Selling Warning Penalty (net selling >= $10M)
+    if not is_etf and insider_sentiment == "heavy_selling":
+        trend_penalty += 3.0
 
-    # Contrarian Sentiment (PCR) smooth continuous ramp
-    pcr_bonus = 0.0
+    # 6. Contrarian Sentiment (PCR) Complacency Penalty
     if pcr_oi is not None and pcr_oi > 0 and not np.isnan(float(pcr_oi)):
         pcr_val = float(pcr_oi)
-        if pcr_val >= 0.95:
-            # Fear / bottoming bonus: smooth ramp up to +3.0 pts at PCR >= 1.55
-            pcr_bonus = min(3.0, (pcr_val - 0.95) / 0.60 * 3.0)
-        elif pcr_val <= 0.70:
-            # Euphoria penalty: smooth ramp up to -3.0 pts at PCR <= 0.40
+        if pcr_val <= 0.70:
             trend_penalty += min(3.0, (0.70 - pcr_val) / 0.30 * 3.0)
 
-    # Earnings Expected Move Gatekeeper (Continuous Smooth Ramp)
-    earnings_safety_bonus = 0.0
+    # 7. Earnings Expected Move Gatekeeper (Continuous Smooth Ramp)
     if is_earnings_crosser and expected_move_pct is not None and expected_move_pct > 0 and not np.isnan(float(expected_move_pct)) and c_price > 0:
         cushion_pct = (c_price - c_strike) / c_price * 100.0
         m_earnings = cushion_pct / float(expected_move_pct)
         if m_earnings < 0.60:
-            trend_penalty += 20.0  # Deep inside earnings expected move
+            trend_penalty += 20.0
         elif m_earnings < 1.0:
-            # Smooth linear transition from 15 pts at m=0.60 down to 5 pts at m=1.00
             trend_penalty += 5.0 + 10.0 * (1.0 - (m_earnings - 0.60) / 0.40)
-        elif m_earnings >= 1.50:
-            earnings_safety_bonus = 3.0  # Mathematically deep beyond 1.5-sigma jump
 
-    # Extreme Debt continuous smooth ramp (Sector-Adapted & Cash Flow Protected)
+    # 8. Extreme Debt continuous smooth ramp (Sector-Adapted & Cash Flow Protected)
     debt_penalty = 0.0
     CAPITAL_INTENSIVE_TICKERS = {
         "VST", "CEG", "NRG", "NEE", "DUK", "SO", "AEP", "SRE", "XEL", "ED",
@@ -625,7 +657,6 @@ def calculate_sell_put_score(
         de_val = float(is_heavy_debt)
         if de_val > low_de_thresh:
             raw_debt_pen = min(15.0, (de_val - low_de_thresh) / (high_de_thresh - low_de_thresh) * 15.0)
-            # Cash Flow & Solvency Protection: If FCF is positive and company is financially healthy (F >= 6), halve the penalty
             if not is_fcf_negative and (f_score is not None and f_score >= 6):
                 debt_penalty = raw_debt_pen * 0.5
             else:
@@ -634,18 +665,7 @@ def calculate_sell_put_score(
         debt_penalty = 7.5 if (not is_fcf_negative and is_cap_intensive) else 15.0
     trend_penalty += debt_penalty
 
-    # High POP continuous smooth win-rate reward (in range 75% ~ 90% up to +3.0 pts)
-    pop_bonus = 0.0
-    if pop is not None and not np.isnan(float(pop)):
-        pop_val = float(pop)
-        if pop_val >= 75.0:
-            pop_bonus = min(3.0, max(0.0, (pop_val - 75.0) / 15.0 * 3.0))
-
-    # 5. Volatility Compression / Panic Cleared Bottoming Signal
-    # Condition: Underlying has had a pullback (spot_dev <= -0.06, drop >= 8%, or spot_rp <= 0.25)
-    # AND IV has compressed (safe_ivp <= 30.0% or IV is low while HV is high)
-    # AND asset is fortress quality (is_high_quality and not is_toxic_knife)
-    # -> Signals panic premium exhaustion and steady bottoming consolidation (+2.5 pts bonus)
+    # 9. Unified Contrarian Dip & Volatility Exhaustion Bonus (up to +3.5 pts, non-stackable)
     vol_bottom_bonus = 0.0
     has_pullback = (
         (is_long_bull(ticker, hv=curr_hv) and spot_dev <= -0.06)
@@ -656,11 +676,14 @@ def calculate_sell_put_score(
     if has_pullback and is_vol_compressed and is_high_quality and not is_toxic_knife:
         vol_bottom_bonus = min(3.5, max(1.5, ((30.0 - min(30.0, safe_ivp)) / 30.0) * 2.0 + 1.5))
 
-    # 6. Monthly Liquidity Aggregation Preference (+2.0 pts)
-    # Rewards standard monthly options for primary market-maker liquidity concentration
-    monthly_bonus = 2.0 if is_monthly else 0.0
+    contrarian_dip_bonus = min(3.5, max(contrarian_gold_bonus, vol_bottom_bonus))
 
-    total_score = max(0.0, base_score - trend_penalty + f_score_bonus + insider_bonus + pcr_bonus + earnings_safety_bonus + pop_bonus + contrarian_gold_bonus + vol_bottom_bonus + monthly_bonus)
+    # Final Total Score: Strictly normalized and capped within [0.0, 100.0]
+    total_score = float(np.clip(
+        base_score - trend_penalty + contrarian_dip_bonus,
+        0.0,
+        100.0,
+    ))
     return total_score, s_price, s_safety, s_option_alpha, s_ev, trend_penalty
 
 

@@ -94,45 +94,44 @@ Conduct multi-factor quantitative screening across the market:
 4. **Tier 4 (🔴 Wide Spread - Spread > 50% or OI < 10, and Bid > 0)**: Conservatively priced as `min(Mark, Bid * 1.05)`, modest **-4.0 pt penalty** (execution difficulty warning, non-punitive) with `[⚠️ Wide Spread (Limit Order Recommended)]` badge.
 5. **Tier 5 (⛔ Zero Bid Illiquidity - Bid = 0)**: 0 price, **-15.0 pt penalty** with `[🚫 Zero Bid Illiquid]` warning flag.
 
-### Sell Put Three-Pillar Multi-Factor Scoring Model (40 / 30 / 30)
+### Sell Put Dual-Core Multi-Factor Scoring Model (50% Asset Quality & Valuation / 50% Option Yield & Alpha)
 
 ```
-Total Score = max(0, 0.40 * S_Price + 0.30 * S_Safety + 0.30 * S_OptionAlpha - Penalties + Bonuses)
+Total Score = max(0, 0.25 * S_Price + 0.25 * S_Safety + 0.50 * S_OptionAlpha - Penalties + Bonuses)
 ```
 
-- **Pillar 1: Dual-Anchor Max-Discount Valuation Floor (`S_Price` - 40%)**:
+- **Core Pillar 1: Dual-Anchor Max-Discount Valuation Floor (`S_Price` - 25%)**:
   * Evaluated on net acquisition cost `Net Basis = min(Spot, Strike - Premium)` to reward deep OTM strike discounts.
   * **Dual-Anchor Engine**: Simultaneously computes 200 SMA Deviation (`S_Price_SMA`) and 52-Week High-Low Relative Position (`S_Price_RP`) with 50-baseline symmetric normalization, taking the maximum advantage discount: `S_Price = max(S_Price_SMA, S_Price_RP)`.
   * Long-bull Anchor: `Dev_basis = (Net Basis - SMA_200) / SMA_200`. If `Dev <= 0.0`: `S_Price_SMA = 50.0 + min(50.0, (abs(Dev) / 35.0%) * 50.0)`; else: `S_Price_SMA = max(0, 50.0 - (Dev / 30.0%) * 50.0)`.
   * High-vol Anchor: `RP_basis = (Net Basis - Low_52w) / (High_52w - Low_52w)`. If `RP <= 0.50`: `S_Price_RP = 50.0 + min(50.0, ((0.50 - RP) / 0.60) * 50.0)`; else: `S_Price_RP = max(0, 50.0 - ((RP - 0.50) / 0.50) * 50.0)`.
-- **Pillar 2: Safety Cushion & Gravitational Barrier (`S_Safety` - 30%)**:
+- **Core Pillar 2: Safety Cushion & Gravitational Barrier (`S_Safety` - 25%)**:
   * `S_Safety = clip((1 - abs(Delta)) * 100 + max(Bonus_SMA, Bonus_RP) + Delta_Pain, 0, 100)`.
   * Continuous valuation safety bonus: `Bonus_SMA = min(10.0, abs(Dev_spot) * 50.0)`, `Bonus_RP = min(10.0, (0.20 - RP_spot) * 50.0)`.
   * Max Pain pinning barrier smooth linear ramp: `Delta_Pain = clip((d_pain / 5.0%) * 4.0, -4.0, +4.0)`.
-- **Pillar 3: Mathematical Expectation & Option Alpha (`S_OptionAlpha` - 30%)**:
+- **Core Pillar 3: Mathematical Expectation & Option Alpha (`S_OptionAlpha` - 50%)**:
   * `S_OptionAlpha = 0.70 * S_EV_APY + 0.30 * S_Vol`.
   * Realized Volatility: **Multi-Horizon Weighted Blend** `HV_blend = 0.50 * HV_30 + 0.30 * HV_60 + 0.20 * HV_90`, anchored by `HV_effective = min(HV_blend, HV_252)`.
   * `S_EV_APY = min(100, 100 * sqrt(EV_APY / 20.0%))` driven by closed-form lognormal Black-Scholes expectation `EV = 100 * [Price_exec - BS_Put(HV_effective)]`.
   * **Quality-Aware EV Protection & 4-Character Action Taxonomy**:
-    - **`💰 Premium Harvesting (Premium Focus)`** (`EV > +$10, IVP >= 35%`): Elevated implied volatility providing rich premium buffer.
-    - **`🟢 Steady Harvesting (Theta Focus)`** (`-$150 <= EV <= +$10`, or `EV > +$10` with low `IVP < 35%`): Quiet market volatility steady-state with fair premium decay.
-    - **`💎 Discount Assignment (Assignment Focus)`** (`EV < -$150` on broad ETFs or fortress assets `F >= 7` & `FCF > 0`): Deep implied volatility compression with 100% exemption from the -15 pt penalty, prioritizing assignment at discounted valuation floor.
-    - **`⚠️ Thin Yield (Thin Reward)`** (`EV < -$150` on non-quality assets): Compressed premium failing to justify downside tail risk (`S_EV = 0`, natural Option Alpha compression without external double penalty).
+    - **`💰 溢价收租 (Premium Focus)`** (`EV > +$10, IVP >= 35%`): Elevated implied volatility providing rich premium buffer.
+    - **`🟢 稳健收租 (Theta Focus)`** (`-$150 <= EV <= +$10`, or `EV > +$10` with low `IVP < 35%`): Quiet market volatility steady-state with fair premium decay.
+    - **`💎 折价接股 (Assignment Focus)`** (`EV < -$150` on broad ETFs or fortress assets `F >= 7` & `FCF > 0`): Deep implied volatility compression with 100% exemption from penalties, prioritizing assignment at discounted valuation floor.
+    - **`⚠️ 收益薄弱 (Thin Reward)`** (`EV < -$150` on non-quality assets): Compressed premium failing to justify downside tail risk (`S_EV = 0`).
   * `S_Vol = 0.50 * IVP + 0.20 * IVR + 0.30 * S_Skew` (authentic 252d implied volatility percentiles and 25-Delta panic put skew).
-- **Penalties & Bonuses (`Penalties` & `Bonuses`)**:
+- **Disciplined Tail Risk Penalties & Bonuses (`Penalties` & `Bonuses`)**:
   * **Smart Drop Classifier**:
-    - 🟢 **Contrarian Golden Pit (逆向黄金坑与质量调制)**: Drop 10%~30% on fortress assets (`F >= 7` & positive FCF, or `F >= 6` with FCF Margin >= 15%, or ETF, or Insider Net Buying `>= $500K`) => 100% exempt from knife penalty + continuous smooth golden pit reward up to **+4.0 pts** (`min(4.0, ((drop - 10%) / 15%) * 4.0)`). Extreme oversold conditions (RSI < 25, 52W RP < 0.20) are treated as prime asymmetrical left-side accumulation timing (9.2~10.0 pts in Value Timing).
-    - 🟡 **Technical Pullback**: Continuous smooth quadratic ramp starting from 10% drop (`min(15.0, ((drop - 10%) / 25%)^1.2 * 15.0)`), eliminating all step cliffs.
+    - 🟢 **Contrarian Golden Pit (逆向黄金坑)**: Drop 10%~30% on fortress assets (`F >= 7` & positive FCF, or `F >= 6` with FCF Margin >= 15%, or ETF, or Insider Net Buying `>= $500K`) => 100% exempt from knife penalty + continuous smooth golden pit reward up to **+4.0 pts** (`min(4.0, ((drop - 10%) / 15%) * 4.0)`). Extreme oversold conditions (RSI < 25, 52W RP < 0.20) are treated as prime asymmetrical left-side accumulation timing.
+    - 🟡 **Technical Pullback**: Continuous smooth quadratic ramp starting from 10% drop (`min(15.0, ((drop - 10%) / 25%)^1.2 * 15.0)`).
     - 🔴 **Toxic Falling Knife / Structural Collapse**: Steep non-linear penalty on fundamentally deteriorating assets (`min(30.0, ((drop - 10%) / 25%)^1.3 * 30.0 * 1.3)`).
     - ⛔ **Black Swan Halt**: Drop > 35% on individual stocks or > 22% on ETFs triggers hard 50 pt veto.
-  * Structural Negative FCF: Continuous smooth linear penalty based on `FCF Margin = FCF / Revenue` (`min(15.0, (abs(Margin) / 20%) * 15.0)` from 0% down to -20% margin, replacing binary switch).
+  * Structural Negative FCF: Continuous smooth linear penalty based on `FCF Margin = FCF / Revenue` (`min(15.0, (abs(Margin) / 20%) * 15.0)` from 0% down to -20% margin).
   * Piotroski F-Score Multi-Tier Smooth Health Ladder: `F <= 2` deducts 100 pts (severe collapse veto); `F = 3` deducts 20 pts; `F = 4` deducts 5 pts; `F = 5` neutral (0 pts); `F = 6` rewards +2.5 pts; `F = 7` rewards +5.0 pts; `F >= 8` rewards +7.0 pts.
   * SEC Form 4 Insider Sentiment: Heavy selling (net selling `>= $10M`) deducts 5 pts; Net buying (net buying `>= $500K`) rewards +5 pts.
   * Extreme Debt: Continuous smooth ramp with **Sector Adaptation** (Standard 180%~320% D/E; Utilities & Real Estate 300%~550% D/E; halved if positive FCF and `F >= 6`) up to 15 pts penalty.
   * Earnings Expected Move: Continuous smooth ramp (5~15 pts when `0.60 <= m_earnings < 1.0`; 20 pts when `m_earnings < 0.60`; rewards +3 pts if cushion `>= 1.5 * sigma_earnings`).
   * Contrarian Sentiment (PCR): Continuous smooth ramp (`PCR >= 0.95` rewards up to +3.0 pts; `PCR <= 0.70` deducts up to -3.0 pts).
-  * **Panic-Cleared Volatility Compression Bottoming Bonus**: When underlying has pulled back (drop >= 8% or spot `Dev <= -6.0%`) and IV has calmed (`IVP <= 30%` or `IV < HV`) on fortress assets (`F >= 7` & `FCF > 0`, or broad ETF), awards **+1.5 ~ +3.5 pts** bottoming consolidation bonus and displays `[🕊️ Panic Cleared · Bottoming Signal]`.
-  * **DTE 30~45d Sweet Spot Efficiency Curve**: 28~45 DTE is 1.00x full efficiency. Ultra-short (`< 28 DTE`) applies smooth convex yield reduction (down to 0.82x at 15 DTE) and Gamma spike penalty (up to 3.0 pts for `DTE < 20`). Long lockup (`> 45 DTE`) applies capital velocity reduction (down to 0.90x at 60 DTE).
+  * **Panic-Cleared Volatility Compression Bottoming Bonus**: When underlying has pulled back (drop >= 8% or spot `Dev <= -6.0%`) and IV has calmed (`IVP <= 30%` or `IV < HV`) on fortress assets (`F >= 7` & `FCF > 0`, or broad ETF), awards **+1.5 ~ +3.5 pts** bottoming consolidation bonus.
   * **Wash Sale Tax Loss Disallowance Penalty**: Tickers with realized loss within 30 days automatically receive **-10.0 pts** tax avoidance penalty and display `[🚨 Wash Sale Tax Disallowance Warning (-10 pts)]`.
 
 # Task 3: Sell Covered Call (Wheel Strategy Step 2)
@@ -159,16 +158,19 @@ For equity holdings >= 100 shares:
    e. **Filter Contracts**: Run `filter_instruments.py` to bound strikes and Deltas.
    f. **Batched Quote Fetching**: Slice instrument IDs into batches of <= 40 to prevent API packet dropping.
    g. **Compile Cache**: Run `build_options_cache.py` to generate `robinhood_options_cache.json`.
-   h. **Generate Report**: Run `python3 scripts/generate_report.py` to score contracts with the 40/30/30 Three-Pillar multi-factor engine, compute Wash Sale risks, and render `report.html`.
+   h. **Generate Report**: Run `python3 scripts/generate_report.py` to score contracts with the 50/50 dual-core multi-factor engine, compute Wash Sale risks, and render `report.html`.
    i. **Sync Watchlist**: Run `sync_watchlist_mcp.py` to synchronize `Sell Put Candidate` Watchlist.
 
 2. **Single-Ticker Deep Research (`<TICKER>`, `research <TICKER>`, or direct stock queries e.g. `NVDA`, `AAPL`, `分析 TSLA`, `MSFT 研报`)**:
-   * **Direct Ticker Intent Matching**: Whenever the user sends a standalone ticker symbol (e.g. `NVDA`, `AAPL`, `TSLA`, `MSFT`) or a stock inquiry (e.g. `分析 AAPL`, `深度分析 NVDA`), **mandatorily treat it as an explicit single-ticker research trigger (`research <TICKER>`)**.
-   a. Run InvestSkill 15-module framework (Moat, DCF, Bear Case, Options).
-   b. Generate HTML report in `InvestSkill/output/{TICKER}_report_{YYYY-MM-DD}.html`.
-   c. Update index via `node InvestSkill/scripts/generate-output-index.js`.
-   d. Re-render main dashboard `python3 scripts/generate_report.py` to embed report into Tab 2.
-   e. Deliver core thesis, valuation, and assignment decision in conversational response.
+   * **Direct Ticker Intent Matching & Forced Real-Time Regeneration (单代码即强制实时调研铁律)**:
+     - 当用户单独输入一个 Ticker（如 `ACN`、`NVDA`、`AAPL`、`TSLA`）或个股查询指令（如 `分析 AAPL`、`深度分析 NVDA`）时，系统**无条件将其识别为单标的强制深度调研指令**。
+     - **突破 7 天缓存免生成限制**：即使用户查询的标的在 7 天内已有旧研报，**也必须立即突破 7 天免重复生成规则**，以**今日最新日期（Today's Date）与最新实时行情（Live Spot & Greeks）**重新执行完整的 15 模块满血版深度研报生成流程。
+     - **执行流水线**：
+       a. 调用 `yfinance` 与相关工具获取最新实时财务、行情与期权链数据。
+       b. 严格按照 15 模块全景架构生成机构级 HTML 研报：`InvestSkill/output/{TICKER}_report_{YYYY-MM-DD}.html`。
+       c. 执行 `node InvestSkill/scripts/generate-output-index.js` 动态更新 `InvestSkill/output/index.html`。
+       d. 执行 `python3 scripts/generate_report.py` 重绘主看板，自动将全新研报嵌入 `report.html` Tab 2 并更新徽章。
+       e. 在对话中首段输出核心定性、估值中枢与期权接股/收租决策结论。
 
 3. **Data File Guidance**: All data files in `data/` are internal runtime artifacts; overwrite silently without prompting for user confirmation.
 4. **TradingView Exchange Precision & Dynamic Auto-Discovery**: Mandatory official exchange prefix resolution (`format_tradingview_ticker`). When encountering any new ticker, dynamically query authentic exchanges via yfinance fast_info (`NMS/NGM/NCM` -> `NASDAQ`, `NYQ/NYSE` -> `NYSE`, `PCX/ASE/BATS/ARCA` -> `AMEX`) and automatically persist into `config/ticker_metadata.json` to permanently eliminate invalid symbol lookups.

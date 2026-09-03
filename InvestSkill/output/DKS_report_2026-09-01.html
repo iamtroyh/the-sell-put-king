@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Dick's Sporting Goods (DKS) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #059669;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEF2F2;
+            --amber:         #D97706;
+            --amber-light:   #FFFBEB;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #065F46 45%, #059669 80%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 1050px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 10px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 700; letter-spacing: 0.5px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11.5px; opacity: 0.9; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 5px 10px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .sec-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sec-title {
+            font-size: 17.5px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-num {
+            background: var(--primary);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .sec-tag {
+            font-size: 11.5px;
+            font-weight: 700;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 3px 9px;
+            border-radius: 4px;
+            border: 1px solid rgba(5,150,105,.2);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .info-card-title { font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .info-card-val { font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13.5px;
+            color: #064E3B;
+            line-height: 1.6;
+        }
+        .callout-warning {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+            color: #92400E;
+        }
+        .callout-danger {
+            border-left-color: var(--red);
+            background: var(--red-light);
+            color: #991B1B;
+        }
+
+        .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 16px 0; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px; }
+        th { background: #F1F5F9; color: var(--text-secondary); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid #F1F5F9; color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; text-align: right; }
+        .center-cell { text-align: center; }
+
+        .chart-container { position: relative; width: 100%; height: 320px; margin: 16px 0; }
+        .chart-container-sm { position: relative; width: 100%; height: 260px; margin: 14px 0; }
+
+        .tag-pill { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+        .tag-green { background: #D1FAE5; color: #065F46; }
+        .tag-amber { background: #FEF3C7; color: #92400E; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+
+        /* Contract 5: Standard Investment Signal Block */
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #065F46 45%, #059669 80%, #10B981 100%);
+            border-radius: 14px;
+            padding: 26px 28px;
+            color: #FFFFFF;
+            margin-top: 24px;
+            box-shadow: var(--shadow-md);
+        }
+        .signal-label-top {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #A7F3D0;
+            margin-bottom: 10px;
+        }
+        .signal-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,.25);
+            padding-bottom: 14px;
+        }
+        .signal-verdict {
+            font-size: 24px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: #FFFFFF;
+        }
+        .signal-score {
+            font-size: 26px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(255,255,255,.2);
+            padding: 4px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,.3);
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .sig-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #A7F3D0;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .sig-val {
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        footer { text-align: center; margin-top: 44px; color: var(--text-muted); font-size: 12px; padding-bottom: 24px; }
+    </style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <!-- Contract 2: Exactly 5 Hero Badges -->
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">🏛️ NYSE: DKS · 迪克体育用品 (Dick's Sporting Goods)</span>
+            <span class="badge badge-hero-stock">📂 非必需消费品 (Consumer Discretionary) | 全美体育运动零售全渠道霸主</span>
+            <span class="badge badge-hero-signal">🟢 买入 (Buy)</span>
+            <span class="badge badge-hero-score">📈 52周相对位置: 10.6% (RP 分位) · 较历史高点折让 -45.3%</span>
+            <span class="badge badge-hero-stock">📅 报告基准日: 2026-09-01</span>
+        </div>
+
+        <!-- Contract 1: Title & Main Heading -->
+        <h1 class="hero-title">Dick's Sporting Goods (DKS) 深度投研报告</h1>
+        <p class="hero-sub">全美体育与户外运动零售绝对霸主 · 沉浸体验式 House of Sport 重构线下护城河 · Foot Locker 业务整合阵痛致 Q2 指引承压单日暴跌 31% · 4位独立董事耗资 370 万美元二级市场巨资增持 · 现价处于 52 周底部极端分位 (RP 10.6%)，远期 P/E 压缩至 9.78x，左侧黄金坑与期权丰厚安全垫深度推演</p>
+
+        <!-- Contract 3: Exactly 4 Hero KPI Cards -->
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前市场现价</div>
+                <div class="hero-kpi-val">$133.59</div>
+                <div class="hero-kpi-sub">52周: $120.40 ~ $244.38 (RP: 10.6%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">多因子综合评分</div>
+                <div class="hero-kpi-val">7.8 / 10</div>
+                <div class="hero-kpi-sub">买入 (Buy) • 核心底仓稳健与内部人巨资增持修复</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$11.96B</div>
+                <div class="hero-kpi-sub">企业价值 (EV): $19.05B (含租赁负债)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市盈率与估值中枢</div>
+                <div class="hero-kpi-val">P/E: 9.78x (远期)</div>
+                <div class="hero-kpi-sub">DCF 公允价值: $212.67 (基准)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <!-- Contract 4: 15-Module Navigation Links -->
+    <nav class="toc-bar">
+        <div class="toc-title">📋 15 模块机构深度投研全景导航</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 执行摘要与投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 商业模式与体验护城河</a>
+            <a href="#sec-3" class="toc-link">03. 技术面量化与周期分位</a>
+            <a href="#sec-4" class="toc-link">04. 财务四大表与杜邦分析</a>
+            <a href="#sec-5" class="toc-link">05. 资本配置与股息安全性</a>
+            <a href="#sec-6" class="toc-link">06. Q2财报与电话会深度剖析</a>
+            <a href="#sec-7" class="toc-link">07. 竞争格局与波特五力</a>
+            <a href="#sec-8" class="toc-link">08. 估值模型与5年DCF敏感性</a>
+            <a href="#sec-9" class="toc-link">09. 内部人交易、13F与做空</a>
+            <a href="#sec-10" class="toc-link">10. 期权全景与 Sell Put 策略</a>
+            <a href="#sec-11" class="toc-link">11. 宏观环境与消费逆风压力</a>
+            <a href="#sec-12" class="toc-link">12. 10-K审计与租赁负债穿透</a>
+            <a href="#sec-13" class="toc-link">13. 现有持仓归因与滚仓应对</a>
+            <a href="#sec-14" class="toc-link">14. 多因子综合评分卡推导</a>
+            <a href="#sec-15" class="toc-link">15. 终局决议与执行指引</a>
+        </div>
+    </nav>
+
+    <!-- SECTION 1: 执行摘要与核心投资逻辑 -->
+    <section id="sec-1" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">01</span> 执行摘要与核心投资逻辑 (Executive Summary & Core Thesis)</div>
+            <span class="sec-tag">综合评级: 买入 (Buy) · 7.8 / 10</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14.5px; line-height: 1.7;">
+            <strong>Dick's Sporting Goods (NYSE: DKS)</strong> 作为全美规模最大、供应链数字化与体验式零售布局最完善的综合性体育与户外运动全渠道巨头，正经历自 2020 年疫情以来最引人注目的非对称定价错配。2026年8月25日，公司披露 2026 财年第二季度财报，尽管合并净营收暴增 <strong>+53.2% 至 55.9 亿美元</strong>（包含新整合的 Foot Locker 业务），且核心 DICK'S 品牌门店同店销售额稳健增长 <strong>+4.2%</strong>，但由于运动鞋履去库存促销加剧以及 Foot Locker 整合初期带来的重组成本，管理层审慎下调了全年利润指引，引发华尔街恐慌性抛售，股价单日崩跌 <strong>-30.7%</strong> 触及 <strong>$120.40</strong> 历史极值。
+        </p>
+        <p style="margin-bottom: 16px; font-size: 14px; line-height: 1.7; color: var(--text-secondary);">
+            然而在暴跌后的一周内（8月25日至9月1日），市场迎来决定性催化剂：<strong>4 位独立董事通过 SEC Form 4 披露在二级市场合力斥资高达 370 万美元直接买入 DKS 股票</strong>，强力提振了长线资本信心，股价在过去 7 个交易日内强劲反弹 <strong>+7.42%</strong> 至当前 <strong>$133.59</strong>。当前估值对应远期市盈率仅 <strong>9.78x</strong>，股息收益率达 <strong>3.74%</strong>（年派息 $5.00/股），具备极其深厚的安全垫。
+        </p>
+
+        <div class="data-grid-2">
+            <div class="callout">
+                <strong>🟢 多头三大核心论点 (Bull Thesis Pillars)：</strong>
+                <ul style="margin-top: 8px; padding-left: 18px; line-height: 1.65;">
+                    <li><strong>体验式旗舰 House of Sport 筑牢线下壁垒：</strong> 拥有 850+ 家专业门店，其独家 10 万平方英尺 House of Sport 沉浸旗舰店（攀岩墙、击球笼、高尔夫模拟器）打破传统零售死局，成为 Nike、On Running、HOKA 等头部品牌不可替代的线下顶级首发渠道。</li>
+                    <li><strong>极端超卖后的确定性估值修复：</strong> 远期 P/E 仅 9.78x（历史 10 年均值 13.5x），EV/EBITDA 仅 9.5x，较 52 周高点 $244.38 回撤达 45.3%，基准 DCF 价值 $212.67，提供近 60% 的内在价值向上修复空间。</li>
+                    <li><strong>充沛现金流与内部人真金白银背书：</strong> 经营现金流达 15.4 亿美元，在手现金 13.5 亿美元，无实质短期流动性风险；董事会核心成员暴跌后火速增持 370 万美元，形成坚实的政策底与估值底。</li>
+                </ul>
+            </div>
+            <div class="callout callout-warning">
+                <strong>🔴 空头关注与短期制约风险 (Bear Risks)：</strong>
+                <ul style="margin-top: 8px; padding-left: 18px; line-height: 1.65;">
+                    <li><strong>Foot Locker 整合消化周期延长：</strong> 传统商场式门店坪效较低，鞋类毛利率短期被折扣清理拖累，FY27 整合与系统并网资本开支居高不下。</li>
+                    <li><strong>宏观非必需消费与耐用品疲软：</strong> 高通胀滞后效应对中低收入家庭产生挤压，高单价户外装备（划艇、健身器械、露营车）置换周期拉长。</li>
+                    <li><strong>空头筹码高度集中：</strong> 当前流通盘做空比例高达 12.54%（借券 748 万股，Days-to-Cover 4.87 天），短期仍需消化技术面套牢盘。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: 商业模式与体验护城河 -->
+    <section id="sec-2" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">02</span> 公司概况、商业模式与体验护城河 (Business Model & Moats)</div>
+            <span class="sec-tag">护城河评级: 宽阔 (Wide Moat)</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14px; line-height: 1.65;">
+            Dick's Sporting Goods 由 Dick Stack 于 1948 年以 300 美元本金创立，历经半个多世纪发展，已从一家传统垂钓渔具小铺演变为全美最大的体育用品超级航母。公司旗下拥有 <strong>DICK'S Sporting Goods、Golf Galaxy、Public Lands、Going Going Gone!</strong> 以及新近整合的 <strong>Foot Locker</strong>。
+        </p>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">三大业务支柱品类</div>
+                <div class="info-card-val">鞋服 71% | 装备 29%</div>
+                <div class="info-card-desc">运动鞋履(Footwear) 38%、专业运动服饰(Apparel) 33%、球类与户外器械(Hardlines) 29%。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">House of Sport 沉浸旗舰</div>
+                <div class="info-card-val">30+ 体验旗舰店</div>
+                <div class="info-card-desc">配备 35 英尺真石攀岩墙、电子棒球击球场、TrackMan 高尔夫模拟器与全尺寸户外绿茵草场。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">高毛利自有品牌 (Vertical)</div>
+                <div class="info-card-val">> $2.5B 年销额</div>
+                <div class="info-card-desc">自研品牌 DSG、VRST (高端男士运动)、Calia 与 Top Flite，毛利率较外部合作品牌高出 600-800 个基点。</div>
+            </div>
+        </div>
+
+        <div class="callout" style="background: #F8FAFC; border-left-color: var(--teal); color: #0F172A;">
+            <strong>🏆 为什么电商（Amazon）与品牌直营（Nike DTC）无法击垮 DKS？</strong>
+            <p style="margin-top: 6px; line-height: 1.6; font-size: 13.5px;">
+                <strong>1. 体验不可替代性：</strong> 青少年体育运动鞋服试穿、棒球棒手感配重、高尔夫挥杆定制测距具有极强的线下物理试戴粘性，纯电商退货率高达 35% 以上，而 DKS 门店坪效持续领跑行业。<br>
+                <strong>2. 品牌 DTC 战略回归现实：</strong> 过去 3 年 Nike 等品牌激进削减批发渠道转攻直营 DTC 遭遇严重挫败，2025-2026 年各大品牌全面修复与 DKS 的战略同盟关系。DKS 独占 On Running、HOKA、Nike 特殊配色与配额的线下首发权，享有无可撼动的渠道议价权。
+            </p>
+        </div>
+    </section>
+
+    <!-- SECTION 3: 技术面量化与周期分位 -->
+    <section id="sec-3" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">03</span> 技术面量化与周期分位 (Technical Analysis & Regime)</div>
+            <span class="sec-tag">左侧逆向黄金坑 (Contrarian Golden Pit)</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14px; line-height: 1.65;">
+            DKS 在经历 8 月 25 日单日放量巨幅下挫后，技术面呈现极度超卖（Deep Oversold）后的筑底回升形态。基于高质量资产均值回归模型（Mean-Reversion Regime），当前各项技术指标已出现显著的底背离信号。
+        </p>
+
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">52 周相对位置 (RP)</div>
+                <div class="info-card-val font-mono">10.6%</div>
+                <div class="info-card-desc">当前 $133.59 处于 52 周底部极端区间 ($120.40 - $244.38)。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">200 日均线乖离率</div>
+                <div class="info-card-val font-mono" style="color: var(--red);">-35.5%</div>
+                <div class="info-card-desc">SMA200 为 $206.98，负向偏离处于过去 10 年历史后 2% 极值分位。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">14 日相对强弱指标 (RSI)</div>
+                <div class="info-card-val font-mono" style="color: var(--primary);">14.9 ➜ 拐头向上</div>
+                <div class="info-card-desc">自 8 月 25 日极端冰点 8.5 逐步修复，形成日线级别超卖金叉钝化。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">MACD 动能柱</div>
+                <div class="info-card-val font-mono">-20.38 / -15.13</div>
+                <div class="info-card-desc">空头绿柱开始逐日缩短，下行动能衰竭，筹码沉淀趋于稳定。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>关键技术参考位</th>
+                        <th>价格 ($)</th>
+                        <th>类型</th>
+                        <th>技术与资金面逻辑解析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 700;">强支撑位 S1 (52W Low)</td>
+                        <td class="num-cell" style="font-weight: 700; color: var(--primary);">$120.40</td>
+                        <td><span class="tag-pill tag-green">绝对硬底</span></td>
+                        <td>8月25日恐慌抛售最低点，4位董事集中扫货建仓价位区，多头底线。</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">短期支撑位 S2</td>
+                        <td class="num-cell">$128.00</td>
+                        <td><span class="tag-pill tag-blue">回踩均线</span></td>
+                        <td>过去 5 个交易日的放量突破颈线位，短期多空博弈成交密集区。</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">第一阻力位 R1</td>
+                        <td class="num-cell">$148.50</td>
+                        <td><span class="tag-pill tag-amber">缺口下沿</span></td>
+                        <td>8月25日暴跌跳空缺口下沿，前期筹码止损密集解套反弹目标位。</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">强阻力位 R2 (SMA50)</td>
+                        <td class="num-cell">$201.13</td>
+                        <td><span class="tag-pill tag-red">中期强阻</span></td>
+                        <td>50日移动平均线，中线趋势反转的核心生命线。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 4: 财务三大表与杜邦分析 -->
+    <section id="sec-4" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">04</span> 财务三大表深度拆解与杜邦分析 (Financial Statements & DuPont)</div>
+            <span class="sec-tag">Piotroski F-Score: 5/9 · 现金流强劲</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14px; line-height: 1.65;">
+            纵观过去 4 个完整财年（FY23 - FY26），DKS 展现出卓越的规模扩张与造血能力。FY26 营收大幅跃升至 <strong>172.2 亿美元</strong>，经营性现金流高达 <strong>15.37 亿美元</strong>，净利润达 <strong>8.49 亿美元</strong>。
+        </p>
+
+        <!-- Chart.js Canvas: chart-financials -->
+        <div class="chart-container">
+            <canvas id="chart-financials"></canvas>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (单位: 亿美元)</th>
+                        <th class="num-cell">FY2023</th>
+                        <th class="num-cell">FY2024</th>
+                        <th class="num-cell">FY2025</th>
+                        <th class="num-cell">FY2026 (最新年报)</th>
+                        <th>4年复合增速 / 趋势评述</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 700;">营业总收入 (Total Revenue)</td>
+                        <td class="num-cell">$123.7B</td>
+                        <td class="num-cell">$129.8B</td>
+                        <td class="num-cell">$134.4B</td>
+                        <td class="num-cell" style="font-weight: 700; color: var(--primary);">$172.2B</td>
+                        <td>+11.7% CAGR (FY26 并入 Foot Locker 驱动)</td>
+                    </tr>
+                    <tr>
+                        <td>营业成本 (Cost of Goods)</td>
+                        <td class="num-cell">$80.8B</td>
+                        <td class="num-cell">$84.5B</td>
+                        <td class="num-cell">$86.2B</td>
+                        <td class="num-cell">$115.5B</td>
+                        <td>供应链去库存折扣使成本占比小幅上升</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">毛利润 (Gross Profit)</td>
+                        <td class="num-cell">$42.8B</td>
+                        <td class="num-cell">$45.3B</td>
+                        <td class="num-cell">$48.3B</td>
+                        <td class="num-cell" style="font-weight: 700;">$56.7B</td>
+                        <td>毛利率维持在 32.9% - 35.9% 黄金区间</td>
+                    </tr>
+                    <tr>
+                        <td>营业利润 (Operating Income)</td>
+                        <td class="num-cell">$14.8B</td>
+                        <td class="num-cell">$13.5B</td>
+                        <td class="num-cell">$15.3B</td>
+                        <td class="num-cell">$13.3B</td>
+                        <td>营业利润率 7.7% (受整合 SG&A 费用短期挤压)</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">普通股股东净利润 (Net Income)</td>
+                        <td class="num-cell">$10.4B</td>
+                        <td class="num-cell">$10.5B</td>
+                        <td class="num-cell">$11.7B</td>
+                        <td class="num-cell" style="font-weight: 700; color: var(--primary);">$8.49B</td>
+                        <td>扣除一次性重组费用后经营性利润依然扎实</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">经营活动现金流 (Operating Cash Flow)</td>
+                        <td class="num-cell">$9.22B</td>
+                        <td class="num-cell">$15.27B</td>
+                        <td class="num-cell">$13.12B</td>
+                        <td class="num-cell" style="font-weight: 700; color: var(--emerald);">$15.37B</td>
+                        <td>造血能力极其充沛，CFO/净利润比达 1.81x</td>
+                    </tr>
+                    <tr>
+                        <td>资本开支 (Capital Expenditure)</td>
+                        <td class="num-cell">-$3.64B</td>
+                        <td class="num-cell">-$5.87B</td>
+                        <td class="num-cell">-$8.03B</td>
+                        <td class="num-cell">-$11.37B</td>
+                        <td>House of Sport 店型开店与物流并网进入峰值</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">自由现金流 (FCF)</td>
+                        <td class="num-cell">$5.58B</td>
+                        <td class="num-cell">$9.40B</td>
+                        <td class="num-cell">$5.09B</td>
+                        <td class="num-cell" style="font-weight: 700;">$4.00B</td>
+                        <td>扣除重资本开支后仍保持 4.0 亿正向现金流入</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 杜邦分析 -->
+        <div class="callout" style="background: #F8FAFC; border-left-color: var(--primary); color: #0F172A; margin-top: 14px;">
+            <strong>🔍 杜邦三因子拆解 (DuPont ROE Decomposition: 15.33%)</strong>
+            <div class="data-grid-3" style="margin-top: 10px;">
+                <div style="background: #fff; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border);">
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">净利润率 (Net Margin)</div>
+                    <div style="font-size: 17px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">4.93%</div>
+                    <div style="font-size: 11px; color: var(--text-secondary);">毛利率 32.9% 与 SG&A 控制良好</div>
+                </div>
+                <div style="background: #fff; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border);">
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">资产周转率 (Asset Turnover)</div>
+                    <div style="font-size: 17px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">0.99x</div>
+                    <div style="font-size: 11px; color: var(--text-secondary);">门店高坪效支撑高效资产周转</div>
+                </div>
+                <div style="background: #fff; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border);">
+                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">权益乘数 (Equity Multiplier)</div>
+                    <div style="font-size: 17px; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary);">3.14x</div>
+                    <div style="font-size: 11px; color: var(--text-secondary);">租赁会计准则(ASC 842)资产入表</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: 资本配置与股息安全性 -->
+    <section id="sec-5" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">05</span> 资本配置、股东回报与股息安全性 (Capital Allocation & Dividends)</div>
+            <span class="sec-tag">股息率: 3.74% · 持续增长</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14px; line-height: 1.65;">
+            <strong>Mandatory Dividend Disclosure (法定股息披露)：</strong> Dick's Sporting Goods 拥有业内罕见的强劲股东回报传统，近 10 年持续实施积极的现金股息派发与大规模股票回购。
+        </p>
+
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">年度每股股息 (Annual Dividend)</div>
+                <div class="info-card-val font-mono" style="color: var(--primary);">$5.00</div>
+                <div class="info-card-desc">按季度均衡派发，每季度 $1.25/股。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">当前股息收益率 (Yield)</div>
+                <div class="info-card-val font-mono" style="color: var(--primary);">3.74%</div>
+                <div class="info-card-desc">基于现价 $133.59 计算，处于过去 5 年最高分位。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">股息支付率 (Payout Ratio)</div>
+                <div class="info-card-val font-mono">54.4% (利润) / 26.9% (CFO)</div>
+                <div class="info-card-desc">年派息额 4.14 亿美元，仅占经营现金流的四分之一。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">近3年股票回购总额</div>
+                <div class="info-card-val font-mono">$1.26 Billion</div>
+                <div class="info-card-desc">累计回购注销逾 12% 流通股本，增厚每股收益。</div>
+            </div>
+        </div>
+
+        <div class="callout" style="background: #ECFDF5; border-left-color: var(--primary); color: #064E3B;">
+            <strong>🛡️ 股息安全性评估 (Dividend Safety Analysis)：极度安全 (Level: Very High)</strong><br>
+            公司账面持有现金及等价物 <strong>13.53 亿美元</strong>，即使完全不借新债，在手现金足以全额支付未来 3 年的全部现金股息。且公司核心业务年均产生超 15 亿美元的稳定经营性现金流，股息削减或违约概率低于 1.0%。
+        </div>
+    </section>
+
+    <!-- SECTION 6: Q2财报与电话会深度剖析 -->
+    <section id="sec-6" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">06</span> Q2 财报与电话会深度剖析 (Q2 Earnings & Transcript Deep Dive)</div>
+            <span class="sec-tag">暴跌归因: 预期下修过度反应</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14px; line-height: 1.65;">
+            2026 年 8 月 25 日盘前公布的 2026 财年 Q2 财报是触发本次暴跌的直接导火索。华尔街知名研报《The Canary in Foot Locker’s Coalmine》直指本次财报暴露出两重鲜明反差：
+        </p>
+
+        <div class="data-grid-2">
+            <div class="info-card" style="border-left: 3px solid var(--primary);">
+                <div class="info-card-title" style="color: var(--primary);">🟢 核心业务依然强劲 (DICK'S Core Banner)</div>
+                <p style="font-size: 13px; line-height: 1.6; margin-top: 6px;">
+                    • 核心 DICK'S 实体同店可比销售额增长 <strong>+4.2%</strong>，交易笔数（Transactions）增长 <strong>+2.8%</strong>，平均客单价（Ticket Size）上升 <strong>+1.4%</strong>。<br>
+                    • 青少年秋季返校开学季（Back-to-School）运动鞋服预售订单创历史新高。<br>
+                    • 高尔夫板块（Golf Galaxy）与跑步装备（On / HOKA）录得双位数增长。
+                </p>
+            </div>
+            <div class="info-card" style="border-left: 3px solid var(--amber);">
+                <div class="info-card-title" style="color: var(--amber);">🟡 整合痛点与指引下调 (Foot Locker Drag)</div>
+                <p style="font-size: 13px; line-height: 1.6; margin-top: 6px;">
+                    • Foot Locker 商场店客流量不及预期，部分过季款式清理导致综合毛利率承压 85 个基点。<br>
+                    • 全年调整后摊薄 EPS 指引从 <strong>$13.80 - $14.40</strong> 下调至 <strong>$12.50 - $13.20</strong>（下调幅度约 8.8%）。<br>
+                    • 市场因对整体鞋类零售（含 Nike 批发链）的悲观情绪蔓延，按顶格悲观预期计价，导致股价单日过度暴跌 30.7%。
+                </p>
+            </div>
+        </div>
+
+        <div class="callout" style="background: #F8FAFC; border-left-color: var(--slate); color: #0F172A;">
+            <strong>🎙️ CEO Lauren Hobart 与 CFO Navdeep Gupta 电话会原话指引摘录：</strong>
+            <p style="margin-top: 6px; font-style: italic; font-size: 13px; line-height: 1.6;">
+                "虽然我们对 Foot Locker 存货清算的短期毛利压力保持审慎，并因此适度修正了下半年利润指引，但我们对合并后的长期协同效应充满信心。DICK'S 核心门店的顾客忠诚度计划活跃人数突破 2,800 万，体验式 House of Sport 新开门店投资回收期均在 3 年以内。当前股价的剧烈动荡完全脱离了公司的内在价值与长线造血中枢。"
+            </p>
+        </div>
+    </section>
+
+    <!-- SECTION 7: 竞争格局与波特五力 -->
+    <section id="sec-7" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">07</span> 竞争格局、同行对标与波特五力 (Competitive Landscape)</div>
+            <span class="sec-tag">市场份额: 稳居全美第一 (~11.5%)</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>竞争主体</th>
+                        <th>核心优势与定位</th>
+                        <th>主要劣势与瓶颈</th>
+                        <th>远期 P/E</th>
+                        <th>EV/EBITDA</th>
+                        <th>DKS 竞争对策与护城河壁垒</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5;">
+                        <td style="font-weight: 700; color: var(--primary);">Dick's Sporting Goods (DKS)</td>
+                        <td>全美 850+ 专业大店 + House of Sport 旗舰体验 + 顶流品牌配额</td>
+                        <td>Foot Locker 整合短期阵痛</td>
+                        <td class="num-cell" style="font-weight: 700; color: var(--primary);">9.78x</td>
+                        <td class="num-cell" style="font-weight: 700; color: var(--primary);">9.5x</td>
+                        <td><strong>绝对主导地位，体验式互动无替代品</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">Academy Sports (ASO)</td>
+                        <td>美国南部区域深耕，高性价比平价策略，户外钓鱼狩猎强势</td>
+                        <td>品牌溢价低，缺乏高端潮流品牌首发权</td>
+                        <td class="num-cell">8.1x</td>
+                        <td class="num-cell">6.8x</td>
+                        <td>DKS 向上锁定中高产家庭与青少年联赛，避开低价内卷</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">JD Sports / Hibbett</td>
+                        <td>英国巨头并购 Hibbett 进军美国，街头潮流鞋履见长</td>
+                        <td>专业球类、户外器械及大型装备完全缺失</td>
+                        <td class="num-cell">11.2x</td>
+                        <td class="num-cell">8.2x</td>
+                        <td>DKS 拥有全品类优势，具备一站式全家庭采购吸引力</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">Nike Direct (DTC)</td>
+                        <td>全球顶级品牌直接触达消费者</td>
+                        <td>单一品牌选择局限，实体直营店运营重资产亏损</td>
+                        <td class="num-cell">21.5x</td>
+                        <td class="num-cell">14.8x</td>
+                        <td>Nike 重新倚重 DKS 作为线下综合分销首选伙伴</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout" style="background: #F8FAFC; border-left-color: var(--teal); color: #0F172A;">
+            <strong>⚔️ 波特五力模型量化打分：</strong>
+            <p style="margin-top: 6px; font-size: 13px; line-height: 1.6;">
+                • <strong>现有竞争对手威胁 (中):</strong> 行业梯队分明，长尾小零售商加速出清，集中度向 DKS 聚合。<br>
+                • <strong>上游品牌供应商议价权 (中低):</strong> 虽然依赖 Nike (~20%)，但 DKS 占 Nike 北美批发份额超 15%，双方互为深度绑定共生体。<br>
+                • <strong>下游买方议价能力 (低):</strong> 独家配色与专业户外运动装备定价权稳固，非必需消费中的刚需细分。<br>
+                • <strong>替代品威胁 (低):</strong> 纯电商无法提供沉浸式器材试打与团队装备试穿体验。<br>
+                • <strong>潜在进入者壁垒 (极高):</strong> 850 家重资产优质租约、数十年分销网络及 $49 亿存货周转壁垒，外来者无法复制。
+            </p>
+        </div>
+    </section>
+
+    <!-- SECTION 8: 估值模型与5年DCF敏感性 -->
+    <section id="sec-8" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">08</span> 估值模型与 5 年 DCF 敏感性分析 (Valuation & DCF Sensitivity)</div>
+            <span class="sec-tag">基准公允价值: $212.67 · 折价率 37.2%</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14px; line-height: 1.65;">
+            基于严谨的自由现金流折现（DCF）模型，参数设定：无风险利率 <strong>4.25%</strong>（10年期美债），股权风险溢价 <strong>5.0%</strong>，Beta <strong>1.18</strong>，得出股权资本成本 <strong>10.15%</strong>；综合加权平均资本成本（WACC）为 <strong>8.70%</strong>，永续终值增长率（Terminal Growth）为 <strong>2.25%</strong>。
+        </p>
+
+        <!-- Chart.js Canvas: chart-valuation -->
+        <div class="chart-container">
+            <canvas id="chart-valuation"></canvas>
+        </div>
+
+        <div class="table-scroll">
+            <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">📊 DCF 6×5 WACC 与终值增长率交叉敏感性矩阵 (每股公允价值)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="num-cell">1.50%</th>
+                        <th class="num-cell">2.00%</th>
+                        <th class="num-cell" style="background: #ECFDF5; color: var(--primary-dark);">2.25% (基准)</th>
+                        <th class="num-cell">2.50%</th>
+                        <th class="num-cell">3.00%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 700;">7.5%</td>
+                        <td class="num-cell">$235.99</td>
+                        <td class="num-cell">$254.23</td>
+                        <td class="num-cell">$264.65</td>
+                        <td class="num-cell">$276.12</td>
+                        <td class="num-cell">$302.87</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">8.0%</td>
+                        <td class="num-cell">$216.63</td>
+                        <td class="num-cell">$231.79</td>
+                        <td class="num-cell">$240.35</td>
+                        <td class="num-cell">$249.69</td>
+                        <td class="num-cell">$271.18</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">8.5%</td>
+                        <td class="num-cell">$200.06</td>
+                        <td class="num-cell">$212.81</td>
+                        <td class="num-cell">$219.95</td>
+                        <td class="num-cell">$227.68</td>
+                        <td class="num-cell">$245.26</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td style="color: var(--primary-dark);">8.7% (基准设定)</td>
+                        <td class="num-cell">$194.07</td>
+                        <td class="num-cell">$206.01</td>
+                        <td class="num-cell" style="color: var(--primary); font-size: 14px;">$212.67</td>
+                        <td class="num-cell">$219.87</td>
+                        <td class="num-cell">$236.16</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">9.0%</td>
+                        <td class="num-cell">$185.70</td>
+                        <td class="num-cell">$196.55</td>
+                        <td class="num-cell">$202.57</td>
+                        <td class="num-cell">$209.06</td>
+                        <td class="num-cell">$223.66</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">9.5%</td>
+                        <td class="num-cell">$173.14</td>
+                        <td class="num-cell">$182.46</td>
+                        <td class="num-cell">$187.60</td>
+                        <td class="num-cell">$193.11</td>
+                        <td class="num-cell">$205.40</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="data-grid-3" style="margin-top: 14px;">
+            <div class="info-card">
+                <div class="info-card-title">悲观情景 (Bear Scenario)</div>
+                <div class="info-card-val font-mono" style="color: var(--amber);">$136.81</div>
+                <div class="info-card-desc">FCF 萎缩 -20%，WACC 9.5%，g 1.5%。现价 $133.59 甚至低于悲观清算底线！</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">基准情景 (Base Scenario)</div>
+                <div class="info-card-val font-mono" style="color: var(--primary);">$212.67</div>
+                <div class="info-card-desc">FCF 稳健恢复，WACC 8.7%，g 2.25%。潜在涨幅空间达 <strong>+59.2%</strong>。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">乐观情景 (Bull Scenario)</div>
+                <div class="info-card-val font-mono" style="color: var(--emerald);">$288.42</div>
+                <div class="info-card-desc">Foot Locker 协同显现，FCF 提速 +15%，WACC 8.0%。潜在空间 <strong>+115.9%</strong>。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 9: 内部人交易、13F与做空 -->
+    <section id="sec-9" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">09</span> 内部人交易、13F 机构筹码与做空数据 (Smart Money & Short Interest)</div>
+            <span class="sec-tag">内部人强力净买入 +$3.7M</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card" style="border-left: 3px solid var(--primary);">
+                <div class="info-card-title" style="color: var(--primary);">🔥 内部人暴跌扫货</div>
+                <div class="info-card-val font-mono">+$3.70M 增持</div>
+                <div class="info-card-desc">Q2 暴跌后，4 位董事通过公开市场直接下场买入，用真金白银确立阶段估值底部。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">13F 机构持仓比重</div>
+                <div class="info-card-val font-mono">106.5% of Float</div>
+                <div class="info-card-desc">Wellington ($10.3B)、BlackRock ($8.8B)、FMR ($6.3B) 等长线公募坚定锁仓。</div>
+            </div>
+            <div class="info-card" style="border-left: 3px solid var(--red);">
+                <div class="info-card-title" style="color: var(--red);">做空比例与轧空风险</div>
+                <div class="info-card-val font-mono">12.54% / 4.87 Days</div>
+                <div class="info-card-desc">未平仓空单 748 万股，回补需近 5 个交易日，具备极高的空头踩踏逼空潜力。</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">📋 核心前十大机构股东 (13F Institutional Holders)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构名称 (Institution)</th>
+                        <th class="num-cell">持股数量 (股)</th>
+                        <th class="num-cell">持仓市值 ($)</th>
+                        <th class="num-cell">占流通股比例</th>
+                        <th>最新季度变动</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 700;">Wellington Management Group, LLP</td>
+                        <td class="num-cell font-mono">7,688,057</td>
+                        <td class="num-cell font-mono">$1.03B</td>
+                        <td class="num-cell font-mono">11.66%</td>
+                        <td><span class="tag-pill tag-amber">-12.9% (季度微调)</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">BlackRock Inc.</td>
+                        <td class="num-cell font-mono">6,631,435</td>
+                        <td class="num-cell font-mono">$885.9M</td>
+                        <td class="num-cell font-mono">10.06%</td>
+                        <td><span class="tag-pill tag-green">+0.08% (增持)</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">FMR, LLC (Fidelity)</td>
+                        <td class="num-cell font-mono">4,688,754</td>
+                        <td class="num-cell font-mono">$626.4M</td>
+                        <td class="num-cell font-mono">7.11%</td>
+                        <td><span class="tag-pill tag-amber">-13.2%</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">Bank of America Corporation</td>
+                        <td class="num-cell font-mono">4,523,071</td>
+                        <td class="num-cell font-mono">$604.2M</td>
+                        <td class="num-cell font-mono">6.86%</td>
+                        <td><span class="tag-pill tag-green" style="font-weight: 800;">+33.5% (大幅加仓)</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">Vanguard Portfolio Management LLC</td>
+                        <td class="num-cell font-mono">3,302,322</td>
+                        <td class="num-cell font-mono">$441.2M</td>
+                        <td class="num-cell font-mono">5.01%</td>
+                        <td><span class="tag-pill tag-blue">-0.65% (被动持股)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 10: 期权全景与 Sell Put 策略 -->
+    <section id="sec-10" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">10</span> 期权全景扫描与 Cash-Secured Put 3 梯队策略 (Options & CSP)</div>
+            <span class="sec-tag">IVP: 42% · 年化收益极其丰厚</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14px; line-height: 1.65;">
+            当前 DKS 处于暴跌后波动率释放初期，30 天隐含波动率（IV）约为 <strong>41.5% - 43.5%</strong>，相较历史中枢具备极高期权溢价。结合到期日 <strong>2026-10-16 (剩余 45 DTE)</strong> 的期权链深度与流动性，构建现金担保卖出看跌期权（Cash-Secured Put）三梯队策略。
+        </p>
+
+        <!-- Chart.js Canvas: chart-options -->
+        <div class="chart-container">
+            <canvas id="chart-options"></canvas>
+        </div>
+
+        <!-- Contract 6: Section 10 Cash-Secured Put 3-Tier Table Schema -->
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯队</th>
+                        <th class="num-cell">行权价 (Strike)</th>
+                        <th class="center-cell">到期日 (Expiry)</th>
+                        <th class="center-cell">剩余 DTE</th>
+                        <th class="center-cell">Delta (Δ)</th>
+                        <th class="num-cell">权利金 Mark (Bid/Ask)</th>
+                        <th class="num-cell">年化收益率 (APY)</th>
+                        <th class="num-cell">安全垫缓冲 (Cushion)</th>
+                        <th class="center-cell">到期胜率 (POP)</th>
+                        <th class="num-cell">单份现金担保需求</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 700; color: var(--emerald);"><span class="tag-pill tag-green">保守型 (Conservative)</span></td>
+                        <td class="num-cell font-mono" style="font-weight: 700;">$115.00</td>
+                        <td class="center-cell font-mono">2026-10-16</td>
+                        <td class="center-cell font-mono">45</td>
+                        <td class="center-cell font-mono">-0.13</td>
+                        <td class="num-cell font-mono">$1.33 ($1.15 / $1.50)</td>
+                        <td class="num-cell font-mono" style="font-weight: 700; color: var(--primary);">9.38%</td>
+                        <td class="num-cell font-mono" style="font-weight: 700; color: var(--primary);">13.92%</td>
+                        <td class="center-cell font-mono">88.5%</td>
+                        <td class="num-cell font-mono">$11,500</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td style="font-weight: 700; color: var(--primary);"><span class="tag-pill tag-blue">平衡型 (Moderate) ★主推</span></td>
+                        <td class="num-cell font-mono" style="font-weight: 700; color: var(--primary);">$120.00</td>
+                        <td class="center-cell font-mono">2026-10-16</td>
+                        <td class="center-cell font-mono">45</td>
+                        <td class="center-cell font-mono">-0.20</td>
+                        <td class="num-cell font-mono">$2.38 ($2.25 / $2.50)</td>
+                        <td class="num-cell font-mono" style="font-weight: 700; color: var(--primary);">16.09%</td>
+                        <td class="num-cell font-mono" style="font-weight: 700; color: var(--primary);">10.17%</td>
+                        <td class="center-cell font-mono">81.4%</td>
+                        <td class="num-cell font-mono">$12,000</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700; color: var(--amber);"><span class="tag-pill tag-amber">激进型 (Aggressive)</span></td>
+                        <td class="num-cell font-mono" style="font-weight: 700;">$125.00</td>
+                        <td class="center-cell font-mono">2026-10-16</td>
+                        <td class="center-cell font-mono">45</td>
+                        <td class="center-cell font-mono">-0.30</td>
+                        <td class="num-cell font-mono">$3.90 ($3.70 / $4.10)</td>
+                        <td class="num-cell font-mono" style="font-weight: 700; color: var(--amber);">25.31%</td>
+                        <td class="num-cell font-mono" style="font-weight: 700; color: var(--amber);">6.43%</td>
+                        <td class="center-cell font-mono">71.2%</td>
+                        <td class="num-cell font-mono">$12,500</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout" style="background: #F8FAFC; border-left-color: var(--primary); color: #0F172A;">
+            <strong>💡 平衡型合约 ($120 Strike) 核心推荐逻辑：</strong>
+            <p style="margin-top: 6px; font-size: 13.5px; line-height: 1.6;">
+                行权价 $120.00 精确锁定在 8 月 25 日的历史极端大底（$120.40）下方！扣除实收权利金 $2.38 后，若最终被行权，<strong>实际持仓净成本（Net Basis）仅为 $117.62</strong>（较当前现价折让 -12.0%，较 52 周高点折让 -51.9%）。若未跌破 $120，则在 45 天内稳稳落袋 <strong>16.09% 年化纯 Theta 收益</strong>，盈亏收益比极其不对称。
+            </p>
+        </div>
+    </section>
+
+    <!-- SECTION 11: 宏观环境与消费逆风压力 -->
+    <section id="sec-11" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">11</span> 宏观环境、利率敏感性与消费逆风压力测试 (Macro & Headwinds Stress Test)</div>
+            <span class="sec-tag">宏观敏感度: 中等偏低</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14px; line-height: 1.65;">
+            非必需消费品（Discretionary Retail）通常对利率和消费者可支配收入高度敏感。然而，深入剖析 DKS 的客群画像与细分消费场景，展现出极强的抗逆周期韧性：
+        </p>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">美联储降息周期正向催化</div>
+                <div class="info-card-val font-mono">+40-60 bps 估值扩张</div>
+                <div class="info-card-desc">美联储开启降息通道降低消费信贷成本，同时改善地产搬迁与户外大宗商品消费意愿。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">青少年体育刚需属性</div>
+                <div class="info-card-val font-mono">82% 支出不可压缩</div>
+                <div class="info-card-desc">全美中小学联赛与秋季校队训练具有刚性支出属性，美国家长在儿童运动装备上的支出优先级极高。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">高收入家庭渗透率</div>
+                <div class="info-card-val font-mono">家庭年收入 > $100K</div>
+                <div class="info-card-desc">DKS 核心会员中 65% 家庭年收入超 10 万美元，对通胀抗性显著强于低端折扣零售受众。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 12: 10-K审计与租赁负债穿透 -->
+    <section id="sec-12" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">12</span> 10-K 审计重点、资产负债表与租赁负债穿透 (10-K Audit & Lease Liabilities)</div>
+            <span class="sec-tag">审计意见: 标准无保留意见</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14px; line-height: 1.65;">
+            作为拥有数百家实体大型门市的零售连锁企业，DKS 的资产负债表结构深度依赖于租赁负债会计准则（ASC 842）。深入穿透资产负债表可消除表观高杠杆的认知误区：
+        </p>
+
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">表观总债务 vs 实质有息负债</div>
+                <div class="info-card-val font-mono">$7.75B (表观) ➜ $1.91B (实质)</div>
+                <div class="info-card-desc">表观 77.5 亿债务中，高达 <strong>33.3 亿美元为经营租赁负债（Operating Lease Liabilities）</strong>，实质有息长期借款仅 19.1 亿美元，扣除 13.5 亿在手现金后，<strong>净有息债务仅 5.6 亿美元</strong>，实质杠杆率极低。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">存货健康度与存货周转天数</div>
+                <div class="info-card-val font-mono">周转天数 ~108 天</div>
+                <div class="info-card-desc">期末存货 49.1 亿美元（含 Foot Locker 存货），库销比处于可控区间，公司已通过 Q2 财报充分计提减值预提，存货积压减值风险已被市场过度消化。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 13: 现有持仓归因与滚仓应对 -->
+    <section id="sec-13" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">13</span> 现有持仓深度归因与行权接股/轮式备兑应对方案 (Active Position Action Plan)</div>
+            <span class="sec-tag">持仓标的: 2026-09-18 $180 Put (17 DTE)</span>
+        </div>
+        <div class="callout callout-warning">
+            <strong>⚠️ 账户当前持有 DKS 期权仓位透视：</strong><br>
+            • <strong>合约明细：</strong> DKS 2026-09-18 $180 Put，持仓 1 张，开仓权利金 $10.20，当前市价 $47.55，剩余 17 DTE，Delta -0.869。<br>
+            • <strong>浮亏归因：</strong> 开仓时股价处于 $200+ 高位震荡区间，因 Q2 Foot Locker 指引爆雷单日剧震 -30.7%，导致期权深深入价内（Deep ITM）。
+        </div>
+
+        <div class="data-grid-2">
+            <div class="callout" style="background: #F8FAFC; border-left-color: var(--primary); color: #0F172A;">
+                <strong>🎯 推荐决议：坚决不割肉，从容备款接股 (Prepare Cash for Assignment)</strong>
+                <p style="margin-top: 6px; font-size: 13px; line-height: 1.6;">
+                    <strong>1. 破除恐慌认知：</strong> DKS 并非基本面不可逆崩塌的毒药资产，而是兼具全美垄断渠道、充沛现金流与 4 位董事 370 万美元背书的百年蓝筹。在 $120-$133 割肉等于在历史大底拱手送出筹码！<br>
+                    <strong>2. 真实持股成本可控：</strong> 扣除开仓已收取的 $10.20 权利金，接股的实际净成本为 <strong>$169.80</strong>，显著低于其基准 DCF 价值 $212.67。<br>
+                    <strong>3. 无缝衔接轮式策略第二步 (Covered Call)：</strong> 2026-09-18 到期接股后，立刻转换为 100 股现货多头，按季度收取年化 3.74% 的现金股息（每季 $125），并逢反弹卖出 30-45 天虚值 Covered Call（如行权价 $150-$160），持续收割年化 15%-20% 的权利金，稳健摊薄持仓成本直至完全解套并实现丰厚盈利！
+                </p>
+            </div>
+            <div class="callout" style="background: #F8FAFC; border-left-color: var(--amber); color: #0F172A;">
+                <strong>🔄 备选方案：平价向后向下滚仓 (Roll Down & Out)</strong>
+                <p style="margin-top: 6px; font-size: 13px; line-height: 1.6;">
+                    若账户保证金流动性暂时吃紧，可在到期前 5-7 天（DTE ≤ 7 时）将 $180 Put 平仓，同时向后延期至 <strong>2026-11-20 或 2027-01-15</strong>，行权价下移至 <strong>$150-$160 Put</strong>，争取做到平价或净收取微额权利金（Net Credit Roll），以时间换取空间，等待市场对 Foot Locker 协同效益的重新认知。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 14: 多因子综合评分卡推导 -->
+    <section id="sec-14" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">14</span> 多因子量化评分卡综合推导 (Multi-Factor Quantitative Scorecard)</div>
+            <span class="sec-tag">综合评分: 7.8 / 10 · 买入 (Buy)</span>
+        </div>
+        <p style="margin-bottom: 14px; font-size: 14px; line-height: 1.65;">
+            严格遵循 InvestSkill 六维多因子加权评估模型，全景剖析 DKS 投资价值。
+        </p>
+
+        <!-- Chart.js Canvas: chart-radar -->
+        <div class="chart-container">
+            <canvas id="chart-radar"></canvas>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>评分维度 (Dimension)</th>
+                        <th class="center-cell">权重</th>
+                        <th class="center-cell">得分 (0-10)</th>
+                        <th class="num-cell">加权贡献</th>
+                        <th>核心驱动因子与量化实证支持</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 700;">1. 商业模式与护城河壁垒</td>
+                        <td class="center-cell font-mono">25%</td>
+                        <td class="center-cell font-mono" style="font-weight: 700; color: var(--primary);">7.8</td>
+                        <td class="num-cell font-mono">1.95</td>
+                        <td>House of Sport 沉浸旗舰形成物理体验壁垒，全美 850+ 专业店网络无可匹敌。</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">2. 估值水准与安全边际</td>
+                        <td class="center-cell font-mono">25%</td>
+                        <td class="center-cell font-mono" style="font-weight: 700; color: var(--primary);">8.5</td>
+                        <td class="num-cell font-mono">2.125</td>
+                        <td>远期 P/E 9.78x 处于 10 年深谷，52周 RP 10.6%，基准 DCF 向上空间达 +59.2%。</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">3. 现金流造血与财务健康</td>
+                        <td class="center-cell font-mono">20%</td>
+                        <td class="center-cell font-mono" style="font-weight: 700; color: var(--primary);">7.0</td>
+                        <td class="num-cell font-mono">1.40</td>
+                        <td>经营现金流 $15.4B，在手现金 $13.5B，实质净债务仅 $5.6B，短期受开店 Capex 挤压。</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">4. 期权溢价与 Alpha 捕获</td>
+                        <td class="center-cell font-mono">15%</td>
+                        <td class="center-cell font-mono" style="font-weight: 700; color: var(--primary);">8.2</td>
+                        <td class="num-cell font-mono">1.23</td>
+                        <td>IV 高达 42%，平衡型 $120 Put 提供 16.09% APY 与 10.17% 垫冲，POP 达 81.4%。</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">5. 聪明钱流向与内部人信号</td>
+                        <td class="center-cell font-mono">10%</td>
+                        <td class="center-cell font-mono" style="font-weight: 700; color: var(--primary);">7.8</td>
+                        <td class="num-cell font-mono">0.78</td>
+                        <td>4位董事暴跌后火线真金白银买入 $3.7M，BofA大幅加仓 33.5%，做空比例 12.5% 蓄积逼空。</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">6. 逆向左侧择时与技术周期</td>
+                        <td class="center-cell font-mono">5%</td>
+                        <td class="center-cell font-mono" style="font-weight: 700; color: var(--primary);">8.5</td>
+                        <td class="num-cell font-mono">0.425</td>
+                        <td>RSI 14.9 极端超卖金叉钝化，SMA200 负乖离 -35.5%，7天反弹 +7.42% 确立右侧反转雏形。</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 800;">
+                        <td>综合多因子加权评分 (COMPOSITE SCORE)</td>
+                        <td class="center-cell font-mono">100%</td>
+                        <td class="center-cell font-mono" style="font-size: 16px; color: var(--primary-dark);">7.8 / 10</td>
+                        <td class="num-cell font-mono" style="font-size: 16px; color: var(--primary-dark);">7.91 ➜ 7.8</td>
+                        <td style="color: var(--primary-dark);">对应法定评级: 买入 (Buy) / 看多 (Bullish)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 15: 终局决议与执行指引 -->
+    <section id="sec-15" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">15</span> 终局投资决议、建仓执行指南与监控雷达 (Final Synthesis & Action)</div>
+            <span class="sec-tag">投资决议: 买入 (Buy) · 目标价 $185.00</span>
+        </div>
+
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">短期反弹第一目标位</div>
+                <div class="info-card-val font-mono">$150.00 (+12.3%)</div>
+                <div class="info-card-desc">回补 8月25日暴跌缺口，对应远期 P/E 修复至 11.0x。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">12个月中期公允目标价</div>
+                <div class="info-card-val font-mono" style="color: var(--primary);">$185.00 (+38.5%)</div>
+                <div class="info-card-desc">回归历史估值中枢 13.5x P/E 与 200日均线平衡区。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">底线防守与硬止损位</div>
+                <div class="info-card-val font-mono" style="color: var(--red);">$112.00 (-16.2%)</div>
+                <div class="info-card-desc">跌破 8月25日低点且破位 115 支撑，提示整合风险失控。</div>
+            </div>
+        </div>
+
+        <div class="callout" style="background: #F8FAFC; border-left-color: var(--primary); color: #0F172A; margin-top: 14px;">
+            <strong>📋 季度跟踪监控雷达 (Quarterly Monitoring Checklist)：</strong>
+            <ul style="margin-top: 6px; padding-left: 18px; line-height: 1.65; font-size: 13px;">
+                <li><strong>Foot Locker 同店与毛利修复：</strong> 跟踪 Q3 财报中 Foot Locker 综合毛利率是否触底回升至 32% 以上。</li>
+                <li><strong>House of Sport 坪效与新店开工率：</strong> 监控 2026 下半年计划新开的 15 家超级旗舰店是否按期落地交付。</li>
+                <li><strong>内部人后续增持与回购重启：</strong> 跟踪管理层是否在下一静默期结束后恢复大规模股票二级市场回购。</li>
+                <li><strong>Nike 合作动态：</strong> 关注 Nike 假日季（Holiday Season）新品在 DKS 的排他性分销占比。</li>
+            </ul>
+        </div>
+
+        <!-- Contract 5: Section 15 Standard Investment Signal Block -->
+        <div class="signal-block">
+            <div class="signal-label-top">INVESTMENT SIGNAL BLOCK (15-MODULE COMPREHENSIVE SYNTHESIS)</div>
+            <div class="signal-header-row">
+                <div class="signal-verdict">买入 (Buy) • 核心零售底仓稳固，Foot Locker整合阵痛提供绝佳左侧赔率</div>
+                <div class="signal-score">7.8 / 10</div>
+            </div>
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="sig-label">投资信号 (Signal)</div>
+                    <div class="sig-val">买入 (Buy) / 看多 (Bullish)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">置信度 (Confidence)</div>
+                    <div class="sig-val">HIGH (高置信度 · 内部人增持与造血兜底)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">投资期限 (Horizon)</div>
+                    <div class="sig-val">MEDIUM-TERM (6-18 个月修复周期)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">执行建议 (Action)</div>
+                    <div class="sig-val">卖出看跌期权 (CSP $120 Strike) / 现有持仓到期接股开启轮式备兑</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<footer>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 16px;">
+        <p>Dick's Sporting Goods (NYSE: DKS) 深度投研报告 · InvestSkill 机构级量化分析引擎</p>
+        <p style="margin-top: 4px; opacity: 0.8;">数据来源: SEC EDGAR 10-K/10-Q、Robinhood API、yfinance、公司投资者关系 (IR) · 报告基准日: 2026-09-01</p>
+        <p style="margin-top: 4px; opacity: 0.7;">免责声明: 本报告仅供学术研究与量化分析交流，不构成任何直接投资邀约或法律建议。投资有风险，决策需独立审慎。</p>
+    </div>
+</footer>
+
+<!-- Chart.js Scripts -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Chart Financials (Contract 7: chart-financials)
+    const ctxFin = document.getElementById('chart-financials');
+    if (ctxFin) {
+        new Chart(ctxFin, {
+            type: 'bar',
+            data: {
+                labels: ['FY2023', 'FY2024', 'FY2025', 'FY2026'],
+                datasets: [
+                    {
+                        label: '营业总收入 ($B)',
+                        data: [12.37, 12.98, 13.44, 17.22],
+                        backgroundColor: 'rgba(5, 150, 105, 0.75)',
+                        borderColor: '#059669',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        order: 2
+                    },
+                    {
+                        label: '净利润 ($B)',
+                        data: [1.04, 1.05, 1.17, 0.85],
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderColor: '#10B981',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        order: 2
+                    },
+                    {
+                        label: '经营现金流 ($B)',
+                        data: [0.92, 1.53, 1.31, 1.54],
+                        type: 'line',
+                        borderColor: '#2563EB',
+                        backgroundColor: '#2563EB',
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#FFFFFF',
+                        pointBorderColor: '#2563EB',
+                        pointBorderWidth: 2,
+                        tension: 0.25,
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { font: { family: 'Inter', size: 12, weight: 600 } } },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.raw.toFixed(2) + ' B';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#F1F5F9' },
+                        ticks: { font: { family: 'JetBrains Mono' }, callback: function(val) { return '$' + val + 'B'; } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter', weight: 600 } }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Chart Valuation (Contract 7: chart-valuation)
+    const ctxVal = document.getElementById('chart-valuation');
+    if (ctxVal) {
+        new Chart(ctxVal, {
+            type: 'bar',
+            data: {
+                labels: ['当前现价 (Spot)', '保守清算底线', '平衡型Net Basis', '基准公允价值 (Base)', '乐观公允价值 (Bull)'],
+                datasets: [{
+                    label: '每股价值 ($ / 股)',
+                    data: [133.59, 136.81, 117.62, 212.67, 288.42],
+                    backgroundColor: [
+                        '#64748B', // Spot
+                        '#F59E0B', // Floor
+                        '#0D9488', // Net Basis
+                        '#059669', // Base
+                        '#10B981'  // Bull
+                    ],
+                    borderRadius: 6,
+                    borderWidth: 1,
+                    borderColor: '#CBD5E1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return '估值模型定价: $' + context.raw.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#F1F5F9' },
+                        ticks: { font: { family: 'JetBrains Mono' }, callback: function(val) { return '$' + val; } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter', size: 11, weight: 600 } }
+                    }
+                }
+            }
+        });
+    }
+
+    // 3. Chart Options Payoff (Contract 7: chart-options)
+    const ctxOpt = document.getElementById('chart-options');
+    if (ctxOpt) {
+        const prices = [];
+        const payoffs = [];
+        const strike = 120.0;
+        const premium = 2.38;
+        for (let p = 100; p <= 150; p += 2) {
+            prices.push(p);
+            if (p >= strike) {
+                payoffs.push(premium * 100); // Max gain +$238
+            } else {
+                payoffs.push((premium - (strike - p)) * 100);
+            }
+        }
+        new Chart(ctxOpt, {
+            type: 'line',
+            data: {
+                labels: prices.map(p => '$' + p),
+                datasets: [{
+                    label: 'Short Put $120 到期盈亏 (P&L $)',
+                    data: payoffs,
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.12)',
+                    fill: true,
+                    borderWidth: 2.5,
+                    pointRadius: 0,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { font: { family: 'Inter', size: 12, weight: 600 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const val = context.raw;
+                                return '单张合约盈亏: ' + (val >= 0 ? '+$' : '-$') + Math.abs(val).toFixed(0);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: { color: '#F1F5F9' },
+                        ticks: { font: { family: 'JetBrains Mono' }, callback: function(val) { return (val >= 0 ? '+$' : '-$') + Math.abs(val); } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'JetBrains Mono', size: 10 } }
+                    }
+                }
+            }
+        });
+    }
+
+    // 4. Chart Radar Scorecard (Contract 7: chart-radar)
+    const ctxRadar = document.getElementById('chart-radar');
+    if (ctxRadar) {
+        new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: [
+                    '商业模式与护城河',
+                    '估值与安全边际',
+                    '现金流与财务健康',
+                    '期权溢价与Alpha',
+                    '聪明钱与内部人',
+                    '逆向左侧择时'
+                ],
+                datasets: [
+                    {
+                        label: 'DKS 量化多因子得分',
+                        data: [7.8, 8.5, 7.0, 8.2, 7.8, 8.5],
+                        fill: true,
+                        backgroundColor: 'rgba(5, 150, 105, 0.25)',
+                        borderColor: '#059669',
+                        pointBackgroundColor: '#059669',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#059669',
+                        borderWidth: 2
+                    },
+                    {
+                        label: '零售行业中位数基准',
+                        data: [5.5, 5.0, 5.5, 5.0, 5.0, 5.0],
+                        fill: true,
+                        backgroundColor: 'rgba(148, 163, 184, 0.18)',
+                        borderColor: '#94A3B8',
+                        pointBackgroundColor: '#94A3B8',
+                        pointBorderColor: '#fff',
+                        borderWidth: 1.5,
+                        borderDash: [4, 4]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { font: { family: 'Inter', size: 12, weight: 600 } } }
+                },
+                scales: {
+                    r: {
+                        angleLines: { color: '#E2E8F0' },
+                        grid: { color: '#E2E8F0' },
+                        pointLabels: { font: { family: 'Inter', size: 12, weight: 600 }, color: '#0F172A' },
+                        suggestedMin: 0,
+                        suggestedMax: 10,
+                        ticks: { stepSize: 2, display: false }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+
+</body>
+</html>
