@@ -61,9 +61,24 @@ def run_fast_scan(symbols: List[str] = None) -> Dict[str, Any]:
     if not isinstance(existing_cache, dict):
         existing_cache = {}
 
+    import datetime
+    def _is_monthly_exp_str(exp_str: str) -> bool:
+        try:
+            d = datetime.datetime.strptime(exp_str, "%Y-%m-%d").date()
+            return (d.weekday() == 4 and (15 <= d.day <= 21)) or (d.weekday() == 3 and (14 <= d.day <= 20))
+        except Exception:
+            return False
+
+    targets_map = t_data.get("sell_put", {}) if isinstance(t_data, dict) else {}
     total_contracts_found = 0
 
     def fetch_symbol_options(sym: str):
+        t_info = targets_map.get(sym, {})
+        exps = t_info.get("expirations", [])
+        # Prioritize standard monthly expirations (3rd Friday) for authentic dual-horizon cycles
+        monthlies = [e for e in exps if _is_monthly_exp_str(e)]
+        target_exps = monthlies[:2] if monthlies else None
+
         cands = get_filtered_csp_candidates(
             symbol=sym,
             min_dte=15,
@@ -72,6 +87,7 @@ def run_fast_scan(symbols: List[str] = None) -> Dict[str, Any]:
             delta_max=-0.08,
             min_oi=5,
             client=client,
+            target_expirations=target_exps,
         )
         return sym, cands
 

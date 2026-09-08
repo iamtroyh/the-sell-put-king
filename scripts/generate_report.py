@@ -155,6 +155,35 @@ def format_gics_sector_badge(ticker_symbol: str, fund_info: Optional[dict] = Non
 
 
 
+def _split_dual_horizons(opts_list):
+    """
+    Split option contracts into Near Month (Month 1) and Next Month (Month 2).
+    Enforces strict calendar-month distinction:
+    - Month 1: Primary near-month cycle (DTE <= 42, prioritizing standard monthly contracts).
+    - Month 2: Next calendar month cycle (expiration month MUST be strictly greater than Month 1's month,
+      e.g. November when Month 1 is October, and DTE > 40).
+    Strictly prohibits two weekly contracts in the exact same calendar month from being split as 'Near' and 'Far'!
+    """
+    if not opts_list:
+        return [], []
+
+    m1_cands = [o for o in opts_list if o['dte'] <= 42]
+    if not m1_cands:
+        m1_cands = [o for o in opts_list if o['dte'] <= 50] or opts_list
+
+    m1_monthly = [o for o in m1_cands if o.get('is_monthly', False)]
+    anchor_m1 = m1_monthly[0] if m1_monthly else (m1_cands[0] if m1_cands else None)
+    m1_month = anchor_m1['expiration'][:7] if anchor_m1 else ""
+
+    if m1_month:
+        # Month 2 MUST be strictly in a subsequent calendar month (e.g. Nov > Oct)
+        m2_cands = [o for o in opts_list if o['expiration'][:7] > m1_month and o['dte'] > 40]
+    else:
+        m2_cands = [o for o in opts_list if o['dte'] >= 50]
+
+    return m1_cands, m2_cands
+
+
 def main():
     today = datetime.date.today()
     print(f"Starting research process. Today's date: {today}")
@@ -428,6 +457,7 @@ def main():
     print(f"✅ Pre-fetched derivative metrics for {len(derivative_map)} tickers in {time.time()-t0_dm:.2f}s.")
     
     for display_ticker, yf_ticker in active_tickers.items():
+        ticker_obj = yf.Ticker(yf_ticker)
         hist = ticker_history_map.get(display_ticker)
         if hist is None or hist.empty:
             hist = fetch_chart_df(yf_ticker, "1y")
@@ -608,17 +638,21 @@ def main():
             continue
             
         use_cache = display_ticker in options_cache
+        exp_dates = []
+        if scan_targets_data and display_ticker in scan_targets_data.get("sell_put", {}):
+            exp_dates = list(scan_targets_data["sell_put"][display_ticker].get("expirations", []))
         if use_cache:
-            exp_dates = list(options_cache[display_ticker].keys())
-        elif scan_targets_data and display_ticker in scan_targets_data.get("sell_put", {}):
-            exp_dates = scan_targets_data["sell_put"][display_ticker].get("expirations", [])
-        else:
-            exp_dates = []
-            try:
-                t_obj = yf.Ticker(yf_ticker)
-                exp_dates = list(t_obj.options)
-            except Exception:
-                exp_dates = []
+            for k in options_cache[display_ticker].keys():
+                if k not in exp_dates:
+                    exp_dates.append(k)
+        # Always supplement with available market expirations from yfinance
+        try:
+            available_yf_exps = list(ticker_obj.options)
+            for yf_exp in available_yf_exps:
+                if yf_exp not in exp_dates:
+                    exp_dates.append(yf_exp)
+        except Exception:
+            pass
             
         if not exp_dates:
             continue
@@ -630,7 +664,7 @@ def main():
             fund_data = GLOBAL_FUNDAMENTAL_CACHE.get(display_ticker, {}).get("info", {})
             if not fund_data:
                 try:
-                    fund_data = ticker.info
+                    fund_data = ticker_obj.info
                 except Exception:
                     fund_data = {}
             earnings_ts = fund_data.get('earningsTimestampStart') or fund_data.get('earningsTimestamp')
@@ -676,13 +710,22 @@ def main():
                     is_earnings_crosser = True
 
             if use_cache:
-                cache_puts = options_cache[display_ticker][exp_str].get("puts", [])
+                cache_puts = options_cache.get(display_ticker, {}).get(exp_str, {}).get("puts", [])
                 if not cache_puts:
-                    continue
-                puts = pd.DataFrame(cache_puts)
+                    # Graceful fallback: If cache misses this expiration (e.g. standard November monthly), fetch from yfinance
+                    # Avoid fetching unnecessary weeklies if we already have candidates
+                    if not is_monthly and len(ticker_options) > 0:
+                        continue
+                    try:
+                        opt_chain = ticker_obj.option_chain(exp_str)
+                        puts = opt_chain.puts
+                    except Exception:
+                        continue
+                else:
+                    puts = pd.DataFrame(cache_puts)
             else:
                 try:
-                    opt_chain = ticker.option_chain(exp_str)
+                    opt_chain = ticker_obj.option_chain(exp_str)
                     puts = opt_chain.puts
                 except Exception:
                     continue
@@ -798,7 +841,8 @@ def main():
                 if raw_delta is not None and not pd.isna(raw_delta) and float(raw_delta) != 0.0:
                     delta = float(raw_delta)
                 else:
-                    delta = calculate_put_delta(current_price, strike, t_years, RISK_FREE_RATE, iv)
+                    sigma_for_delta = float(iv) if (iv is not None and not pd.isna(iv) and float(iv) > 0.01) else (curr_hv_30_val / 100.0 if curr_hv_30_val > 0 else 0.30)
+                    delta = calculate_put_delta(current_price, strike, t_years, RISK_FREE_RATE, sigma_for_delta)
                 
                 # Apply Delta and cushion filters based on VIX mode, earnings defense, and high-vol profiles
                 cushion = (current_price - strike) / current_price * 100.0 if current_price > 0 else 0.0
@@ -879,6 +923,9 @@ def main():
                         continue
                     if is_high_vol_asset and risk_profile in ["平衡", "激进"] and annualized_yield < 15.0:
                         continue
+
+                if iv is None or pd.isna(iv) or iv <= 0:
+                    iv = (curr_hv_30_val / 100.0) if curr_hv_30_val > 0 else 0.30
 
                 # Volatility Damping for Black-Scholes lognormal EV estimator:
                 # Prevent single-day jump-down crash outliers from inflating diffusion HV and collapsing EV on fair strikes
@@ -1037,9 +1084,8 @@ def main():
                 }
                 ticker_options.append(opt_info)
                 
-        # Dual-Horizon Candidate Selection: Separate into Month 1 (DTE <= 40) and Month 2 (DTE > 40)
-        m1_opts = [opt for opt in ticker_options if opt['dte'] <= 40]
-        m2_opts = [opt for opt in ticker_options if opt['dte'] > 40]
+        # Dual-Horizon Candidate Selection: Strictly separate into Month 1 and Month 2 distinct calendar months
+        m1_opts, m2_opts = _split_dual_horizons(ticker_options)
 
         selected_ticker_options = []
         for horizon_opts in [m1_opts, m2_opts]:
@@ -1103,10 +1149,11 @@ def main():
     ticker_m1_score = {}
     ticker_m2_score = {}
 
+
+
     for t in unique_tickers:
         t_opts = [opt for opt in all_options if opt['ticker'] == t]
-        t_m1 = [opt for opt in t_opts if opt['dte'] <= 40]
-        t_m2 = [opt for opt in t_opts if opt['dte'] > 40]
+        t_m1, t_m2 = _split_dual_horizons(t_opts)
 
         # Standardized Apple-to-Apple Balanced Horizon Scoring:
         # Cross-ticker ranking must evaluate each ticker on its TRUE Balanced contract score (or safe conservative baseline).
@@ -2006,8 +2053,7 @@ def main():
             disc_cell = "<span style='color: #a1a1aa;'>N/A</span>"
             
         t_opts = [o for o in all_options if o['ticker'] == t]
-        t_m1 = [o for o in t_opts if o['dte'] <= 40]
-        t_m2 = [o for o in t_opts if o['dte'] > 40]
+        t_m1, t_m2 = _split_dual_horizons(t_opts)
 
         # Table 2 Master Row: Prioritize authentic Balanced contracts for display
         def _get_best_display_opt(opts_list):

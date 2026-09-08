@@ -140,6 +140,7 @@ class MarketDataClient:
         from_date: Optional[str] = None,
         to_date: Optional[str] = None,
         min_open_interest: Optional[int] = None,
+        expiration: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Query Market Data option chain endpoint.
@@ -169,6 +170,8 @@ class MarketDataClient:
             params["to"] = to_date
         if min_open_interest is not None:
             params["minOpenInterest"] = min_open_interest
+        if expiration:
+            params["expiration"] = expiration
 
         try:
             r = self.session.get(url, headers=self._headers(), params=params, timeout=self.timeout)
@@ -430,14 +433,16 @@ def is_standard_monthly(exp_val: Any) -> bool:
 def get_filtered_csp_candidates(
     symbol: str,
     min_dte: int = 15,
-    max_dte: int = 75,
+    max_dte: int = 85,
     delta_min: float = -0.40,
     delta_max: float = -0.08,
     min_oi: int = 0,
     client: Optional[MarketDataClient] = None,
+    target_expirations: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Fetch pre-filtered Sell Put (CSP) candidates directly from Market Data API in dual-horizon cycles (Month 1 ~30DTE and Month 2 ~60DTE).
+    Fetch pre-filtered Sell Put (CSP) candidates directly from Market Data API in dual-horizon cycles.
+    Prioritizes authentic standard monthly expirations (Month 1 ~38DTE and Month 2 ~73DTE).
     """
     sym = normalize_symbol(symbol)
     c = client or MarketDataClient()
@@ -445,14 +450,22 @@ def get_filtered_csp_candidates(
     candidates: List[Dict[str, Any]] = []
     seen_contracts = set()
 
-    # Query both Near Month (~30 DTE) and Next Month (~60 DTE) option chains
-    target_dtes = [30, 60]
-    for req_dte in target_dtes:
+    # Query plans: use explicit monthly expirations if provided, or target robust DTEs [42, 73]
+    query_plans: List[Dict[str, Any]] = []
+    if target_expirations:
+        for exp in target_expirations:
+            query_plans.append({"expiration": exp, "dte": None})
+    else:
+        # Fallback DTEs: 42 (hitting Month 1 10-16) and 73 (hitting Month 2 11-20)
+        query_plans = [{"expiration": None, "dte": 42}, {"expiration": None, "dte": 73}]
+
+    for qp in query_plans:
         chain = c.get_option_chain(
             symbol=sym,
             side="put",
             range_type="all",
-            dte=req_dte,
+            dte=qp["dte"],
+            expiration=qp["expiration"],
             strike_limit=60,
         )
         if not chain or chain.get("s") != "ok":
@@ -461,7 +474,8 @@ def get_filtered_csp_candidates(
                 symbol=sym,
                 side="put",
                 range_type="atm",
-                dte=req_dte,
+                dte=qp["dte"],
+                expiration=qp["expiration"],
                 strike_limit=30,
             )
 
