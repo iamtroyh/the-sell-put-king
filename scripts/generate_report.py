@@ -965,15 +965,18 @@ def main():
                 pcr_oi = deriv.get('pcr_oi')
                 expected_move_pct = deriv.get('expected_move_pct')
 
-                true_iv = ticker_market_data[display_ticker].get('true_iv_info', {})
-                iv_percent = iv * 100.0
+                true_iv = ticker_market_data.get(display_ticker, {}).get('true_iv_info', {})
+                iv_percent = (float(iv) * 100.0) if (iv is not None and not pd.isna(iv) and float(iv) > 0) else float(eff_hv)
                 if true_iv.get('has_true_iv'):
                     ivp = true_iv['ivp']
                     ivr = true_iv['ivr']
                     has_true_iv = True
                 else:
-                    ivp = (hv_30_clean.values < iv_percent).mean() * 100.0 if len(hv_30_clean) > 0 else 0.0
-                    ivr = None
+                    vixfix_ivp = ticker_market_data[display_ticker].get('vixfix_252d_ivp', 50.0)
+                    ratio = iv_percent / max(10.0, eff_hv)
+                    s_ratio = float(np.clip(50.0 + (ratio - 1.0) * 80.0, 15.0, 85.0))
+                    ivp = float(np.clip(0.60 * vixfix_ivp + 0.40 * s_ratio, 10.0, 90.0))
+                    ivr = s_ratio
                     has_true_iv = False
 
                 total_score, s_price, s_safety, s_option_alpha, s_ev_val, trend_penalty = calculate_sell_put_score(
@@ -1020,19 +1023,24 @@ def main():
                     elif is_fcf_negative:
                         s_fcf = 20.0
                     else:
-                        s_fcf = 75.0
+                        s_fcf = 50.0
 
                     if f_score is not None:
                         f_map = {8: 100.0, 7: 85.0, 6: 70.0, 5: 50.0, 4: 40.0, 3: 20.0}
                         s_pio = f_map.get(int(f_score), 100.0 if int(f_score) >= 8 else 0.0)
                     else:
-                        s_pio = 60.0
+                        s_pio = 50.0
 
                     s_ins = 100.0 if insider_sent == 'net_buying' else (0.0 if insider_sent == 'heavy_selling' else 50.0)
                     s_qual = float(np.clip(0.40 * s_fcf + 0.35 * s_pio + 0.25 * s_ins, 0.0, 100.0))
 
-                dte_eff_opt = 1.0 if (28 <= dte <= 45) else (0.82 if dte < 28 else 0.90)
-                s_yield_val = float(np.clip((annualized_yield / 25.0) * 100.0 * dte_eff_opt, 0.0, 100.0))
+                if 28 <= dte <= 45:
+                    dte_eff_opt = 1.00
+                elif dte < 28:
+                    dte_eff_opt = 1.00 - (((28 - dte) / 13.0) ** 1.2) * 0.18
+                else:
+                    dte_eff_opt = max(0.85, 1.00 - ((dte - 45) / 15.0) * 0.10)
+                s_yield_val = float(np.clip((annualized_yield * dte_eff_opt / 25.0) * 100.0, 0.0, 100.0))
 
                 opt_info = {
                     'ticker': display_ticker,
@@ -1366,8 +1374,12 @@ def main():
                     s_iv = true_iv['composite_s_iv']
                     has_true_iv = True
                 else:
-                    ivp = (hv_30_clean.values < iv_percent).mean() * 100.0 if len(hv_30_clean) > 0 else 0.0
-                    ivr = None
+                    vixfix_ivp = ticker_market_data.get(pos_ticker, {}).get('vixfix_252d_ivp', 50.0)
+                    eff_hv_cc = ticker_market_data.get(pos_ticker, {}).get('effective_hv', hv_30)
+                    ratio = iv_percent / max(10.0, eff_hv_cc)
+                    s_ratio = float(np.clip(50.0 + (ratio - 1.0) * 80.0, 15.0, 85.0))
+                    ivp = float(np.clip(0.60 * vixfix_ivp + 0.40 * s_ratio, 10.0, 90.0))
+                    ivr = s_ratio
                     s_iv = ivp
                     has_true_iv = False
                 

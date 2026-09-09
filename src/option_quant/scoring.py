@@ -449,9 +449,9 @@ def calculate_sell_put_score(
 
     # 锚点 1: 200日均线偏离度 (含 0%~8% 温和公允带，下行应用 -15% 截断上限防失真)
     if spot_dev <= 0.00:
-        # 深跌黄金坑 (偏离度下行截断于 -15%，避免重度破位股无底线获得估值满分)
-        capped_dev = max(-0.15, spot_dev)
-        s_price_sma = 50.0 + min(50.0, (abs(capped_dev) / 0.15) * 50.0)
+        # 深跌黄金坑 (偏离度下行平滑映射至 -25%)
+        capped_dev = max(-0.25, spot_dev)
+        s_price_sma = 50.0 + min(50.0, (abs(capped_dev) / 0.25) * 50.0)
     elif spot_dev <= 0.08:
         # 0%~8% 慢牛温和公允带
         s_price_sma = 50.0 - (spot_dev / 0.08) * 10.0
@@ -487,7 +487,7 @@ def calculate_sell_put_score(
         s_z = 100.0
     elif z_cushion >= 1.0:
         s_z = 65.0 + ((z_cushion - 1.0) / 1.0) * 35.0
-    elif z_cushion >= 0.0:
+    elif z_cushion > 0.0:
         s_z = max(0.0, (z_cushion / 1.0) * 65.0)
     else:
         s_z = 0.0
@@ -501,35 +501,57 @@ def calculate_sell_put_score(
     s_safety = float(np.clip(s_z + delta_pain, 0.0, 100.0))
 
     # ==================== PILLAR 4: 波动率真实风险溢价与数学期望 (S_OptionAlpha / S_VRP - 18% Weight) ====================
-    # 1. 闭式对数正态数学期望 (EV APY)
+    # 1. 闭式对数正态数学期望 (EV APY) - 平滑消除 EV=0 断崖、消除正负倒挂与极端值失真
     if ev_apy is not None and not np.isnan(float(ev_apy)):
         valid_ev_apy = float(ev_apy) * dte_eff
         valid_ev_dollar = float(ev_dollar) if ev_dollar is not None and not np.isnan(float(ev_dollar)) else 0.0
-        if valid_ev_dollar <= 0.0:
+        raw_s_ev = min(100.0, max(0.0, 100.0 * math.sqrt(max(0.0, valid_ev_apy) / 20.0)))
+        if valid_ev_dollar >= 0.0:
             if is_high_quality:
-                # If negative EV is mild (-$25 <= EV <= $0, e.g. low-volatility quiet market compression on fortress assets),
-                # provide fair steady-state scoring (up to 60.0) based on yield, rather than overly harsh truncation!
-                if valid_ev_dollar >= -25.0:
-                    s_ev = min(60.0, max(25.0, 50.0 * math.sqrt(max(0.01, c_yield) / 15.0)))
-                else:
-                    s_ev = min(40.0, max(15.0, 35.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
+                # 优质资产/宽基ETF稳态收益底座保护：正期望交易享有公允时间价值打底，不因微小EV掉入低分
+                steady_floor = min(50.0, max(20.0, 40.0 * math.sqrt(max(0.01, c_yield) / 15.0)))
+                s_ev = max(raw_s_ev, steady_floor)
             elif is_moderate_quality:
-                s_ev = min(35.0, max(10.0, 30.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
+                steady_floor = min(35.0, max(15.0, 30.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
+                s_ev = max(raw_s_ev, steady_floor)
             else:
-                s_ev = 0.0
+                s_ev = raw_s_ev
         else:
-            s_ev = min(100.0, max(0.0, 100.0 * math.sqrt(max(0.0, valid_ev_apy) / 20.0)))
+            if is_high_quality:
+                # 优质资产/宽基ETF在隐波压缩低点享有折价接股保护，自稳态底座随负EV平滑衰减至0，绝无断崖
+                if valid_ev_dollar > -150.0:
+                    steady_floor = min(50.0, max(20.0, 40.0 * math.sqrt(max(0.01, c_yield) / 15.0)))
+                    decay = max(0.0, 1.0 - (abs(valid_ev_dollar) / 150.0) ** 0.8)
+                    s_ev = steady_floor * decay
+                else:
+                    s_ev = 0.0
+            elif (is_fcf_negative or (f_score is not None and f_score <= 4) or insider_sentiment == "heavy_selling") or valid_ev_dollar <= -150.0:
+                # 劣质标的负期望陷阱或全市场极端负EV (<= -150)，坚决归零防爆仓
+                s_ev = 0.0
+            elif is_moderate_quality:
+                steady_floor = min(35.0, max(15.0, 30.0 * math.sqrt(max(0.01, c_yield) / 20.0)))
+                decay = max(0.0, 1.0 - (abs(valid_ev_dollar) / 100.0))
+                s_ev = steady_floor * decay
+            else:
+                decay = max(0.0, 1.0 - (abs(valid_ev_dollar) / 50.0))
+                s_ev = 20.0 * decay
     else:
+        # EV 缺失兜底：基于无偏年化收益率与波动率衰减的平滑映射，绝不偏高或偏低
         hv_factor = max(10.0, c_hv) / 100.0
         adj_annualized_yield = c_yield / (1.0 + 1.5 * hv_factor)
-        s_ev = min(100.0, max(0.0, 100.0 * math.sqrt(max(0.0, adj_annualized_yield) / 20.0)))
+        raw_s_ev = min(100.0, max(0.0, 100.0 * math.sqrt(max(0.0, adj_annualized_yield) / 20.0)))
+        if is_high_quality:
+            steady_floor = min(50.0, max(20.0, 40.0 * math.sqrt(max(0.01, c_yield) / 15.0)))
+            s_ev = max(raw_s_ev, steady_floor)
+        else:
+            s_ev = raw_s_ev
 
     # 2. 风险调整后夏普率 (Trade Sharpe)
     eff_hv = max(12.0, c_hv)
     trade_sharpe = max(0.0, c_yield) / eff_hv
-    s_sharpe = min(100.0, 100.0 * math.pow(trade_sharpe / 1.10, 0.75)) if trade_sharpe > 0 else 0.0
+    s_sharpe = min(100.0, 100.0 * math.pow(trade_sharpe / 0.90, 0.75)) if trade_sharpe > 0 else 0.0
 
-    # 3. 波动率与偏度子因子 (S_Vol)
+    # 3. 波动率与偏度子因子 (S_Vol) - 缺失值中性中立对齐
     if put_skew is not None and put_skew > 0 and not np.isnan(float(put_skew)):
         s_skew = float(np.clip(50.0 + (float(put_skew) - 1.10) * 200.0, 0.0, 100.0))
     else:
@@ -548,7 +570,7 @@ def calculate_sell_put_score(
     s_option_alpha = float(np.clip(0.40 * s_ev + 0.35 * s_sharpe + 0.25 * s_vol, 0.0, 100.0))
 
     # ==================== PILLAR 5: 资本周转率与年化效率 (S_Yield / S_Velocity - 12% Weight) ====================
-    s_yield = float(np.clip((c_yield / 25.0) * 100.0 * dte_eff, 0.0, 100.0))
+    s_yield = float(np.clip((c_yield / 25.0) * 100.0, 0.0, 100.0))
 
     # ==================== 50/50 对称多因子基准总分 ====================
     base_score = (
@@ -597,38 +619,28 @@ def calculate_sell_put_score(
         is_negative_return = False
         drop_pct = 0.0
 
-    if is_negative_return:
-        black_swan_threshold = 22.0 if is_etf else 35.0
-        if drop_pct >= black_swan_threshold:
-            # ⛔ Black Swan Drop Circuit Breaker (>35% stock / >22% ETF): 50 pt veto
-            trend_penalty += 50.0
-        elif drop_pct > 10.0:
-            if is_contrarian_candidate and not is_toxic_knife:
-                # 🟢 Contrarian Golden Pit: Broad ETFs are 100% exempt from knife penalty with up to +4.0 pts reward.
-                # For single stocks, trailing accounting metrics (FCF, F-score) lag forward guidance cuts;
-                # when drop > 15%, retain a measured defensive trend penalty and cap the golden pit bonus.
-                if is_etf:
-                    contrarian_gold_bonus = min(4.0, ((drop_pct - 10.0) / 15.0) * 4.0)
-                else:
-                    if drop_pct > 15.0:
-                        trend_penalty += min(8.0, ((drop_pct - 15.0) / 15.0) * 8.0)
-                        contrarian_gold_bonus = min(1.5, ((drop_pct - 10.0) / 15.0) * 1.5)
-                    else:
-                        contrarian_gold_bonus = min(2.5, ((drop_pct - 10.0) / 15.0) * 2.5)
-            elif is_toxic_knife:
-                # 🔴 Toxic Falling Knife: steep non-linear quadratic penalty for fundamentally deteriorating assets
-                toxic_mult = 1.3 if not is_etf else 1.0
-                trend_penalty += min(
-                    30.0,
-                    ((drop_pct - 10.0) / (black_swan_threshold - 10.0)) ** 1.3 * 30.0 * toxic_mult,
-                )
+    if is_negative_return and drop_pct > 10.0:
+        if is_contrarian_candidate and not is_toxic_knife:
+            # 🟢 Contrarian Golden Pit: Broad ETFs and fortress assets are rewarded
+            if is_etf:
+                contrarian_gold_bonus = min(3.5, ((drop_pct - 10.0) / 15.0) * 3.5)
+                if drop_pct > 25.0:
+                    trend_penalty += min(15.0, (drop_pct - 25.0) * 1.5)
             else:
-                # 🟡 Pure Technical Normal Pullback: smooth continuous quadratic ramp (no 14.9% vs 15.1% step cliff)
-                norm_mult = 1.0 if not is_etf else 0.7
-                trend_penalty += min(
-                    15.0,
-                    ((drop_pct - 10.0) / (black_swan_threshold - 10.0)) ** 1.2 * 15.0 * norm_mult,
-                )
+                if drop_pct <= 20.0:
+                    contrarian_gold_bonus = min(3.0, ((drop_pct - 10.0) / 10.0) * 3.0)
+                else:
+                    # Smooth continuous penalty for deep drops > 20% on stocks (no vertical 50pt cliff!)
+                    trend_penalty += min(20.0, (drop_pct - 20.0) * 1.2)
+                    contrarian_gold_bonus = 1.0
+        elif is_toxic_knife:
+            # 🔴 Toxic Falling Knife: steep non-linear quadratic penalty for fundamentally deteriorating assets
+            toxic_mult = 1.3 if not is_etf else 1.0
+            trend_penalty += min(30.0, ((drop_pct - 10.0) / 25.0) ** 1.3 * 25.0 * toxic_mult)
+        else:
+            # 🟡 Pure Technical Normal Pullback: smooth continuous quadratic ramp (no 14.9% vs 15.1% step cliff)
+            norm_mult = 1.0 if not is_etf else 0.7
+            trend_penalty += min(20.0, ((drop_pct - 10.0) / 25.0) ** 1.2 * 15.0 * norm_mult)
 
     # 4. Piotroski F-Score Hard Collapse Veto (F <= 2 triggers 100 pt veto; F >= 3 is handled inside S_Quality)
     if f_score is not None and not is_etf:
