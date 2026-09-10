@@ -23,6 +23,8 @@ This document defines the core engineering standards, quality gatekeepers, and e
 
 ## 2. Mandatory Comprehensive 15-Module Depth by Default (满血研报严禁偷懒缩水铁律)
 - **严禁偷懒省略与凭空猜测 (Zero Guesswork & Anti-Laziness)**: 生成任何个股研报时，**永远一定必须生成 100% 满血版机构级深度研报**。绝对禁止使用几句简写敷衍概括代替完整数据！所有财务数据、期权报价、估值参数必须来自真实数据与模型推导。
+- **严禁脚本模板批量糊弄铁律 (Zero-Template-Script Iron Rule)**: **绝对禁止编写或运行任何 Python/Node.js 批处理脚本、模板填充器、字符串拼接程序或自动化批量生成器来机械拼装、伪造或批量生成 HTML 研报**！
+- **单代码同等最高深度原则 (Single-Ticker Equivalent Standard)**: 每一个需要生成或更新研报的标的（无论是 Top 30 轮动池、持仓标的还是单独指定的 Ticker），其研报生成过程必须 100% 严格等同于用户手动在对话框单独输入一个 Ticker（如 `NVDA`、`ACN`）时的标准，必须调用真实大模型 Agent 的长上下文推理能力与 InvestSkill 完整的 15 模块框架！
 - **权威规范唯一定义源**: 研报必须严格执行 [`InvestSkill/prompts/full-report.md`](file:///Users/yuezh/Option/InvestSkill/prompts/full-report.md) 定义的完整 15 模块全景架构，包含全部业务细分拆解、4年历史财务报表、杜邦分析、同行对标、WACC 6×5 交叉敏感性矩阵、3梯队期权合约、13F 机构表、电话会原话实录、熊市压力测试与 4 大 Chart.js 交互图表。
 
 ---

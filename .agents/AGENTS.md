@@ -179,6 +179,11 @@ For equity holdings >= 100 shares:
    * **Top 30 & Active Positions 7-Day Guaranteed Freshness Iron Rule (Top 30 与持仓 7 天研报兜底铁律)**:
      - **永久保证 Top 30 与全部持仓 100% 覆盖**：无论全市场池如何轮动，系统必须永远保证**量化排名前 30（Top 30）的标的**以及**当前全部实际持仓标的**拥有 **7 天以内**的 15 模块机构级深度研报。
      - **7 天内免重复生成规则 (7-Day Freshness Exemption Rule)**：若标的已有 7 天以内的有效研报（且未在 7 天内发布最新财报或未发生 >5% 7d 剧烈异动），**坚决无需重复生成**，直接复用已有研报，避免资源浪费与无效开销。
+   * **Zero-Template-Script & Authentic Agent Deep-Research Iron Rule (严禁脚本批量伪造与真实 Agent 深度投研铁律)**:
+     - **严禁脚本模板化敷衍**：绝对禁止编写或运行任何 Python/Node.js 批处理脚本、模板填充器、字符串拼接程序或自动化批量生成器来机械拼装、伪造或批量生成 HTML 研报！
+     - **单代码同等最高深度原则 (Single-Ticker Equivalent Standard)**：每一个需要生成或更新研报的标的（无论是 Top 30 轮动池还是持仓标的），其研报生成过程必须 100% 严格等同于用户手动在对话框单独输入一个 Ticker（如 `NVDA`、`ACN`）时的标准！
+     - **必须调用真实 Agent/Subagent 深度推理能力**：必须针对每个需要生成的标的调用大模型长上下文推理能力与 InvestSkill 完整的 15 模块投研提示词框架（[`InvestSkill/prompts/full-report.md`](file:///Users/yuezh/Option/InvestSkill/prompts/full-report.md)），结合真实的最新财务报表、实时行情、期权链报价、内部人交易与管理层电话会，独立开展穿透性分析与严密 DCF 估值推导；
+     - **真实详尽与灵魂要求**：研报内容必须具有真正的买方机构深度，文字详尽扎实、财务洞察深刻，杜绝任何空洞套话或简单模板复用，必须生成有血有肉、能够直接指导期权与实盘决策的真实投研成果。任何试图用脚本模板批量生成报告的行为均属于严重违规！
    * **Mode A: Instant Delivery & Continuous Swarm Auto-Healing (模式 A：即时交付 + 连续子代理自愈铁律)**:
      - **Phase 1 (Instant Delivery / 秒级即时交付)**: Immediately sync account positions, calculate Three-Pillar multi-factor scores, and render `report.html` so the user can immediately review positions, actions, and candidates without waiting.
      - **Phase 2 (Continuous Swarm Auto-Healing / 全自动连续并发自愈)**: Concurrently identify expired/missing reports (> 7d, fresh earnings, or > 5% 7d drop) across active portfolio positions and **Top 30 candidates**. Automatically and continuously dispatch `Subagent Swarm` (batches of 5~6 concurrent agents) in the background **without any manual pause or asking for confirmation**, seamlessly chaining until Top 30 coverage reaches 100%.

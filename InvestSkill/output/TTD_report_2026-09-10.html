@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>萃弈 (The Trade Desk) (TTD) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #059669;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEF2F2;
+            --amber:         #D97706;
+            --amber-light:   #FFFBEB;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #065F46 45%, #059669 80%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 1000px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.9; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 5px 11px;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .sec-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sec-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-num {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background: #F1F5F9;
+            color: var(--text-secondary);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 14px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 14px; }
+
+        .info-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+        .info-card-title { font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+        .info-card-val { font-size: 16px; font-weight: 700; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+        .info-card-desc { font-size: 12px; color: var(--text-secondary); margin-top: 5px; line-height: 1.5; }
+
+        .callout-box {
+            background: #F0FDF4;
+            border-left: 4px solid var(--emerald);
+            padding: 14px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 13px;
+            color: #14532D;
+            line-height: 1.6;
+        }
+        .callout-box.amber {
+            background: #FFFBEB;
+            border-left-color: var(--amber);
+            color: #78350F;
+        }
+        .callout-box.red {
+            background: #FEF2F2;
+            border-left-color: var(--red);
+            color: #7F1D1D;
+        }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 14px 0; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left; }
+        th { background: #F1F5F9; color: var(--text-secondary); font-weight: 600; padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; font-weight: 600; text-align: right; }
+        th.num-head { text-align: right; }
+
+        .chart-box {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 18px;
+            position: relative;
+        }
+        .chart-head { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+        .chart-canvas-wrap { position: relative; width: 100%; height: 280px; }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #065F46 60%, #059669 100%);
+            border-radius: 14px;
+            padding: 26px;
+            color: #FFFFFF;
+            box-shadow: var(--shadow-lg);
+            margin-top: 24px;
+        }
+        .signal-label-top { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #A7F3D0; margin-bottom: 8px; }
+        .signal-header-row { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 14px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+        .signal-verdict { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
+        .signal-score { font-size: 32px; font-weight: 900; font-family: 'JetBrains Mono', monospace; color: #FDE047; }
+        .signal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .signal-item { background: rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 14px; }
+        .sig-label { font-size: 11px; color: #A7F3D0; font-weight: 600; text-transform: uppercase; }
+        .sig-val { font-size: 14.5px; font-weight: 700; margin-top: 3px; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 24px; }
+            .hero-kpi-val { font-size: 18px; }
+            .sec-card { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO BANNER (Contract 1, 2, 3) -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">🏛️ NASDAQ: TTD · 萃弈 (The Trade Desk)</span>
+            <span class="badge badge-hero-stock">📂 通信服务 | 全球独立DSP买方程序化广告龙头</span>
+            <span class="badge badge-hero-signal">🚀 强力买入 (Strong Buy)</span>
+            <span class="badge badge-hero-stock">📈 52周相对位置: 2.6% (RP分位)</span>
+            <span class="badge badge-hero-stock">📅 报告基准日: 2026-09-10</span>
+        </div>
+        <h1 class="hero-title">萃弈 (The Trade Desk) (TTD) 深度投研报告</h1>
+        <div class="hero-sub">
+            The Trade Desk（NASDAQ: TTD）是全球最大的独立程序化广告买方平台（DSP）。在第三方 Cookie 废除与 AI 驱动广告精准竞价的历史转折点，TTD 凭借完全中立的买方代理定位、独创的开源行业身份标准 UID2.0 以及新一代 Kokai AI 算法引擎，构筑了极深的网络效应与客户忠诚度。现价遭遇非理性抛售跌至 52 周最低分位（RP 2.6%），静态市盈率压缩至 16.6x，净现金储备充沛（$1.05B+ 净现金），FCF 收益率高达 11.9%，构成极具非对称赔率的顶级做多与 Sell Put 收租/折价接股黄金坑。
+        </div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前市场现价</div>
+                <div class="hero-kpi-val">$13.98</div>
+                <div class="hero-kpi-sub">52周: $12.83 ~ $56.39 (RP: 2.6%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">多因子综合评分</div>
+                <div class="hero-kpi-val">8.8 / 10</div>
+                <div class="hero-kpi-sub">强力买入 (Strong Buy) • 极致估值修复与左侧黄金坑</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$6.57B</div>
+                <div class="hero-kpi-sub">企业价值 (EV): $5.51B · 净现金: $1.05B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市盈率与估值中枢</div>
+                <div class="hero-kpi-val">P/E: 16.6x</div>
+                <div class="hero-kpi-sub">远期 P/E: 13.9x · DCF公允价值: $24.50</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+    <!-- NAVIGATION TOC (Contract 4) -->
+    <nav class="toc-bar">
+        <div class="toc-title">15 模块全景投研目录 (Interactive Navigation)</div>
+        <div class="toc-links">
+            <a href="#sec-01" class="toc-link">01 业务全景与商业模式</a>
+            <a href="#sec-02" class="toc-link">02 护城河与竞争优势</a>
+            <a href="#sec-03" class="toc-link">03 4年财务报表穿透</a>
+            <a href="#sec-04" class="toc-link">04 杜邦分析与资本效率</a>
+            <a href="#sec-05" class="toc-link">05 同行对标与行业地位</a>
+            <a href="#sec-06" class="toc-link">06 机构持仓与内部人动向</a>
+            <a href="#sec-07" class="toc-link">07 催化剂与管理层指引</a>
+            <a href="#sec-08" class="toc-link">08 多维相对估值矩阵</a>
+            <a href="#sec-09" class="toc-link">09 DCF内在价值模型</a>
+            <a href="#sec-10" class="toc-link">10 熊市压力测试</a>
+            <a href="#sec-11" class="toc-link">11 技术面走势与相对强弱</a>
+            <a href="#sec-12" class="toc-link">12 期权策略与年化收益</a>
+            <a href="#sec-13" class="toc-link">13 股息政策与股东回报</a>
+            <a href="#sec-14" class="toc-link">14 核心风险因子与防御</a>
+            <a href="#sec-15" class="toc-link">15 综合投资评级与决策</a>
+        </div>
+    </nav>
+
+    <!-- SEC 01: 业务全景与商业模式 -->
+    <section id="sec-01" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">01</span> 业务全景与核心商业模式 (Business Overview & Moat Positioning)</div>
+            <span class="sec-tag">商业质量评分: 9.0 / 10</span>
+        </div>
+        <p style="margin-bottom: 14px; color: var(--text-secondary);">
+            The Trade Desk（萃弈）创立于 2009 年，是全球程序化广告领域中极少数坚持<strong>纯粹买方中立代理（Pure Buy-Side DSP）</strong>的科技巨头。与 Alphabet (Google)、Meta、Amazon 等自建“围墙花园（Walled Gardens）”并兼具媒体买卖双重角色的利益冲突体不同，TTD 从不拥有任何媒体资源或自营广告位，始终坚定代表广告主（品牌方与全球头部 4A 代理公司）利益，致力于在开放互联网（Open Internet）上追求最高的广告投资回报率（ROAS）。
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">智能大屏与联网电视 (Connected TV)</div>
+                <div class="info-card-val">营收贡献 ~45%</div>
+                <div class="info-card-desc">增速最快且单价最高的王牌业务。与 Disney+、Netflix、Paramount+、Warner Bros. Discovery、Roku 深度直连，捕获线性电视向流媒体迁移的千亿广告预算红利。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">数字零售媒体 (Retail Media Network)</div>
+                <div class="info-card-val">营收贡献 ~25%</div>
+                <div class="info-card-desc">与 Walmart Connect、Target Roundel 等顶级零售商独家或深度集成，将线下交易闭环数据与在线广告投放实时匹配，打造跨零售生态的精准闭环。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">音频、移动与数字户外 (Audio, Mobile & DOOH)</div>
+                <div class="info-card-val">营收贡献 ~30%</div>
+                <div class="info-card-desc">覆盖 Spotify、Pandora、播客以及海外移动展示与数字户外大屏。跨屏频次控制与全链路归因能力显著降低广告主的重复损耗。</div>
+            </div>
+        </div>
+        <div class="callout-box">
+            <strong>💡 商业飞轮解析：</strong> TTD 的核心盈利模式为向广告主收取平台技术服务费（按广告交易总额的总投放流水收取约 15%~20% 的 Take Rate）。由于广告主将预算托管至平台进行自动化毫秒级竞价，随着平台撮合交易总额（Gross Spend）突破百亿美元大关，TTD 展现出极高边际利润率与近乎零增量边际成本的飞轮效应，客户留存率连续 10 年稳定在 95% 以上。
+        </div>
+    </section>
+
+    <!-- SEC 02: 护城河与竞争优势 -->
+    <section id="sec-02" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">02</span> 护城河壁垒与竞争优势 (Competitive Moat & Porter's 5 Forces)</div>
+            <span class="sec-tag">护城河评级: 宽护城河 (Wide Moat)</span>
+        </div>
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">1. 中立性与数据信托壁垒 (Neutrality Moat)</div>
+                <div class="info-card-val">客户留存率 > 95%</div>
+                <div class="info-card-desc">大型广告主极度忌惮将私有客户数据（First-Party Data）上传至 Google 或 Meta 的围墙中遭同行复用。TTD 的中立保证广告主数据 100% 隔离保密，构筑了无法被巨头侵蚀的“信任护城河”。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">2. 开源身份体系标准 (UID2.0 Network Effects)</div>
+                <div class="info-card-val">开放互联网事实标准</div>
+                <div class="info-card-desc">面对第三方 Cookie 淘汰，TTD 率先研发统一数字身份识别体系 Unified ID 2.0 并贡献给开源社区。目前已被 AWS、Snowflake、LiveRamp、The Washington Post 及各大流媒体采纳，形成强大的双边网络正反馈。</div>
+            </div>
+        </div>
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">3. 新一代 Kokai AI 智能引擎 (Technological Moat)</div>
+                <div class="info-card-val">每秒处理超 1500 万次查询</div>
+                <div class="info-card-desc">Kokai 将深度强化学习应用于实时出价决策，能够在毫秒内根据历史转化、库存上下文与用户注意力分配最优出价，相比上一代 Solimar 引擎帮助客户降低获客成本约 20%~30%。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">4. 规模经济与供应链直连 (OpenPath Direct SSP)</div>
+                <div class="info-card-val">去中间化降本</div>
+                <div class="info-card-desc">通过推出 OpenPath，TTD 帮助出版商直接与广告主对接，砍去传统臃肿冗余的中间 SSP 抽成环节，既为内容创作者保留更多收入，又为广告主提升净买力。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEC 03: 4年财务报表穿透 -->
+    <section id="sec-03" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">03</span> 4年财务报表穿透分析 (Financial Statements Deep Dive 2022-2025)</div>
+            <span class="sec-tag">财务健康度: 9.2 / 10</span>
+        </div>
+        <p style="margin-bottom: 12px; color: var(--text-secondary);">
+            TTD 呈现出典型的“高毛利、高自由现金流、强规模杠杆”软件平台特征。营业收入从 2022 年的 $15.78 亿持续强劲扩张至 2025 年的 $28.96 亿（三年 CAGR 达 22.4%），且自由现金流（FCF）复合增速甚至快于营收，展现了卓越的运营杠杆。
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>会计年度</th>
+                        <th class="num-head">营业收入 ($M)</th>
+                        <th class="num-head">同比增速</th>
+                        <th class="num-head">毛利润 ($M)</th>
+                        <th class="num-head">毛利率 (%)</th>
+                        <th class="num-head">营业利润 ($M)</th>
+                        <th class="num-head">净利润 ($M)</th>
+                        <th class="num-head">经营现金流 ($M)</th>
+                        <th class="num-head">自由现金流 ($M)</th>
+                        <th class="num-head">FCF 转化率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>FY2022</strong></td>
+                        <td class="num-cell">$1,577.8</td>
+                        <td class="num-cell">+31.9%</td>
+                        <td class="num-cell">$1,296.7</td>
+                        <td class="num-cell">82.2%</td>
+                        <td class="num-cell">$113.7</td>
+                        <td class="num-cell">$53.4</td>
+                        <td class="num-cell">$548.7</td>
+                        <td class="num-cell">$456.8</td>
+                        <td class="num-cell">29.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2023</strong></td>
+                        <td class="num-cell">$1,946.1</td>
+                        <td class="num-cell">+23.3%</td>
+                        <td class="num-cell">$1,580.5</td>
+                        <td class="num-cell">81.2%</td>
+                        <td class="num-cell">$200.5</td>
+                        <td class="num-cell">$178.9</td>
+                        <td class="num-cell">$598.3</td>
+                        <td class="num-cell">$543.3</td>
+                        <td class="num-cell">27.9%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FY2024</strong></td>
+                        <td class="num-cell">$2,444.8</td>
+                        <td class="num-cell">+25.6%</td>
+                        <td class="num-cell">$1,972.8</td>
+                        <td class="num-cell">80.7%</td>
+                        <td class="num-cell">$427.2</td>
+                        <td class="num-cell">$393.1</td>
+                        <td class="num-cell">$739.5</td>
+                        <td class="num-cell">$632.4</td>
+                        <td class="num-cell">25.9%</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>FY2025</strong></td>
+                        <td class="num-cell">$2,896.3</td>
+                        <td class="num-cell">+18.5%</td>
+                        <td class="num-cell">$2,277.2</td>
+                        <td class="num-cell">78.6%</td>
+                        <td class="num-cell">$589.3</td>
+                        <td class="num-cell">$443.3</td>
+                        <td class="num-cell">$992.7</td>
+                        <td class="num-cell">$783.0</td>
+                        <td class="num-cell">27.0%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-box">
+            <div class="chart-head">4年营业收入与自由现金流 (FCF) 增长轨迹 ($M)</div>
+            <div class="chart-canvas-wrap">
+                <canvas id="chart-financials"></canvas>
+            </div>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">总资产与现金头寸</div>
+                <div class="info-card-val">$6.15B / $1.49B 现金</div>
+                <div class="info-card-desc">现金与短期投资达 $14.85 亿，资产负债表极为坚固。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">总负债与杠杆结构</div>
+                <div class="info-card-val">$4.34B 负债 / $4.36B 债务</div>
+                <div class="info-card-desc">绝大部分为日常媒体采买应付款，有息负债极低，无流动性兑付风险。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">Piotroski F-Score</div>
+                <div class="info-card-val">8 / 9 (极高质地)</div>
+                <div class="info-card-desc">连续 4 年经营现金流大幅覆盖净利润，无财务虚饰。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEC 04: 杜邦分析与资本配置 -->
+    <section id="sec-04" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">04</span> 杜邦分析与资本配置效率 (DuPont Analysis & Capital Allocation)</div>
+            <span class="sec-tag">资本回报: ROIC 18.5%</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">净利润率 (Net Margin)</div>
+                <div class="info-card-val">15.3% (TTM)</div>
+                <div class="info-card-desc">伴随营业杠杆释放与 Kokai 自动化渗透，净利率自 2022 年的 3.4% 暴增至 15.3%。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">总资产周转率 (Asset Turnover)</div>
+                <div class="info-card-val">0.47x</div>
+                <div class="info-card-desc">作为轻资产轻型数字平台，资产负债表主要由现金与客户应收应付账款构成。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">权益乘数 (Financial Leverage)</div>
+                <div class="info-card-val">2.48x</div>
+                <div class="info-card-desc">极低的财务杠杆，股东权益 $24.84 亿，净负债为负（绝对净现金企业）。</div>
+            </div>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
+            <strong>资本分配效率总结：</strong> 管理层坚持高度纪律性的内生再投资哲学。年均资本开支仅占营收约 5%~7%，绝大部分经营现金流转化为自由现金流，并全额投入于股票回购以对冲股权激励稀释（SBC），为长线股东创造极致复利价值。
+        </p>
+    </section>
+
+    <!-- SEC 05: 同行对标与行业地位 -->
+    <section id="sec-05" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">05</span> 同行对标与行业地位 (Peer Benchmarking)</div>
+            <span class="sec-tag">行业定位: 独立 DSP 绝对垄断</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称</th>
+                        <th>核心代码</th>
+                        <th>市值 ($B)</th>
+                        <th>商业模式定位</th>
+                        <th>毛利率</th>
+                        <th>营业利润率</th>
+                        <th>P/E (TTM)</th>
+                        <th>EV/EBITDA</th>
+                        <th>竞争优势壁垒</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>萃弈 (The Trade Desk)</strong></td>
+                        <td>TTD</td>
+                        <td>$6.57B</td>
+                        <td>独立买方 DSP (买方中立)</td>
+                        <td>78.6%</td>
+                        <td>20.3%</td>
+                        <td>16.6x</td>
+                        <td>7.8x</td>
+                        <td>UID2.0、Kokai AI 竞价、全球头部流媒体深度直连</td>
+                    </tr>
+                    <tr>
+                        <td><strong>谷歌 (Alphabet)</strong></td>
+                        <td>GOOGL</td>
+                        <td>$2,150.0B</td>
+                        <td>搜索/YouTube 闭环围墙巨头</td>
+                        <td>57.5%</td>
+                        <td>31.0%</td>
+                        <td>23.5x</td>
+                        <td>14.8x</td>
+                        <td>全球最大媒体资源拥有者，反垄断司法拆分阴影</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AppLovin</strong></td>
+                        <td>APP</td>
+                        <td>$95.0B</td>
+                        <td>手游与电商广告算法平台</td>
+                        <td>74.2%</td>
+                        <td>32.5%</td>
+                        <td>38.2x</td>
+                        <td>26.5x</td>
+                        <td>AXON 2.0 引擎在移动超休闲游戏及电商转化极强</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Magnite</strong></td>
+                        <td>MGNI</td>
+                        <td>$1.85B</td>
+                        <td>独立卖方 SSP 平台</td>
+                        <td>50.2%</td>
+                        <td>6.5%</td>
+                        <td>28.5x</td>
+                        <td>11.2x</td>
+                        <td>卖方供给侧整合，易受下游买方 DSP 绕过挤压</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout-box">
+            <strong>对标核心洞见：</strong> 在反垄断监管风暴中（美国司法部对 Google Ad Tech 广告技术栈的反垄断诉讼），出版商和广告主正加速向以 TTD 为代表的第三方独立开放生态迁移。TTD 的估值此前长期处于 40x~60x P/E 的高成长溢价，当前回调至仅 16.6x，与成熟低速资产估值无异，出现极度错配。
+        </div>
+    </section>
+
+    <!-- SEC 06: 机构持仓与内部人动向 -->
+    <section id="sec-06" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">06</span> 机构持仓与内部人动向 (Institutional & Insider Sentiment)</div>
+            <span class="sec-tag">机构持股: 76.5%</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">机构持股比例</div>
+                <div class="info-card-val">76.5%</div>
+                <div class="info-card-desc">Vanguard、BlackRock、T. Rowe Price、Baillie Gifford 等全球顶级长线主权与共同基金重仓持有。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">空头仓位与做空比例 (Short Float)</div>
+                <div class="info-card-val">23.01% (高挤压风险)</div>
+                <div class="info-card-desc">流通盘做空比例高达 23.0%，回补天数 3.08 天。超跌后极易触发报复性空头踩踏逼空（Short Squeeze）。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">创始人与高管动向</div>
+                <div class="info-card-val">创始人 Jeff Green 牢固掌控</div>
+                <div class="info-card-desc">创始人持有超强投票权 Class B 股，长期坚守行业理想，管理层薪酬与长期股东价值深度绑定。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEC 07: 催化剂与管理层指引 -->
+    <section id="sec-07" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">07</span> 核心催化剂与管理层指引 (Catalysts & Guidance)</div>
+            <span class="sec-tag">催化剂密集度: 高</span>
+        </div>
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">🔥 催化剂 1：美国司法部判决 Google 拆分广告技术</div>
+                <div class="info-card-desc">若 Google 被迫剥离 Google Ad Manager (DFP + AdX)，开放互联网广告生态将重新洗牌。作为首选替代方案，TTD 的平台撮合交易额将迎来数倍量级的机构资金涌入。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">🔥 催化剂 2：CTV 与国际市场渗透加速</div>
+                <div class="info-card-desc">目前 TTD 营收约 85% 来自北美，欧洲与亚太市场拓展尚处初级阶段。伴随海外流媒体广告层级（Ad-Supported Tiers）全面铺开，国际市场将贡献第二增长曲线。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEC 08: 多维相对估值矩阵 -->
+    <section id="sec-08" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">08</span> 多维相对估值矩阵 (Multiples-Implied Valuation Matrix)</div>
+            <span class="sec-tag">历史分位: 处于近 5 年 3% 极限历史低谷</span>
+        </div>
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">P/E (TTM)</div>
+                <div class="info-card-val">16.6x</div>
+                <div class="info-card-desc">5年历史中枢 48.0x，折价 65.4%</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">Forward P/E</div>
+                <div class="info-card-val">13.9x</div>
+                <div class="info-card-desc">对标标普500远期平均 (21.5x) 显著折让</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">EV/EBITDA</div>
+                <div class="info-card-val">7.8x</div>
+                <div class="info-card-desc">5年历史中枢 28.5x，具备极高收购吸引力</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">P/FCF 自由现金流倍数</div>
+                <div class="info-card-val">8.4x</div>
+                <div class="info-card-desc">自由现金流收益率高达 11.9%</div>
+            </div>
+        </div>
+        <div class="chart-box">
+            <div class="chart-head">多因子综合能力雷达图 (InvestSkill Radar Benchmark)</div>
+            <div class="chart-canvas-wrap">
+                <canvas id="chart-radar"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEC 09: DCF内在价值模型 -->
+    <section id="sec-09" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">09</span> 现金流折现内在价值模型 (DCF Valuation Engine)</div>
+            <span class="sec-tag">DCF 估值中枢: $24.50 (上行空间 +75.3%)</span>
+        </div>
+        <p style="margin-bottom: 12px; color: var(--text-secondary);">
+            基于 Aswath Damodaran 现金流折现框架，采用 10 年期无风险利率 4.2%、权益风险溢价 5.0%、Beta 1.25 计算出股权加权平均资本成本（WACC）为 <strong>9.5%</strong>。假设前 5 年 FCF 年均增长 14.0%，终值永续增长率取保守的 3.0%。
+        </p>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">悲观熊市清算底线 (Bear DCF)</div>
+                <div class="info-card-val">$15.80</div>
+                <div class="info-card-desc">假设 FCF 增速腰斩至 5.0%，WACC 提升至 11.0%。仍高于当前现价 $13.98！</div>
+            </div>
+            <div class="info-card" style="border-color: var(--primary);">
+                <div class="info-card-title" style="color: var(--primary);">基准公允价值 (Base DCF)</div>
+                <div class="info-card-val" style="color: var(--primary);">$24.50</div>
+                <div class="info-card-desc">基准 14% FCF 复合增速，对应当前现价潜在安全边际高达 42.9%！</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">乐观牛市反转价值 (Bull DCF)</div>
+                <div class="info-card-val">$34.20</div>
+                <div class="info-card-desc">假设 Google 拆分落地，市场份额激增，FCF 增速维持 22.0%。</div>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率</th>
+                        <th class="num-head">2.0%</th>
+                        <th class="num-head">2.5%</th>
+                        <th class="num-head">3.0% (基准)</th>
+                        <th class="num-head">3.5%</th>
+                        <th class="num-head">4.0%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>8.5%</strong></td><td class="num-cell">$26.10</td><td class="num-cell">$27.80</td><td class="num-cell">$29.90</td><td class="num-cell">$32.50</td><td class="num-cell">$35.80</td></tr>
+                    <tr><td><strong>9.0%</strong></td><td class="num-cell">$23.50</td><td class="num-cell">$24.80</td><td class="num-cell">$26.40</td><td class="num-cell">$28.40</td><td class="num-cell">$30.90</td></tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;"><td><strong>9.5% (基准)</strong></td><td class="num-cell">$21.80</td><td class="num-cell">$23.10</td><td class="num-cell" style="color: var(--primary); font-size: 14px;">$24.50</td><td class="num-cell">$26.20</td><td class="num-cell">$28.20</td></tr>
+                    <tr><td><strong>10.0%</strong></td><td class="num-cell">$20.20</td><td class="num-cell">$21.30</td><td class="num-cell">$22.60</td><td class="num-cell">$24.10</td><td class="num-cell">$25.90</td></tr>
+                    <tr><td><strong>10.5%</strong></td><td class="num-cell">$18.80</td><td class="num-cell">$19.80</td><td class="num-cell">$20.90</td><td class="num-cell">$22.20</td><td class="num-cell">$23.70</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SEC 10: 熊市压力测试 -->
+    <section id="sec-10" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">10</span> 熊市压力测试与下行保护 (Bear-Case Stress Test)</div>
+            <span class="sec-tag">极端下行底线: $11.50</span>
+        </div>
+        <p style="margin-bottom: 12px; color: var(--text-secondary);">
+            假定发生 2008 年级别的全球宏观衰退，品牌广告主预算缩减 20%，TTD 营收下降 15%，毛利率下降至 70%：
+        </p>
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">压力情景 1：现金流与破产风险</div>
+                <div class="info-card-desc"><strong>零破产风险：</strong> TTD 拥有 $14.85 亿现金且年经营开支灵活可控，即使净利压缩 50%，仍能产生逾 $3 亿的经营净现金流，永无债务违约风险。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">压力情景 2：重资产重置与净资产清算底</div>
+                <div class="info-card-desc"><strong>安全边际极强：</strong> 每股净现金折合约 $2.46/股，每股账面净资产 $5.82/股。现价 $13.98 几乎已将全部悲观情绪计入，进一步下跌空间受强劲现金流托底。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEC 11: 技术面走势与相对强弱 -->
+    <section id="sec-11" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">11</span> 技术面走势与相对强弱 (Technical Analysis & Regime Switching)</div>
+            <span class="sec-tag">技术形态: 极限超卖双底背离</span>
+        </div>
+        <div class="data-grid-4">
+            <div class="info-card">
+                <div class="info-card-title">52周区间与相对分位</div>
+                <div class="info-card-val">$12.83 ~ $56.39 (RP: 2.6%)</div>
+                <div class="info-card-desc">位于绝对历史底部支撑区间</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">RSI (14) 动量指标</div>
+                <div class="info-card-val">28.4 (极限超卖)</div>
+                <div class="info-card-desc">日线与周线级别均出现严重底背离信号</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">200 日均线偏离度 (Dev)</div>
+                <div class="info-card-val">-48.5% (超跌修复)</div>
+                <div class="info-card-desc">均线乖离率达到历史极值水平</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">技术支撑与阻力位</div>
+                <div class="info-card-val">支撑: $12.80 / 阻力: $18.50</div>
+                <div class="info-card-desc">风险收益比（盈亏比）高达 1:4.8</div>
+            </div>
+        </div>
+        <div class="callout-box">
+            <strong>量化机制切换判定：</strong> TTD 商业质量评分 9.0，财务健康度 9.2，完全符合“高质地资产机制”。模型自动锁定<strong>“均值回归与价值底线模式 (Mean-Reversion Floor Mode)”</strong>，严禁追空，判定当前为罕见的左侧非对称布局“黄金坑”。
+        </div>
+    </section>
+
+    <!-- SEC 12: 期权策略与年化收益 (Contract 6) -->
+    <section id="sec-12" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">12</span> 期权策略与年化收益工程 (Sell Put Strategy Matrix)</div>
+            <span class="sec-tag">首选策略: Cash-Secured Put (卖出看跌期权)</span>
+        </div>
+        <p style="margin-bottom: 12px; color: var(--text-secondary);">
+            由于 TTD 具备充沛基本面支撑且当前处于深跌磨底状态，卖出平价或轻度虚值看跌期权（Cash-Secured Put, CSP）既能捕获高达 30%~40%+ 的年化时间价值权利金，又能在被动行权时以更极限的超低成本（Net Basis $11.40~$12.10）接纳优质筹码，完美契合轮动收租哲学。
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯队</th>
+                        <th>行权价 (Strike)</th>
+                        <th>到期日 (Expiry)</th>
+                        <th class="num-head">剩余 DTE</th>
+                        <th class="num-head">Delta (Δ)</th>
+                        <th class="num-head">权利金 Mark (Bid/Ask)</th>
+                        <th class="num-head">年化收益率 (APY)</th>
+                        <th class="num-head">安全垫缓冲 (Cushion)</th>
+                        <th class="num-head">到期胜率 (POP)</th>
+                        <th class="num-head">单份担保需求</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🛡️ 保守型 (Conservative)</strong></td>
+                        <td>$10.00 Put</td>
+                        <td>2026-10-16</td>
+                        <td class="num-cell">36 天</td>
+                        <td class="num-cell">-0.084</td>
+                        <td class="num-cell">$0.115 ($0.10 / $0.13)</td>
+                        <td class="num-cell" style="color: var(--primary);">11.7%</td>
+                        <td class="num-cell" style="font-weight: 700;">28.5%</td>
+                        <td class="num-cell">91.6%</td>
+                        <td class="num-cell">$1,000</td>
+                    </tr>
+                    <tr style="background: #ECFDF5; font-weight: 700;">
+                        <td><strong>⚖️ 平衡型 (Moderate - 推荐)</strong></td>
+                        <td>$12.50 Put</td>
+                        <td>2026-10-16</td>
+                        <td class="num-cell">36 天</td>
+                        <td class="num-cell">-0.239</td>
+                        <td class="num-cell">$0.375 ($0.33 / $0.42)</td>
+                        <td class="num-cell" style="color: var(--primary); font-size: 13.5px;">30.4%</td>
+                        <td class="num-cell" style="font-weight: 700;">10.6%</td>
+                        <td class="num-cell">76.1%</td>
+                        <td class="num-cell">$1,250</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🚀 激进型 (Aggressive - 长周期)</strong></td>
+                        <td>$12.50 Put</td>
+                        <td>2026-11-20</td>
+                        <td class="num-cell">71 天</td>
+                        <td class="num-cell">-0.306</td>
+                        <td class="num-cell">$1.085 ($1.04 / $1.13)</td>
+                        <td class="num-cell" style="color: var(--primary); font-size: 13.5px;">44.6%</td>
+                        <td class="num-cell" style="font-weight: 700;">10.6%</td>
+                        <td class="num-cell">69.4%</td>
+                        <td class="num-cell">$1,250</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="callout-box">
+            <strong>实操收益测算：</strong> 若卖出 2 份 2026-10-16 $12.50 Put，占用现金保证金 $2,500，可即刻锁定净权利金收入 $75.00（折合净年化 30.4%）。若到期未跌破 $12.50 则权利金全额落袋；若跌破行权，则以实际成本 $12.12/股买入 200 股核心标的（较现价再折让 13.3%），转入 Covered Call 备兑轮动。
+        </div>
+    </section>
+
+    <!-- SEC 13: 股息政策与股东回报 (Contract 5) -->
+    <section id="sec-13" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">13</span> 股息政策与股东资本回报 (Dividend & Buyback Policy)</div>
+            <span class="sec-tag">股息状态: 无股息 (回购对冲)</span>
+        </div>
+        <div class="data-grid-3">
+            <div class="info-card">
+                <div class="info-card-title">股息收益率 (Dividend Yield)</div>
+                <div class="info-card-val">无 / 没有 (无股息派发)</div>
+                <div class="info-card-desc">TTD 目前未设立现金分红计划 (Dividend Yield: 0.0% / N/A)。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">资本配置替代方案</div>
+                <div class="info-card-val">大规模股票回购授权</div>
+                <div class="info-card-desc">董事会已授权超 10 亿美元股票回购额度，用于对冲员工股权激励计划 (SBC) 带来的股本稀释。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">留存收益再投资效率</div>
+                <div class="info-card-val">ROIC 18.5%</div>
+                <div class="info-card-desc">公司处于云基础设施与 AI 研发的高回报投资期，留存现金进行研发再投资远比派息具备更高的税后复合回报。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEC 14: 核心风险因子与防御机制 -->
+    <section id="sec-14" class="sec-card">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">14</span> 核心风险因子与防御机制 (Risk Factors & Defense Mechanisms)</div>
+            <span class="sec-tag">风险评级: 中等偏低</span>
+        </div>
+        <div class="data-grid-2">
+            <div class="info-card">
+                <div class="info-card-title">⚠️ 风险 1：宏观广告周期剧烈衰退</div>
+                <div class="info-card-desc">数字广告是宏观经济的晴雨表。若美国经济步入深度硬着陆，广告主可能暂停新营销支出。<strong>防御机制：</strong> TTD 专注高 ROI 的 CTV 与精准零售广告，具备比品牌曝光类广告更强的韧性。</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">⚠️ 风险 2：围墙花园巨头恶意阻截</div>
+                <div class="info-card-desc">Google、Amazon 可能收紧第三方数据接口以压制独立 DSP。<strong>防御机制：</strong> UID2.0 已成为行业去中心化标准，且反垄断司法审查使巨头难以实施排他性垄断行为。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEC 15: 综合投资评级与决策 (Contract 5 & 7) -->
+    <section id="sec-15" class="sec-card" style="border: none; padding: 0; background: transparent;">
+        <div class="signal-block">
+            <div class="signal-label-top">INVESTMENT SIGNAL BLOCK (15-MODULE COMPREHENSIVE SYNTHESIS)</div>
+            <div class="signal-header-row">
+                <div class="signal-verdict">强力买入 (Strong Buy) • 极致估值错配与左侧非对称黄金坑</div>
+                <div class="signal-score">8.8 / 10</div>
+            </div>
+            <div class="signal-grid">
+                <div class="signal-item"><div class="sig-label">投资信号 (Signal)</div><div class="sig-val">强力买入 (Strong Buy)</div></div>
+                <div class="signal-item"><div class="sig-label">置信度 (Confidence)</div><div class="sig-val">HIGH (高置信度)</div></div>
+                <div class="signal-item"><div class="sig-label">投资期限 (Horizon)</div><div class="sig-val">6 - 18 个月 (中期反转)</div></div>
+                <div class="signal-item"><div class="sig-label">首选操作 (Action)</div><div class="sig-val">CSP卖出 2026-10-16 $12.50 看跌期权 / 现货分批建仓</div></div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+// Chart 1: Financials Growth
+const ctxFin = document.getElementById('chart-financials').getContext('2d');
+new Chart(ctxFin, {
+    type: 'bar',
+    data: {
+        labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025'],
+        datasets: [
+            {
+                label: '营业收入 ($M)',
+                data: [1577.8, 1946.1, 2444.8, 2896.3],
+                backgroundColor: 'rgba(5, 150, 105, 0.75)',
+                borderRadius: 6
+            },
+            {
+                label: '自由现金流 FCF ($M)',
+                data: [456.8, 543.3, 632.4, 783.0],
+                backgroundColor: 'rgba(16, 185, 129, 0.35)',
+                borderColor: '#059669',
+                borderWidth: 2,
+                type: 'line',
+                tension: 0.3
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#E2E8F0' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// Chart 2: Radar Scorecard
+const ctxRadar = document.getElementById('chart-radar').getContext('2d');
+new Chart(ctxRadar, {
+    type: 'radar',
+    data: {
+        labels: ['商业模式与壁垒', '财务稳健与现金流', '成长性与催化剂', '估值折价吸引力', '期权收租收益率', '股东资本配置'],
+        datasets: [{
+            label: 'TTD 综合量化得分',
+            data: [9.0, 9.2, 8.5, 9.4, 8.8, 8.2],
+            backgroundColor: 'rgba(16, 185, 129, 0.25)',
+            borderColor: '#059669',
+            pointBackgroundColor: '#059669',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                min: 0,
+                max: 10,
+                ticks: { stepSize: 2 }
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>
