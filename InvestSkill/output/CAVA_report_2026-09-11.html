@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>卡瓦集团 (CAVA) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #059669;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEF2F2;
+            --amber:         #D97706;
+            --amber-light:   #FFFBEB;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #065F46 45%, #059669 80%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+
+        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 22px; max-width: 1000px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 10px;
+            padding: 12px 14px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #A7F3D0; font-weight: 600; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; }
+        .hero-kpi-sub { font-size: 11px; opacity: 0.9; }
+
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+
+        .toc-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 5px 11px;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary); }
+
+        .sec-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sec-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-num {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .sec-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background: #F1F5F9;
+            color: var(--text-secondary);
+        }
+
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 14px; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 14px; }
+
+        .metric-tile {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .metric-tile-lbl { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .metric-tile-val { font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 2px; color: var(--text-primary); }
+        .metric-tile-sub { font-size: 11px; color: var(--text-secondary); }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 14px 0; border-radius: 8px; border: 1px solid var(--border); }
+        table.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left; }
+        table.data-table th { background: #F1F5F9; padding: 10px 12px; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        table.data-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        table.data-table tr:last-child td { border-bottom: none; }
+        table.data-table tr:hover { background: #F8FAFC; }
+
+        .chart-box {
+            position: relative;
+            height: 280px;
+            margin: 16px 0;
+            background: #FAFAFA;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .alert-box {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 14px 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .alert-green { background: var(--primary-light); border-left: 4px solid var(--primary); color: #064E3B; }
+        .alert-amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: #78350F; }
+        .alert-red { background: var(--red-light); border-left: 4px solid var(--red); color: #7F1D1D; }
+
+        .signal-block {
+            background: #09090B;
+            border: 1px solid #27272A;
+            border-radius: 12px;
+            padding: 24px;
+            color: #FFFFFF;
+            margin-top: 24px;
+        }
+        .signal-label-top {
+            font-size: 11px;
+            letter-spacing: 1px;
+            color: #A1A1AA;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .signal-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #27272A;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .signal-verdict { font-size: 24px; font-weight: 800; color: #10B981; }
+        .signal-score { font-size: 28px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #FFFFFF; }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .signal-item {
+            background: #18181B;
+            border: 1px solid #27272A;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        .sig-label { font-size: 11px; color: #71717A; text-transform: uppercase; font-weight: 600; }
+        .sig-val { font-size: 14px; font-weight: 700; color: #FAFAFA; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+    <header class="report-hero">
+        <div class="hero-inner">
+            <div class="hero-badge-row">
+                <span class="badge badge-hero-stock">🏛️ NASDAQ: CAVA · 卡瓦集团 (CAVA Group)</span>
+                <span class="badge badge-hero-stock">📂 非必需消费 (Consumer Discretionary) | 地中海风味快休闲餐饮独角兽</span>
+                <span class="badge badge-hero-signal">🟢 买入 (Buy)</span>
+                <span class="badge badge-hero-stock">📈 52周相对位置: 22.3% | 200日均线偏离: -22.8%</span>
+                <span class="badge badge-hero-stock">📅 报告基准日: 2026-09-11</span>
+            </div>
+            <h1 class="hero-title">卡瓦集团 (CAVA) 深度投研报告</h1>
+            <div class="hero-sub">
+                CAVA Group（NASDAQ: CAVA）是全美地中海风味快休闲餐饮（Fast-Casual）绝对领导者，被誉为“地中海餐饮界的 Chipotle”。单店年化销售额（AUV）突破 270 万美元，门店经营利润率达 25.5%，连续三年实现强劲盈利与经营性现金流高增长。近期因快餐大盘宏观估值压缩，股价自高点 $98.79 回撤至 $55.76，回踩 200 日线关键支撑，提供极佳的价值布局与 Sell Put 溢价收租安全垫。
+            </div>
+            <div class="hero-kpis">
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">当前市场现价</div>
+                    <div class="hero-kpi-val">$55.76</div>
+                    <div class="hero-kpi-sub">52周: $43.41 ~ $98.79 (RP: 22.3%)</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">多因子综合评分</div>
+                    <div class="hero-kpi-val">7.6 / 10</div>
+                    <div class="hero-kpi-sub">买入 (Buy) • 健康快休黄金赛道，单店模型极佳</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                    <div class="hero-kpi-val">$6.51B</div>
+                    <div class="hero-kpi-sub">企业价值 (EV): $6.39B · 净现金充沛</div>
+                </div>
+                <div class="hero-kpi-card">
+                    <div class="hero-kpi-lbl">市盈率与估值中枢</div>
+                    <div class="hero-kpi-val">P/E: 75.4x (Fwd)</div>
+                    <div class="hero-kpi-sub">DCF 公允价值: $68.20 (折让 18.2%)</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrap">
+        <nav class="toc-bar">
+            <div class="toc-title">研报导航 (Table of Contents)</div>
+            <div class="toc-links">
+                <a class="toc-link" href="#sec-1">01 商业模式</a>
+                <a class="toc-link" href="#sec-2">02 护城河壁垒</a>
+                <a class="toc-link" href="#sec-3">03 财务报表</a>
+                <a class="toc-link" href="#sec-4">04 资产负债</a>
+                <a class="toc-link" href="#sec-5">05 现金流分析</a>
+                <a class="toc-link" href="#sec-6">06 杜邦拆解</a>
+                <a class="toc-link" href="#sec-7">07 同行对标</a>
+                <a class="toc-link" href="#sec-8">08 DCF估值</a>
+                <a class="toc-link" href="#sec-9">09 技术形态</a>
+                <a class="toc-link" href="#sec-10">10 期权策略</a>
+                <a class="toc-link" href="#sec-11">11 内部人交易</a>
+                <a class="toc-link" href="#sec-12">12 机构持仓</a>
+                <a class="toc-link" href="#sec-13">13 股息与回购</a>
+                <a class="toc-link" href="#sec-14">14 管理层电话会</a>
+                <a class="toc-link" href="#sec-15">15 逆向检验与决策</a>
+            </div>
+        </nav>
+
+        <section id="sec-1" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">01</span> 商业模式与业务全景拆解</div>
+                <span class="sec-tag">Business Model</span>
+            </div>
+            <p>CAVA 采用 100% 直营门店模式运营，主打健康地中海定制碗（Grain Bowls、Salads）和皮塔饼（Pita Wrap）。区别于传统油炸快餐，CAVA 契合当代消费者对高蛋白、少加工、新鲜蔬菜的健康饮食升级需求。截至目前全美门店突破 350 家，长期规划在 2032 年达到 1,000 家门店规模。</p>
+            <div class="data-grid-3" style="margin-top: 14px;">
+                <div class="metric-tile">
+                    <div class="metric-tile-lbl">单店年营业额 (AUV)</div>
+                    <div class="metric-tile-val">$2.74M</div>
+                    <div class="metric-tile-sub">仅次于 Chick-fil-A 与 Shake Shack</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-tile-lbl">餐厅层面营业利润率</div>
+                    <div class="metric-tile-val">25.5%</div>
+                    <div class="metric-tile-sub">媲美成熟期 Chipotle (CMG)</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-tile-lbl">数字化订单占比</div>
+                    <div class="metric-tile-val">36.5%</div>
+                    <div class="metric-tile-sub">专属取餐车道（Drive-thru）加速渗透</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-2" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">02</span> 护城河分析与波特五力模型</div>
+                <span class="sec-tag">Economic Moat</span>
+            </div>
+            <p><strong>1. 独特品类心智垄断（Narrow Moat）</strong>：CAVA 在全美率先建立起“地中海风味健康快餐”的第一品牌心智，在细分赛道几乎无全国性抗衡对手。<br>
+            <strong>2. 极致的单店投资回报率（ROIC）</strong>：单店建店成本约 135 万美元，新店开业第二年即可产生近 65 万美元 EBITDA，现金投资回收期（Payback Period）不足 2.5 年，资本再投资造血能力极强。<br>
+            <strong>3. 专属中央厨房与包装消费品（CPG）副业</strong>：除餐厅外，CAVA 秘制酱料（Crazy Feta 等）已进入 Whole Foods 等大型商超销售，构建线上线下品牌飞轮。</p>
+        </section>
+
+        <section id="sec-3" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">03</span> 财务报表透视与盈利质量 (4年历史趋势)</div>
+                <span class="sec-tag">Financial Quality</span>
+            </div>
+            <div class="table-scroll">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>财务年度</th><th>营业总收入 (Revenue)</th><th>YoY 增长率</th><th>毛利润 (Gross Profit)</th><th>净利润 (Net Income)</th><th>净利率</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>FY2022</td><td>$564.1M</td><td>--</td><td>$201.2M (35.7%)</td><td>-$59.0M</td><td>-10.5%</td></tr>
+                        <tr><td>FY2023</td><td>$728.7M</td><td>+29.2%</td><td>$268.5M (36.8%)</td><td>+$13.3M</td><td>+1.8%</td></tr>
+                        <tr><td>FY2024</td><td>$963.7M</td><td>+32.2%</td><td>$360.2M (37.4%)</td><td>+$130.3M*</td><td>+13.5%</td></tr>
+                        <tr><td>FY2025</td><td>$1,179.7M</td><td>+22.4%</td><td>$445.1M (37.7%)</td><td>+$63.7M</td><td>+5.4%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="chart-box"><canvas id="chart-financials"></canvas></div>
+        </section>
+
+        <section id="sec-4" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">04</span> 资产负债表健康度与偿债防线</div>
+                <span class="sec-tag">Solvency Health</span>
+            </div>
+            <div class="data-grid-3">
+                <div class="metric-tile">
+                    <div class="metric-tile-lbl">现金及短期投资</div>
+                    <div class="metric-tile-val">$340.5M</div>
+                    <div class="metric-tile-sub">零长期有息借款，资产负债极其健康</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-tile-lbl">流动比率 (Current Ratio)</div>
+                    <div class="metric-tile-val">2.85x</div>
+                    <div class="metric-tile-sub">短期偿债无任何压力</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-tile-lbl">Piotroski F-Score</div>
+                    <div class="metric-tile-val">7 / 9 分</div>
+                    <div class="metric-tile-sub">🟢 优异资产质量与盈利健康度</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-5" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">05</span> 自由现金流与资本支出效率</div>
+                <span class="sec-tag">Cash Flow Dynamics</span>
+            </div>
+            <p>2025 年 CAVA 经营活动现金流（OCF）强劲提升至 <strong>$184.8M</strong>（YoY +14.8%），资本支出 Capex 为 <strong>$158.7M</strong>（主要用于全美新开 65 家直营门店）。在维持 20%+ 开店扩张的同时，自由现金流（FCF）维持正流入 <strong>+$26.1M</strong>，展示了内生性自我造血的强大实力。</p>
+        </section>
+
+        <section id="sec-6" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">06</span> 杜邦 ROE 拆解与多因子雷达</div>
+                <span class="sec-tag">DuPont & Multi-Factor</span>
+            </div>
+            <div class="chart-box"><canvas id="chart-radar"></canvas></div>
+        </section>
+
+        <section id="sec-7" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">07</span> 同行对标与估值倍数</div>
+                <span class="sec-tag">Peer Benchmarking</span>
+            </div>
+            <div class="table-scroll">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>公司代码</th><th>公司名称</th><th>Forward P/E</th><th>EV/EBITDA</th><th>营收复合增速 (3Y)</th><th>AUV (单店营收)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: var(--primary-light); font-weight: bold;"><td>CAVA</td><td>卡瓦集团</td><td>75.4x</td><td>31.2x</td><td>28.5%</td><td>$2.74M</td></tr>
+                        <tr><td>CMG</td><td>Chipotle</td><td>42.5x</td><td>26.8x</td><td>14.2%</td><td>$3.10M</td></tr>
+                        <tr><td>SHAK</td><td>Shake Shack</td><td>88.0x</td><td>28.5x</td><td>16.8%</td><td>$4.00M</td></tr>
+                        <tr><td>WING</td><td>Wingstop</td><td>22.0x</td><td>18.5x</td><td>24.1%</td><td>$2.05M</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="sec-8" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">08</span> DCF 内在价值模型与 WACC 敏感性</div>
+                <span class="sec-tag">Valuation Model</span>
+            </div>
+            <p>基于 10 年期两阶段自由现金流折现模型，假设未来 5 年营收复合增速 18.5%，终端增长率 3.0%，WACC 设定为 8.5%：<br>
+            <strong>基准公允价值 (Base Case Fair Value) 为 $68.20</strong>（较当前现价 $55.76 存在 18.2% 估值折价）。保守清算底线（Bear Case）为 $44.50。</p>
+            <div class="chart-box"><canvas id="chart-valuation"></canvas></div>
+        </section>
+
+        <section id="sec-9" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">09</span> 技术形态与 200 日线偏离分析</div>
+                <span class="sec-tag">Technical Timing</span>
+            </div>
+            <p>CAVA 当前现价 $55.76，较 200 日移动平均线（$72.25）偏离达 <strong>-22.8%</strong>，52周相对位置 RP 为 <strong>22.3%</strong>，RSI(14) 读数 34.5 处于超卖钝化区间。技术形态进入黄金坑底部构筑，向下空间受 $45~50 关键支撑位保护，是典型的左侧建仓收租契机。</p>
+        </section>
+
+        <section id="sec-10" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">10</span> 期权策略与 Cash-Secured Put 推荐</div>
+                <span class="sec-tag">Options Strategy</span>
+            </div>
+            <div class="table-scroll">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>策略梯队</th><th>行权价 (Strike)</th><th>到期日 (Expiry)</th><th>剩余 DTE</th><th>Delta (Δ)</th><th>权利金 Mark (Bid/Ask)</th><th>年化收益率 (APY)</th><th>安全垫缓冲 (Cushion)</th><th>到期胜率 (POP)</th><th>单份现金担保需求</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><b>保守型</b></td><td>$45.00</td><td>2026-10-16</td><td>35 天</td><td>-0.117</td><td>$0.56 ($0.47/$0.65)</td><td>13.0%</td><td>+19.3%</td><td>91.2%</td><td>$4,500</td></tr>
+                        <tr style="background: var(--primary-light);"><td><b>平衡型 (推荐)</b></td><td>$50.00</td><td>2026-10-16</td><td>35 天</td><td>-0.289</td><td>$1.83 ($1.70/$1.96)</td><td>38.3%</td><td>+10.3%</td><td>82.4%</td><td>$5,000</td></tr>
+                        <tr><td><b>激进型</b></td><td>$55.00</td><td>2026-10-16</td><td>35 天</td><td>-0.393</td><td>$2.75 ($2.61/$2.90)</td><td>52.1%</td><td>+1.4%</td><td>73.0%</td><td>$5,500</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="chart-box"><canvas id="chart-options"></canvas></div>
+        </section>
+
+        <section id="sec-11" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">11</span> 内部人交易与 SEC Form 4 披露</div>
+                <span class="sec-tag">Insider Activity</span>
+            </div>
+            <p>过去 90 天管理层与董事会交易基本平稳，主要为高管行权计划（10b5-1）的程序化预设卖出，无异常集中抛售。CEO Brett Schulman 持续持有大额实益股权，利益与中小股东高度一致。</p>
+        </section>
+
+        <section id="sec-12" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">12</span> 机构持仓与 13F 资金流向</div>
+                <span class="sec-tag">Institutional Flow</span>
+            </div>
+            <p>机构持股比例达 78.4%，主要由 Vanguard、BlackRock、T. Rowe Price、Fidelity 等长线价值基金重仓持有。最近一个季度长线共同基金净流入增持 2.8%，在估值回调过程中机构呈现稳健吸筹迹象。</p>
+        </section>
+
+        <section id="sec-13" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">13</span> 股息政策与股东回报</div>
+                <span class="sec-tag">Shareholder Return</span>
+            </div>
+            <div class="alert-box alert-amber">
+                <strong>股息披露状态：无 / 没有 (无股息派发 / Dividend: None / 0.0%)</strong><br>
+                CAVA 处于高速开店扩张红利期，全部经营盈余与净现金流 100% 用于新店资本开支、数字供应链与人员培训。当前不派发股息亦未设立大规模股份回购计划，资本再投资收益率显著高于派息。
+            </div>
+        </section>
+
+        <section id="sec-14" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">14</span> 管理层电话会与前瞻指引</div>
+                <span class="sec-tag">Earnings Calls</span>
+            </div>
+            <p><strong>管理层 Q2 电话会重点实录：</strong><br>
+            - <strong>同店销售增幅（SSS）</strong>：同店销售维持 6.5%+ 正增长，客单价与客流量保持双轮驱动。<br>
+            - <strong>新店开业指引</strong>：重申 2026 全年新开 60~65 家直营门店，中西部与南部新市场表现亮眼。<br>
+            - <strong>通胀应对</strong>：凭借品牌溢价能力，轻微提价 2.0% 完全覆盖食材与劳动力成本上升，未对客流造成反噬。</p>
+        </section>
+
+        <section id="sec-15" class="sec-card">
+            <div class="sec-head">
+                <div class="sec-title"><span class="sec-num">15</span> 逆向检验、风险雷区与最终投资决策</div>
+                <span class="sec-tag">Investment Decision</span>
+            </div>
+            <div class="alert-box alert-green">
+                <strong>🥊 红队防雷逆向检验 (Devil's Advocate Audit)：</strong><br>
+                1. <strong>宏观消费承压风险</strong>：若全美可选消费进一步降级，人均客单价（~$15）可能面临边际压力；但其健康属性具备高粘性，受冲击远小于传统中高端正餐。<br>
+                2. <strong>门店扩张执行风险</strong>：开店节奏若受地产招商阻碍可能下修营收指引；目前公司储备新选址丰富。<br>
+                3. <strong>估值溢价消化</strong>：当前 Forward P/E 降至 75x，回踩 200 日线支撑，下行风险已大幅释放。
+            </div>
+
+            <div class="signal-block">
+                <div class="signal-label-top">INVESTMENT SIGNAL BLOCK (15-MODULE COMPREHENSIVE SYNTHESIS)</div>
+                <div class="signal-header-row">
+                    <div class="signal-verdict">买入 (Buy) • 地中海快休闲黄金赛道，超跌黄金坑高胜率收租</div>
+                    <div class="signal-score">7.6 / 10</div>
+                </div>
+                <div class="signal-grid">
+                    <div class="signal-item"><div class="sig-label">投资信号 (Signal)</div><div class="sig-val">买入 (Buy)</div></div>
+                    <div class="signal-item"><div class="sig-label">置信度 (Confidence)</div><div class="sig-val">HIGH (置信度高)</div></div>
+                    <div class="signal-item"><div class="sig-label">投资期限 (Horizon)</div><div class="sig-val">MEDIUM-TERM (6-18个月)</div></div>
+                    <div class="signal-item"><div class="sig-label">执行建议 (Action)</div><div class="sig-val">推荐卖出 2026-10-16 $50P (38.3% APY)</div></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Chart.js Implementations
+        const chartColors = {
+            primary: '#059669',
+            accent: '#10B981',
+            slate: '#64748B',
+            light: 'rgba(5, 150, 105, 0.15)'
+        };
+
+        // 1. Financials Chart
+        new Chart(document.getElementById('chart-financials'), {
+            type: 'bar',
+            data: {
+                labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025'],
+                datasets: [
+                    { label: '营业总收入 ($M)', data: [564.1, 728.7, 963.7, 1179.7], backgroundColor: '#059669' },
+                    { label: '净利润 ($M)', data: [-59.0, 13.3, 130.3, 63.7], backgroundColor: '#10B981' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // 2. Radar Chart
+        new Chart(document.getElementById('chart-radar'), {
+            type: 'radar',
+            data: {
+                labels: ['商业模式', '护城河壁垒', '财务增长', '现金流质量', '估值安全垫', '技术形态'],
+                datasets: [{
+                    label: 'CAVA 多因子得分',
+                    data: [8.8, 8.2, 8.5, 7.8, 6.8, 7.5],
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.2)'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 10 } } }
+        });
+
+        // 3. Valuation Bridge Chart
+        new Chart(document.getElementById('chart-valuation'), {
+            type: 'bar',
+            data: {
+                labels: ['悲观清算底线', '当前市场现价', 'DCF 公允价值', '乐观增长目标'],
+                datasets: [{
+                    label: '估值锚点 ($)',
+                    data: [44.50, 55.76, 68.20, 85.00],
+                    backgroundColor: ['#DC2626', '#3B82F6', '#059669', '#10B981']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // 4. Options Chart
+        new Chart(document.getElementById('chart-options'), {
+            type: 'line',
+            data: {
+                labels: ['$40', '$45 (保守P)', '$50 (推荐P)', '$55 (现价)', '$60', '$65'],
+                datasets: [{
+                    label: 'Sell $50P 到期到手收益 ($)',
+                    data: [-817, -317, 183, 183, 183, 183],
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                    fill: true
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    </script>
+</body>
+</html>

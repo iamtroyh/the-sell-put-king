@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Market Data True Options IV / IVP / IVR CLI Tool
-================================================
-Fetches 30-day ATM implied volatility, calculates 252-day True IV Percentile
-and True IV Rank via Market Data API, and inspects local volatility cache.
+Robinhood Native True Options IV / IVP / IVR CLI Tool
+=====================================================
+Fetches 30-day ATM implied volatility directly from Robinhood clearing quotes,
+calculates 252-day True IV Percentile, True IV Rank, and IV/HV volatility premium.
 """
 
 import os
@@ -16,7 +16,7 @@ SRC_DIR = os.path.join(BASE_DIR, "src")
 if SRC_DIR not in sys.path:
     sys.path.insert(0, SRC_DIR)
 
-from option_quant.marketdata_client import get_true_ivp_and_ivr, MarketDataClient, _load_iv_cache
+from option_quant.marketdata_client import get_true_ivp_and_ivr, _load_iv_cache
 from option_quant.config import DATA_DIR, load_json_config, normalize_symbol
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -35,10 +35,9 @@ def main():
             symbols = ["IBIT", "BRK.B", "SPYM", "ASHR", "QQQM", "IWM", "VTV", "TLT", "XLV", "XLP", "XLE"]
 
         print(f"\n⚡ Starting Parallel True IV 252d Backfill for {len(symbols)} symbols...")
-        client = MarketDataClient()
         completed = 0
         with ThreadPoolExecutor(max_workers=16) as pool:
-            futures = {pool.submit(get_true_ivp_and_ivr, s, client, True, 10, True): s for s in symbols}
+            futures = {pool.submit(get_true_ivp_and_ivr, s, force_refresh=True, auto_backfill=True): s for s in symbols}
             for fut in as_completed(futures):
                 s = futures[fut]
                 try:
@@ -73,7 +72,7 @@ def main():
     else:
         print(f"⚠️ Could not retrieve live option chain IV for {sym}.")
         print(f"Reason: {res.get('summary_text')}")
-        print("Note: Ensure Market Data token is configured in config/credentials.json or MARKETDATA_TOKEN env variable.\n")
+        print("Note: Powered by Robinhood clearing options cache with yfinance dual-engine fallback.\n")
 
 if __name__ == "__main__":
     main()

@@ -51,9 +51,7 @@ from option_quant.marketdata_client import (
     batch_get_derivative_metrics,
     calculate_roll_candidate,
     get_derivative_metrics,
-    get_filtered_csp_candidates,
     get_true_ivp_and_ivr,
-    MarketDataClient,
 )
 from option_quant.portfolio import calculate_portfolio_delta_exposure
 from option_quant.scoring import (
@@ -598,8 +596,8 @@ def main():
             elif fcf is not None and fcf < 0:
                 is_fcf_negative = True
 
-        # True IVP & IVR via Market Data API
-        true_iv_info = get_true_ivp_and_ivr(display_ticker)
+        # True IVP & IVR via Robinhood Clearing Data & Dual-Anchor Engine
+        true_iv_info = get_true_ivp_and_ivr(display_ticker, hv_30=curr_hv_30_val, vixfix_ivp=vixfix_252d_ivp)
         derivative_metrics = derivative_map.get(display_ticker) or get_derivative_metrics(display_ticker)
 
         ticker_market_data[display_ticker] = {
