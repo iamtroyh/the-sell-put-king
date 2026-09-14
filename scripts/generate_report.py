@@ -1246,9 +1246,85 @@ def main():
         if p_ticker not in ordered_watchlist:
             ordered_watchlist.append(p_ticker)
             
+    # ==================== HISTORICAL SNAPSHOT & DELTA CALCULATION ====================
+    watchlist_file = os.path.join(BASE_DIR, "data", "watchlist_tickers.json")
+    prev_watchlist_file = os.path.join(BASE_DIR, "data", "previous_watchlist.json")
+    diff_file = os.path.join(BASE_DIR, "data", "watchlist_diff.json")
+    
+    prev_tickers = []
+    # 1. Archive current existing watchlist to previous_watchlist.json before overwriting
+    if os.path.exists(watchlist_file):
+        try:
+            with open(watchlist_file, "r", encoding="utf-8") as f:
+                prev_tickers = json.load(f).get("tickers", [])
+            if prev_tickers:
+                atomic_write_json(prev_watchlist_file, {
+                    "tickers": prev_tickers,
+                    "snapshot_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                })
+        except Exception as e:
+            print(f"Notice: Failed to archive previous watchlist: {e}")
+    elif os.path.exists(prev_watchlist_file):
+        try:
+            with open(prev_watchlist_file, "r", encoding="utf-8") as f:
+                prev_tickers = json.load(f).get("tickers", [])
+        except Exception:
+            pass
+
+    # 2. Compute mathematical Delta between current and previous rankings
+    prev_top30 = set(prev_tickers[:30])
+    curr_top30 = set(ordered_watchlist[:30])
+    prev_rank_map = {t: i + 1 for i, t in enumerate(prev_tickers)}
+    curr_rank_map = {t: i + 1 for i, t in enumerate(ordered_watchlist)}
+
+    new_to_top30 = [t for t in ordered_watchlist[:30] if t not in prev_top30]
+    dropped_from_top30 = [t for t in prev_tickers[:30] if t not in curr_top30]
+
+    rank_shifts = []
+    for t in ordered_watchlist[:50]:
+        if t in prev_rank_map:
+            p_rk = prev_rank_map[t]
+            c_rk = curr_rank_map[t]
+            delta_rk = p_rk - c_rk  # Positive: rank improved (e.g. 15 -> 5 is +10)
+            if delta_rk != 0:
+                rank_shifts.append({
+                    "ticker": t,
+                    "prev_rank": p_rk,
+                    "curr_rank": c_rk,
+                    "delta_rank": delta_rk
+                })
+
+    major_gainers = sorted([r for r in rank_shifts if r["delta_rank"] >= 5], key=lambda x: x["delta_rank"], reverse=True)
+    major_losers = sorted([r for r in rank_shifts if r["delta_rank"] <= -5], key=lambda x: x["delta_rank"])
+    persistent_leaders = [t for t in ordered_watchlist[:10] if t in prev_tickers[:10]]
+
+    watchlist_diff_data = {
+        "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "prev_count": len(prev_tickers),
+        "curr_count": len(ordered_watchlist),
+        "new_to_top30": new_to_top30,
+        "dropped_from_top30": dropped_from_top30,
+        "major_gainers": major_gainers[:10],
+        "major_losers": major_losers[:10],
+        "persistent_leaders": persistent_leaders[:10],
+    }
+    atomic_write_json(diff_file, watchlist_diff_data)
+
+    print("\n==================== 📊 WATCHLIST CROSS-REPORT DELTA ====================")
+    print(f"👑 Persistent Leaders (Top 10): {persistent_leaders if persistent_leaders else 'N/A'}")
+    print(f"✨ New to Top 30: {new_to_top30 if new_to_top30 else 'None (Pool stable)'}")
+    if major_gainers:
+        gainers_str = ", ".join([f"{g['ticker']} (+{g['delta_rank']}位 ➔ Rank {g['curr_rank']})" for g in major_gainers[:5]])
+        print(f"🚀 Major Rank Gainers (+5位以上): {gainers_str}")
+    if major_losers:
+        losers_str = ", ".join([f"{l['ticker']} ({l['delta_rank']}位 ➔ Rank {l['curr_rank']})" for l in major_losers[:5]])
+        print(f"🔻 Major Rank Losers (-5位以上): {losers_str}")
+    if dropped_from_top30:
+        print(f"🚪 Dropped from Top 30: {dropped_from_top30}")
+    print("========================================================================\n")
+
     try:
-        with open(os.path.join(BASE_DIR, "data", "watchlist_tickers.json"), "w") as f:
-            json.dump({"tickers": ordered_watchlist}, f, indent=2)
+        atomic_write_json(watchlist_file, {"tickers": ordered_watchlist})
         print(f"Generated ordered watchlist tickers (pure objective quant ranking): {ordered_watchlist}")
     except Exception as e:
         print(f"Error writing watchlist_tickers.json: {e}")
@@ -1923,7 +1999,45 @@ def main():
     </div>
     """
 
-    table_grouped = tv_card_html + """
+    # Generate Cross-Report Delta Monitor Card
+    gainers_html = ""
+    if major_gainers:
+        gainers_items = "".join([f"<span style='display:inline-flex; align-items:center; gap:4px; background: rgba(52, 211, 153, 0.15); border: 1px solid rgba(52, 211, 153, 0.3); color: #34d399; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;'><b>{g['ticker']}</b> <span style='font-size: 10px;'>+{g['delta_rank']}位 (现第{g['curr_rank']})</span></span> " for g in major_gainers[:6]])
+        gainers_html = f"<div><span style='color: #34d399; font-size: 11px; font-weight: 600;'>🚀 名次大幅跃升：</span>{gainers_items}</div>"
+        
+    new_top30_html = ""
+    if new_to_top30:
+        new_items = "".join([f"<span style='display:inline-flex; align-items:center; gap:4px; background: rgba(96, 165, 250, 0.15); border: 1px solid rgba(96, 165, 250, 0.3); color: #60a5fa; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;'><b>{t}</b> <span style='font-size: 10px;'>(新晋 Rank {curr_rank_map.get(t, '-')})</span></span> " for t in new_to_top30[:6]])
+        new_top30_html = f"<div><span style='color: #60a5fa; font-size: 11px; font-weight: 600;'>✨ 新晋 Top 30：</span>{new_items}</div>"
+
+    leaders_html = ""
+    if persistent_leaders:
+        leader_items = "".join([f"<span style='display:inline-flex; align-items:center; gap:4px; background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.3); color: #fbbf24; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;'><b>{t}</b> <span style='font-size: 10px;'>(Rank {curr_rank_map.get(t, '-')})</span></span> " for t in persistent_leaders[:6]])
+        leaders_html = f"<div><span style='color: #fbbf24; font-size: 11px; font-weight: 600;'>👑 持续霸榜龙头：</span>{leader_items}</div>"
+
+    losers_html = ""
+    if major_losers:
+        loser_items = "".join([f"<span style='display:inline-flex; align-items:center; gap:4px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25); color: #f87171; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;'><b>{l['ticker']}</b> <span style='font-size: 10px;'>{l['delta_rank']}位 (现第{l['curr_rank']})</span></span> " for l in major_losers[:6]])
+        losers_html = f"<div><span style='color: #f87171; font-size: 11px; font-weight: 600;'>🔻 排名明显回调：</span>{loser_items}</div>"
+
+    delta_card_html = f"""
+    <div style="margin-bottom: 12px; padding: 12px 16px; background: rgba(24, 24, 27, 0.7); border: 1px solid #27272a; border-radius: 8px; font-size: 12px; line-height: 1.6; display: flex; flex-direction: column; gap: 6px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 6px;">
+        <span style="font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 6px;">
+          <span>⚖️</span> 跨期量化排位增量追踪 (Cross-Report Delta Monitor)
+        </span>
+        <span style="font-size: 10.5px; color: #71717a;">基准: 上期历史快照对比 ({len(prev_tickers)} ➔ {len(ordered_watchlist)} 标的)</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 2px;">
+        {leaders_html}
+        {new_top30_html}
+        {gainers_html}
+        {losers_html}
+      </div>
+    </div>
+    """ if (persistent_leaders or new_to_top30 or major_gainers or major_losers) else ""
+
+    table_grouped = delta_card_html + tv_card_html + """
     <div style="overflow-x: auto; border: 1px solid #27272a; border-radius: 10px; background-color: #09090b; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);">
       <table style="border-collapse: collapse; width: 100%; text-align: left; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #f4f4f5;">
         <thead style="background-color: #18181b; color: #ffffff; border-bottom: 2px solid #27272a;">
@@ -3178,7 +3292,8 @@ def main():
         "open_positions_count": len(current_positions),
         "open_positions": [p.get("symbol") for p in current_positions],
         "macro_mode": "VIX_EXTREME" if vix_extreme_crisis else ("RED_DEFENSE" if deep_defense_mode else ("YELLOW_DEFENSE" if macro_circuit_breaker else "NORMAL")),
-        "report_html_size_kb": round(os.path.getsize(os.path.join(BASE_DIR, 'report.html')) / 1024, 1)
+        "report_html_size_kb": round(os.path.getsize(os.path.join(BASE_DIR, 'report.html')) / 1024, 1),
+        "watchlist_delta": watchlist_diff_data
     }
     atomic_write_json(os.path.join(BASE_DIR, "data", "report_summary.json"), summary_audit)
 
