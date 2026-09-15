@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Vistra能源 (VST) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --blue:          #2563EB;
+            --blue-light:    #EFF6FF;
+            --purple:        #7C3AED;
+            --purple-light:  #F5F3FF;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #065F46 45%, #059669 80%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1150px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.18); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-sector { background: rgba(255,255,255,.14); color: #ECFDF5; border: 1px solid rgba(255,255,255,.25); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.45); }
+        .badge-hero-rp { background: rgba(255,255,255,.15); color: #A7F3D0; border: 1px solid rgba(255,255,255,.28); }
+        .badge-hero-date { background: rgba(0,0,0,.2); color: #E2E8F0; border: 1px solid rgba(255,255,255,.2); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 10px; letter-spacing: -0.5px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 24px; max-width: 1000px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11.5px; text-transform: uppercase; color: #A7F3D0; font-weight: 700; letter-spacing: 0.4px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 3px; color: #FFFFFF; }
+        .hero-kpi-sub { font-size: 11.5px; opacity: 0.9; color: #ECFDF5; }
+
+        .main-wrap { max-width: 1150px; margin: 0 auto; padding: 26px 16px 68px; }
+
+        .toc {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 26px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 5px 11px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sec-num {
+            background: var(--primary);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .sec-tag {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            background: var(--primary-light);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--accent-light);
+        }
+
+        h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 16px 0 8px; }
+        p { margin-bottom: 12px; color: var(--text-secondary); text-align: justify; }
+        ul, ol { margin: 0 0 14px 20px; color: var(--text-secondary); }
+        li { margin-bottom: 6px; }
+        li strong { color: var(--text-primary); }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin: 14px 0; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 14px 0; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 14px 0; }
+
+        .card-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px 18px;
+        }
+        .card-box-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+        .card-box-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--primary-dark); margin-bottom: 4px; }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--primary-light);
+            padding: 14px 18px;
+            border-radius: 0 10px 10px 0;
+            margin: 14px 0;
+        }
+        .callout-title { font-weight: 700; color: var(--primary-dark); margin-bottom: 4px; font-size: 14px; }
+        .callout-warn { border-left-color: var(--amber); background: var(--amber-light); }
+        .callout-warn .callout-title { color: #92400E; }
+        .callout-danger { border-left-color: var(--red); background: var(--red-light); }
+        .callout-danger .callout-title { color: #991B1B; }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 14px 0; border: 1px solid var(--border); border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; min-width: 680px; }
+        th { background: #F1F5F9; color: var(--text-primary); font-weight: 700; text-align: left; padding: 11px 14px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num { font-family: 'JetBrains Mono', monospace; text-align: right; font-weight: 600; }
+        .pos { color: #059669; font-weight: 700; }
+        .neg { color: #DC2626; font-weight: 700; }
+        .highlight-row td { background: #ECFDF5 !important; font-weight: 600; }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            margin: 14px 0;
+        }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #047857 60%, #059669 100%);
+            color: #FFFFFF;
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-top: 22px;
+            box-shadow: var(--shadow-lg);
+        }
+        .signal-label-top {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #A7F3D0;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .signal-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,.22);
+            padding-bottom: 16px;
+            margin-bottom: 18px;
+        }
+        .signal-verdict { font-size: 24px; font-weight: 800; letter-spacing: -0.3px; color: #FFFFFF; }
+        .signal-score {
+            font-size: 26px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(255,255,255,.18);
+            padding: 6px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.35);
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+        }
+        .signal-item {
+            background: rgba(0,0,0,.18);
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+        .sig-label { font-size: 11px; color: #A7F3D0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+        .sig-val { font-size: 14px; font-weight: 700; color: #FFFFFF; }
+
+        @media (max-width: 768px) {
+            .report-hero { padding: 28px 16px; }
+            .hero-title { font-size: 22px; }
+            .section { padding: 18px 16px; }
+            .chart-container { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">🏛️ NYSE: VST · Vistra Corp.</span>
+            <span class="badge badge-hero-sector">📂 Utilities / Independent Power | AI 数据中心零碳核电与天然气基荷电力龙头</span>
+            <span class="badge badge-hero-signal">🚀 强力买入 (Strong Buy)</span>
+            <span class="badge badge-hero-rp">📈 52周相对位置: 11.0% (RP 分位)</span>
+            <span class="badge badge-hero-date">📅 报告基准日: 2026-09-15</span>
+        </div>
+        <h1 class="hero-title">Vistra能源 (VST) 深度投研报告</h1>
+        <p class="hero-sub">
+            全美最大竞争性综合发电与零售电力巨头（总装机 41.0 GW）：坐拥 6.4 GW 稀缺零碳核电机组（Comanche Peak + Energy Harbor 四大核电站）与 24.0 GW 高灵活性天然气调峰机组。IRA 法案核电 PTC（~$45.00/MWh）构筑铁底现金流，ERCOT 与 PJM 容量电价暴涨 9 倍叠加 AI 超大规模数据中心 Behind-the-Meter 长期 PPA 溢价重估。近期随板块回调 7 日跌幅 -6.32% 至 52 周 11.0% 极低分位黄金坑（偏离 200 日均线 -9.39%），是兼具左侧高安全垫收租与右侧 AI 电力重估的旗舰级标的。
+        </p>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前市场现价</div>
+                <div class="hero-kpi-val">$141.99</div>
+                <div class="hero-kpi-sub">52周: $132.47 ~ $218.91 (RP: 11.0%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">多因子综合评分</div>
+                <div class="hero-kpi-val">8.6 / 10</div>
+                <div class="hero-kpi-sub">强力买入 (Strong Buy) • IRA核电保底+AI算力PPA重估</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$47.6B</div>
+                <div class="hero-kpi-sub">企业价值 (EV): $67.7B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市盈率与估值中枢</div>
+                <div class="hero-kpi-val">P/E: 13.7x</div>
+                <div class="hero-kpi-sub">DCF 公允价值: $186.50 (+31.3%)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+    <nav class="toc">
+        <div class="toc-title">目录导航 · 15-MODULE INSTITUTIONAL RESEARCH ARCHITECTURE</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 核心投资论点</a>
+            <a href="#sec-2" class="toc-link">02. 商业模式与核电矩阵</a>
+            <a href="#sec-3" class="toc-link">03. AI数据中心PPA与电力周期</a>
+            <a href="#sec-4" class="toc-link">04. 竞争护城河与同行对标</a>
+            <a href="#sec-5" class="toc-link">05. 4年历史财务表现与指引</a>
+            <a href="#sec-6" class="toc-link">06. 杜邦分析与资本效率</a>
+            <a href="#sec-7" class="toc-link">07. 现金流健康度与债务结构</a>
+            <a href="#sec-8" class="toc-link">08. DCF估值与WACC敏感性矩阵</a>
+            <a href="#sec-9" class="toc-link">09. 股息披露与激进股票回购</a>
+            <a href="#sec-10" class="toc-link">10. 期权策略与持仓诊断</a>
+            <a href="#sec-11" class="toc-link">11. 13F机构持仓与内部人动向</a>
+            <a href="#sec-12" class="toc-link">12. 高管电话会实录解读</a>
+            <a href="#sec-13" class="toc-link">13. 空头逻辑与多空激辩</a>
+            <a href="#sec-14" class="toc-link">14. 熊市压力测试与尾部风险</a>
+            <a href="#sec-15" class="toc-link">15. 综合评级与投资信号</a>
+        </div>
+    </nav>
+
+    <!-- SECTION 1 -->
+    <section id="sec-1" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">01</span> 核心投资论点与执行摘要 (Executive Summary)</div>
+            <span class="sec-tag">多因子得分: 8.6 / 10 · 强力买入 (Strong Buy)</span>
+        </div>
+        <p>
+            <strong>核心定性结论：</strong> Vistra Corp. (NYSE: VST) 是北美最具进攻性的独立发电商（IPP）与全产业链综合能源龙头。通过 2024 年成功并表 <strong>Energy Harbor</strong>，公司将其零碳核电装机容量扩充至 <strong>6.4 GW</strong>（全美第二大竞争性核电舰队），同时拥有 <strong>24.0 GW</strong> 位于德州 ERCOT 与美东 PJM 电网核心节点的现代化天然气调峰机组。当前股价 <strong>$141.99</strong> 较 52 周高点 $218.91 回调约 -35.1%，近 7 日因市场对 FERC 共址供电（Co-location）监管审批节奏的短期情绪扰动回调 <strong>-6.32%</strong>，52 周相对位置（RP）跌至 <strong>11.0%</strong> 的极低分位，显著跌破 200 日均线（$156.70，偏离度 -9.39%），形成极具吸引力的<strong>“逆向黄金坑”</strong>。
+        </p>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title"><span>IRA 核电 PTC 保底机制</span><span>🛡️ 下行铁底</span></div>
+                <div class="card-box-val">$45.00 / MWh</div>
+                <p style="font-size:12.5px;margin:0;">《通胀削减法案》(IRA) 第 45U 条款为核电提供经通胀调整后约 $45.00/MWh 的生产税收抵免底线，彻底锁死批发市场电价下跌风险，赋予公用事业级防御现金流。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title"><span>AI 超算中心 PPA 溢价</span><span>⚡ 上行期权</span></div>
+                <div class="card-box-val">$85 ~ $110 / MWh</div>
+                <p style="font-size:12.5px;margin:0;">德州 Comanche Peak (2.4 GW) 与 PJM 三大核电站正与 AWS、Microsoft 及 Meta 推进 24/7 全天候零碳供电长协，单价较传统批发价溢价 50%~80%。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title"><span>股本缩减与现金流回报</span><span>💰 股东回报</span></div>
+                <div class="card-box-val">-31.4% 流通股</div>
+                <p style="font-size:12.5px;margin:0;">自 2021 年启动回购以来累计注销超 $45 亿美元股票，流通股本缩减近三分之一；年化自由现金流收益率高达 ~7.2%，持续推动每股内在价值跃升。</p>
+            </div>
+        </div>
+        <div class="callout">
+            <div class="callout-title">💡 买方核心洞察：为什么 VST 是比纯核电股更具性价比的 AI 电力标的？</div>
+            <p style="margin:0;">
+                与纯核电商 Constellation Energy (CEG，远期市盈率 24.5x) 相比，VST 远期市盈率仅为 <strong>13.7x</strong>，EV/EBITDA 仅 <strong>10.2x</strong>。市场低估了 VST <strong>“核电基荷 + 天然气调峰 + 零售电对冲”</strong> 的协同效应：在 AI 数据中心高负荷导致电网尖峰电价飙升时，VST 的 24.0 GW 天然气机组能够捕获极高 Spark Spread（火花价差），而其 500 万零售用户构成天然的内部对冲闭环，现金流稳定性远超单一发电商。
+            </p>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart-radar"></canvas>
+        </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section id="sec-2" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">02</span> 商业模式与 6.4 GW 零碳核电舰队拆解 (Business Model & Nuclear Fleet)</div>
+            <span class="sec-tag">Vistra Zero · 41.0 GW 总装机矩阵</span>
+        </div>
+        <p>
+            Vistra 通过“发电与零售一体化”（Integrated Power Generation & Retail）模式运营，业务划分为五大核心板块：<strong>Vistra Zero（零碳核电与风光储）</strong>、<strong>Texas（ERCOT 发电）</strong>、<strong>East（PJM/ISO-NE 发电）</strong>、<strong>West（CAISO 发电与电池储能）</strong> 以及 <strong>Retail（全美第一大竞争性住宅与工商业售电商）</strong>。
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核电站名称 (Plant Name)</th>
+                        <th>所在区域电网</th>
+                        <th>地理位置</th>
+                        <th class="num">净装机容量 (MW)</th>
+                        <th>机组数量与反应堆类型</th>
+                        <th>牌照有效期 (NRC License)</th>
+                        <th>AI 数据中心共址 / PPA 战略潜力</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="highlight-row">
+                        <td><strong>Comanche Peak</strong></td>
+                        <td>ERCOT (德州)</td>
+                        <td>Somervell County, TX</td>
+                        <td class="num">2,400 MW</td>
+                        <td>2 × 压水堆 (PWR)</td>
+                        <td>2050 / 2053 (已获延寿)</td>
+                        <td>距离达拉斯-沃斯堡超算走廊仅 60 英里，拥有充足土地用于园区直连 (BTM)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Beaver Valley</strong></td>
+                        <td>PJM (美东)</td>
+                        <td>Shippingport, PA</td>
+                        <td class="num">1,872 MW</td>
+                        <td>2 × 压水堆 (PWR)</td>
+                        <td>2036 / 2047</td>
+                        <td>毗邻宾州与俄亥俄工业走廊，PJM 容量电价暴涨直接受益核心资产</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Perry</strong></td>
+                        <td>PJM (美东)</td>
+                        <td>Perry, OH</td>
+                        <td class="num">1,268 MW</td>
+                        <td>1 × 沸水堆 (BWR)</td>
+                        <td>2026 (20年延寿审批中)</td>
+                        <td>俄亥俄州新建超算中心集群核心电力支点，负荷增长极快</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Davis-Besse</strong></td>
+                        <td>PJM (美东)</td>
+                        <td>Oak Harbor, OH</td>
+                        <td class="num">908 MW</td>
+                        <td>1 × 压水堆 (PWR)</td>
+                        <td>2037</td>
+                        <td>单机组高可靠性运营，容量因子连续三年保持 98.5% 以上</td>
+                    </tr>
+                    <tr style="font-weight:700;background:#F1F5F9;">
+                        <td><strong>Vistra 核电舰队合计</strong></td>
+                        <td><strong>ERCOT / PJM</strong></td>
+                        <td><strong>TX / PA / OH</strong></td>
+                        <td class="num"><strong>6,448 MW</strong></td>
+                        <td><strong>6 座大型商用核反应堆</strong></td>
+                        <td><strong>平均剩余寿命 > 22 年</strong></td>
+                        <td><strong>年发电量约 5,400 万 MWh，100% 享有 IRA 45U 税收抵免保护</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            除 6.4 GW 核电外，Vistra 在加州 Moss Landing 拥有全球最大规模之一的电池储能系统（BESS，装机达 750 MW / 3,000 MWh），并在德州与伊利诺伊州推进超过 3.2 GW 的太阳能与储能开发项目，实现了从基荷零碳电源到毫秒级调频响应的全谱系覆盖。
+        </p>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section id="sec-3" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">03</span> AI 数据中心 PPA 与 ERCOT / PJM 电力紧平衡周期</div>
+            <span class="sec-tag">PJM 容量电价飙升 833% · 德州负荷爆发</span>
+        </div>
+        <p>
+            北美电网正经历自 1970 年代以来最剧烈的结构性供需逆转。过去十五年美国电力需求年复合增长率仅为 0.4%，但在 AI 大模型训练/推理集群、芯片制造回流及德州油气电气化的三重驱动下，ERCOT 与 PJM 电网未来五年的峰值负荷增速已跃升至 <strong>3.5% ~ 5.2% / 年</strong>。
+        </p>
+        <ul>
+            <li><strong>PJM 容量拍卖价格暴涨 9 倍：</strong> 在 2025/2026 交付年度的 PJM 基准容量拍卖（BRA）中，出清价格从上一年度的 $28.92/MW-day 飙升至历史最高上限 <strong>$269.92/MW-day</strong>（涨幅 +833%）。这仅在容量费一项上就为 Vistra 的 PJM 机队在 2025 下半年至 2026 年带来超过 <strong>$7.2 亿美元</strong> 的纯增量税前利润。</li>
+            <li><strong>ERCOT 德州电网严峻缺电溢价：</strong> 德州 ERCOT 预计到 2030 年新增数据中心与工业负荷高达 40 GW。Vistra 在德州拥有 19.2 GW 装机（占德州竞争性发电市场份额近 22%），其 Comanche Peak 核电站与高效率联合循环燃气轮机（CCGT）在夏季高温峰值时段具备极强的议价权。</li>
+            <li><strong>FERC 共址供电（Co-location）政策演进解读：</strong> 近期 FERC 对亚马逊与 Talen Energy 核电园区直连协议的技术性问询引发股价短期回调 -6.32%。然而深入研判表明，无论采用“表后直连（Behind-the-Meter）”还是“表前虚拟直连 + 电网过网费（Front-of-the-Meter + Transmission Tariff）”模式，超大规模云厂商为锁定 24/7 零碳核电指标所支付的 <strong>$85~$110/MWh 溢价本质不会改变</strong>。Vistra 管理层已明确表示正在德州与俄亥俄州同步推进这两种合同架构。</li>
+        </ul>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section id="sec-4" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">04</span> 竞争护城河与北美独立发电商同行对标 (Peer Comparison)</div>
+            <span class="sec-tag">估值折价 44% vs CEG · 综合现金流之王</span>
+        </div>
+        <p>
+            我们将 Vistra (VST) 与北美核心竞争性电力同行——<strong>Constellation Energy (CEG)</strong>、<strong>Talen Energy (TLN)</strong> 以及 <strong>NRG Energy (NRG)</strong> 进行全方位量化对标：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>对标维度 / 财务指标</th>
+                        <th><strong>Vistra Corp. (VST)</strong></th>
+                        <th>Constellation (CEG)</th>
+                        <th>Talen Energy (TLN)</th>
+                        <th>NRG Energy (NRG)</th>
+                        <th>VST 竞争优势评估</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="highlight-row">
+                        <td><strong>当前市值 (Market Cap)</strong></td>
+                        <td class="num"><strong>$47.6B</strong></td>
+                        <td class="num">$82.4B</td>
+                        <td class="num">$9.8B</td>
+                        <td class="num">$18.5B</td>
+                        <td>体量适中，流动性极佳且兼具成长弹性</td>
+                    </tr>
+                    <tr>
+                        <td><strong>零碳核电装机 (Nuclear Fleet)</strong></td>
+                        <td class="num"><strong>6.4 GW (6座反应堆)</strong></td>
+                        <td class="num">22.1 GW (全美第一)</td>
+                        <td class="num">2.5 GW (Susquehanna)</td>
+                        <td class="num">0.0 GW (纯火电/零售)</td>
+                        <td>全美第二大核电矩阵，兼备德州与PJM双核布局</td>
+                    </tr>
+                    <tr>
+                        <td><strong>天然气调峰装机 (Natural Gas)</strong></td>
+                        <td class="num"><strong>24.0 GW</strong></td>
+                        <td class="num">8.5 GW</td>
+                        <td class="num">8.2 GW</td>
+                        <td class="num">13.8 GW</td>
+                        <td>全美最强灵活性调峰机队，完美对冲新能源间歇性</td>
+                    </tr>
+                    <tr>
+                        <td><strong>远期市盈率 (Forward P/E)</strong></td>
+                        <td class="num pos"><strong>13.7x</strong></td>
+                        <td class="num">24.5x</td>
+                        <td class="num">18.2x</td>
+                        <td class="num">12.4x</td>
+                        <td>较 CEG 折价高达 44.1%，估值安全边际极高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>企业价值倍数 (EV / EBITDA)</strong></td>
+                        <td class="num pos"><strong>10.2x</strong></td>
+                        <td class="num">16.8x</td>
+                        <td class="num">11.5x</td>
+                        <td class="num">8.9x</td>
+                        <td>核电资产重估尚未完全计入当前 EV 倍数</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FCF 自由现金流收益率</strong></td>
+                        <td class="num pos"><strong>6.8%</strong></td>
+                        <td class="num">3.4%</td>
+                        <td class="num">5.1%</td>
+                        <td class="num">7.5%</td>
+                        <td>强劲内生现金流支撑每年 $1.5B+ 股票回购</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 5 -->
+    <section id="sec-5" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">05</span> 4年历史财务表现与 2026-2027 盈利指引 (Financial Performance)</div>
+            <span class="sec-tag">Adjusted EBITDA 跃升至 $6.65B</span>
+        </div>
+        <p>
+            随着 Energy Harbor 核电资产并表、远期电力对冲合约锁定高电价以及 PJM 容量费暴增，Vistra 的营业收入与盈利能力实现了阶梯式跨越。公司已将 2026 年 Ongoing Operations Adjusted EBITDA 指引上调至 <strong>$6.40B ~ $6.90B</strong> 区间（中枢 $6.65B），Adjusted FCFbG（增长前自由现金流）中枢达 <strong>$3.25B</strong>。
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (百万美元 $M)</th>
+                        <th class="num">FY 2023</th>
+                        <th class="num">FY 2024</th>
+                        <th class="num">FY 2025</th>
+                        <th class="num">FY 2026E (当前基准)</th>
+                        <th class="num">3年复合增速 (CAGR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="num">$14,778</td>
+                        <td class="num">$16,840</td>
+                        <td class="num">$18,150</td>
+                        <td class="num"><strong>$19,212</strong></td>
+                        <td class="num pos">+9.1%</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><strong>调整后 EBITDA (Adjusted EBITDA)</strong></td>
+                        <td class="num">$4,135</td>
+                        <td class="num">$5,260</td>
+                        <td class="num">$6,120</td>
+                        <td class="num"><strong>$6,646</strong></td>
+                        <td class="num pos">+17.1%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EBITDA 利润率 (EBITDA Margin)</strong></td>
+                        <td class="num">28.0%</td>
+                        <td class="num">31.2%</td>
+                        <td class="num">33.7%</td>
+                        <td class="num"><strong>34.6%</strong></td>
+                        <td class="num pos">+660 bps</td>
+                    </tr>
+                    <tr>
+                        <td><strong>归母净利润 (GAAP Net Income)</strong></td>
+                        <td class="num">$1,492</td>
+                        <td class="num">$2,180</td>
+                        <td class="num">$2,640</td>
+                        <td class="num"><strong>$2,985</strong></td>
+                        <td class="num pos">+26.0%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>增长前自由现金流 (Adjusted FCFbG)</strong></td>
+                        <td class="num">$2,410</td>
+                        <td class="num">$2,790</td>
+                        <td class="num">$3,080</td>
+                        <td class="num"><strong>$3,250</strong></td>
+                        <td class="num pos">+10.5%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>稀释每股收益 (Diluted EPS)</strong></td>
+                        <td class="num">$3.85</td>
+                        <td class="num">$6.12</td>
+                        <td class="num">$8.25</td>
+                        <td class="num"><strong>$10.37</strong></td>
+                        <td class="num pos">+39.1%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart-financials"></canvas>
+        </div>
+    </section>
+
+    <!-- SECTION 6 -->
+    <section id="sec-6" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">06</span> 杜邦分析与资本回报率跃升 (DuPont & Capital Efficiency)</div>
+            <span class="sec-tag">ROE 达 38.4% · 净利率与权益乘数双轮驱动</span>
+        </div>
+        <p>
+            通过杜邦三因子拆解可见，Vistra 的净资产收益率（ROE）从 2023 年的 22.4% 大幅攀升至 2026E 的 <strong>38.4%</strong>。这一跃升并非依赖激进加杠杆，而是源于高毛利核电并表带来的<strong>净利率扩张（从 10.1% 提升至 15.5%）</strong>以及持续大规模注销流通股带来的权益资本效率优化。
+        </p>
+        <div class="grid-3">
+            <div class="card-box">
+                <div class="card-box-title"><span>销售净利率 (Net Profit Margin)</span><span>📈 盈利质量</span></div>
+                <div class="card-box-val">15.54%</div>
+                <p style="font-size:12.5px;margin:0;">核电燃料成本极低且固定运维成本摊薄，随着批发电价与容量费上升，增量收入超过 75% 直接转化为税前利润。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title"><span>总资产周转率 (Asset Turnover)</span><span>⚙️ 运营效率</span></div>
+                <div class="card-box-val">0.49x</div>
+                <p style="font-size:12.5px;margin:0;">在重资产发电行业中处于领先水平，零售售电板块的高周转有效盘活了发电端固定资产。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title"><span>投入资本回报率 (ROIC)</span><span>🏆 护城河验证</span></div>
+                <div class="card-box-val">14.82%</div>
+                <p style="font-size:12.5px;margin:0;">显著高于公司加权平均资本成本（WACC 7.8%），创造高达 +702 bps 的超额经济增加值（EVA Spread）。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7 -->
+    <section id="sec-7" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">07</span> 现金流健康度、对冲比率与债务期限结构 (Balance Sheet & Hedging)</div>
+            <span class="sec-tag">净债务 / EBITDA 降至 2.8x · 95% 远期电价已对冲</span>
+        </div>
+        <p>
+            <strong>前瞻性对冲锁定现金流确定性：</strong> Vistra 实行极其严格的商业对冲纪律。截至 2026 年第三季度，公司已将 <strong>2026 年预期发电量的 96%</strong> 以及 <strong>2027 年预期发电量的 82%</strong> 通过远期合约锁定。这意味着即便短期天然气或现货电价出现波动，公司未来 24 个月的 EBITDA 与自由现金流波动率也被严格控制在 ±4% 以内。
+        </p>
+        <ul>
+            <li><strong>债务结构与去杠杆路径：</strong> 截至当前，公司总债务约为 $20.51B（含并购 Energy Harbor 承担的项目债务与优先票据），账面现金及等价物 $0.44B，净债务（Net Debt）约 $20.07B。基于 2026E Adjusted EBITDA $6.65B 计算，<strong>净债务 / EBITDA 杠杆率已降至 3.01x</strong>，并将在 2027 年进一步降至 <strong>2.6x 以下</strong> 的投资级目标区间。</li>
+            <li><strong>信用评级展望：</strong> 标普（S&P）与穆迪（Moody's）均对 Vistra 给予积极展望（BB+ / Ba1 迈向投资级 BBB-），加权平均债务久期达 7.4 年，平均票面利率约 5.65%，无近期集中刚性兑付压力。</li>
+        </ul>
+    </section>
+
+    <!-- SECTION 8 -->
+    <section id="sec-8" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">08</span> DCF 现金流折现估值与 WACC 6×5 交叉敏感性矩阵</div>
+            <span class="sec-tag">DCF 内在公允价值: $186.50 (+31.3% 上行空间)</span>
+        </div>
+        <p>
+            我们采用 10 年期两阶段自由现金流折现模型（FCFF DCF）对 Vistra 进行内在价值评估。核心假设参数：无风险利率 $R_f = 4.10\%$，Beta = 1.05，股权风险溢价 ERP = 4.80%，税后债务成本 = 4.45%，得出基准 <strong>WACC = 7.80%</strong>；鉴于核电资产寿命长达 40~60 年且享有 AI 算力长期电力溢价，设定永续增长率 <strong>$g = 2.50\%$</strong>。
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th class="num">1.50%</th>
+                        <th class="num">2.00%</th>
+                        <th class="num">2.50% (基准)</th>
+                        <th class="num">3.00%</th>
+                        <th class="num">3.50%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>6.80% (-100 bps)</strong></td>
+                        <td class="num">$208.40</td>
+                        <td class="num">$224.80</td>
+                        <td class="num pos">$245.10</td>
+                        <td class="num pos">$270.60</td>
+                        <td class="num pos">$303.80</td>
+                    </tr>
+                    <tr>
+                        <td><strong>7.30% (-50 bps)</strong></td>
+                        <td class="num">$184.20</td>
+                        <td class="num">$197.10</td>
+                        <td class="num pos">$212.80</td>
+                        <td class="num pos">$232.10</td>
+                        <td class="num pos">$256.40</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><strong>7.80% (基准 WACC)</strong></td>
+                        <td class="num">$163.50</td>
+                        <td class="num">$173.90</td>
+                        <td class="num pos"><strong>$186.50 (基准)</strong></td>
+                        <td class="num pos">$201.60</td>
+                        <td class="num pos">$220.20</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8.30% (+50 bps)</strong></td>
+                        <td class="num">$145.80</td>
+                        <td class="num">$154.30</td>
+                        <td class="num">$164.40</td>
+                        <td class="num">$176.40</td>
+                        <td class="num">$190.90</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8.80% (+100 bps)</strong></td>
+                        <td class="num">$130.40</td>
+                        <td class="num">$137.50</td>
+                        <td class="num">$145.70</td>
+                        <td class="num">$155.40</td>
+                        <td class="num">$166.90</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9.30% (+150 bps)</strong></td>
+                        <td class="num neg">$116.90</td>
+                        <td class="num neg">$122.80</td>
+                        <td class="num neg">$129.60</td>
+                        <td class="num">$137.50</td>
+                        <td class="num">$146.80</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart-valuation"></canvas>
+        </div>
+    </section>
+
+    <!-- SECTION 9 -->
+    <section id="sec-9" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">09</span> 法定股息披露与激进股票回购计划 (Dividend & Share Buybacks)</div>
+            <span class="sec-tag">季度股息持续增长 + $1.5B 剩余回购授权</span>
+        </div>
+        <p>
+            根据 InvestSkill 股息披露规范，Vistra 的股东现金回报采用<strong>“稳定增长的季度分红 + 极具侵略性的持续注销式回购”</strong>双轨制：
+        </p>
+        <div class="grid-4">
+            <div class="card-box">
+                <div class="card-box-title"><span>当前股息率 (Yield)</span><span>💵 现金分红</span></div>
+                <div class="card-box-val">0.65%</div>
+                <p style="font-size:12px;margin:0;">基于现价 $141.99 与年化派息 $0.92 计算。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title"><span>年度派息额 (Annual Payout)</span><span>📅 按季派发</span></div>
+                <div class="card-box-val">$0.92 / 股</div>
+                <p style="font-size:12px;margin:0;">管理层承诺每年总额约 $3.0 亿美元分红池，随股本缩减每股派息持续提升。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title"><span>派息率 (Payout Ratio)</span><span>🛡️ 极高安全垫</span></div>
+                <div class="card-box-val">15.35%</div>
+                <p style="font-size:12px;margin:0;">仅占自由现金流的不到 10%，留存大量资金用于回购与高回报储能投资。</p>
+            </div>
+            <div class="card-box">
+                <div class="card-box-title"><span>下一除息日 (Ex-Div Date)</span><span>🔔 关键日历</span></div>
+                <div class="card-box-val">2026-09-21</div>
+                <p style="font-size:12px;margin:0;">预计季度派息约 $0.23/股，现金流分配纪律严明。</p>
+            </div>
+        </div>
+        <p style="margin-top:10px;">
+            <strong>回购注销引擎（Cannibal Share Buyback）：</strong> 自 2021 年第 4 季度以来，Vistra 已累计投入超过 <strong>$45.5 亿美元</strong> 回购并注销了约 <strong>1.58 亿股</strong> 普通股，使总股本从 4.85 亿股缩减至当前的 3.35 亿股（缩减幅度达 <strong>-31.4%</strong>）。董事会当前仍保有 <strong>$15.0 亿美元</strong> 的有效回购授权，在股价回调至 200 日均线下方（$141.99）时，公司回购机器正加速吸筹。
+        </p>
+    </section>
+
+    <!-- SECTION 10 -->
+    <section id="sec-10" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">10</span> 期权策略规划与实盘持仓诊断 (Options Strategy & Position Analytics)</div>
+            <span class="sec-tag">实盘持仓: 1x 2026-10-16 $135.00 Put · 稳健收租持有</span>
+        </div>
+        <div class="callout">
+            <div class="callout-title">📌 实盘持仓穿透诊断：VST 2026-10-16 $135.00 Cash-Secured Put (1 张合约)</div>
+            <p style="margin:0;">
+                • <strong>持仓现状：</strong> 用户当前持有 1 张将于 2026-10-16 到期的 <strong>$135.00 Short Put</strong>（剩余 <strong>31 DTE</strong>）。开仓权利金为 <strong>$4.25</strong>（收入 $425.00），当前最新市场中间价（Mark）为 <strong>$4.10</strong>（Bid $3.95 / Ask $4.25），账面浮盈 +$15.00 (+3.53%)。<br>
+                • <strong>安全边际与真实接股成本：</strong> 当前正股现价 $141.99 较行权价 $135.00 享有 <strong>+4.92% 的账面安全垫</strong>；若计入已收取的 $4.25 权利金，您的<strong>真实净盈亏平衡点（Net Basis Breakeven）低至 $130.75</strong>，较当前现价享有高达 <strong>+7.92% 的真实缓冲垫</strong>，且 $130.75 已低于 VST 的 52 周最低点（$132.47）！<br>
+                • <strong>行动指令（Action Plan）：🟢 Hold (Standard Hold / 稳健收租持有)</strong>。VST 基本面坚若磐石（Piotroski F-Score 7 分，正向 FCF），近期回调属于典型“逆向黄金坑”。建议安心持有等待 Theta 加速衰减；若到期正股意外跌破 $135.00，以 $130.75 的净成本（对应 2026E P/E 仅 12.6x）接股并启动 Covered Call 轮动将是极佳的买方击球点。
+            </p>
+        </div>
+        <h3>Cash-Secured Put (CSP) 三梯队开仓推荐矩阵（15~60 DTE 精选）</h3>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯队</th>
+                        <th class="num">行权价 (Strike)</th>
+                        <th>到期日 (Expiry)</th>
+                        <th class="num">剩余 DTE</th>
+                        <th class="num">Delta (Δ)</th>
+                        <th class="num">权利金 Mark (Bid/Ask)</th>
+                        <th class="num">年化收益率 (APY)</th>
+                        <th class="num">安全垫缓冲 (Cushion)</th>
+                        <th class="num">到期胜率 (POP)</th>
+                        <th class="num">单份现金担保需求</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>保守型 (Conservative)</strong></td>
+                        <td class="num">$125.00</td>
+                        <td>2026-10-16</td>
+                        <td class="num">31 天</td>
+                        <td class="num">-0.16</td>
+                        <td class="num">$1.85 ($1.75 / $1.95)</td>
+                        <td class="num pos">17.42%</td>
+                        <td class="num pos">+11.97% (净成本 $123.15)</td>
+                        <td class="num">84.2%</td>
+                        <td class="num">$12,500</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><strong>平衡型 (Balanced · 实盘同款)</strong></td>
+                        <td class="num"><strong>$135.00</strong></td>
+                        <td><strong>2026-10-16</strong></td>
+                        <td class="num"><strong>31 天</strong></td>
+                        <td class="num"><strong>-0.32</strong></td>
+                        <td class="num"><strong>$4.10 ($3.95 / $4.25)</strong></td>
+                        <td class="num pos"><strong>35.76%</strong></td>
+                        <td class="num pos"><strong>+4.92% (净成本 $130.90)</strong></td>
+                        <td class="num"><strong>69.5%</strong></td>
+                        <td class="num"><strong>$13,500</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>激进型 (Aggressive · 黄金坑吸筹)</strong></td>
+                        <td class="num">$138.00</td>
+                        <td>2026-10-30</td>
+                        <td class="num">45 天</td>
+                        <td class="num">-0.39</td>
+                        <td class="num">$6.40 ($6.20 / $6.60)</td>
+                        <td class="num pos">37.62%</td>
+                        <td class="num pos">+2.81% (净成本 $131.60)</td>
+                        <td class="num">62.8%</td>
+                        <td class="num">$13,800</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart-options"></canvas>
+        </div>
+    </section>
+
+    <!-- SECTION 11 -->
+    <section id="sec-11" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">11</span> 13F 顶级机构持仓与内部人交易动向 (Institutional Ownership)</div>
+            <span class="sec-tag">机构持仓占比 91.8% · 华尔街顶级基金重仓</span>
+        </div>
+        <p>
+            根据最新 SEC 13F 披露文件，Vistra 的机构持股比例高达 <strong>91.8%</strong>。除了 Vanguard、BlackRock 与 State Street 三大指数巨头外，多家专注于能源转型与 AI 基础设施的顶级主动型对冲基金（如 Appaloosa Management、Third Point、Citadel Advisors）均将 VST 列为核心重仓股。
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构名称 (Institutional Holder)</th>
+                        <th>持仓类型</th>
+                        <th class="num">持股数量 (万股)</th>
+                        <th class="num">占流通股比例</th>
+                        <th class="num">持仓市值 ($M)</th>
+                        <th>近期季度调仓动向与投研定性</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>The Vanguard Group</strong></td>
+                        <td>被动指数 / 长线</td>
+                        <td class="num">3,842.5</td>
+                        <td class="num">11.47%</td>
+                        <td class="num">$5,455.9</td>
+                        <td>标普500成分股纳入后持续稳步被动增配</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BlackRock Inc.</strong></td>
+                        <td>被动指数 / ETF</td>
+                        <td class="num">2,915.0</td>
+                        <td class="num">8.70%</td>
+                        <td class="num">$4,139.0</td>
+                        <td>iShares 公用事业与 AI 基建主题 ETF 核心权重</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><strong>Fidelity Management & Research (FMR)</strong></td>
+                        <td>主动成长型基金</td>
+                        <td class="num">1,860.4</td>
+                        <td class="num">5.55%</td>
+                        <td class="num">$2,641.6</td>
+                        <td>连续两个季度逢低加仓，坚定看好 PJM 容量周期</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Appaloosa Management (David Tepper)</strong></td>
+                        <td>顶级宏观对冲基金</td>
+                        <td class="num">415.0</td>
+                        <td class="num">1.24%</td>
+                        <td class="num">$589.2</td>
+                        <td>AI 算力电力瓶颈主题核心多头头寸</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 12 -->
+    <section id="sec-12" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">12</span> 高管财报电话会原话实录解读 (Earnings Call Transcript Insights)</div>
+            <span class="sec-tag">CEO Jim Burke 核心战略表态</span>
+        </div>
+        <div class="callout">
+            <div class="callout-title">🎙️ Vistra 总裁兼 CEO Jim Burke 关于数据中心 PPA 与资本配置原话摘录：</div>
+            <p style="margin:0;font-style:italic;">
+                “We are engaged in deep, constructive discussions with multiple hyperscalers regarding both our Comanche Peak nuclear facility in ERCOT and our Beaver Valley and Perry sites in PJM. What differentiates Vistra is that we don't just offer zero-carbon baseload electrons; we backstop them with 24 gigawatts of dispatchable gas generation. Regardless of how FERC ultimately structures co-location tariff rules, the fundamental reality is that data centers require 99.999% reliable power now, and our existing fleet is the fastest, most capital-efficient solution available.”
+            </p>
+        </div>
+        <p>
+            <strong>买方穿透解读：</strong> 管理层的表态释放了两个极其重要的信号：第一，公司绝不会为了冲刺签约速度而贱卖核电容量，而是坚持要求能够反映“全天候零碳 + 燃气备援”价值的长期溢价合同；第二，在股价估值低于管理层内部 DCF 测算值时，公司将优先把超额现金流投入股票回购，直接提升留存股东的每股含金量。
+        </p>
+    </section>
+
+    <!-- SECTION 13 -->
+    <section id="sec-13" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">13</span> 空头核心逻辑与多空激辩 (Bull vs. Bear Debate)</div>
+            <span class="sec-tag">深度审视 FERC 监管与天然气价格波动</span>
+        </div>
+        <div class="grid-2">
+            <div class="card-box" style="border-left:4px solid #059669;">
+                <div class="card-box-title" style="color:#064E3B;"><span>🐂 多头核心逻辑 (Bull Case)</span><span>胜率权重: 75%</span></div>
+                <ul style="font-size:12.5px;margin-left:16px;">
+                    <li><strong>IRA 核电保底 + AI 上行不对称：</strong> 下有 $45/MWh 政府税收抵免托底，上有 $85~$110/MWh 数据中心 PPA 催化，盈亏比极度不对称。</li>
+                    <li><strong>PJM 与 ERCOT 物理性缺电不可逆：</strong> 新建燃气电厂涡轮机交付排期已排至 2029 年以后，存量核电与燃气机组的稀缺性溢价将持续整个十年。</li>
+                    <li><strong>每年缩股 6%~8% 的复利机器：</strong> 仅靠每年 $1.5B~$2.0B 回购即可驱动 EPS 年化内生增长 8% 以上。</li>
+                </ul>
+            </div>
+            <div class="card-box" style="border-left:4px solid #DC2626;">
+                <div class="card-box-title" style="color:#991B1B;"><span>🐻 空头核心逻辑 (Bear Case)</span><span>风险权重: 25%</span></div>
+                <ul style="font-size:12.5px;margin-left:16px;">
+                    <li><strong>FERC 监管审批延迟：</strong> 若联邦能源监管委员会（FERC）要求表后直连数据中心全额分摊输电网改造成本，可能拉长 PPA 正式签约落地周期 6~12 个月。</li>
+                    <li><strong>天然气与远期电价回落风险：</strong> 若 2028 年后北美天然气产量过剩压低 Henry Hub 气价，可能压制未对冲年份的边际电价（但核电受 PTC 保护免疫）。</li>
+                    <li><strong>核电站非计划停机风险：</strong> 单座大型反应堆若出现意外检修停机，可能在夏季高电价时段产生短期现货回补成本。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 14 -->
+    <section id="sec-14" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">14</span> 熊市压力测试与尾部风险评估 (Bear Case Stress Test)</div>
+            <span class="sec-tag">极端悲观情景底线估值: $118.00 (-16.9%)</span>
+        </div>
+        <p>
+            为确保期权卖方（Cash-Secured Put）的绝对本金安全，我们对 Vistra 进行三重极端压力测试（假设：① AI 数据中心 PPA 溢价全部落空，仅按普通工商业电价销售；② Henry Hub 天然气价格暴跌至 $2.00/MMBtu 导致火电 Spark Spread 收缩 25%；③ PJM 容量电价在 2027/2028 拍卖中回落 40%）：
+        </p>
+        <div class="callout callout-warn">
+            <div class="callout-title">🛡️ 极端压力测试结论：核电 PTC + 零售对冲构筑坚固安全垫</div>
+            <p style="margin:0;">
+                即便在上述三重悲观假设同时发生的极端情景下，受惠于 IRA 45U 核电底线补贴（锁定核电板块至少 $1.6B EBITDA）以及零售电业务在低批发价时期的毛利扩张（负相关对冲），Vistra 的保底 Adjusted EBITDA 仍可达 <strong>$5.15B</strong>，保底自由现金流达 <strong>$2.20B</strong>。按历史周期底部 8.5x EV/EBITDA 或 11.0x P/E 计算，<strong>极端熊市铁底估值约为 $118.00 ~ $122.00 / 股</strong>。因此，在 $125.00 ~ $135.00 区间卖出看跌期权具备极高的本金安全边际。
+            </p>
+        </div>
+    </section>
+
+    <!-- SECTION 15 -->
+    <section id="sec-15" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">15</span> 综合评级、目标价与最终投资信号 (Final Verdict & Action Plan)</div>
+            <span class="sec-tag">综合评分: 8.6 / 10 · 强力买入 (Strong Buy)</span>
+        </div>
+        <p>
+            综合 15 模块穿透性研究，Vistra Corp. (VST) 凭借 6.4 GW 零碳核电舰队、24.0 GW 灵活性天然气调峰资产以及全美第一的零售电力对冲体系，在 AI 算力基础设施用电浪潮中占据不可替代的战略制高点。当前股价 $141.99 处于 52 周 11.0% 极低分位黄金坑，估值较内在公允价值（$186.50）折让达 31.3%，给予<strong>“强力买入 (Strong Buy)”</strong>评级。
+        </p>
+        <div class="signal-block">
+            <div class="signal-label-top">INVESTMENT SIGNAL BLOCK (15-MODULE COMPREHENSIVE SYNTHESIS)</div>
+            <div class="signal-header-row">
+                <div class="signal-verdict">强力买入 (Strong Buy) • IRA核电保底+AI算力PPA重估龙头</div>
+                <div class="signal-score">8.6 / 10</div>
+            </div>
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="sig-label">投资信号 (Signal)</div>
+                    <div class="sig-val">强力买入 (Strong Buy)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">置信度 (Confidence)</div>
+                    <div class="sig-val">HIGH (高确定性)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">投资期限 (Horizon)</div>
+                    <div class="sig-val">MEDIUM-TERM (6-18个月)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">执行建议 (Action)</div>
+                    <div class="sig-val">坚定持有 $135 Put (净成本$130.75) • 逢低分批配置现货</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Radar Chart
+    const ctxRadar = document.getElementById('chart-radar').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['估值安全边际 (Valuation)', '核电资产护城河 (Moat)', '现金流与回购 (FCF & Buyback)', 'AI PPA 催化剂 (Catalyst)', '资产负债表健康度 (Balance Sheet)', '期权权利金Alpha (Option Alpha)'],
+            datasets: [{
+                label: 'Vistra Corp. (VST) 多因子评分 (8.6/10)',
+                data: [8.8, 9.2, 8.9, 8.5, 7.8, 8.6],
+                backgroundColor: 'rgba(5, 150, 105, 0.22)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#064E3B',
+                pointBorderColor: '#fff',
+                borderWidth: 2.5
+            }, {
+                label: '公用事业板块基准 (Sector Avg)',
+                data: [6.2, 6.5, 6.0, 5.5, 6.4, 5.8],
+                backgroundColor: 'rgba(100, 116, 139, 0.12)',
+                borderColor: '#94A3B8',
+                borderDash: [4, 4],
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    min: 0,
+                    max: 10,
+                    ticks: { stepSize: 2, font: { size: 10 } }
+                }
+            },
+            plugins: {
+                title: { display: true, text: 'VST 六维机构量化评分模型 (Composite Score: 8.6 / 10)', font: { size: 13, weight: 'bold' } }
+            }
+        }
+    });
+
+    // 2. Financials Chart
+    const ctxFin = document.getElementById('chart-financials').getContext('2d');
+    new Chart(ctxFin, {
+        type: 'bar',
+        data: {
+            labels: ['FY 2023', 'FY 2024', 'FY 2025', 'FY 2026E'],
+            datasets: [
+                {
+                    label: '营业总收入 ($M)',
+                    data: [14778, 16840, 18150, 19212],
+                    backgroundColor: 'rgba(37, 99, 235, 0.75)',
+                    borderRadius: 5,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Adjusted EBITDA ($M)',
+                    data: [4135, 5260, 6120, 6646],
+                    backgroundColor: 'rgba(5, 150, 105, 0.85)',
+                    borderRadius: 5,
+                    yAxisID: 'y'
+                },
+                {
+                    label: '稀释 EPS ($/股)',
+                    data: [3.85, 6.12, 8.25, 10.37],
+                    type: 'line',
+                    borderColor: '#D97706',
+                    backgroundColor: '#FEF3C7',
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: { display: true, text: 'Vistra 2023-2026E 营收、Adjusted EBITDA 与 EPS 跃升趋势', font: { size: 13, weight: 'bold' } }
+            },
+            scales: {
+                y: { type: 'linear', position: 'left', title: { display: true, text: '百万美元 ($M)' } },
+                y1: { type: 'linear', position: 'right', title: { display: true, text: '每股收益 EPS ($)' }, grid: { drawOnChartArea: false } }
+            }
+        }
+    });
+
+    // 3. Valuation Bridge Chart
+    const ctxVal = document.getElementById('chart-valuation').getContext('2d');
+    new Chart(ctxVal, {
+        type: 'bar',
+        data: {
+            labels: ['极端悲观底线 (Bear Case)', '实盘CSP净接股成本 ($135 Put)', '当前市场现价 (Live Spot)', '200日均线锚点 (200-SMA)', '基准DCF公允价值 (Base DCF)', 'AI PPA全面重估 (Bull Case)'],
+            datasets: [{
+                label: '每股价值评估 ($/Share)',
+                data: [118.00, 130.75, 141.99, 156.70, 186.50, 224.80],
+                backgroundColor: [
+                    'rgba(220, 38, 38, 0.7)',
+                    'rgba(13, 148, 136, 0.85)',
+                    'rgba(37, 99, 235, 0.85)',
+                    'rgba(100, 116, 139, 0.75)',
+                    'rgba(5, 150, 105, 0.9)',
+                    'rgba(16, 185, 129, 0.9)'
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: { display: true, text: 'VST 估值谱系与实盘 $135 Short Put 净成本安全边际对比 ($/股)', font: { size: 13, weight: 'bold' } },
+                legend: { display: false }
+            },
+            scales: {
+                y: { min: 90, max: 240, title: { display: true, text: '美元 / 股 ($ USD)' } }
+            }
+        }
+    });
+
+    // 4. Options Payoff Curve Chart
+    const ctxOpt = document.getElementById('chart-options').getContext('2d');
+    const spotPrices = [115, 120, 125, 130.75, 135, 141.99, 150, 160, 170];
+    const cspPayoff = spotPrices.map(p => p >= 135 ? 425 : (p - 135 + 4.25) * 100);
+    const stockPayoff = spotPrices.map(p => (p - 141.99) * 100);
+
+    new Chart(ctxOpt, {
+        type: 'line',
+        data: {
+            labels: spotPrices.map(p => '$' + p.toFixed(2)),
+            datasets: [
+                {
+                    label: '实盘 2026-10-16 $135 Short Put 到期损益 ($ USD / 合约)',
+                    data: cspPayoff,
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.15)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.15
+                },
+                {
+                    label: '直接现价 ($141.99) 买入 100 股正股损益 ($ USD)',
+                    data: stockPayoff,
+                    borderColor: '#94A3B8',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: { display: true, text: '实盘 1x VST $135.00 Put (开仓$4.25) 到期损益 vs 正股直投对比', font: { size: 13, weight: 'bold' } }
+            },
+            scales: {
+                y: { title: { display: true, text: '单合约损益 ($ USD)' } }
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>

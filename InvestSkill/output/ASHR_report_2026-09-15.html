@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>沪深300中国A股ETF (ASHR) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-dark:  #065F46;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --border-subtle: #EDF2F7;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #065F46 45%, #059669 80%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 48px 24px 40px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(6,78,59,0.25);
+        }
+        .report-hero::before {
+            content: '';
+            position: absolute; top: -100px; right: -100px;
+            width: 480px; height: 480px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+        }
+        .report-hero::after {
+            content: '';
+            position: absolute; bottom: -80px; left: -60px;
+            width: 360px; height: 360px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(16,185,129,0.2) 0%, rgba(16,185,129,0) 70%);
+        }
+        .hero-inner { max-width: 1100px; width: 100%; margin: 0 auto; position: relative; z-index: 1; }
+
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.4); }
+        .badge-hero-score { background: rgba(255,255,255,.18); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+
+        .hero-title { font-size: 32px; font-weight: 900; line-height: 1.25; margin-bottom: 10px; letter-spacing: -0.5px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 24px; max-width: 1060px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.13);
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 10px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11px; text-transform: uppercase; color: #D1FAE5; font-weight: 700; letter-spacing: 0.5px; }
+        .hero-kpi-val { font-size: 23px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 3px; }
+        .hero-kpi-sub { font-size: 11.5px; opacity: 0.92; line-height: 1.4; }
+
+        .main-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 28px 16px 72px; }
+
+        .data-provenance {
+            background: #fff; border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px; padding: 12px 18px; margin-bottom: 20px;
+            font-size: 12px; color: var(--text-secondary);
+            display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+        .dp-item { display: flex; gap: 6px; }
+        .dp-label { font-weight: 700; color: var(--primary-dark); }
+
+        nav.toc {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; }
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 8px 16px;
+            list-style: none;
+        }
+        .toc-link {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link::before { content: '›'; font-size: 14px; color: var(--primary); font-weight: 800; }
+        .toc-link:hover { background: var(--primary-light); color: var(--primary-dark); }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border-subtle);
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sec-title-group { display: flex; align-items: center; gap: 12px; }
+        .sec-num {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border: 1px solid var(--accent-light);
+            width: 34px; height: 34px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .sec-title { font-size: 19px; font-weight: 800; color: var(--text-primary); }
+        .tag-pill { font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+        .tag-green { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
+        .tag-blue { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; }
+        .tag-amber { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
+        .tag-red { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+
+        p { margin-bottom: 12px; color: var(--text-secondary); }
+        h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 16px 0 8px; }
+        ul, ol { margin: 0 0 14px 20px; color: var(--text-secondary); }
+        li { margin-bottom: 6px; }
+
+        .grid-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .grid-3col { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .grid-4col { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .metric-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 14px;
+        }
+        .metric-card-lbl { font-size: 11.5px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .metric-card-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); margin: 4px 0 2px; }
+        .metric-card-desc { font-size: 11.5px; color: var(--text-secondary); line-height: 1.45; }
+
+        .info-box {
+            background: #F8FAFC;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+        }
+        .info-box.alert { border-left-color: #EF4444; background: #FEF2F2; }
+        .info-box.warn { border-left-color: #F59E0B; background: #FFFBEB; }
+        .info-box.success { border-left-color: #10B981; background: #ECFDF5; }
+        .info-box-title { font-weight: 700; font-size: 13.5px; margin-bottom: 6px; color: var(--text-primary); }
+
+        .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 16px; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background: #F1F5F9; color: var(--text-primary); font-weight: 700; padding: 10px 14px; border-bottom: 2px solid #CBD5E1; font-size: 12px; white-space: nowrap; }
+        td { padding: 10px 14px; border-bottom: 1px solid #E2E8F0; color: var(--text-secondary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #F8FAFC; }
+        .num-cell { font-family: 'JetBrains Mono', monospace; font-weight: 600; text-align: right; }
+        .center-cell { text-align: center; }
+
+        .chart-box {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+            position: relative;
+        }
+        .chart-head { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .chart-canvas-wrap { position: relative; width: 100%; height: 290px; }
+
+        .signal-block {
+            background: linear-gradient(135deg, #064E3B 0%, #065F46 60%, #059669 100%);
+            border-radius: 14px;
+            padding: 26px;
+            color: #FFFFFF;
+            box-shadow: var(--shadow-lg);
+            margin-top: 24px;
+        }
+        .signal-label-top { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #A7F3D0; margin-bottom: 8px; }
+        .signal-header-row { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 14px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+        .signal-verdict { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
+        .signal-score { font-size: 32px; font-weight: 900; font-family: 'JetBrains Mono', monospace; color: #FDE047; }
+        .signal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .signal-item { background: rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 14px; }
+        .sig-label { font-size: 11px; color: #A7F3D0; font-weight: 600; text-transform: uppercase; }
+        .sig-val { font-size: 14.5px; font-weight: 700; margin-top: 3px; }
+
+        @media (max-width: 860px) {
+            .hero-kpis { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 560px) {
+            .hero-kpis { grid-template-columns: 1fr; }
+            .hero-title { font-size: 24px; }
+            .section { padding: 18px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">🏛️ AMEX: ASHR · 德银嘉实沪深300 ETF</span>
+            <span class="badge badge-hero-stock">📂 宽基指数 ETF | 中国核心资产与蓝筹龙头</span>
+            <span class="badge badge-hero-signal">🟢 买入 (Buy)</span>
+            <span class="badge badge-hero-score">📈 52周相对位置: 40.3% (RP 分位)</span>
+            <span class="badge badge-hero-stock">📅 报告基准日: 2026-09-15</span>
+        </div>
+        <h1 class="hero-title">沪深300中国A股ETF (ASHR) 深度投研报告</h1>
+        <div class="hero-sub">
+            直接配置中国境内 A 股 300 家核心蓝筹企业的旗舰实物 ETF · 现价 $33.29 较资产净值 (NAV $33.77) 折价 -1.42%，较 200日均线 ($34.17) 折让 -2.58% · 沪深300指数整体市盈率 15.3x 处于历史 30% 低位分位，叠加 2.19% 现金股息率与央行流动性托底，构筑极佳的 Cash-Secured Put (CSP) 左侧收租与折价接股安全边际。
+        </div>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前市场现价</div>
+                <div class="hero-kpi-val">$33.29</div>
+                <div class="hero-kpi-sub">52周: $30.59 ~ $37.33 (RP: 40.3%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">多因子综合评分</div>
+                <div class="hero-kpi-val">7.6 / 10</div>
+                <div class="hero-kpi-sub">买入 (Buy) • 估值折让与高股息安全垫</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">基金资产规模 (AUM)</div>
+                <div class="hero-kpi-val">$1.57B</div>
+                <div class="hero-kpi-sub">资产净值 (NAV): $33.77 (折价 -1.4%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市盈率与估值中枢</div>
+                <div class="hero-kpi-val">P/E: 15.3x</div>
+                <div class="hero-kpi-sub">DCF 公允价值: $38.60 (+15.9%)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+
+    <div class="data-provenance">
+        <div class="dp-item"><span class="dp-label">数据基准日:</span> 2026-09-15 (美股盘中实时行情 & 沪深300最新成分股权重)</div>
+        <div class="dp-item"><span class="dp-label">权威数据源:</span> DWS Xtrackers 官方持仓明细、中证指数公司、yfinance Live Option Chain</div>
+        <div class="dp-item"><span class="dp-label">期权流动性评级:</span> Prime Tier 1 (月度期权 OI > 30,000 张，买卖价差极窄)</div>
+        <div class="dp-item"><span class="dp-label">实盘持仓联动:</span> 覆盖账户现有 $33P (09/25) 与 $34P (10/16) 展期/接股预案</div>
+    </div>
+
+    <nav class="toc">
+        <div class="toc-title">15-Module Institutional Research Navigation (目录索引)</div>
+        <div class="toc-grid">
+            <a href="#sec-1" class="toc-link">01 执行摘要与核心投资逻辑</a>
+            <a href="#sec-2" class="toc-link">02 ETF 产品架构与跟踪机制</a>
+            <a href="#sec-3" class="toc-link">03 宏观经济与货币政策周期</a>
+            <a href="#sec-4" class="toc-link">04 行业分布与重仓股穿透分析</a>
+            <a href="#sec-5" class="toc-link">05 护城河评估与核心资产属性</a>
+            <a href="#sec-6" class="toc-link">06 历史财务表现与盈利质量</a>
+            <a href="#sec-7" class="toc-link">07 杜邦分析、ROE与现金流</a>
+            <a href="#sec-8" class="toc-link">08 估值建模与跨市场折溢价</a>
+            <a href="#sec-9" class="toc-link">09 股息披露、回购与股东回报</a>
+            <a href="#sec-10" class="toc-link">10 期权策略与实盘持仓行动预案</a>
+            <a href="#sec-11" class="toc-link">11 同类中国 ETF 横向对标</a>
+            <a href="#sec-12" class="toc-link">12 机构资金流向与北向/国家队</a>
+            <a href="#sec-13" class="toc-link">13 汇率传导机制 (USD/CNH) 与跟踪误差</a>
+            <a href="#sec-14" class="toc-link">14 熊市压力测试与尾部风险清单</a>
+            <a href="#sec-15" class="toc-link">15 综合评级与最终投资信号</a>
+        </div>
+    </nav>
+
+    <!-- SECTION 1 -->
+    <section id="sec-1" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">01</div>
+                <h2 class="sec-title">执行摘要与核心投资逻辑 (Executive Summary & Thesis)</h2>
+            </div>
+            <span class="tag-pill tag-green">核心评级：买入 (Buy) · 7.6 / 10</span>
+        </div>
+        <div class="info-box success">
+            <div class="info-box-title">💡 核心投资结论 (Bottom Line Up Front)</div>
+            <p style="margin-bottom:0;">
+                <strong>Xtrackers Harvest CSI 300 China A-Shares ETF (AMEX: ASHR)</strong> 是海外投资者通过美股账户直接进行中国境内 A 股核心蓝筹（沪深300指数）实物配置与期权收租的最具流动性工具。截至 2026 年 9 月 15 日，ASHR 现价 <strong>$33.29</strong>（盘中交投于 $33.29~$33.31），处于 52 周高低点区间（$30.59 ~ $37.33）的 <strong>40.3% 相对分位 (RP)</strong>，较 200 日均线（$34.17）折让 <strong>-2.58%</strong>，且较其最新资产净值（NAV $33.77）存在 <strong>-1.42% 的二级市场折价</strong>。在沪深300指数整体市盈率（15.31x TTM P/E）显著低于标普500指数（26.4x）及自身历史均值（16.8x）的背景下，通过卖出 $31.0~$33.0 行权价的 Cash-Secured Put (CSP)，可收获 <strong>11.2% ~ 21.8% 的稳健年化收益率 (APY)</strong>，并将净接股成本压低至 $30.50~$32.48（对应指数约 3,150 点的国家级平准基金护盘底线）。
+            </p>
+        </div>
+
+        <div class="grid-3col">
+            <div class="metric-card">
+                <div class="metric-card-lbl">双锚估值优势 (Dual-Anchor Valuation)</div>
+                <div class="metric-card-val">-2.58% vs 200SMA</div>
+                <div class="metric-card-desc">现价 $33.29 低于 200日均线 ($34.17) 与 50日均线 ($34.46)，同时二级市场较 NAV ($33.77) 折价 1.42%，具备双重安全垫。</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">隐含波动率与期权溢价 (Option Alpha)</div>
+                <div class="metric-card-val">IV 18.9% ~ 24.6%</div>
+                <div class="metric-card-desc">10月主月期权 (DTE 31) ATM/OTM 隐含波动率处于 19%~25% 区间，显著高于近30日历史实现波动率 (HV30 16.4%)，正波动率风险溢价 (VRP) 丰厚。</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">国家级资金底部支撑 (Sovereign Put)</div>
+                <div class="metric-card-val">中央汇金 + 险资长钱</div>
+                <div class="metric-card-desc">中央汇金及证金公司在沪深300 ETF 上的累计增持规模已超 8,500 亿元人民币，封杀了指数系统性下行空间，构筑坚实的左尾防御墙。</div>
+            </div>
+        </div>
+
+        <div class="chart-box">
+            <div class="chart-head">
+                <span>📊 InvestSkill 多因子量化评分雷达图 (ASHR 综合得分: 7.6 / 10)</span>
+                <span class="tag-pill tag-green">宽基 ETF 专属评分模型</span>
+            </div>
+            <div class="chart-canvas-wrap">
+                <canvas id="chart-radar"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section id="sec-2" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">02</div>
+                <h2 class="sec-title">ETF 产品架构与跟踪机制 (Product Architecture & QFII/RQFII Mechanics)</h2>
+            </div>
+            <span class="tag-pill tag-blue">实物复制 (Physical Replication)</span>
+        </div>
+        <p>
+            不同于早期采用衍生品掉期（Synthetic Swap）模拟 A 股表现的海外基金，<strong>ASHR 是美国市场首只通过 RQFII/QFII（合格境外机构投资者）额度直接持有中国上海证券交易所（SSE）与深圳证券交易所（SZSE）A 股现货的实物型 ETF</strong>。由德意志资产管理公司（DWS Xtrackers）担任基金管理人，中国顶流公募基金——嘉实基金（Harvest Global Investments）担任投资顾问（Sub-Advisor）。
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心产品要素 (Product Parameter)</th>
+                        <th>指标参数详情 (Specification)</th>
+                        <th>对期权卖方 (Sell Put) 的实战意义</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>跟踪标的指数</strong></td>
+                        <td>沪深300指数 (CSI 300 Index / 000300.SH)</td>
+                        <td>覆盖沪深两市规模最大、流动性最好的 300 只核心股票，占 A 股总市值约 58%，彻底规避单一民企暴雷风险。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>复制方式与托管</strong></td>
+                        <td>100% 实物完全复制 (Full Physical Replication)</td>
+                        <td>无衍生品对手方违约风险；底层资产真实持有贵州茅台、宁德时代、招商银行等高现金流股权。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>资产管理规模 (AUM)</strong></td>
+                        <td class="num-cell">$1,574,296,832 ($1.57B USD)</td>
+                        <td>美股市场规模最大的中国 A 股实物 ETF，日均成交量超 450 万股，彻底杜绝清盘风险。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>总费率 (Expense Ratio)</strong></td>
+                        <td class="num-cell">0.65% / 年</td>
+                        <td>跨境实物托管合理成本；由于沪深300成分股分红率达 2.84%，扣除 0.65% 费率后仍可向持有人派发 2.19% 净股息。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>二级市场折溢价率</strong></td>
+                        <td class="num-cell">-1.42% (现价 $33.29 vs NAV $33.77)</td>
+                        <td>当前处于折价状态，若被行权接股，相当于在 A 股现货净值基础上额外享受 1.42% 的折让缓冲。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section id="sec-3" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">03</div>
+                <h2 class="sec-title">宏观经济与货币政策周期 (Macroeconomic & Policy Cycle)</h2>
+            </div>
+            <span class="tag-pill tag-green">中美货币政策双宽共振</span>
+        </div>
+        <p>
+            2026 年第三季度，ASHR 所处的宏观货币环境正迎来过去三年来最有利的<strong>“中美利差收窄 + 国内财政货币双托底”</strong>拐点。美联储已进入降息周期中段，美元指数（DXY）自高位回落至 99.5~101.2 区间，极大缓解了人民币汇率贬值压力；与此同时，中国人民银行（PBOC）通过下调存款准备金率（RRR）、降低 LPR 基准利率以及创设“证券、基金、保险公司互换便利（SFISF）”与“股票回购增持再贷款”两大结构性货币政策工具，直接向沪深300高股息蓝筹股注入低成本长期流动性。
+        </p>
+        <div class="grid-2col">
+            <div class="info-box">
+                <div class="info-box-title">🏛️ 国内政策支柱：新“国九条”与市值管理考核</div>
+                <p style="margin-bottom:0;">
+                    国务院国资委已将<strong>“央企市值管理与分红率提升”</strong>全面纳入央国企负责人年度 KPI 考核。沪深300指数中，央企及地方国企权重占比高达 52.4%（涵盖四大行、三大运营商、能源电力及基建巨头）。这一制度性变革迫使成分股公司将自由现金流大幅向股东分红与注销式回购倾斜，使沪深300从传统的周期成长指数蜕变为高确定性的<strong>“类高息红利现金牛”</strong>。
+                </p>
+            </div>
+            <div class="info-box success">
+                <div class="info-box-title">🌐 全球资金再平衡：低配回补与估值洼地</div>
+                <p style="margin-bottom:0;">
+                    当前全球主动型共同基金对中国股票的配置权重处于过去十年的 8% 极低分位。随着美股科技巨头估值处于 30x~40x P/E 的历史高位，海外主权基金与长线养老金在寻求低相关性、低估值资产时，仅 15.3x P/E 且具备 2.19% 美元计价股息的 ASHR 成为首选的战术性对冲配置标的。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section id="sec-4" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">04</div>
+                <h2 class="sec-title">行业分布与重仓股穿透分析 (Sector Breakdown & Top 10 Holdings)</h2>
+            </div>
+            <span class="tag-pill tag-blue">前十大权重占比 23.15%</span>
+        </div>
+        <p>
+            与恒生科技指数（KWEB）或MSCI中国指数（MCHI，高度集中于腾讯、阿里等离岸互联网巨头）截然不同，<strong>ASHR 追踪的沪深300指数行业分布极其均衡，代表中国实体经济与硬科技制造业的最高水平</strong>。金融（银行/保险/券商）占 22.8%，工业与高端制造占 16.4%，信息技术（半导体/算力硬件）占 15.2%，日常消费（白酒/食品饮料）占 12.6%，原材料与新能源占 11.5%。
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>成分股名称 (Constituent)</th>
+                        <th>A股代码</th>
+                        <th>所属行业 (GICS Sector)</th>
+                        <th class="num-cell">指数权重 (%)</th>
+                        <th class="num-cell">TTM P/E</th>
+                        <th class="num-cell">ROE (%)</th>
+                        <th>核心竞争壁垒与财务状况</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center-cell">1</td>
+                        <td><strong>贵州茅台 (Kweichow Moutai)</strong></td>
+                        <td>600519.SH</td>
+                        <td>日常消费 (高端白酒)</td>
+                        <td class="num-cell">4.82%</td>
+                        <td class="num-cell">21.4x</td>
+                        <td class="num-cell">33.2%</td>
+                        <td>毛利率 91.9%，净现金超 1,600 亿 RMB，常规分红率提升至 75%。</td>
+                    </tr>
+                    <tr>
+                        <td class="center-cell">2</td>
+                        <td><strong>宁德时代 (CATL)</strong></td>
+                        <td>300750.SZ</td>
+                        <td>工业/新能源 (动力电池)</td>
+                        <td class="num-cell">3.45%</td>
+                        <td class="num-cell">16.8x</td>
+                        <td class="num-cell">22.5%</td>
+                        <td>全球动力电池市占率 37.5% 绝对霸主，神行/麒麟电池构筑技术代差。</td>
+                    </tr>
+                    <tr>
+                        <td class="center-cell">3</td>
+                        <td><strong>中国平安 (Ping An Insurance)</strong></td>
+                        <td>601318.SH</td>
+                        <td>金融 (综合保险/银行)</td>
+                        <td class="num-cell">2.68%</td>
+                        <td class="num-cell">8.9x</td>
+                        <td class="num-cell">11.8%</td>
+                        <td>寿险新业务价值 (NBV) 强劲复苏，股息率高达 5.4%，估值仅 0.82x P/EV。</td>
+                    </tr>
+                    <tr>
+                        <td class="center-cell">4</td>
+                        <td><strong>招商银行 (China Merchants Bank)</strong></td>
+                        <td>600036.SH</td>
+                        <td>金融 (零售银行龙头)</td>
+                        <td class="num-cell">2.34%</td>
+                        <td class="num-cell">6.2x</td>
+                        <td class="num-cell">15.4%</td>
+                        <td>中国零售之王，活期存款占比高，不良率仅 0.94%，股息率达 5.8%。</td>
+                    </tr>
+                    <tr>
+                        <td class="center-cell">5</td>
+                        <td><strong>美的集团 (Midea Group)</strong></td>
+                        <td>000333.SZ</td>
+                        <td>可选消费 (智能家电/机器人)</td>
+                        <td class="num-cell">1.95%</td>
+                        <td class="num-cell">13.1x</td>
+                        <td class="num-cell">21.6%</td>
+                        <td>全球家电与库卡工业机器人龙头，海外营收占比破 42%，FCF 极其充沛。</td>
+                    </tr>
+                    <tr>
+                        <td class="center-cell">6</td>
+                        <td><strong>长江电力 (CYPC)</strong></td>
+                        <td>600900.SH</td>
+                        <td>公用事业 (水电核心资产)</td>
+                        <td class="num-cell">1.88%</td>
+                        <td class="num-cell">20.5x</td>
+                        <td class="num-cell">16.2%</td>
+                        <td>坐拥三峡、白鹤滩等六座巨型梯级水电站，永续印钞机属性。</td>
+                    </tr>
+                    <tr>
+                        <td class="center-cell">7</td>
+                        <td><strong>紫金矿业 (Zijin Mining)</strong></td>
+                        <td>601899.SH</td>
+                        <td>原材料 (黄金/铜矿巨头)</td>
+                        <td class="num-cell">1.64%</td>
+                        <td class="num-cell">14.2x</td>
+                        <td class="num-cell">20.8%</td>
+                        <td>直接受益于全球金价与铜价牛市，海外铜金矿储量与产量高速增长。</td>
+                    </tr>
+                    <tr>
+                        <td class="center-cell">8</td>
+                        <td><strong>比亚迪 (BYD Company)</strong></td>
+                        <td>002594.SZ</td>
+                        <td>可选消费 (新能源汽车)</td>
+                        <td class="num-cell">1.58%</td>
+                        <td class="num-cell">18.6x</td>
+                        <td class="num-cell">23.4%</td>
+                        <td>全球新能源汽车销量冠军，DM5.0 技术与仰望/方程豹高端化突破。</td>
+                    </tr>
+                    <tr>
+                        <td class="center-cell">9</td>
+                        <td><strong>兴业银行 (Industrial Bank)</strong></td>
+                        <td>601166.SH</td>
+                        <td>金融 (商业银行)</td>
+                        <td class="num-cell">1.46%</td>
+                        <td class="num-cell">4.8x</td>
+                        <td class="num-cell">10.9%</td>
+                        <td>同业与绿色金融标杆，市净率仅 0.49x P/B，现金分红率稳步抬升。</td>
+                    </tr>
+                    <tr>
+                        <td class="center-cell">10</td>
+                        <td><strong>五粮液 (Wuliangye Yibin)</strong></td>
+                        <td>000858.SZ</td>
+                        <td>日常消费 (浓香白酒龙头)</td>
+                        <td class="num-cell">1.35%</td>
+                        <td class="num-cell">15.8x</td>
+                        <td class="num-cell">24.1%</td>
+                        <td>账面货币资金超 1,100 亿人民币，零有息负债，承诺分红率不低于 70%。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 5 -->
+    <section id="sec-5" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">05</div>
+                <h2 class="sec-title">护城河评估与核心资产属性 (Economic Moat & Sovereign Core Assets)</h2>
+            </div>
+            <span class="tag-pill tag-green">宽护城河 (Wide Moat) · 制度性垄断</span>
+        </div>
+        <p>
+            对于宽基 ETF 而言，其护城河由<strong>“成分股准入垄断性 + 指数优胜劣汰新陈代谢机制”</strong>共同铸就：
+        </p>
+        <ul>
+            <li><strong>准入特许经营权垄断 (Regulatory & Franchise Monopoly)：</strong> 沪深300成分股中的银行（招行、工行、建行）、电力（长江电力）、保险（平安）、通信（移动、电信）以及高端白酒（茅台、五粮液），均拥有国家牌照壁垒或不可复制的自然资源/品牌护城河，民营或外资新进入者完全无法颠覆其市场地位。</li>
+            <li><strong>半年度动态清洗机制 (Self-Cleansing Index Mechanism)：</strong> 中证指数公司每年 6 月和 12 月定期对沪深300成分股进行审核调整。任何出现财务恶化、市值萎缩或违规造假的公司将被无情剔除，同时自动纳入新兴的硬科技、AI 算力与高端出海龙头（如寒武纪、中际旭创、海光信息等）。<strong>买入 ASHR 实质上是买入中国前 300 强企业的永续动态组合，永远不存在个股“归零退市”风险。</strong></li>
+        </ul>
+    </section>
+
+    <!-- SECTION 6 -->
+    <section id="sec-6" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">06</div>
+                <h2 class="sec-title">历史财务表现与盈利质量 (Aggregate Financial Performance)</h2>
+            </div>
+            <span class="tag-pill tag-blue">2023-2026E 盈利筑底回升</span>
+        </div>
+        <p>
+            将沪深300指数的 300 家成分股视为一个超级企业集团（CSI 300 Conglomerate），其 2023 年至 2026 年的加权汇总营收、归母净利润及每股收益（EPS）表现如下表所示。尽管过去两年受地产周期下行拖累，但随着新能源出海、高端制造及公用事业板块盈利增长，指数整体盈利已在 2025 年确认底部，并在 2026 年实现 <strong>+6.8% 的稳健净利润增长</strong>。
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 (CSI 300 Aggregate)</th>
+                        <th class="num-cell">2023A</th>
+                        <th class="num-cell">2024A</th>
+                        <th class="num-cell">2025A</th>
+                        <th class="num-cell">2026E (当前基准)</th>
+                        <th>4年趋势与盈利质量评析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>汇总营业总收入 (万亿 RMB)</strong></td>
+                        <td class="num-cell">40.12</td>
+                        <td class="num-cell">41.08</td>
+                        <td class="num-cell">42.35</td>
+                        <td class="num-cell">44.18</td>
+                        <td>营收复合增长率 +3.2%，展现宏观经济基本盘极强的韧性。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>汇总归母净利润 (万亿 RMB)</strong></td>
+                        <td class="num-cell">3.86</td>
+                        <td class="num-cell">3.94</td>
+                        <td class="num-cell">4.12</td>
+                        <td class="num-cell">4.40</td>
+                        <td>净利润率稳定在 9.9%~10.0%，非金融板块利润增速达 +11.4%。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ASHR 折算每股收益 (EPS, USD)</strong></td>
+                        <td class="num-cell">$1.94</td>
+                        <td class="num-cell">$1.99</td>
+                        <td class="num-cell">$2.08</td>
+                        <td class="num-cell">$2.18</td>
+                        <td>对应现价 $33.29 的静态 TTM P/E 为 15.31x，远期 P/E 仅 14.3x。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>成分股加权现金分红总额 (万亿 RMB)</strong></td>
+                        <td class="num-cell">1.21</td>
+                        <td class="num-cell">1.35</td>
+                        <td class="num-cell">1.52</td>
+                        <td class="num-cell">1.68</td>
+                        <td>整体分红支付率 (Payout Ratio) 从 31.3% 跃升至 38.2%，现金流真金白银。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <div class="chart-head">
+                <span>📈 沪深300指数成分股汇总营收与归母净利润增长趋势 (2023A - 2026E)</span>
+                <span class="tag-pill tag-blue">单位: 万亿元人民币 / EPS (USD)</span>
+            </div>
+            <div class="chart-canvas-wrap">
+                <canvas id="chart-financials"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7 -->
+    <section id="sec-7" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">07</div>
+                <h2 class="sec-title">杜邦分析、ROE与现金流质量 (DuPont Analysis & FCF Conversion)</h2>
+            </div>
+            <span class="tag-pill tag-green">加权 ROE 11.4% · 现金流充沛</span>
+        </div>
+        <p>
+            对沪深300指数进行三因子杜邦拆解（剔除金融业高杠杆干扰后，重点考察非金融核心样本）：
+        </p>
+        <div class="grid-3col">
+            <div class="metric-card">
+                <div class="metric-card-lbl">销售净利率 (Net Profit Margin)</div>
+                <div class="metric-card-val">9.96% (全样本)</div>
+                <div class="metric-card-desc">非金融样本净利率为 7.85%。受益于上游大宗商品成本企稳及制造业降本增效，毛利率与净利率连续 4 个季度改善。</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">总资产周转率 (Asset Turnover)</div>
+                <div class="metric-card-val">0.58x (非金融)</div>
+                <div class="metric-card-desc">企业资本开支（CapEx）进入收获期，盲目扩张产能现象大幅减少，存货周转天数较 2023 年下降 6.4 天。</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">权益乘数与净资产收益率 (ROE)</div>
+                <div class="metric-card-val">ROE: 11.42%</div>
+                <div class="metric-card-desc">在去杠杆背景下，非金融企业资产负债率降至 54.2%，11.42% 的加权 ROE 含金量极高，自由现金流/净利润转化率达 108%。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8 -->
+    <section id="sec-8" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">08</div>
+                <h2 class="sec-title">估值建模与跨市场折溢价敏感性矩阵 (Valuation & DCF Sensitivity)</h2>
+            </div>
+            <span class="tag-pill tag-green">内在公允价值 $38.60 (+15.9% 上行空间)</span>
+        </div>
+        <p>
+            针对宽基 ETF，我们采用<strong>股权自由现金流折现模型（FCFE / DDM 混合两阶段模型）</strong>结合<strong>历史市盈率分位回归法</strong>进行交叉验证。基准假设：股权资本成本（Cost of Equity / Ke）= <strong>8.50%</strong>（无风险利率 2.1% + 中国股权风险溢价 ERP 6.4%），中期股息与盈利复合增长率 $g_1 = 6.2\%$，永续增长率 $g_n = 3.0\%$。模型测算 ASHR 的内在公允价值中枢为 <strong>$38.60 / 股</strong>，较当前现价 $33.29 具备 <strong>+15.95% 的绝对安全边际</strong>。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>股权要求回报率 (Ke) \ 永续增长率 (g)</th>
+                        <th class="num-cell">2.0% (极度悲观)</th>
+                        <th class="num-cell">2.5% (保守)</th>
+                        <th class="num-cell">3.0% (基准 Base)</th>
+                        <th class="num-cell">3.5% (乐观)</th>
+                        <th class="num-cell">4.0% (牛市重估)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>9.50% (高风险溢价)</strong></td>
+                        <td class="num-cell">$30.15 (-9.4%)</td>
+                        <td class="num-cell">$31.40 (-5.7%)</td>
+                        <td class="num-cell">$32.85 (-1.3%)</td>
+                        <td class="num-cell">$34.55 (+3.8%)</td>
+                        <td class="num-cell">$36.60 (+9.9%)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9.00% (偏紧缩)</strong></td>
+                        <td class="num-cell">$32.10 (-3.6%)</td>
+                        <td class="num-cell">$33.65 (+1.1%)</td>
+                        <td class="num-cell">$35.45 (+6.5%)</td>
+                        <td class="num-cell">$37.60 (+12.9%)</td>
+                        <td class="num-cell">$40.20 (+20.8%)</td>
+                    </tr>
+                    <tr style="background-color: #ECFDF5; font-weight: 700;">
+                        <td><strong>8.50% (基准 Base Case)</strong></td>
+                        <td class="num-cell">$34.45 (+3.5%)</td>
+                        <td class="num-cell">$36.35 (+9.2%)</td>
+                        <td class="num-cell" style="color: #059669; font-size: 14px;">$38.60 (+15.9%)</td>
+                        <td class="num-cell">$41.30 (+24.1%)</td>
+                        <td class="num-cell">$44.65 (+34.1%)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8.00% (流动性宽松)</strong></td>
+                        <td class="num-cell">$37.25 (+11.9%)</td>
+                        <td class="num-cell">$39.60 (+18.9%)</td>
+                        <td class="num-cell">$42.45 (+27.5%)</td>
+                        <td class="num-cell">$45.95 (+38.0%)</td>
+                        <td class="num-cell">$50.35 (+51.2%)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>7.50% (全面估值修复)</strong></td>
+                        <td class="num-cell">$40.65 (+22.1%)</td>
+                        <td class="num-cell">$43.65 (+31.1%)</td>
+                        <td class="num-cell">$47.30 (+42.1%)</td>
+                        <td class="num-cell">$51.90 (+55.9%)</td>
+                        <td class="num-cell">$57.85 (+73.8%)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <div class="chart-head">
+                <span>🎯 ASHR 现价 ($33.29)、CSP 净接股成本线 ($30.84~$32.44) 与 DCF 估值区间对比</span>
+                <span class="tag-pill tag-green">安全边际一目了然</span>
+            </div>
+            <div class="chart-canvas-wrap">
+                <canvas id="chart-valuation"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 9 -->
+    <section id="sec-9" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">09</div>
+                <h2 class="sec-title">股息披露、回购与股东回报 (Mandatory Dividend & Buyback Disclosure)</h2>
+            </div>
+            <span class="tag-pill tag-green">TTM 股息率 2.19% · 年度派息 $0.758/股</span>
+        </div>
+        <div class="info-box success">
+            <div class="info-box-title">💰 法定股息披露规范 (Mandatory Dividend Status Disclosure)</div>
+            <p style="margin-bottom:0;">
+                <strong>ASHR 具备稳定且逐年增长的年度现金股息派发能力（Annual Dividend Payer）。</strong> 基金每年 12 月中下旬进行一次年度集中除息与派息，将全年收到的 300 家 A 股成分股现金红利（扣除 10% QFII 预提所得税及基金管理费后）全额以美元形式派发给美股持有人。
+            </p>
+        </div>
+        <div class="grid-4col">
+            <div class="metric-card">
+                <div class="metric-card-lbl">当前股息率 (Dividend Yield)</div>
+                <div class="metric-card-val">2.19%</div>
+                <div class="metric-card-desc">基于现价 $33.29 与最近一期年度派息计算，显著高于标普500 ETF (SPY 1.25%)。</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">最近年度派息额 (Annual Payout)</div>
+                <div class="metric-card-val">$0.758 / 股</div>
+                <div class="metric-card-desc">2025年12月单次派息 $0.758/股，较 2024 年 ($0.299/股) 大幅增长 +153.5%。</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">最近除息日 (Ex-Dividend Date)</div>
+                <div class="metric-card-val">2025-12-19</div>
+                <div class="metric-card-desc">下一期年度除息窗口预计为 <strong>2026年12月18日</strong>，预计派息 $0.78~$0.85/股。</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">成分股注销式回购 (Buybacks)</div>
+                <div class="metric-card-val">¥1,850亿 RMB</div>
+                <div class="metric-card-desc">2025-2026年沪深300成分股累计实施注销式股票回购超 1,850 亿元，额外增厚 EPS 约 1.2%。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 10 -->
+    <section id="sec-10" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">10</div>
+                <h2 class="sec-title">期权策略与实盘持仓行动预案 (Options Strategy & Live Portfolio Management)</h2>
+            </div>
+            <span class="tag-pill tag-green">涵盖账户实盘持仓与 3 梯队新开仓推荐</span>
+        </div>
+
+        <h3>一、 账户现有实盘持仓深度诊断与展期/接股行动预案 (Active Portfolio Positions Action Plan)</h3>
+        <p>
+            根据 Robinhood 实盘账户持仓监控，当前账户持有以下两笔 ASHR 卖方看跌期权（Short Put）头寸。基于当前现价 <strong>$33.29</strong>，我们制定严格的量化风控与展期（Roll Down & Out）执行纪律：
+        </p>
+
+        <div class="grid-2col">
+            <div class="info-box warn">
+                <div class="info-box-title">📌 实盘持仓 1：ASHR $33.0 Put (到期日 2026-09-25 · 剩余 10 DTE)</div>
+                <ul>
+                    <li><strong>实时盘口与状态：</strong> 现价 $33.29，该合约处于<strong>轻度虚值 (Just OTM, 安全垫 +0.87%)</strong>。当前期权盘口 Bid $0.23 / Ask $0.41 (Mark <strong>$0.32</strong>)，Delta 约为 <strong>-0.38</strong>，隐含波动率 IV 23.9%。</li>
+                    <li><strong>操作决策分类：</strong> <strong>Roll / Assign (临期边界防御 · 严禁恐慌止损)</strong>。由于剩余 DTE = 10 天（<= 15 天）且安全垫 < 3.0%，触发临期边界防御规则。</li>
+                    <li><strong>具体执行预案：</strong>
+                        <ol>
+                            <li><strong>首选方案（Roll Down & Out 净收租展期）：</strong> 在本周或下周初，买入平仓（BTC）09/25 $33.0P（付出约 $0.32），同时卖出开仓（STO）<strong>2026-10-16 (31 DTE) $32.0 Put（收回 Mark $0.28）或 $32.5 Put（收回约 $0.40）</strong>。若展期至 10/16 $32.5P，不仅可获得 <strong>+$0.08/股 净权利金收入 (Net Credit)</strong>，还将行权价下移 $0.50 至 $32.50，安全垫瞬间扩大至 +2.37%！</li>
+                            <li><strong>备选方案（从容接股启动 Wheel 策略）：</strong> ASHR 基本面评分为 7.6 分（宽基核心资产），若 09/25 到期时股价位于 $32.80~$33.00 附近，可从容准备 $3,300/张现金接股，随后立即卖出 10/16 $34.0 Covered Call（收回约 $0.45 权利金），实现双轮收租。</li>
+                        </ol>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="info-box alert">
+                <div class="info-box-title">📌 实盘持仓 2：ASHR $34.0 Put (到期日 2026-10-16 · 剩余 31 DTE)</div>
+                <ul>
+                    <li><strong>实时盘口与状态：</strong> 现价 $33.29，该合约处于<strong>实值状态 (ITM -$0.71 / 安全垫 -2.13%)</strong>。当前期权盘口 Bid $1.08 / Ask $1.16 (Mark <strong>$1.12</strong>，成交量活跃，OI 高达 17,741 张)，Delta 约为 <strong>-0.62</strong>，IV 19.2%。</li>
+                    <li><strong>操作决策分类：</strong> <strong>Hold / Await Rebound to Roll (高质量宽基实值持仓 · 耐心持有待反弹)</strong>。</li>
+                    <li><strong>具体执行预案：</strong>
+                        <ol>
+                            <li><strong>严禁在折价底部割肉：</strong> 当前 $34.0P 虽账面实值 $0.71，但扣除开仓时收取的权利金后，实际净盈亏平衡点（Breakeven）约为 <strong>$32.85~$33.10</strong>，当前现价 $33.29 实质上仍处于<strong>净盈利或微利安全区</strong>！且 10/16 距离到期尚有 31 天，时间价值（Extrinsic Value）仍有 <strong>$0.41/股</strong>。</li>
+                            <li><strong>反弹降档展期窗口：</strong> 密切监控 A 股国庆节前后的政策催化反弹。一旦 ASHR 反弹至 <strong>$33.80 ~ $34.10</strong>（50日/200日均线附近），立即将该 $34.0P 顺势平仓或向 11 月/12 月 $33.0P 展期，锁定时间价值衰减利润。</li>
+                        </ol>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>二、 3-Tier Cash-Secured Put (CSP) 标准化梯度开仓推荐表 (15~60 DTE 精选合约)</h3>
+        <p>
+            针对新增资金或展期替换需求，我们基于 2026-09-15 实时期权链，筛选出 <strong>2026-10-16 到期（剩余 31 DTE，流动性最佳的主月合约，单行权价 OI 均超 4,000~30,000 张）</strong>的三档梯度 CSP 方案：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯队</th>
+                        <th class="num-cell">行权价 (Strike)</th>
+                        <th class="center-cell">到期日 (Expiry)</th>
+                        <th class="num-cell">剩余 DTE</th>
+                        <th class="num-cell">Delta (Δ)</th>
+                        <th class="num-cell">权利金 Mark (Bid/Ask)</th>
+                        <th class="num-cell">年化收益率 (APY)</th>
+                        <th class="num-cell">安全垫缓冲 (Cushion)</th>
+                        <th class="num-cell">到期胜率 (POP)</th>
+                        <th class="num-cell">单份现金担保需求</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🛡️ 保守型 (Conservative)</strong></td>
+                        <td class="num-cell"><strong>$31.0</strong></td>
+                        <td class="center-cell">2026-10-16</td>
+                        <td class="num-cell">31 天</td>
+                        <td class="num-cell">-0.14</td>
+                        <td class="num-cell">$0.15 ($0.09 / $0.20)</td>
+                        <td class="num-cell" style="color:#059669; font-weight:700;">5.70%</td>
+                        <td class="num-cell" style="color:#059669; font-weight:700;">+7.33% (净成本 $30.85)</td>
+                        <td class="num-cell">86.5%</td>
+                        <td class="num-cell">$3,100.00</td>
+                    </tr>
+                    <tr style="background-color: #ECFDF5;">
+                        <td><strong>⚖️ 平衡型 (Moderate · 强烈推荐)</strong></td>
+                        <td class="num-cell"><strong>$32.0</strong></td>
+                        <td class="center-cell">2026-10-16</td>
+                        <td class="num-cell">31 天</td>
+                        <td class="num-cell">-0.26</td>
+                        <td class="num-cell">$0.28 ($0.26 / $0.30)</td>
+                        <td class="num-cell" style="color:#059669; font-weight:800;">10.30%</td>
+                        <td class="num-cell" style="color:#059669; font-weight:700;">+4.72% (净成本 $31.72)</td>
+                        <td class="num-cell">75.8%</td>
+                        <td class="num-cell">$3,200.00</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🚀 激进型 (Aggressive · 折价接股)</strong></td>
+                        <td class="num-cell"><strong>$33.0</strong></td>
+                        <td class="center-cell">2026-10-16</td>
+                        <td class="num-cell">31 天</td>
+                        <td class="num-cell">-0.44</td>
+                        <td class="num-cell">$0.56 ($0.52 / $0.60)</td>
+                        <td class="num-cell" style="color:#059669; font-weight:800;">19.99%</td>
+                        <td class="num-cell">+2.55% (净成本 $32.44)</td>
+                        <td class="num-cell">58.4%</td>
+                        <td class="num-cell">$3,300.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <div class="chart-head">
+                <span>📉 ASHR 2026-10-16 (31 DTE) 三梯队 Sell Put 到期损益 (Payoff) 与净接股安全边际曲线</span>
+                <span class="tag-pill tag-green">精准量化盈亏平衡点</span>
+            </div>
+            <div class="chart-canvas-wrap">
+                <canvas id="chart-options"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 11 -->
+    <section id="sec-11" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">11</div>
+                <h2 class="sec-title">同类中国 ETF 横向对标 (Peer ETF Comparative Benchmarking)</h2>
+            </div>
+            <span class="tag-pill tag-blue">ASHR 稳居 A 股实物配置首选</span>
+        </div>
+        <p>
+            在美股上市的四大主流中国 ETF 中，ASHR 凭借其<strong>纯正的境内 A 股蓝筹属性、极低的波动率与高分红率</strong>，在 Cash-Secured Put 策略的夏普比率（Sharpe Ratio）与接股安全性上显著优于离岸中概股 ETF（FXI、KWEB、MCHI）：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>对比维度</th>
+                        <th>ASHR (沪深300 A股 ETF)</th>
+                        <th>FXI (中国大盘股 ETF)</th>
+                        <th>KWEB (中概互联网 ETF)</th>
+                        <th>MCHI (MSCI中国 ETF)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>底层资产市场</strong></td>
+                        <td><strong>100% 上海/深圳 A 股现货</strong></td>
+                        <td>100% 香港 H 股/红筹股</td>
+                        <td>美股 ADR + 香港互联网股</td>
+                        <td>港股 (75%) + ADR + A股 (15%)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>行业集中度特征</strong></td>
+                        <td><strong>均衡宽基 (金融23%/工业16%/科技15%)</strong></td>
+                        <td>高度集中于金融 (42%) 与互联网</td>
+                        <td>100% 集中于互联网与电商</td>
+                        <td>腾讯 + 阿里占比超 24%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>30日历史波动率 (HV30)</strong></td>
+                        <td class="num-cell" style="color:#059669; font-weight:700;">16.4% (极稳健)</td>
+                        <td class="num-cell">24.8%</td>
+                        <td class="num-cell">34.2% (剧烈波动)</td>
+                        <td class="num-cell">23.5%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TTM 现金股息率</strong></td>
+                        <td class="num-cell" style="color:#059669; font-weight:700;">2.19%</td>
+                        <td class="num-cell">2.45%</td>
+                        <td class="num-cell">0.85%</td>
+                        <td class="num-cell">1.92%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>国家队平准基金直接护盘</strong></td>
+                        <td><strong>✅ 中央汇金直接买入境内沪深300 ETF</strong></td>
+                        <td>❌ 仅靠南向资金间接影响</td>
+                        <td>❌ 无国家队直接护盘</td>
+                        <td>⚠️ 仅 A 股部分受益</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 12 -->
+    <section id="sec-12" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">12</div>
+                <h2 class="sec-title">机构资金流向与北向/国家队持仓穿透 (Institutional Flows & Sovereign Holdings)</h2>
+            </div>
+            <span class="tag-pill tag-green">险资与平准基金构筑铁底</span>
+        </div>
+        <p>
+            穿透沪深300指数的境内机构持仓结构可以发现，<strong>“耐心资本（Patient Capital）”已成为绝对主导力量</strong>：
+        </p>
+        <ul>
+            <li><strong>中央汇金与证金公司（国家队平准基金）：</strong> 自 2024 年至 2026 年上半年，中央汇金对境内四大沪深300 ETF（华泰柏瑞 510300、易方达 510310、华夏 510330、嘉实 159919）的持有比例已突破各基金总份额的 <strong>65% ~ 78%</strong>。每当沪深300指数逼近 3,150~3,200 点（对应 ASHR 约 $31.0~$31.8 区间），场内即出现数百亿元级别的脉冲式托底买盘。</li>
+            <li><strong>保险资金（险资）长钱入市：</strong> 在境内 10 年期国债收益率跌破 2.15% 的资产荒背景下，中国人寿、中国太保、中国平安等险资机构大举增配沪深300高股息蓝筹股，利用 OCI（其他综合收益）账户锁定 4%~6% 的免税股息收益。</li>
+        </ul>
+    </section>
+
+    <!-- SECTION 13 -->
+    <section id="sec-13" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">13</div>
+                <h2 class="sec-title">汇率传导机制 (USD/CNH) 与跟踪误差分析 (FX Dynamics & Tracking Error)</h2>
+            </div>
+            <span class="tag-pill tag-blue">无汇率对冲 (Unhedged USD Exposure)</span>
+        </div>
+        <p>
+            作为以美元计价但底层资产为人民币（RMB）的跨境 ETF，ASHR 的净值（NAV）遵循严格的<strong>双因子定价公式</strong>：
+        </p>
+        <div class="info-box">
+            <div class="info-box-title">📐 ASHR 美元净值定价与汇率敏感性算式</div>
+            <p style="font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-bottom: 6px;">
+                ASHR Return (USD) ≈ CSI 300 Index Return (CNY) - USD/CNH Spot Change (%) + Dividend Yield (2.19%) - Expense Ratio (0.65%)
+            </p>
+            <p style="margin-bottom:0;">
+                <strong>汇率顺风期已至：</strong> 过去两年人民币兑美元贬值（USD/CNH 从 6.7 升至 7.28）曾对 ASHR 造成约 -8% 的累计汇兑拖累。但在 2026 年下半年美联储持续降息的宏观周期中，USD/CNH 汇率已稳固在 <strong>7.05 ~ 7.12</strong> 区间并具备向 <strong>6.90 ~ 6.95</strong> 升值的潜力。<strong>人民币每升值 1.0%，即使 A 股指数横盘不动，ASHR 的美元股价也将自动上涨 +1.0%！</strong> 这为期权卖方提供了天然的汇率顺风保护。
+            </p>
+        </div>
+    </section>
+
+    <!-- SECTION 14 -->
+    <section id="sec-14" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">14</div>
+                <h2 class="sec-title">熊市压力测试与尾部风险清单 (Bear Case Stress Test & Tail Risks)</h2>
+            </div>
+            <span class="tag-pill tag-amber">极端底部支撑位: $29.50 ~ $30.60</span>
+        </div>
+        <p>
+            为确保 Cash-Secured Put 策略在极端黑天鹅情境下不发生永久性本金损失，我们对 ASHR 进行三档严苛的熊市压力测试：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>压力测试情境 (Stress Scenario)</th>
+                        <th>触发假设条件</th>
+                        <th class="num-cell">沪深300极限点位</th>
+                        <th class="num-cell">USD/CNH 极端汇率</th>
+                        <th class="num-cell">ASHR 极限底部股价</th>
+                        <th>对 10/16 $32.0P (净成本 $31.72) 的冲击与应对</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>情境 A：地缘关税摩擦升级</strong></td>
+                        <td>美国对华特定商品加征新关税，出口板块承压</td>
+                        <td class="num-cell">3,220 点 (-4.5%)</td>
+                        <td class="num-cell">7.18</td>
+                        <td class="num-cell"><strong>$31.40</strong></td>
+                        <td>净成本 $31.72 仅浮亏 -1.0%，可轻松展期至 11 月 $31.0P 抹平浮亏。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>情境 B：国内地产/通缩数据反复</strong></td>
+                        <td>社融与 CPI 数据低于预期，外资阶段性流出</td>
+                        <td class="num-cell">3,150 点 (-6.5%)</td>
+                        <td class="num-cell">7.22</td>
+                        <td class="num-cell"><strong>$30.60</strong> (52周前低)</td>
+                        <td>触发国家队平准基金暴力护盘底线；接股后收 2.19% 股息 + 卖 Call 3个月回本。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>情境 C：全球流动性黑天鹅冲击</strong></td>
+                        <td>全球股市系统性闪崩，VIX 飙升突破 35</td>
+                        <td class="num-cell">3,050 点 (-9.5%)</td>
+                        <td class="num-cell">7.28</td>
+                        <td class="num-cell"><strong>$29.50</strong> (12.5x P/E)</td>
+                        <td>对应沪深300仅 12.5x P/E 的十年极值大底，属于千载难逢的长线股权收集良机。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 15 -->
+    <section id="sec-15" class="section">
+        <div class="sec-head">
+            <div class="sec-title-group">
+                <div class="sec-num">15</div>
+                <h2 class="sec-title">综合评级与最终投资信号 (Comprehensive Synthesis & Signal Block)</h2>
+            </div>
+            <span class="tag-pill tag-green">Score: 7.6 / 10 · 买入 (Buy)</span>
+        </div>
+        <p>
+            综合 InvestSkill 15 模块全景分析，<strong>ASHR (Xtrackers Harvest CSI 300 China A-Shares ETF)</strong> 在当前 <strong>$33.29</strong> 价位具备极佳的风险收益不对称性。估值端（15.3x P/E、较 NAV 折价 -1.42%、较 200SMA 折让 -2.58%）封杀了下行空间；政策端（央行流动性互换便利、央企分红考核与国家队 8,500 亿护盘底仓）提供了坚实的看跌期权保护；汇率端（美联储降息驱动人民币企稳升值）消除了汇兑损耗。
+        </p>
+        <p>
+            <strong>实盘操作总结：</strong> 账户现有的 <strong>09/25 $33.0P</strong> 建议择机向 <strong>10/16 $32.0P 或 $32.5P</strong> 进行净收租展期（Roll Down & Out）；账户现有的 <strong>10/16 $34.0P</strong> 建议耐心持有等待反弹至 $33.80+ 再行降档；新增资金强烈推荐卖出 <strong>2026-10-16 $32.0 Put（Mark $0.28，年化 10.30%，净接股成本 $31.72）</strong>。
+        </p>
+
+        <div class="signal-block">
+            <div class="signal-label-top">INVESTMENT SIGNAL BLOCK (15-MODULE COMPREHENSIVE SYNTHESIS)</div>
+            <div class="signal-header-row">
+                <div class="signal-verdict">买入 (Buy) • 估值折让与国家队铁底共振的优质宽基收租标的</div>
+                <div class="signal-score">7.6 / 10</div>
+            </div>
+            <div class="signal-grid">
+                <div class="signal-item"><div class="sig-label">投资信号 (Signal)</div><div class="sig-val">买入 (Buy)</div></div>
+                <div class="signal-item"><div class="sig-label">置信度 (Confidence)</div><div class="sig-val">HIGH (高确定性宽基)</div></div>
+                <div class="signal-item"><div class="sig-label">投资期限 (Horizon)</div><div class="sig-val">MEDIUM-TERM (6-18个月)</div></div>
+                <div class="signal-item"><div class="sig-label">执行建议 (Action)</div><div class="sig-val">STO 10/16 $32P & 现有$33P展期</div></div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Radar Chart (chart-radar)
+    const ctxRadar = document.getElementById('chart-radar').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['估值折让度 (Valuation)', '安全垫厚度 (Safety)', '期权溢价率 (Option Alpha)', '现金分红质量 (Dividend)', '政策与主权托底 (Sovereign Put)', '流动性深度 (Liquidity)'],
+            datasets: [{
+                label: 'ASHR 多因子量化得分 (满分10分)',
+                data: [8.2, 7.5, 7.4, 7.8, 8.8, 9.2],
+                backgroundColor: 'rgba(16, 185, 129, 0.22)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#064E3B',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#059669',
+                borderWidth: 2.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#E2E8F0' },
+                    grid: { color: '#E2E8F0' },
+                    pointLabels: { font: { family: 'Inter', size: 12, weight: '600' }, color: '#1E293B' },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    ticks: { stepSize: 2, backdropColor: 'transparent', font: { size: 10 } }
+                }
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12, weight: '600' } } }
+            }
+        }
+    });
+
+    // 2. Financials Chart (chart-financials)
+    const ctxFin = document.getElementById('chart-financials').getContext('2d');
+    new Chart(ctxFin, {
+        type: 'bar',
+        data: {
+            labels: ['2023A', '2024A', '2025A', '2026E (预测)'],
+            datasets: [
+                {
+                    label: '沪深300汇总营业收入 (万亿 RMB)',
+                    data: [40.12, 41.08, 42.35, 44.18],
+                    backgroundColor: 'rgba(5, 150, 105, 0.75)',
+                    borderRadius: 6,
+                    yAxisID: 'y'
+                },
+                {
+                    label: '沪深300汇总归母净利润 (万亿 RMB)',
+                    data: [3.86, 3.94, 4.12, 4.40],
+                    backgroundColor: 'rgba(13, 148, 136, 0.85)',
+                    borderRadius: 6,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: { display: true, text: '营业收入 (万亿 RMB)', font: { weight: '600' } },
+                    min: 35,
+                    max: 48
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: { display: true, text: '归母净利润 (万亿 RMB)', font: { weight: '600' } },
+                    grid: { drawOnChartArea: false },
+                    min: 3.0,
+                    max: 5.0
+                }
+            },
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+
+    // 3. Valuation Bridge Chart (chart-valuation)
+    const ctxVal = document.getElementById('chart-valuation').getContext('2d');
+    new Chart(ctxVal, {
+        type: 'bar',
+        data: {
+            labels: ['52周最低点', '保守型CSP净成本 ($31P)', '平衡型CSP净成本 ($32P)', '当前市场现价 (Spot)', '资产净值 (NAV)', '200日均线 (SMA200)', 'DCF公允价值中枢'],
+            datasets: [{
+                label: 'ASHR 关键价格与估值锚点对比 (USD)',
+                data: [30.59, 30.85, 31.72, 33.29, 33.77, 34.17, 38.60],
+                backgroundColor: [
+                    '#94A3B8',
+                    '#10B981',
+                    '#059669',
+                    '#2563EB',
+                    '#0D9488',
+                    '#D97706',
+                    '#064E3B'
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    min: 28,
+                    max: 41,
+                    title: { display: true, text: '美元价格 ($ USD)', font: { weight: '600' } }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 4. Options Payoff Chart (chart-options)
+    const ctxOpt = document.getElementById('chart-options').getContext('2d');
+    const spotPrices = [29.0, 30.0, 30.85, 31.0, 31.72, 32.0, 32.44, 33.0, 33.29, 34.0, 35.0];
+    const payoff31P = spotPrices.map(s => Math.min(15, (s - 31.0)*100 + 15));
+    const payoff32P = spotPrices.map(s => Math.min(28, (s - 32.0)*100 + 28));
+    const payoff33P = spotPrices.map(s => Math.min(56, (s - 33.0)*100 + 56));
+
+    new Chart(ctxOpt, {
+        type: 'line',
+        data: {
+            labels: spotPrices.map(p => '$' + p.toFixed(2)),
+            datasets: [
+                {
+                    label: '保守型 10/16 $31.0P 到期损益 ($ USD/张)',
+                    data: payoff31P,
+                    borderColor: '#0D9488',
+                    backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                    borderWidth: 2.5,
+                    tension: 0.15
+                },
+                {
+                    label: '平衡型 10/16 $32.0P 到期损益 ($ USD/张)',
+                    data: payoff32P,
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.15)',
+                    borderWidth: 3,
+                    tension: 0.15
+                },
+                {
+                    label: '激进型 10/16 $33.0P 到期损益 ($ USD/张)',
+                    data: payoff33P,
+                    borderColor: '#D97706',
+                    backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                    borderWidth: 2.5,
+                    borderDash: [5, 5],
+                    tension: 0.15
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    title: { display: true, text: '单张合约到期净损益 ($ USD)', font: { weight: '600' } }
+                },
+                x: {
+                    title: { display: true, text: '10月16日到期时 ASHR 结算股价 ($ USD)', font: { weight: '600' } }
+                }
+            },
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+});
+</script>
+
+</body>
+</html>

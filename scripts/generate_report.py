@@ -2802,12 +2802,21 @@ def main():
         open_p = pos['open_price']
         curr_p = pos['current_price']
         qty = pos['quantity']
+        pos_type = str(pos.get('type', 'put')).lower()
+        is_call = (pos_type == 'call')
+        is_covered_call = is_call and (ticker in equity_info_map and equity_info_map[ticker].get('quantity', 0) >= 100.0 * qty)
+        avg_buy_price = equity_info_map.get(ticker, {}).get('average_buy_price', strike)
         
         mdata = ticker_market_data.get(ticker, {})
         curr_stock_price = mdata.get('current_price', strike)
         tinfo = ticker_info_map.get(ticker, {})
         
-        safety_cushion = (curr_stock_price - strike) / curr_stock_price * 100.0 if curr_stock_price > 0 else 0.0
+        if is_call:
+            # For Call, cushion is the percentage the stock price can rise before reaching strike (OTM space)
+            safety_cushion = (strike - curr_stock_price) / curr_stock_price * 100.0 if curr_stock_price > 0 else 0.0
+        else:
+            # For Put, cushion is the percentage the stock price can fall before reaching strike
+            safety_cushion = (curr_stock_price - strike) / curr_stock_price * 100.0 if curr_stock_price > 0 else 0.0
         
         pnl = (open_p - curr_p) * 100.0 * qty
         pnl_pct = (open_p - curr_p) / open_p * 100.0 if open_p > 0 else 0.0
@@ -2816,8 +2825,16 @@ def main():
         remaining_yield = (curr_p / strike) * (365.0 / dte) * 100.0 if dte > 0 else 0.0
         
         # Net assignment basis and valuation
-        net_basis = strike - open_p
-        discount_to_curr = (net_basis - curr_stock_price) / curr_stock_price * 100.0 if curr_stock_price > 0 else 0.0
+        if is_covered_call:
+            net_basis = avg_buy_price - open_p
+            cap_gain = strike - avg_buy_price
+            max_profit_dollar = (cap_gain + open_p) * 100.0 * qty
+            max_return_pct = ((cap_gain + open_p) / avg_buy_price * 100.0) if avg_buy_price > 0 else 0.0
+            max_apy = max_return_pct * (365.0 / dte) if dte > 0 else 0.0
+            discount_to_curr = (curr_stock_price - net_basis) / curr_stock_price * 100.0 if curr_stock_price > 0 else 0.0
+        else:
+            net_basis = strike - open_p
+            discount_to_curr = (net_basis - curr_stock_price) / curr_stock_price * 100.0 if curr_stock_price > 0 else 0.0
         forward_pe = tinfo.get('forward_pe', 0.0)
         strike_pe = forward_pe * (net_basis / curr_stock_price) if (forward_pe and curr_stock_price > 0) else 0.0
         pe_tag = f"Forward P/E {strike_pe:.1f}x" if strike_pe > 0 else ""
@@ -2826,7 +2843,13 @@ def main():
         clean_t = ticker.upper().strip()
         rep_info = investskill_reports.get(clean_t) or investskill_reports.get(clean_t.replace('.', '-')) or investskill_reports.get(clean_t.replace('-', '.'))
         
-        if is_etf_symbol(ticker) or ticker in ['ASHR', 'IBIT', 'SPYM', 'QQQM', 'IWM', 'VTV', 'TLT', 'XLV', 'XLP', 'XLE']:
+        if is_covered_call:
+            assignment_safe = True
+            badge_text = f"🟢 备兑稳赚 (成本 ${avg_buy_price:.2f})"
+            tradeoff_status = "【备兑持股收租·胜率极高】"
+            tradeoff_color = "#34d399"
+            tradeoff_desc = f"正股持仓 100 股，买入成本 ${avg_buy_price:.2f}。已收权利金 ${open_p:.2f}，净持股成本摊薄至 ${net_basis:.2f}。若到期被指派将以 ${strike:.2f} 卖出，锁定总收益 ${max_profit_dollar:.2f} (年化 {max_apy:.1f}%)；若未被指派则坐享全部权利金。"
+        elif is_etf_symbol(ticker) or ticker in ['ASHR', 'IBIT', 'SPYM', 'QQQM', 'IWM', 'VTV', 'TLT', 'XLV', 'XLP', 'XLE']:
             assignment_safe = True
             badge_text = "🟢 宽基ETF·安心接股"
             tradeoff_status = "【可安心接股·绝不割肉】"
@@ -2863,7 +2886,10 @@ def main():
 
         is_knife = mdata.get('is_falling_knife', False)
         is_fcf_neg = mdata.get('is_fcf_negative', False)
-        is_deep_itm = (safety_cushion < -5.0) or (delta < -0.60)
+        if is_call:
+            is_deep_itm = (safety_cushion < -5.0) or (delta > 0.60)
+        else:
+            is_deep_itm = (safety_cushion < -5.0) or (delta < -0.60)
         curr_hv = mdata.get('current_hv_30', 30.0)
         
         # Dynamic volatility tiering (linked to HV30): match closing and greedy hold APY thresholds
@@ -2899,97 +2925,136 @@ def main():
 
         # Institutional Roll Suitability Evaluation for every active position
         roll_res = {}
-        if remaining_yield < min_inefficient_yield or pnl_pct >= 80.0:
-            roll_badge = "<span style='display:inline-block; margin-top:3px; background: rgba(96, 165, 250, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px;'>💰 止盈平仓更优 (无须展期)</span>"
-            roll_tip = "当前浮盈丰厚或剩余年化收益过低，继续占用保证金资金效率差，建议挂单买入平仓 (BTC) 释放资金换仓，无需展期锁死资金。"
-        elif dte_earnings is not None and 0 <= dte_earnings <= 7 and dte >= dte_earnings:
-            ed_label = earnings_date_str if earnings_date_str else f"距今 {dte_earnings}D"
-            roll_badge = f"<span style='display:inline-block; margin-top:3px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 600;'>🚫 禁展期 · 财报在即 ({ed_label})</span>"
-            roll_tip = f"标的将于 <b>{ed_label}</b> 发布财报。当前近月合约正处事件波动率溢价极值，现在买回展期属于严重'买高卖低'。建议坚守现有仓位，坐享财报后 IV Crush 塌缩红利！"
-        elif dte <= 21 or safety_cushion < 5.0 or is_deep_itm:
-            roll_res = calculate_roll_candidate(ticker, strike, curr_p, dte, dte_earnings=dte_earnings, earnings_date_str=earnings_date_str)
-            roll_badge = roll_res.get("badge_html", "")
-            roll_tip = roll_res.get("summary_html", "")
-        else:
-            roll_badge = "<span style='display:inline-block; margin-top:3px; background: rgba(52, 211, 153, 0.1); color: #4ade80; border: 1px solid rgba(52, 211, 153, 0.25); font-size: 10px; padding: 1px 5px; border-radius: 3px;'>🛡️ 正常收租 (Theta 甜区·无需展期)</span>"
-            roll_tip = "安全垫充足且处于 DTE 黄金衰减期，正享加速 Theta 收租，无需提前展期锁死资金。"
-
-        # 1. Inefficient yield BTC / Absolute profit take
-        if remaining_yield < min_inefficient_yield or pnl_pct >= 80.0:
-            decision = "止盈平仓 (BTC)"
-            decision_class = "highlight-blue"
-            decision_cell = f"<strong style='color: #60a5fa;'>止盈平仓 (BTC)</strong><br><span style='font-size: 10.5px; color: #a1a1aa;'>资金低效/止盈兑现</span><br>{roll_badge}"
-            reason_str = "浮盈达 80% 以上" if pnl_pct >= 80.0 else f"剩余年化已跌破{vol_tier_label}底线 ({remaining_yield:.1f}% < {min_inefficient_yield:.1f}%)"
-            action_plan_recs.append(
-                f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 💰【资金低效·止盈平仓】</strong>：当前{reason_str}（浮盈 <strong class='highlight-green'>{pnl_pct:+.1f}%</strong>，[{vol_tier_label}]），继续占用保证金的报酬率极低。建议挂单买入平仓 (BTC) 以释放资金换仓。建议限价：<strong>${curr_p:.2f}</strong>。<br><span style='color: #38bdf8; font-size: 11.5px;'>👉 <strong>展期研判</strong>：{roll_tip}</span></li>"
-            )
-        # 2. Greedy hold
-        elif pnl_pct >= 50.0 and remaining_yield >= greedy_hold_yield and safety_cushion >= 6.0:
-            decision = "贪婪持有 (Hold)"
-            decision_class = "highlight-green"
-            decision_cell = f"<strong style='color: #34d399;'>贪婪持有 (Hold)</strong><br><span style='font-size: 10.5px; color: #34d399; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
-            action_plan_recs.append(
-                f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🚀【高息尾部·贪婪持有】</strong>：浮盈达 <strong class='highlight-green'>{pnl_pct:+.1f}%</strong>，剩余年化回报率仍高达 <strong class='highlight-green'>{remaining_yield:.1f}%</strong>（超过该档门槛 {greedy_hold_yield:.1f}%，[{vol_tier_label}]）且安全垫深达 <strong>{safety_cushion:+.1f}%</strong>。系统判定为高息尾部收租特例，强烈建议继续持有吃满时间红利！<br><span style='color: #a1a1aa; font-size: 11.5px;'>💡 接股裁决：<strong style='color: {tradeoff_color};'>{tradeoff_status}</strong> {tradeoff_desc}</span><br><span style='color: #38bdf8; font-size: 11.5px;'>👉 <strong>展期研判</strong>：{roll_tip}</span></li>"
-            )
-        # 3. Dynamic take profit BTC
-        elif pnl_pct >= 50.0 and (remaining_yield < greedy_hold_yield or safety_cushion < 6.0) and not is_deep_itm:
-            decision = "动态止盈 (BTC)"
-            decision_class = "highlight-blue"
-            decision_cell = f"<strong style='color: #60a5fa;'>动态止盈 (BTC)</strong><br><span style='font-size: 10.5px; color: #a1a1aa;'>尾部报酬率偏低</span><br>{roll_badge}"
-            action_plan_recs.append(
-                f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 💰【动态止盈平仓】</strong>：当前浮盈达 <strong class='highlight-green'>{pnl_pct:+.1f}%</strong>，但剩余年化回报率（{remaining_yield:.1f}%）已低于风险补偿门槛（{greedy_hold_yield:.1f}%）。建议挂单买入平仓 (BTC) 锁定利润，建议平仓限价：<strong>${curr_p:.2f}</strong>。<br><span style='color: #38bdf8; font-size: 11.5px;'>👉 <strong>展期研判</strong>：{roll_tip}</span></li>"
-            )
-        # 4. Critical roll or assignment (DTE <= 15 and safety_cushion < 3.0%)
-        elif dte <= 15 and safety_cushion < 3.0:
-            if assignment_safe:
-                decision = "择机展期或接股"
-                decision_class = "highlight-orange"
-                decision_cell = f"<strong style='color: #fbbf24;'>择机展期或接股</strong><br><span style='font-size: 10.5px; color: #34d399; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
+        if is_call:
+            # Covered Call Decision & Roll Engine
+            if pnl_pct >= 80.0 or curr_p <= 0.15:
+                decision = "止盈平仓 (BTC 锁利)"
+                decision_class = "highlight-blue"
+                roll_badge = "<span style='display:inline-block; margin-top:3px; background: rgba(96, 165, 250, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px;'>💰 权利金榨干·止盈平仓</span>"
+                decision_cell = f"<strong style='color: #60a5fa;'>止盈平仓 (BTC 锁利)</strong><br><span style='font-size: 10.5px; color: #a1a1aa;'>时间价值榨干</span><br>{roll_badge}"
                 action_plan_recs.append(
-                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🔄【临界到期·从容展期或接股】</strong>：距离到期仅剩 {dte} 天，现价距行权价仅剩 <strong class='highlight-red'>{safety_cushion:+.1f}%</strong> 安全垫。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}<br><span style='color: #38bdf8; font-size: 12px;'>👉 <strong>展期指引</strong>：{roll_tip}。<strong>标的基本面扎实，坚决无需市价割肉平仓！</strong></span></li>"
+                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Call 💰【Covered Call 止盈平仓】</strong>：当前期权浮盈达 <strong class='highlight-green'>{pnl_pct:+.1f}%</strong>（现值仅 ${curr_p:.2f}），时间价值几乎已榨干。建议挂单买入平仓 (BTC) 解除正股锁定，并择机移至下月重新卖出高行权价 CC 循环收租！</li>"
                 )
-            else:
-                decision = "割肉平仓 (BTC 避险)"
-                decision_class = "highlight-red"
-                decision_cell = f"<strong style='color: #ef4444;'>割肉平仓 (BTC 避险)</strong><br><span style='font-size: 10.5px; color: #ef4444; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
-                action_plan_recs.append(
-                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🚨【基本面破灭·割肉平仓避险】</strong>：距离到期仅剩 {dte} 天，安全垫已破防 ({safety_cushion:+.1f}%)。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}<br><span style='color: #ef4444; font-size: 12px;'>👉 <strong>操作指引</strong>：相比于接股承担持续阴跌损失，当前买入平仓 (BTC) 割肉止损是更优的风控方案！</span></li>"
-                )
-        # 5. Deep ITM management
-        elif is_deep_itm and dte > 15:
-            if assignment_safe:
-                decision = "准备现金接股 (备战CC)"
+            elif curr_stock_price > strike: # ITM Call
+                if strike >= avg_buy_price:
+                    decision = "从容止盈指派 (Called Away)"
+                    decision_class = "highlight-green"
+                    roll_badge = "<span style='display:inline-block; margin-top:3px; background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 600;'>🎉 完美指派止盈</span>"
+                    decision_cell = f"<strong style='color: #34d399;'>从容止盈指派 (Called Away)</strong><br><span style='font-size: 10.5px; color: #34d399; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
+                    action_plan_recs.append(
+                        f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Call 🎉【突破行权价·从容止盈指派】</strong>：标的现价 (${curr_stock_price:.2f}) 已涨破行权价 ${strike:.2f}。若到期被指派行权，将以 ${strike:.2f} 卖出正股，锁定正股资本利得 (+${cap_gain:.2f}) 及全部权利金 (+${open_p:.2f})，总净利润 <strong class='highlight-green'>+${max_profit_dollar:.2f}</strong>（年化 <strong class='highlight-green'>{max_apy:.1f}%</strong>）！车轮策略完美收官。若看好后市，亦可在到期前向上向后展期 (Roll Up & Out) 保留正股。</li>"
+                    )
+                else:
+                    decision = "向上展期防亏 (Roll Up & Out)"
+                    decision_class = "highlight-orange"
+                    roll_badge = "<span style='display:inline-block; margin-top:3px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px;'>⚠️ 建议展期·避免亏损卖股</span>"
+                    decision_cell = f"<strong style='color: #fbbf24;'>向上展期防亏 (Roll Up & Out)</strong><br><span style='font-size: 10.5px; color: #ef4444; font-weight: 600;'>行权价低于成本</span><br>{roll_badge}"
+                    action_plan_recs.append(
+                        f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Call ⚠️【突破行权价·建议展期】</strong>：行权价 ${strike:.2f} 低于持股成本 ${avg_buy_price:.2f}。建议在临近到期前向上向后展期 (Roll Up & Out)，避免被动折价卖出正股锁定亏损。</li>"
+                    )
+            else: # OTM Call Standard Hold
+                decision = "继续持有 (Hold 收租)"
                 decision_class = "highlight-green"
-                decision_cell = f"<strong style='color: #34d399;'>准备现金接股 (备战CC)</strong><br><span style='font-size: 10.5px; color: #34d399; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
+                roll_badge = "<span style='display:inline-block; margin-top:3px; background: rgba(52, 211, 153, 0.1); color: #4ade80; border: 1px solid rgba(52, 211, 153, 0.25); font-size: 10px; padding: 1px 5px; border-radius: 3px;'>🛡️ 虚值收租 (Theta 黄金期)</span>"
+                decision_cell = f"<strong style='color: #34d399;'>继续持有 (Hold 收租)</strong><br><span style='font-size: 10.5px; color: #34d399; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
                 action_plan_recs.append(
-                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🛡️【深实值·安心备战现金接股与CC】</strong>：标的现价暂低于行权价 <strong class='highlight-red'>{abs(safety_cushion):.1f}%</strong> (Delta {delta:.2f})，距离到期仍有 {dte} 天。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}<br><span style='color: #38bdf8; font-size: 12px;'>👉 <strong>展期研判</strong>：{roll_tip}</span><br><span style='color: #34d399; font-size: 12px;'>👉 <strong>操作指引</strong>：标的估值具备强大支撑，低位接股完全契合长线底仓理念。建议提前核查账户可用现金以备行权，或等待股价技术反弹契机向下/向后展期增厚权利金。无需恐慌割肉！</span></li>"
+                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Call 🛡️【Covered Call·稳健收租】</strong>：当前处于虚值状态（距行权价安全空间 <strong class='highlight-green'>+{safety_cushion:.1f}%</strong>），正享加速 Theta 时间价值衰减。持股成本 ${avg_buy_price:.2f}，行权价高于成本 ${cap_gain:+.2f}。建议保持耐心继续持有吃满时间红利，无需提前平仓或展期！</li>"
                 )
-            else:
-                decision = "割肉平仓 (BTC 避险)"
-                decision_class = "highlight-red"
-                decision_cell = f"<strong style='color: #ef4444;'>割肉平仓 (BTC 避险)</strong><br><span style='font-size: 10.5px; color: #ef4444; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
-                action_plan_recs.append(
-                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🚨【深实值且基本面崩坏·建议平仓止损】</strong>：标的现价低于行权价 {abs(safety_cushion):.1f}%。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}<br><span style='color: #ef4444; font-size: 12px;'>👉 <strong>操作指引</strong>：建议寻找盘中反弹反抽机会挂单买入平仓 (BTC) 止损，避免被迫接手基本面恶化资产！</span></li>"
-                )
-        # 6. Standard hold
         else:
-            decision = "继续持有 (Hold)"
-            decision_class = "highlight-green"
-            decision_cell = f"<strong style='color: #34d399;'>继续持有 (Hold)</strong><br><span style='font-size: 10.5px; color: #34d399; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
-            # Surface in action plan if there is a special roll event (e.g. earnings blocker, roll candidate, or warning) or drop
-            if (roll_res and roll_res.get("status") in ["ROLL_RECOMMENDED", "EARNINGS_BLOCKER", "DEBIT_VETO"]) or is_knife or is_fcf_neg or dte <= 20:
-                special_tag = "【财报在即·坚守收租】" if roll_res.get("status") == "EARNINGS_BLOCKER" else ("【适宜展期·备选指引】" if roll_res.get("status") == "ROLL_RECOMMENDED" else "【标准持有·健康收租】")
+            # Existing Put Decision Logic
+            if remaining_yield < min_inefficient_yield or pnl_pct >= 80.0:
+                roll_badge = "<span style='display:inline-block; margin-top:3px; background: rgba(96, 165, 250, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px;'>💰 止盈平仓更优 (无须展期)</span>"
+                roll_tip = "当前浮盈丰厚或剩余年化收益过低，继续占用保证金资金效率差，建议挂单买入平仓 (BTC) 释放资金换仓，无需展期锁死资金。"
+            elif dte_earnings is not None and 0 <= dte_earnings <= 7 and dte >= dte_earnings:
+                ed_label = earnings_date_str if earnings_date_str else f"距今 {dte_earnings}D"
+                roll_badge = f"<span style='display:inline-block; margin-top:3px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 600;'>🚫 禁展期 · 财报在即 ({ed_label})</span>"
+                roll_tip = f"标的将于 <b>{ed_label}</b> 发布财报。当前近月合约正处事件波动率溢价极值，现在买回展期属于严重'买高卖低'。建议坚守现有仓位，坐享财报后 IV Crush 塌缩红利！"
+            elif dte <= 21 or safety_cushion < 5.0 or is_deep_itm:
+                roll_res = calculate_roll_candidate(ticker, strike, curr_p, dte, dte_earnings=dte_earnings, earnings_date_str=earnings_date_str)
+                roll_badge = roll_res.get("badge_html", "")
+                roll_tip = roll_res.get("summary_html", "")
+            else:
+                roll_badge = "<span style='display:inline-block; margin-top:3px; background: rgba(52, 211, 153, 0.1); color: #4ade80; border: 1px solid rgba(52, 211, 153, 0.25); font-size: 10px; padding: 1px 5px; border-radius: 3px;'>🛡️ 正常收租 (Theta 甜区·无需展期)</span>"
+                roll_tip = "安全垫充足且处于 DTE 黄金衰减期，正享加速 Theta 收租，无需提前展期锁死资金。"
+
+            # 1. Inefficient yield BTC / Absolute profit take
+            if remaining_yield < min_inefficient_yield or pnl_pct >= 80.0:
+                decision = "止盈平仓 (BTC)"
+                decision_class = "highlight-blue"
+                decision_cell = f"<strong style='color: #60a5fa;'>止盈平仓 (BTC)</strong><br><span style='font-size: 10.5px; color: #a1a1aa;'>资金低效/止盈兑现</span><br>{roll_badge}"
+                reason_str = "浮盈达 80% 以上" if pnl_pct >= 80.0 else f"剩余年化已跌破{vol_tier_label}底线 ({remaining_yield:.1f}% < {min_inefficient_yield:.1f}%)"
                 action_plan_recs.append(
-                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🛡️{special_tag}</strong>：当前安全垫为 <strong class='highlight-green'>{safety_cushion:+.1f}%</strong>，距离到期剩余 {dte} 天。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}<br><span style='color: #38bdf8; font-size: 12px;'>👉 <strong>展期研判</strong>：{roll_tip}</span></li>"
+                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 💰【资金低效·止盈平仓】</strong>：当前{reason_str}（浮盈 <strong class='highlight-green'>{pnl_pct:+.1f}%</strong>，[{vol_tier_label}]），继续占用保证金的报酬率极低。建议挂单买入平仓 (BTC) 以释放资金换仓。建议限价：<strong>${curr_p:.2f}</strong>。<br><span style='color: #38bdf8; font-size: 11.5px;'>👉 <strong>展期研判</strong>：{roll_tip}</span></li>"
                 )
+            # 2. Greedy hold
+            elif pnl_pct >= 50.0 and remaining_yield >= greedy_hold_yield and safety_cushion >= 6.0:
+                decision = "贪婪持有 (Hold)"
+                decision_class = "highlight-green"
+                decision_cell = f"<strong style='color: #34d399;'>贪婪持有 (Hold)</strong><br><span style='font-size: 10.5px; color: #34d399; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
+                action_plan_recs.append(
+                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🚀【高息尾部·贪婪持有】</strong>：浮盈达 <strong class='highlight-green'>{pnl_pct:+.1f}%</strong>，剩余年化回报率仍高达 <strong class='highlight-green'>{remaining_yield:.1f}%</strong>（超过该档门槛 {greedy_hold_yield:.1f}%，[{vol_tier_label}]）且安全垫深达 <strong>{safety_cushion:+.1f}%</strong>。系统判定为高息尾部收租特例，强烈建议继续持有吃满时间红利！<br><span style='color: #a1a1aa; font-size: 11.5px;'>💡 接股裁决：<strong style='color: {tradeoff_color};'>{tradeoff_status}</strong> {tradeoff_desc}</span><br><span style='color: #38bdf8; font-size: 11.5px;'>👉 <strong>展期研判</strong>：{roll_tip}</span></li>"
+                )
+            # 3. Dynamic take profit BTC
+            elif pnl_pct >= 50.0 and (remaining_yield < greedy_hold_yield or safety_cushion < 6.0) and not is_deep_itm:
+                decision = "动态止盈 (BTC)"
+                decision_class = "highlight-blue"
+                decision_cell = f"<strong style='color: #60a5fa;'>动态止盈 (BTC)</strong><br><span style='font-size: 10.5px; color: #a1a1aa;'>尾部报酬率偏低</span><br>{roll_badge}"
+                action_plan_recs.append(
+                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 💰【动态止盈平仓】</strong>：当前浮盈达 <strong class='highlight-green'>{pnl_pct:+.1f}%</strong>，但剩余年化回报率（{remaining_yield:.1f}%）已低于风险补偿门槛（{greedy_hold_yield:.1f}%）。建议挂单买入平仓 (BTC) 锁定利润，建议平仓限价：<strong>${curr_p:.2f}</strong>。<br><span style='color: #38bdf8; font-size: 11.5px;'>👉 <strong>展期研判</strong>：{roll_tip}</span></li>"
+                )
+            # 4. Critical roll or assignment (DTE <= 15 and safety_cushion < 3.0%)
+            elif dte <= 15 and safety_cushion < 3.0:
+                if assignment_safe:
+                    decision = "择机展期或接股"
+                    decision_class = "highlight-orange"
+                    decision_cell = f"<strong style='color: #fbbf24;'>择机展期或接股</strong><br><span style='font-size: 10.5px; color: #34d399; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
+                    action_plan_recs.append(
+                        f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🔄【临界到期·从容展期或接股】</strong>：距离到期仅剩 {dte} 天，现价距行权价仅剩 <strong class='highlight-red'>{safety_cushion:+.1f}%</strong> 安全垫。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}<br><span style='color: #38bdf8; font-size: 12px;'>👉 <strong>展期指引</strong>：{roll_tip}。<strong>标的基本面扎实，坚决无需市价割肉平仓！</strong></span></li>"
+                    )
+                else:
+                    decision = "割肉平仓 (BTC 避险)"
+                    decision_class = "highlight-red"
+                    decision_cell = f"<strong style='color: #ef4444;'>割肉平仓 (BTC 避险)</strong><br><span style='font-size: 10.5px; color: #ef4444; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
+                    action_plan_recs.append(
+                        f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🚨【基本面破灭·割肉平仓避险】</strong>：距离到期仅剩 {dte} 天，安全垫已破防 ({safety_cushion:+.1f}%)。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}<br><span style='color: #ef4444; font-size: 12px;'>👉 <strong>操作指引</strong>：相比于接股承担持续阴跌损失，当前买入平仓 (BTC) 割肉止损是更优的风控方案！</span></li>"
+                    )
+            # 5. Deep ITM management
+            elif is_deep_itm and dte > 15:
+                if assignment_safe:
+                    decision = "准备现金接股 (备战CC)"
+                    decision_class = "highlight-green"
+                    decision_cell = f"<strong style='color: #34d399;'>准备现金接股 (备战CC)</strong><br><span style='font-size: 10.5px; color: #34d399; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
+                    action_plan_recs.append(
+                        f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🛡️【深实值·安心备战现金接股与CC】</strong>：标的现价暂低于行权价 <strong class='highlight-red'>{abs(safety_cushion):.1f}%</strong> (Delta {delta:.2f})，距离到期仍有 {dte} 天。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}<br><span style='color: #38bdf8; font-size: 12px;'>👉 <strong>展期研判</strong>：{roll_tip}</span><br><span style='color: #34d399; font-size: 12px;'>👉 <strong>操作指引</strong>：标的估值具备强大支撑，低位接股完全契合长线底仓理念。建议提前核查账户可用现金以备行权，或等待股价技术反弹契机向下/向后展期增厚权利金。无需恐慌割肉！</span></li>"
+                    )
+                else:
+                    decision = "割肉平仓 (BTC 避险)"
+                    decision_class = "highlight-red"
+                    decision_cell = f"<strong style='color: #ef4444;'>割肉平仓 (BTC 避险)</strong><br><span style='font-size: 10.5px; color: #ef4444; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
+                    action_plan_recs.append(
+                        f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🚨【深实值且基本面崩坏·建议平仓止损】</strong>：标的现价低于行权价 {abs(safety_cushion):.1f}%。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}<br><span style='color: #ef4444; font-size: 12px;'>👉 <strong>操作指引</strong>：建议寻找盘中反弹反抽机会挂单买入平仓 (BTC) 止损，避免被迫接手基本面恶化资产！</span></li>"
+                    )
+            # 6. Standard hold
+            else:
+                decision = "继续持有 (Hold)"
+                decision_class = "highlight-green"
+                decision_cell = f"<strong style='color: #34d399;'>继续持有 (Hold)</strong><br><span style='font-size: 10.5px; color: #34d399; font-weight: 600;'>{badge_text}</span><br>{roll_badge}"
+                # Surface in action plan if there is a special roll event (e.g. earnings blocker, roll candidate, or warning) or drop
+                if (roll_res and roll_res.get("status") in ["ROLL_RECOMMENDED", "EARNINGS_BLOCKER", "DEBIT_VETO"]) or is_knife or is_fcf_neg or dte <= 20:
+                    special_tag = "【财报在即·坚守收租】" if roll_res.get("status") == "EARNINGS_BLOCKER" else ("【适宜展期·备选指引】" if roll_res.get("status") == "ROLL_RECOMMENDED" else "【标准持有·健康收租】")
+                    action_plan_recs.append(
+                        f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Put 🛡️{special_tag}</strong>：当前安全垫为 <strong class='highlight-green'>{safety_cushion:+.1f}%</strong>，距离到期剩余 {dte} 天。<br><strong style='color: {tradeoff_color};'>{tradeoff_status}</strong>：{tradeoff_desc}<br><span style='color: #38bdf8; font-size: 12px;'>👉 <strong>展期研判</strong>：{roll_tip}</span></li>"
+                    )
             
         pnl_class = "highlight-green" if pnl >= 0 else "highlight-red"
         
+        cushion_color = 'highlight-green' if safety_cushion >= 0 else 'highlight-red'
+        cushion_tag = "(虚值)" if safety_cushion >= 0 else "(实值)"
         if ticker == 'IBIT' and btc_price and curr_stock_price > 0:
             strike_btc = strike * (btc_price / curr_stock_price)
-            price_cell = f"${curr_stock_price:.2f} (BTC ${btc_price:,.0f}) / ${strike:.2f} (BTC ${strike_btc:,.0f})<br><span class='highlight-green' style='font-size: 11px; font-weight: 600;'>{safety_cushion:+.2f}%</span>"
+            price_cell = f"${curr_stock_price:.2f} (BTC ${btc_price:,.0f}) / ${strike:.2f} (BTC ${strike_btc:,.0f})<br><span class='{cushion_color}' style='font-size: 11px; font-weight: 600;'>{safety_cushion:+.2f}% {cushion_tag}</span>"
         else:
-            price_cell = f"${curr_stock_price:.2f} / ${strike:.2f}<br><span class='highlight-green' style='font-size: 11px; font-weight: 600;'>{safety_cushion:+.2f}%</span>"
+            price_cell = f"${curr_stock_price:.2f} / ${strike:.2f}<br><span class='{cushion_color}' style='font-size: 11px; font-weight: 600;'>{safety_cushion:+.2f}% {cushion_tag}</span>"
             
         yield_style = "color: #a1a1aa;" if remaining_yield < 5.0 else ("color: #4ade80; font-weight: 600;" if remaining_yield >= 15.0 else "color: #f4f4f5;")
         
@@ -3000,18 +3065,26 @@ def main():
         row_style = '' if (not assignment_safe) else f'style="background-color: {"#09090b" if idx % 2 == 0 else "#18181b"};"'
         
         # Position Delta, Gamma & Pin Risk
-        pos_delta_shares = -delta * qty * 100.0
-        pos_delta_notional = pos_delta_shares * curr_stock_price
         gamma = float(pos.get('gamma', 0.0))
-        is_pin_risk = (dte <= 14 and safety_cushion < 3.0 and gamma >= 0.06)
+        is_pin_risk = (dte <= 14 and abs(safety_cushion) < 3.0 and gamma >= 0.06)
         gamma_badge = " <span style='color: #ef4444; font-size: 10px; font-weight: bold; background: rgba(239, 68, 68, 0.15); padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(239,68,68,0.3);'>[⚡Pin Risk]</span>" if is_pin_risk else ""
         gamma_str = f" • &Gamma; {gamma:.3f}" if gamma > 0 else ""
-        delta_cell = f"<strong style='color: #ffffff;'>{delta:.3f}</strong>{gamma_badge}<br><span style='font-size: 10.5px; color: #60a5fa;'>等效 {pos_delta_shares:+.1f}股 • ${pos_delta_notional:,.0f}{gamma_str}</span>"
+        
+        if is_covered_call:
+            pos_delta_shares = (1.0 - delta) * qty * 100.0
+            pos_delta_notional = pos_delta_shares * curr_stock_price
+            delta_cell = f"<strong style='color: #ffffff;'>{delta:.3f}</strong>{gamma_badge}<br><span style='font-size: 10.5px; color: #60a5fa;'>CC净等效 {pos_delta_shares:+.1f}股 • ${pos_delta_notional:,.0f}{gamma_str}</span>"
+        else:
+            pos_delta_shares = -delta * qty * 100.0
+            pos_delta_notional = pos_delta_shares * curr_stock_price
+            delta_cell = f"<strong style='color: #ffffff;'>{delta:.3f}</strong>{gamma_badge}<br><span style='font-size: 10.5px; color: #60a5fa;'>等效 {pos_delta_shares:+.1f}股 • ${pos_delta_notional:,.0f}{gamma_str}</span>"
+        
+        contract_type_label = "Call (Covered Call)" if is_covered_call else ("Call" if is_call else "Put")
         
         table_task1 += f"""
         <tr {row_class_attr} {row_style}>
             <td style="padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #27272a;">{ticker_link}</td>
-            <td style="padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #27272a;">{int(qty)}张 • {expiration} ${strike:.2f} Put</td>
+            <td style="padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #27272a;">{int(qty)}张 • {expiration} ${strike:.2f} {contract_type_label}</td>
             <td style="padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #27272a;">{price_cell}</td>
             <td style="padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #27272a;">{dte} 天</td>
             <td style="padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #27272a;">{delta_cell}</td>
