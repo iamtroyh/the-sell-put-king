@@ -190,9 +190,13 @@ def calculate_multi_horizon_hv(
     else:
         hv_blend = hv_30
 
-    # 6. Effective HV (Anchored by long-term 252-day ceiling if valid)
+    # 6. Effective HV (Regime-aware blend anchored by long-term 252-day baseline)
     if hv_blend > 0 and hv_252 > 0:
-        effective_hv = min(hv_blend, hv_252)
+        if hv_blend <= hv_252:
+            effective_hv = hv_blend
+        else:
+            # When short/medium-term volatility is elevated above 252d baseline, retain 75% weight on recent regime
+            effective_hv = 0.75 * hv_blend + 0.25 * hv_252
     else:
         effective_hv = hv_blend if hv_blend > 0 else 30.0
 
@@ -217,7 +221,8 @@ def calculate_option_ev_and_pop(
 ) -> Dict[str, float]:
     """
     Calculate quantitative Probability of Profit (POP), Expected Value (EV),
-    EV-adjusted Annualized APY, Trade Sharpe, and Kelly Fraction under lognormal distribution.
+    EV-adjusted Annualized APY, Delta-adjusted Trade Sharpe, and Conditional Kelly Fraction
+    under lognormal distribution.
 
     Args:
         spot: Current spot price.
@@ -246,13 +251,11 @@ def calculate_option_ev_and_pop(
     p = max(0.01, premium)
     s_be = strike - p  # Break-even price
     
-    # Forward-Looking Damped Volatility Estimator:
-    # 1. Base on realized HV (historical baseline)
-    # 2. Bound sigma to at most 1.15x IV when IV has compressed below HV post-drop (panic cleared).
-    #    This eliminates backward-looking drop spike distortion while preserving authentic downside tail risk.
+    # Forward-Looking Regime-Aware Volatility Estimator:
+    # Smoothly damps single-day outlier spikes while preserving genuine high-HV tail risk when IV is compressed.
     raw_sigma = hv if hv > 0 else (iv if iv > 0 else 0.25)
     if iv > 0:
-        sigma = min(raw_sigma, 1.15 * iv)
+        sigma = min(raw_sigma, max(1.15 * iv, 0.70 * raw_sigma + 0.30 * iv))
     else:
         sigma = raw_sigma
     sigma = max(0.08, sigma)
@@ -272,8 +275,10 @@ def calculate_option_ev_and_pop(
         d1 = (math.log(spot / strike) + (r + 0.5 * sigma ** 2) * t) / vol_t
         d2 = d1 - vol_t
         fair_put = strike * math.exp(-r * t) * norm_cdf(-d2) - spot * norm_cdf(-d1)
+        opt_delta = norm_cdf(d1) - 1.0
     else:
         fair_put = max(0.0, strike - spot)
+        opt_delta = -0.50 if spot <= strike else -0.10
 
     # 3. Pure EV in dollars per contract (100 shares)
     ev_dollar = 100.0 * (p - fair_put)
@@ -282,17 +287,21 @@ def calculate_option_ev_and_pop(
     net_collateral = max(100.0, (strike - p) * 100.0)
     ev_apy = (ev_dollar / net_collateral) * (365.0 / max(1, dte)) * 100.0
 
-    # 5. Downside risk & Trade Sharpe ratio
-    downside_risk = max(1.0, fair_put * 100.0)
-    trade_sharpe = float(np.clip(max(0.0, ev_dollar) / downside_risk, 0.0, 10.0))
+    # 5. Delta-Adjusted Annualized Option Trade Sharpe Ratio
+    eff_delta_exp = max(0.08, abs(opt_delta))
+    ann_downside_vol_pct = eff_delta_exp * (sigma * 100.0) * (strike / max(1.0, spot))
+    period_ret_apy = (p / strike) * (365.0 / max(1, dte)) * 100.0
+    numerator_apy = ev_apy if ev_apy > 0 else max(0.0, period_ret_apy * 0.40)
+    trade_sharpe = float(np.clip(numerator_apy / max(3.5, ann_downside_vol_pct), 0.0, 10.0))
 
-    # 6. Kelly position sizing fraction for options
+    # 6. Conditional Kelly Criterion position sizing fraction for options
     if ev_dollar > 0 and fair_put > 0:
         win_rate = pop / 100.0
-        loss_rate = 1.0 - win_rate
+        loss_rate = max(0.005, 1.0 - win_rate)
         avg_win = p
-        avg_loss = max(0.01, fair_put)
-        b_ratio = avg_win / avg_loss
+        # Conditional expected loss given spot ends below breakeven (E[Loss | S_T < S_BE])
+        cond_avg_loss = max(p * 0.25, fair_put / loss_rate)
+        b_ratio = avg_win / cond_avg_loss
         kelly_f = max(0.0, (win_rate * b_ratio - loss_rate) / b_ratio) if b_ratio > 0 else 0.0
         half_kelly_pct = float(np.clip(kelly_f * 0.5 * 100.0, 0.0, 25.0))
     else:
@@ -307,6 +316,72 @@ def calculate_option_ev_and_pop(
         "breakeven": round(s_be, 2),
         "half_kelly_pct": round(half_kelly_pct, 1),
     }
+
+
+def calculate_quality_score(
+    ticker: str,
+    fcf_margin: Optional[float] = None,
+    is_fcf_negative: bool = False,
+    f_score: Optional[int] = None,
+    insider_sentiment: str = "neutral",
+) -> float:
+    """
+    Calculate Pillar 1 Business Quality & Cash Flow Generation Score (0-100 scale).
+    Single source of truth used by both calculate_sell_put_score and generate_report.py.
+    """
+    is_etf = is_etf_symbol(ticker)
+    if is_etf:
+        return 100.0
+
+    # 1. Free Cash Flow Margin (40%)
+    if fcf_margin is not None and not np.isnan(float(fcf_margin)):
+        f_m = float(fcf_margin)
+        if abs(f_m) > 1.0:
+            f_m = f_m / 100.0
+        if f_m >= 0.20:
+            s_fcf = 100.0
+        elif f_m >= 0.0:
+            s_fcf = 50.0 + (f_m / 0.20) * 50.0
+        else:
+            # Mild floor in Pillar 1 since continuous negative FCF burn penalty (0~15 pts) is applied in trend_penalty
+            s_fcf = max(35.0, 50.0 - (abs(f_m) / 0.20) * 15.0)
+    elif is_fcf_negative:
+        s_fcf = 35.0
+    else:
+        s_fcf = 50.0
+
+    # 2. Piotroski F-Score (35%)
+    if f_score is not None:
+        try:
+            f_val = int(f_score)
+            if f_val >= 8:
+                s_piotroski = 100.0
+            elif f_val == 7:
+                s_piotroski = 85.0
+            elif f_val == 6:
+                s_piotroski = 70.0
+            elif f_val == 5:
+                s_piotroski = 50.0
+            elif f_val == 4:
+                s_piotroski = 40.0
+            elif f_val == 3:
+                s_piotroski = 20.0
+            else:
+                s_piotroski = 0.0
+        except (ValueError, TypeError):
+            s_piotroski = 50.0
+    else:
+        s_piotroski = 50.0
+
+    # 3. SEC Form 4 Insider Sentiment (25%)
+    if insider_sentiment == "net_buying":
+        s_insider = 100.0
+    elif insider_sentiment == "heavy_selling":
+        s_insider = 0.0
+    else:
+        s_insider = 50.0
+
+    return float(np.clip(0.40 * s_fcf + 0.35 * s_piotroski + 0.25 * s_insider, 0.0, 100.0))
 
 
 def calculate_sell_put_score(
@@ -344,16 +419,14 @@ def calculate_sell_put_score(
     """
     Calculate the Institutional Multi-Factor Quantitative Score for Sell Put (0-100 scale).
 
-    Formula:
-        Total Score = 0.40 * S_Price + 0.30 * S_Safety + 0.30 * S_OptionAlpha - Trend_Penalty + Bonuses
-
     Returns:
-        (total_score, s_price, s_safety, s_yield, s_iv, trend_penalty)
+        (total_score, s_price, s_safety, s_option_alpha, s_ev, trend_penalty)
     """
     # 0. Defensive input sanitization
     c_price = float(current_price) if current_price is not None and not np.isnan(float(current_price)) else 100.0
     c_strike = float(strike) if strike is not None and not np.isnan(float(strike)) else c_price
     c_delta = float(delta) if delta is not None and not np.isnan(float(delta)) else -0.20
+    c_mark = float(mark) if mark is not None and not np.isnan(float(mark)) and float(mark) >= 0 else 0.0
     c_yield = float(annualized_yield) if annualized_yield is not None and not np.isnan(float(annualized_yield)) else 0.0
     c_hv = float(curr_hv) if curr_hv is not None and not np.isnan(float(curr_hv)) else 20.0
     safe_ivp = float(ivp) if ivp is not None and not np.isnan(float(ivp)) else 50.0
@@ -362,13 +435,13 @@ def calculate_sell_put_score(
     # DTE 30~45d Sweet Spot Efficiency Convex Curve:
     # 28 <= DTE <= 45: Golden Harvesting Zone (1.00x full efficiency)
     # DTE < 28: Ultra-short Gamma risk zone (smooth convex reduction down to 0.82 at DTE=15)
-    # DTE > 45: Capital lockup zone (smooth linear reduction down to 0.90 at DTE=60)
+    # DTE > 45: Capital lockup zone (smooth linear reduction down to 0.80 at DTE=100)
     if 28 <= c_dte <= 45:
         dte_eff = 1.00
     elif c_dte < 28:
         dte_eff = 1.00 - (((28 - c_dte) / 13.0) ** 1.2) * 0.18
     else:
-        dte_eff = max(0.85, 1.00 - ((c_dte - 45) / 15.0) * 0.10)
+        dte_eff = max(0.78, 1.00 - ((c_dte - 45) / 55.0) * 0.22)
 
     c_yield = c_yield * dte_eff
 
@@ -386,91 +459,43 @@ def calculate_sell_put_score(
     is_moderate_quality = (f_score is not None and f_score >= 5 and not is_fcf_negative)
 
     # ==================== PILLAR 1: 商业质量与造血能力 (S_Quality - 25% Weight) ====================
-    # 1. 真实自由现金流造血率 (FCF Margin, 40%)
-    if is_etf:
-        s_fcf = 100.0
-    elif fcf_margin is not None and not np.isnan(float(fcf_margin)):
-        f_m = float(fcf_margin)
-        if abs(f_m) > 1.0:
-            f_m = f_m / 100.0
-        if f_m >= 0.20:
-            s_fcf = 100.0
-        elif f_m >= 0.0:
-            s_fcf = 50.0 + (f_m / 0.20) * 50.0
-        else:
-            s_fcf = max(0.0, 50.0 - (abs(f_m) / 0.20) * 50.0)
-    elif is_fcf_negative:
-        s_fcf = 20.0
-    else:
-        # Neutral baseline 50.0 when data is absent (do not artificially inflate quality on missing data)
-        s_fcf = 50.0
+    s_quality = calculate_quality_score(
+        ticker=ticker,
+        fcf_margin=fcf_margin,
+        is_fcf_negative=is_fcf_negative,
+        f_score=f_score,
+        insider_sentiment=insider_sentiment,
+    )
 
-    # 2. 皮氏财务健康指数 (Piotroski F-Score 9项全能体检, 35%)
-    if is_etf:
-        s_piotroski = 100.0
-    elif f_score is not None:
-        try:
-            f_val = int(f_score)
-            if f_val >= 8:
-                s_piotroski = 100.0
-            elif f_val == 7:
-                s_piotroski = 85.0
-            elif f_val == 6:
-                s_piotroski = 70.0
-            elif f_val == 5:
-                s_piotroski = 50.0
-            elif f_val == 4:
-                s_piotroski = 40.0
-            elif f_val == 3:
-                s_piotroski = 20.0
-            else:
-                s_piotroski = 0.0
-        except (ValueError, TypeError):
-            s_piotroski = 50.0
-    else:
-        s_piotroski = 50.0
-
-    # 3. SEC Form 4 内部人真实行为信号 (25%)
-    if is_etf:
-        s_insider = 80.0
-    elif insider_sentiment == "net_buying":
-        s_insider = 100.0
-    elif insider_sentiment == "heavy_selling":
-        s_insider = 0.0
-    else:
-        s_insider = 50.0
-
-    s_quality = float(np.clip(0.40 * s_fcf + 0.35 * s_piotroski + 0.25 * s_insider, 0.0, 100.0))
-
-    # ==================== PILLAR 2: 现货周期估值底 (S_Price / S_Valuation - 25% Weight) ====================
-    # 100% 由底层资产自身现价决定，彻底解耦行权价与期权费
+    # ==================== PILLAR 2: 周期估值底与净接股折让 (S_Price / S_Valuation - 25% Weight) ====================
+    # 融合 70% 现价周期估值 + 30% 净接股成本折让 (Net Basis = min(Spot, Strike - Premium))，奖励深虚值行权与高权利金折价安全边际
     s_sma = float(sma_200) if sma_200 is not None and not np.isnan(float(sma_200)) else c_price
-    spot_dev = (c_price - s_sma) / s_sma if s_sma > 0 else 0.0
-
-    # 锚点 1: 200日均线偏离度 (含 0%~8% 温和公允带，下行应用 -15% 截断上限防失真)
-    if spot_dev <= 0.00:
-        # 深跌黄金坑 (偏离度下行平滑映射至 -25%)
-        capped_dev = max(-0.25, spot_dev)
-        s_price_sma = 50.0 + min(50.0, (abs(capped_dev) / 0.25) * 50.0)
-    elif spot_dev <= 0.08:
-        # 0%~8% 慢牛温和公允带
-        s_price_sma = 50.0 - (spot_dev / 0.08) * 10.0
-    else:
-        # 超过 8% 加速扣分，超过 28% 泡沫彻底归零
-        s_price_sma = max(0.0, 40.0 - ((spot_dev - 0.08) / 0.20) * 40.0)
-
-    # 锚点 2: 52周高低相对分位 (RP_spot)
     s_low = float(low_52w) if low_52w is not None and not np.isnan(float(low_52w)) else c_price * 0.8
     s_high = float(high_52w) if high_52w is not None and not np.isnan(float(high_52w)) else c_price * 1.2
+    net_basis = min(c_price, max(0.01, c_strike - c_mark))
+
+    def _eval_price_anchor(price_val: float) -> float:
+        dev_val = (price_val - s_sma) / s_sma if s_sma > 0 else 0.0
+        if dev_val <= 0.00:
+            capped_dev = max(-0.25, dev_val)
+            score_sma = 50.0 + min(50.0, (abs(capped_dev) / 0.25) * 50.0)
+        elif dev_val <= 0.08:
+            score_sma = 50.0 - (dev_val / 0.08) * 10.0
+        else:
+            score_sma = max(0.0, 40.0 - ((dev_val - 0.08) / 0.20) * 40.0)
+
+        rp_val = (price_val - s_low) / (s_high - s_low) if (s_high - s_low) > 0 else 0.5
+        if rp_val <= 0.20:
+            score_rp = 50.0 + min(50.0, ((0.20 - rp_val) / 0.20) * 50.0)
+        else:
+            score_rp = max(0.0, 50.0 - ((rp_val - 0.20) / 0.80) * 50.0)
+        return max(score_sma, score_rp)
+
+    spot_dev = (c_price - s_sma) / s_sma if s_sma > 0 else 0.0
     spot_rp = (c_price - s_low) / (s_high - s_low) if (s_high - s_low) > 0 else 0.5
-
-    if spot_rp <= 0.20:
-        s_price_rp = 50.0 + min(50.0, ((0.20 - spot_rp) / 0.20) * 50.0)
-    else:
-        s_price_rp = max(0.0, 50.0 - ((spot_rp - 0.20) / 0.80) * 50.0)
-
-    # 双锚点融合取最大低估优势
-    s_price = float(np.clip(max(s_price_sma, s_price_rp), 0.0, 100.0))
+    s_price_spot = _eval_price_anchor(c_price)
+    s_price_basis = _eval_price_anchor(net_basis)
+    s_price = float(np.clip(0.70 * s_price_spot + 0.30 * s_price_basis, 0.0, 100.0))
 
     # ==================== PILLAR 3: 真实物理西格玛安全垫 (S_Safety / S_Sigma - 20% Weight) ====================
     # 消除 IV 反馈闭环污染，采用真实物理实现波动率 (HV) 计算标准差距离 Z_cushion
@@ -546,9 +571,11 @@ def calculate_sell_put_score(
         else:
             s_ev = raw_s_ev
 
-    # 2. 风险调整后夏普率 (Trade Sharpe)
+    # 2. Delta调整后风险夏普率 (Delta-Adjusted Trade Sharpe) - 消除高Delta激进合约的年化收益率偏袒
     eff_hv = max(12.0, c_hv)
-    trade_sharpe = max(0.0, c_yield) / eff_hv
+    delta_risk_mult = max(0.40, (abs(c_delta) / 0.20) ** 0.85)
+    adj_downside_hv = max(8.0, eff_hv * delta_risk_mult)
+    trade_sharpe = max(0.0, c_yield) / adj_downside_hv
     s_sharpe = min(100.0, 100.0 * math.pow(trade_sharpe / 0.90, 0.75)) if trade_sharpe > 0 else 0.0
 
     # 3. 波动率与偏度子因子 (S_Vol) - 缺失值中性中立对齐
@@ -642,20 +669,14 @@ def calculate_sell_put_score(
             norm_mult = 1.0 if not is_etf else 0.7
             trend_penalty += min(20.0, ((drop_pct - 10.0) / 25.0) ** 1.2 * 15.0 * norm_mult)
 
-    # 4. Piotroski F-Score Hard Collapse Veto (F <= 2 triggers 100 pt veto; F >= 3 is handled inside S_Quality)
+    # 4. Piotroski F-Score Hard Collapse Veto (F <= 2 triggers 100 pt veto; F >= 3 is already scored inside S_Quality)
     if f_score is not None and not is_etf:
         try:
             f_val = int(f_score)
             if f_val <= 2:
                 trend_penalty += 100.0  # Hard collapse veto
-            elif f_val == 3:
-                trend_penalty += 10.0  # Elevated distress warning
         except (ValueError, TypeError):
             pass
-
-    # 5. Heavy Insider Selling Warning Penalty (net selling >= $10M)
-    if not is_etf and insider_sentiment == "heavy_selling":
-        trend_penalty += 3.0
 
     # 6. Contrarian Sentiment (PCR) Complacency Penalty
     if pcr_oi is not None and pcr_oi > 0 and not np.isnan(float(pcr_oi)):

@@ -219,7 +219,7 @@ def test_scoring_missing_data_compatibility():
 
 def test_three_pillars_weighting_distribution():
     # Verify V3.0 50/50 Dual-Core Multi-Factor Base Score Exactness:
-    # 50% Asset Layer (25% Quality + 25% Spot Valuation) + 50% Option Layer (20% Physical Safety + 18% Alpha + 12% Yield)
+    # 50% Asset Layer (25% Quality + 25% Spot/Basis Valuation) + 50% Option Layer (20% Physical Safety + 18% Alpha + 12% Yield)
     total, s_price, s_safety, s_alpha, s_yield, penalty = calculate_sell_put_score(
         ticker="SPYM",
         current_price=100.0,
@@ -239,11 +239,11 @@ def test_three_pillars_weighting_distribution():
         ivr=75.0,
     )
 
-    assert abs(s_price - 68.18) < 1e-1
+    assert abs(s_price - 72.00) < 1e-1
     assert abs(s_safety - 38.75) < 1e-1
     assert abs(s_alpha - 79.46) < 1e-1
     assert abs(s_yield - 86.60) < 1e-1  # 5th element is s_ev
-    assert abs(total - 72.45) < 1e-1
+    assert abs(total - 74.66) < 1e-1
     assert penalty == 0.0
 
 
@@ -325,7 +325,8 @@ def test_spot_valuation_decoupling_and_otm_safety_advantage():
     # Long bull stock at Spot=210 (above SMA200=200, dev=+5%)
     # Case A: ATM Put strike=210, delta=-0.50 -> Z=0 (s_safety = 0)
     # Case B: OTM Put strike=180, delta=-0.15 -> Z=2.12σ (s_safety = 100)
-    # Valuation is 100% decoupled from strike (s_price_atm == s_price_otm = 43.75 in 0~8% neutral band)
+    # Valuation blends 70% Spot Valuation + 30% Net Acquisition Basis (Net Basis = min(Spot, Strike - Premium)),
+    # rewarding deep OTM strike discounts with a higher s_price_otm > s_price_atm.
     total_atm, s_price_atm, s_safety_atm, _, _, _ = calculate_sell_put_score(
         ticker="AAPL",
         current_price=210.0,
@@ -356,10 +357,9 @@ def test_spot_valuation_decoupling_and_otm_safety_advantage():
         curr_hv=25.0,
     )
 
-    # Valuation is purely asset-level and identical across strikes
-    assert s_price_otm == s_price_atm
-    assert abs(s_price_otm - 43.75) < 1e-2
-    # OTM advantage is purely captured in physical sigma safety (100 vs 0)
+    # Discounted OTM net basis achieves higher valuation score than ATM
+    assert s_price_otm > s_price_atm
+    # OTM advantage is also captured in physical sigma safety (100 vs 0)
     assert s_safety_otm > s_safety_atm
     assert s_safety_otm == 100.0
     assert s_safety_atm == 0.0

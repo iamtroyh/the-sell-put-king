@@ -850,46 +850,73 @@ def compute_expected_earnings_move(chain_data: Dict[str, Any]) -> Optional[float
 def _extract_chain_data_for_derivatives(symbol: str) -> Optional[Dict[str, Any]]:
     """
     Extract structured option chain data from Robinhood options cache or yfinance
-    for local calculation of Max Pain, Volatility Skew, and PCR.
+    for local calculation of Max Pain, Volatility Skew, PCR, and Expected Earnings Move.
+    Requires full strike coverage (including ATM/ITM strikes) to prevent truncated chain distortion.
     """
     sym = normalize_symbol(symbol)
     today = datetime.date.today()
 
-    # 1. Try local Robinhood options cache
+    m_cache_file = os.path.join(DATA_DIR, "market_history_cache.json")
+    spot_from_cache = 0.0
+    if os.path.exists(m_cache_file):
+        try:
+            m_cache = load_json_config(m_cache_file)
+            if isinstance(m_cache, dict) and sym in m_cache:
+                spot_from_cache = float(m_cache[sym].get("current_price", 0.0) or 0.0)
+        except Exception:
+            pass
+
+    # 1. Try local Robinhood options cache ONLY if it has a valid 20~55 DTE expiration with full call/put strike coverage
     cache_file = os.path.join(DATA_DIR, "robinhood_options_cache.json")
     if os.path.exists(cache_file):
         try:
             cache = load_json_config(cache_file)
             if isinstance(cache, dict) and sym in cache:
-                # Find an expiration around 20~55 DTE that has puts
                 for exp, val in cache[sym].items():
+                    try:
+                        ed = datetime.datetime.strptime(exp, "%Y-%m-%d").date()
+                        dte = (ed - today).days
+                        if not (20 <= dte <= 55):
+                            continue
+                    except Exception:
+                        continue
+
                     puts = val.get("puts", [])
                     calls = val.get("calls", [])
-                    if puts and len(puts) >= 3 and calls:
-                        strikes = [p["strike"] for p in puts] + [c["strike"] for c in calls]
-                        ois = [p.get("openInterest", 0) for p in puts] + [c.get("openInterest", 0) for c in calls]
-                        sides = ["put"] * len(puts) + ["call"] * len(calls)
-                        deltas = [p.get("delta", 0.0) for p in puts] + [c.get("delta", 0.0) for c in calls]
-                        ivs = [p.get("impliedVolatility", 0.0) for p in puts] + [c.get("impliedVolatility", 0.0) for c in calls]
-                        vols = [p.get("volume", 0) for p in puts] + [c.get("volume", 0) for c in calls]
-                        bids = [p.get("bid", 0.0) for p in puts] + [c.get("bid", 0.0) for c in calls]
-                        asks = [p.get("ask", 0.0) for p in puts] + [c.get("ask", 0.0) for c in calls]
-                        return {
-                            "s": "ok",
-                            "strike": strikes,
-                            "openInterest": ois,
-                            "side": sides,
-                            "delta": deltas,
-                            "iv": ivs,
-                            "volume": vols,
-                            "bid": bids,
-                            "ask": asks,
-                        }
+                    if puts and len(puts) >= 5 and calls and len(calls) >= 5:
+                        max_put_k = max(float(p["strike"]) for p in puts)
+                        min_call_k = min(float(c["strike"]) for c in calls)
+                        est_spot = spot_from_cache if spot_from_cache > 0 else (max_put_k + min_call_k) / 2.0
+                        # Verify chain spans across ATM/ITM (not a truncated OTM-only scan cache)
+                        if max_put_k >= est_spot * 0.99 and min_call_k <= est_spot * 1.01:
+                            strikes = [float(p["strike"]) for p in puts] + [float(c["strike"]) for c in calls]
+                            ois = [int(p.get("openInterest", 0) or 0) for p in puts] + [int(c.get("openInterest", 0) or 0) for c in calls]
+                            sides = ["put"] * len(puts) + ["call"] * len(calls)
+                            deltas = [float(p.get("delta", 0.0) or 0.0) for p in puts] + [float(c.get("delta", 0.0) or 0.0) for c in calls]
+                            ivs = [float(p.get("impliedVolatility", 0.0) or 0.0) for p in puts] + [float(c.get("impliedVolatility", 0.0) or 0.0) for c in calls]
+                            vols = [int(p.get("volume", 0) or 0) for p in puts] + [int(c.get("volume", 0) or 0) for c in calls]
+                            bids = [float(p.get("bid", 0.0) or 0.0) for p in puts] + [float(c.get("bid", 0.0) or 0.0) for c in calls]
+                            asks = [float(p.get("ask", 0.0) or 0.0) for p in puts] + [float(c.get("ask", 0.0) or 0.0) for c in calls]
+                            mids = [(b + a) / 2.0 if (b > 0 and a > 0) else max(b, a) for b, a in zip(bids, asks)]
+                            return {
+                                "s": "ok",
+                                "strike": strikes,
+                                "openInterest": ois,
+                                "side": sides,
+                                "delta": deltas,
+                                "iv": ivs,
+                                "volume": vols,
+                                "underlyingPrice": [est_spot] * len(strikes),
+                                "bid": bids,
+                                "ask": asks,
+                                "mid": mids,
+                            }
         except Exception:
             pass
 
-    # 2. Parallel / direct fallback to yfinance for complete chain (both calls & puts)
+    # 2. Complete chain extraction via yfinance (ensures full ITM + ATM + OTM strikes for Max Pain, PCR, and Expected Move)
     try:
+        import pandas as pd
         import yfinance as yf
         yf_sym = to_yf_symbol(sym)
         t_obj = yf.Ticker(yf_sym)
@@ -913,7 +940,7 @@ def _extract_chain_data_for_derivatives(symbol: str) -> Optional[Dict[str, Any]]
             ch = t_obj.option_chain(target_exp)
             puts = ch.puts if ch.puts is not None and not ch.puts.empty else pd.DataFrame()
             calls = ch.calls if ch.calls is not None and not ch.calls.empty else pd.DataFrame()
-            spot = float(t_obj.fast_info.last_price or 100.0)
+            spot = spot_from_cache if spot_from_cache > 0 else float(t_obj.fast_info.last_price or 100.0)
 
             strikes = (puts["strike"].tolist() if not puts.empty else []) + (calls["strike"].tolist() if not calls.empty else [])
             ois = (puts["openInterest"].fillna(0).tolist() if not puts.empty else []) + (calls["openInterest"].fillna(0).tolist() if not calls.empty else [])
@@ -932,6 +959,7 @@ def _extract_chain_data_for_derivatives(symbol: str) -> Optional[Dict[str, Any]]
 
             bids = (puts["bid"].fillna(0.0).tolist() if not puts.empty else []) + (calls["bid"].fillna(0.0).tolist() if not calls.empty else [])
             asks = (puts["ask"].fillna(0.0).tolist() if not puts.empty else []) + (calls["ask"].fillna(0.0).tolist() if not calls.empty else [])
+            mids = [(b + a) / 2.0 if (b > 0 and a > 0) else max(b, a) for b, a in zip(bids, asks)]
 
             return {
                 "s": "ok",
@@ -944,6 +972,7 @@ def _extract_chain_data_for_derivatives(symbol: str) -> Optional[Dict[str, Any]]
                 "underlyingPrice": [spot] * len(strikes),
                 "bid": bids,
                 "ask": asks,
+                "mid": mids,
             }
     except Exception as e:
         logger.debug(f"yfinance chain extraction error for {sym}: {e}")

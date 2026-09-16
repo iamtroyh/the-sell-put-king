@@ -97,14 +97,22 @@ def calculate_portfolio_delta_exposure(spot_prices: Optional[Dict[str, float]] =
         strike = float(p.get("strike", 0.0))
         qty = float(p.get("quantity", 1.0))
         opt_type = p.get("type", "put").lower()
+        pos_side = str(p.get("position_type", "short")).lower()
         delta = float(p.get("delta", -0.25))
         gamma = float(p.get("gamma", 0.0))
         spot = float(spot_prices.get(sym, strike))
 
-        # Position Delta for Short Option: -delta * qty * 100
-        pos_delta_shares = -delta * qty * 100.0
+        # Position Delta & Collateral based on Option Side (Short vs Long)
+        if pos_side == "long":
+            pos_delta_shares = delta * qty * 100.0
+            pos_full_notional = 0.0
+            type_label = f"Long {opt_type.upper()}"
+        else:
+            pos_delta_shares = -delta * qty * 100.0
+            pos_full_notional = (strike * qty * 100.0) if opt_type == "put" else 0.0
+            type_label = f"Short {opt_type.upper()}"
+
         pos_delta_notional = pos_delta_shares * spot
-        pos_full_notional = (strike * qty * 100.0) if opt_type == "put" else 0.0
 
         # Position Gamma Notional ($ Delta change per 1% spot move)
         pos_gamma_notional = abs(gamma) * qty * 100.0 * (spot ** 2) * 0.01
@@ -115,7 +123,8 @@ def calculate_portfolio_delta_exposure(spot_prices: Optional[Dict[str, float]] =
 
         detailed_results.append({
             "symbol": sym,
-            "type": f"Short {opt_type.upper()}",
+            "type": type_label,
+            "position_type": pos_side,
             "strike": strike,
             "expiration": p.get("expiration"),
             "quantity": qty,
@@ -227,11 +236,14 @@ def get_wash_sale_risks(today: Optional[datetime.date] = None) -> Tuple[Dict[str
                             unlock_dt = tr_dt + datetime.timedelta(days=31)
                             if sym not in wash_sale_history_map:
                                 wash_sale_history_map[sym] = []
+                            inst_type = str(tr.get("instrument_type", tr.get("type", "equity"))).lower()
+                            is_short_opt_loss = ("option" in inst_type or "put" in inst_type) and str(tr.get("side", "short")).lower() in ["short", "buy_to_close", "btc"]
                             wash_sale_history_map[sym].append({
                                 "loss": rg,
                                 "trade_date": tr_dt.strftime("%Y-%m-%d"),
                                 "unlock_date": unlock_dt.strftime("%Y-%m-%d"),
                                 "days_ago": days_diff,
+                                "is_short_option_loss": is_short_opt_loss,
                             })
         except Exception as e:
             logger.warning(f"Failed to parse trade_pnl_history.json: {e}")
@@ -245,7 +257,8 @@ def get_wash_sale_risks(today: Optional[datetime.date] = None) -> Tuple[Dict[str
                 for pos in json.load(f).get("positions", []):
                     open_p = float(pos.get("open_price", 0.0))
                     curr_p = float(pos.get("current_price", open_p))
-                    pnl = open_p - curr_p
+                    pos_side = str(pos.get("position_type", "short")).lower()
+                    pnl = (curr_p - open_p) if pos_side == "long" else (open_p - curr_p)
                     if pnl < 0:
                         floating_loss_positions.append(pos)
         except Exception:

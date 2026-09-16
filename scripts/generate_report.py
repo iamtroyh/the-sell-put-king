@@ -44,6 +44,7 @@ from option_quant.investskill import scan_investskill_reports
 from option_quant.market_data import (
     calculate_piotroski_f_score,
     check_eva_and_moat,
+    check_is_low_position,
     get_insider_sentiment,
     batch_get_insider_sentiment,
 )
@@ -53,13 +54,14 @@ from option_quant.marketdata_client import (
     get_derivative_metrics,
     get_true_ivp_and_ivr,
 )
-from option_quant.portfolio import calculate_portfolio_delta_exposure
+from option_quant.portfolio import calculate_portfolio_delta_exposure, get_wash_sale_risks
 from option_quant.scoring import (
     calculate_call_delta,
     calculate_covered_call_score,
     calculate_multi_horizon_hv,
     calculate_option_ev_and_pop,
     calculate_put_delta,
+    calculate_quality_score,
     calculate_sell_put_score,
     get_recommendation_reason,
     norm_cdf,
@@ -156,28 +158,27 @@ def format_gics_sector_badge(ticker_symbol: str, fund_info: Optional[dict] = Non
 def _split_dual_horizons(opts_list):
     """
     Split option contracts into Near Month (Month 1) and Next Month (Month 2).
-    Enforces strict calendar-month distinction:
-    - Month 1: Primary near-month cycle (DTE <= 42, prioritizing standard monthly contracts).
-    - Month 2: Next calendar month cycle (expiration month MUST be strictly greater than Month 1's month,
-      e.g. November when Month 1 is October, and DTE > 40).
-    Strictly prohibits two weekly contracts in the exact same calendar month from being split as 'Near' and 'Far'!
+    Enforces strict calendar-month partition with zero overlap (m1_cands and m2_cands are mutually exclusive):
+    - Month 1: Contracts expiring in the primary near-month calendar cycle (<= m1_month and DTE <= 45).
+    - Month 2: Contracts strictly in subsequent calendar months (> m1_month) and not in Month 1.
     """
     if not opts_list:
         return [], []
 
-    m1_cands = [o for o in opts_list if o['dte'] <= 42]
-    if not m1_cands:
-        m1_cands = [o for o in opts_list if o['dte'] <= 50] or opts_list
-
-    m1_monthly = [o for o in m1_cands if o.get('is_monthly', False)]
-    anchor_m1 = m1_monthly[0] if m1_monthly else (m1_cands[0] if m1_cands else None)
+    near_monthly = [o for o in opts_list if o.get('is_monthly', False) and o['dte'] <= 45]
+    anchor_m1 = near_monthly[0] if near_monthly else min(opts_list, key=lambda x: x['dte'])
     m1_month = anchor_m1['expiration'][:7] if anchor_m1 else ""
 
     if m1_month:
-        # Month 2 MUST be strictly in a subsequent calendar month (e.g. Nov > Oct)
-        m2_cands = [o for o in opts_list if o['expiration'][:7] > m1_month and o['dte'] > 40]
+        m1_cands = [o for o in opts_list if o['expiration'][:7] <= m1_month and o['dte'] <= 45]
+        if not m1_cands:
+            m1_cands = [o for o in opts_list if o['dte'] <= 42]
+        m1_ids = {id(o) for o in m1_cands}
+        m2_cands = [o for o in opts_list if id(o) not in m1_ids and o['expiration'][:7] > m1_month]
     else:
-        m2_cands = [o for o in opts_list if o['dte'] >= 50]
+        m1_cands = [o for o in opts_list if o['dte'] <= 42]
+        m1_ids = {id(o) for o in m1_cands}
+        m2_cands = [o for o in opts_list if id(o) not in m1_ids]
 
     return m1_cands, m2_cands
 
@@ -246,32 +247,8 @@ def main():
             print(f"Warning: Failed to load current equity positions: {e}")
             
     # Load trade PnL history to detect 30-day Wash Sale risks
-    wash_sale_history_map = {}
-    trade_pnl_file = os.path.join(BASE_DIR, "data", "trade_pnl_history.json")
-    if os.path.exists(trade_pnl_file):
-        try:
-            with open(trade_pnl_file, 'r', encoding='utf-8') as f:
-                pnl_history_data = json.load(f)
-                for tr in pnl_history_data.get("trades", []):
-                    sym = to_display_symbol(tr.get("symbol", ""))
-                    rg = float(tr.get("realized_gain", 0.0))
-                    ts_str = tr.get("timestamp", "")
-                    if rg < 0 and ts_str:
-                        tr_dt = datetime.datetime.fromisoformat(ts_str.replace("Z", "+00:00")).date()
-                        days_diff = (today - tr_dt).days
-                        if 0 <= days_diff <= 30:
-                            unlock_dt = tr_dt + datetime.timedelta(days=31)
-                            if sym not in wash_sale_history_map:
-                                wash_sale_history_map[sym] = []
-                            wash_sale_history_map[sym].append({
-                                "loss": rg,
-                                "trade_date": tr_dt.strftime("%Y-%m-%d"),
-                                "unlock_date": unlock_dt.strftime("%Y-%m-%d"),
-                                "days_ago": days_diff
-                            })
-            print(f"Loaded Wash Sale risk history for tickers: {list(wash_sale_history_map.keys())}")
-        except Exception as e:
-            print(f"Warning: Failed to parse trade_pnl_history.json: {e}")
+    wash_sale_history_map, _ = get_wash_sale_risks(today)
+    print(f"Loaded Wash Sale risk history for tickers: {list(wash_sale_history_map.keys())}")
             
     # ==================== SHORT PUT SCAN & SCORING ====================
     # Read scan_targets.json directly to keep active_tickers 100% synchronized with get_scan_targets.py
@@ -390,7 +367,7 @@ def main():
 
     all_options = []
     ticker_market_data = {}
-    low_position_tickers = set(current_position_tickers)
+    low_position_tickers = set(current_position_tickers) | {to_display_symbol(t) for t in PRESELECTED_TICKERS}
     
     # ==================== MACRO CIRCUIT BREAKER & VIX CHECK ====================
     vix_extreme_crisis = False  # VIX >= 40.0: extreme black swan, halt new CSP openings
@@ -532,12 +509,7 @@ def main():
         if "is_low_position" in st_info:
             is_low_position = st_info["is_low_position"]
         elif hist is not None and not hist.empty:
-            if is_long_bull(display_ticker):
-                dev = (current_price - sma_200) / sma_200 if sma_200 > 0 else 0.0
-                is_low_position = (dev <= 0.00) or (return_30d <= -0.15 and dev <= 0.03)
-            else:
-                rp = (current_price - low_52w) / (high_52w - low_52w) if (high_52w - low_52w) > 0 else 0.5
-                is_low_position = (rp <= 0.20) or (return_30d <= -0.15 and rp <= 0.40)
+            is_low_position = check_is_low_position(display_ticker, hist, get_fundamental_info(display_ticker))
         else:
             is_low_position = cached_m.get("is_low_position", False)
             
@@ -977,6 +949,14 @@ def main():
                     ivr = s_ratio
                     has_true_iv = False
 
+                raw_wash_list = wash_sale_history_map.get(display_ticker, [])
+                if raw_wash_list:
+                    is_only_short_opt_loss = all(item.get('is_short_option_loss', False) for item in raw_wash_list)
+                    is_otm_put_roll = (delta >= -0.35) and (strike <= current_price * 0.96)
+                    is_wash_risk = not (is_only_short_opt_loss and is_otm_put_roll)
+                else:
+                    is_wash_risk = False
+
                 total_score, s_price, s_safety, s_option_alpha, s_ev_val, trend_penalty = calculate_sell_put_score(
                     ticker=display_ticker,
                     current_price=current_price,
@@ -1006,38 +986,25 @@ def main():
                     pop=pop,
                     fcf_margin=ticker_market_data[display_ticker].get('fcf_margin'),
                     return_30d=ticker_market_data[display_ticker].get('return_30d'),
-                    is_wash_sale_risk=(display_ticker in wash_sale_history_map),
+                    is_wash_sale_risk=is_wash_risk,
                     is_monthly=is_monthly,
                 )
                     
-                # Calculate S_Quality for 50/50 Dual-Core Breakdown
-                if is_etf_symbol(display_ticker):
-                    s_qual = 100.0
-                else:
-                    f_m_raw = ticker_market_data[display_ticker].get('fcf_margin')
-                    if f_m_raw is not None and not np.isnan(float(f_m_raw)):
-                        f_m_val = float(f_m_raw)
-                        s_fcf = 100.0 if f_m_val >= 0.20 else (50.0 + (f_m_val / 0.20) * 50.0 if f_m_val >= 0.0 else max(0.0, 50.0 - (abs(f_m_val) / 0.20) * 50.0))
-                    elif is_fcf_negative:
-                        s_fcf = 20.0
-                    else:
-                        s_fcf = 50.0
-
-                    if f_score is not None:
-                        f_map = {8: 100.0, 7: 85.0, 6: 70.0, 5: 50.0, 4: 40.0, 3: 20.0}
-                        s_pio = f_map.get(int(f_score), 100.0 if int(f_score) >= 8 else 0.0)
-                    else:
-                        s_pio = 50.0
-
-                    s_ins = 100.0 if insider_sent == 'net_buying' else (0.0 if insider_sent == 'heavy_selling' else 50.0)
-                    s_qual = float(np.clip(0.40 * s_fcf + 0.35 * s_pio + 0.25 * s_ins, 0.0, 100.0))
+                # Calculate S_Quality for 50/50 Dual-Core Breakdown using single-source-of-truth helper
+                s_qual = calculate_quality_score(
+                    ticker=display_ticker,
+                    fcf_margin=ticker_market_data[display_ticker].get('fcf_margin'),
+                    is_fcf_negative=is_fcf_negative,
+                    f_score=f_score,
+                    insider_sentiment=insider_sent,
+                )
 
                 if 28 <= dte <= 45:
                     dte_eff_opt = 1.00
                 elif dte < 28:
                     dte_eff_opt = 1.00 - (((28 - dte) / 13.0) ** 1.2) * 0.18
                 else:
-                    dte_eff_opt = max(0.85, 1.00 - ((dte - 45) / 15.0) * 0.10)
+                    dte_eff_opt = max(0.78, 1.00 - ((dte - 45) / 55.0) * 0.22)
                 s_yield_val = float(np.clip((annualized_yield * dte_eff_opt / 25.0) * 100.0, 0.0, 100.0))
 
                 opt_info = {
@@ -1137,6 +1104,7 @@ def main():
                     fallback_opt = candidate_failed[0]
                     pen = fallback_opt.get('liq_penalty', 5.0)
                     fallback_opt['warning'] = (pen > 0)
+                    fallback_opt['trend_penalty'] = fallback_opt.get('trend_penalty', 0.0) + pen
                     fallback_opt['total_score'] = max(0.0, fallback_opt['total_score'] - pen)
                     selected_ticker_options.append(fallback_opt)
 
@@ -2818,8 +2786,13 @@ def main():
             # For Put, cushion is the percentage the stock price can fall before reaching strike
             safety_cushion = (curr_stock_price - strike) / curr_stock_price * 100.0 if curr_stock_price > 0 else 0.0
         
-        pnl = (open_p - curr_p) * 100.0 * qty
-        pnl_pct = (open_p - curr_p) / open_p * 100.0 if open_p > 0 else 0.0
+        pos_side = str(pos.get('position_type', 'short')).lower()
+        if pos_side == 'long':
+            pnl = (curr_p - open_p) * 100.0 * qty
+            pnl_pct = (curr_p - open_p) / open_p * 100.0 if open_p > 0 else 0.0
+        else:
+            pnl = (open_p - curr_p) * 100.0 * qty
+            pnl_pct = (open_p - curr_p) / open_p * 100.0 if open_p > 0 else 0.0
         
         open_yield = (open_p / strike) * (365.0 / dte) * 100.0 if dte > 0 else 0.0
         remaining_yield = (curr_p / strike) * (365.0 / dte) * 100.0 if dte > 0 else 0.0
@@ -2927,13 +2900,14 @@ def main():
         roll_res = {}
         if is_call:
             # Covered Call Decision & Roll Engine
-            if pnl_pct >= 80.0 or curr_p <= 0.15:
+            if pnl_pct >= 80.0 or curr_p <= 0.15 or (pnl_pct >= 50.0 and remaining_yield < min_inefficient_yield):
                 decision = "止盈平仓 (BTC 锁利)"
                 decision_class = "highlight-blue"
-                roll_badge = "<span style='display:inline-block; margin-top:3px; background: rgba(96, 165, 250, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px;'>💰 权利金榨干·止盈平仓</span>"
-                decision_cell = f"<strong style='color: #60a5fa;'>止盈平仓 (BTC 锁利)</strong><br><span style='font-size: 10.5px; color: #a1a1aa;'>时间价值榨干</span><br>{roll_badge}"
+                reason_tag = "时间价值榨干" if (pnl_pct >= 80.0 or curr_p <= 0.15) else f"剩余年化低效 ({remaining_yield:.1f}%<{min_inefficient_yield:.0f}%)"
+                roll_badge = f"<span style='display:inline-block; margin-top:3px; background: rgba(96, 165, 250, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); font-size: 10px; padding: 1px 5px; border-radius: 3px;'>💰 {reason_tag}·止盈平仓</span>"
+                decision_cell = f"<strong style='color: #60a5fa;'>止盈平仓 (BTC 锁利)</strong><br><span style='font-size: 10.5px; color: #a1a1aa;'>{reason_tag}</span><br>{roll_badge}"
                 action_plan_recs.append(
-                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Call 💰【Covered Call 止盈平仓】</strong>：当前期权浮盈达 <strong class='highlight-green'>{pnl_pct:+.1f}%</strong>（现值仅 ${curr_p:.2f}），时间价值几乎已榨干。建议挂单买入平仓 (BTC) 解除正股锁定，并择机移至下月重新卖出高行权价 CC 循环收租！</li>"
+                    f"<li><strong>{tv_link_inline} {expiration} ${strike:.2f} Call 💰【Covered Call 止盈平仓】</strong>：当前期权浮盈达 <strong class='highlight-green'>{pnl_pct:+.1f}%</strong>（现值 ${curr_p:.2f}，剩余年化 {remaining_yield:.1f}%），{reason_tag}。建议挂单买入平仓 (BTC) 解除正股锁定，并择机移至下月重新卖出高行权价 CC 循环收租！</li>"
                 )
             elif curr_stock_price > strike: # ITM Call
                 if strike >= avg_buy_price:
