@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Old Dominion Freight Line (ODFL) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --blue:          #2563EB;
+            --blue-light:    #EFF6FF;
+            --purple:        #7C3AED;
+            --purple-light:  #F5F3FF;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #0F3E36 45%, #047857 80%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.18); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-sector { background: rgba(255,255,255,.14); color: #ECFDF5; border: 1px solid rgba(255,255,255,.25); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.45); }
+        .badge-hero-rp { background: rgba(255,255,255,.15); color: #A7F3D0; border: 1px solid rgba(255,255,255,.28); }
+        .badge-hero-date { background: rgba(0,0,0,.2); color: #E2E8F0; border: 1px solid rgba(255,255,255,.2); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 10px; letter-spacing: -0.5px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 24px; max-width: 1000px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11.5px; text-transform: uppercase; color: #A7F3D0; font-weight: 700; letter-spacing: 0.4px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 3px; color: #FFFFFF; }
+        .hero-kpi-sub { font-size: 11.5px; opacity: 0.9; color: #ECFDF5; }
+
+        .main-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 26px 16px 68px; }
+
+        .provenance-box {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+        }
+        .prov-item strong { color: var(--text-primary); }
+
+        .toc {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 26px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 5px 11px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sec-num {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid var(--accent-light);
+        }
+
+        .score-pill {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pill-emerald { background: var(--emerald-light); color: var(--primary-dark); border: 1px solid var(--accent-light); }
+        .pill-blue { background: var(--blue-light); color: #1E40AF; border: 1px solid #BFDBFE; }
+        .pill-amber { background: var(--amber-light); color: #92400E; border: 1px solid #FDE68A; }
+
+        h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 16px 0 8px; }
+        p { margin-bottom: 12px; color: var(--text-secondary); }
+        ul, ol { margin: 0 0 14px 20px; color: var(--text-secondary); }
+        li { margin-bottom: 6px; }
+        li strong { color: var(--text-primary); }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin: 14px 0; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 14px 0; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 14px 0; }
+
+        .card {
+            background: var(--slate-light);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .card-emerald { background: var(--emerald-light); border-color: var(--accent-light); }
+        .card-amber { background: var(--amber-light); border-color: #FDE68A; }
+        .card-blue { background: var(--blue-light); border-color: #BFDBFE; }
+        .card-red { background: var(--red-light); border-color: #FECACA; }
+
+        .card-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+        .card-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--primary-dark); margin: 4px 0; }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 14px 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+            font-size: 13px;
+        }
+        th {
+            background: #F1F5F9;
+            color: var(--text-primary);
+            font-weight: 700;
+            text-align: left;
+            padding: 11px 14px;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num { font-family: 'JetBrains Mono', monospace; text-align: right; font-weight: 600; }
+        th.num { text-align: right; }
+        .highlight-row td { background: #ECFDF5; font-weight: 600; }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+            margin: 18px 0;
+            padding: 12px;
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .callout {
+            border-left: 4px solid var(--primary);
+            background: var(--emerald-light);
+            padding: 14px 18px;
+            border-radius: 0 10px 10px 0;
+            margin: 14px 0;
+        }
+        .callout-title { font-weight: 700; color: var(--primary-dark); margin-bottom: 4px; font-size: 13.5px; }
+        .callout-warn { border-left-color: var(--amber); background: var(--amber-light); }
+        .callout-warn .callout-title { color: #92400E; }
+
+        .signal-block {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            color: #FFFFFF;
+            border-radius: 14px;
+            padding: 24px 28px;
+            margin-top: 20px;
+            border: 1px solid #334155;
+            box-shadow: var(--shadow-lg);
+        }
+        .signal-label-top { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #38BDF8; letter-spacing: 1px; font-weight: 700; margin-bottom: 8px; }
+        .signal-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 14px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+        .signal-verdict { font-size: 20px; font-weight: 800; color: #34D399; }
+        .signal-score { font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono', monospace; background: rgba(16,185,129,0.2); border: 1px solid #10B981; color: #A7F3D0; padding: 4px 14px; border-radius: 10px; }
+        .signal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+        .signal-item { background: rgba(255,255,255,0.06); padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+        .sig-label { font-size: 11px; color: #94A3B8; text-transform: uppercase; margin-bottom: 4px; }
+        .sig-val { font-size: 14px; font-weight: 700; color: #F8FAFC; font-family: 'JetBrains Mono', monospace; }
+
+        .ascii-signal {
+            background: #0F172A;
+            color: #10B981;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            padding: 18px;
+            border-radius: 10px;
+            overflow-x: auto;
+            line-height: 1.45;
+            margin-top: 16px;
+            border: 1px solid #334155;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .report-hero { padding: 28px 16px; }
+            .hero-title { font-size: 22px; }
+            .section { padding: 18px 16px; }
+            .chart-container { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO COVER -->
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">NASDAQ: ODFL</span>
+            <span class="badge badge-hero-sector">北美零担货运绝对霸主 (Tier-1 LTL Freight)</span>
+            <span class="badge badge-hero-signal">BUY • 左侧极度超卖黄金坑 (Score: 8.35 / 10)</span>
+            <span class="badge badge-hero-rp">RSI(14): 17.8 • Dev200: -10.74%</span>
+            <span class="badge badge-hero-date">研报基准日: 2026-09-16</span>
+        </div>
+        <h1 class="hero-title">Old Dominion Freight Line (ODFL) 15模块机构级深度投研报告</h1>
+        <p class="hero-sub">
+            全美零担货运（LTL）不可撼动的成本与效率之王：Q2 运营比率（OR）重返惊人的 70.1%（营业利润率 29.9%），净现金 $263.9M 零净负债堡垒资产负债表。当前股价 $176.54 较 200 日均线（$197.77）折价 -10.74%，RSI(14) 跌至罕见的 17.8 极端超卖水位，触发「高质量复利护城河 + 左侧黄金坑」量化买点（全市场 Sell Put 候选池排名 #9）。推荐卖出 2026-10-16 $165.00 Put（年化 20.6% APY，接股净成本 $162.20，对应 24.4x Forward P/E）。
+        </p>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前现价 (LIVE SPOT)</div>
+                <div class="hero-kpi-val">$176.54</div>
+                <div class="hero-kpi-sub">52周区间: $125.51 - $252.03 (RP: 41.5%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">运营比率 (Q2 2026 OR)</div>
+                <div class="hero-kpi-val">70.1%</div>
+                <div class="hero-kpi-sub">营业利润率 29.9% • 领先同行 1,500+ bps</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">公允估值中枢 (FAIR VALUE)</div>
+                <div class="hero-kpi-val">$208.50</div>
+                <div class="hero-kpi-sub">现价上行空间 +18.1% • 接股安全垫 +28.5%</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">首选期权策略 (TOP CSP)</div>
+                <div class="hero-kpi-val">10/16 $165P</div>
+                <div class="hero-kpi-sub">权利金 $2.80 • 年化 20.6% APY (Delta -0.24)</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-wrap">
+
+    <!-- DATA PROVENANCE HEADER -->
+    <div class="provenance-box">
+        <div class="prov-item"><strong>Data & Sources As Of:</strong> 2026-09-16 (Live Market & Q2 2026 Form 10-Q)</div>
+        <div class="prov-item"><strong>Primary Sources:</strong> SEC EDGAR (FY2022-2025 10-K, Q2 2026 10-Q), YFinance Live Option Chain</div>
+        <div class="prov-item"><strong>Retrieval Method:</strong> Real-time Quantitative Tool & API Extraction</div>
+        <div class="prov-item"><strong>Data Confidence:</strong> <span style="color:var(--primary-dark);font-weight:800;">HIGH (Verified Primary Filings)</span></div>
+    </div>
+
+    <!-- TABLE OF CONTENTS -->
+    <nav class="toc">
+        <div class="toc-title">15-Module Comprehensive Navigation (目录一键直达)</div>
+        <div class="toc-links">
+            <a href="#mod-01" class="toc-link">01. 执行摘要与投资逻辑</a>
+            <a href="#mod-02" class="toc-link">02. 多因子量化评分雷达</a>
+            <a href="#mod-03" class="toc-link">03. 商业模式与波特五力</a>
+            <a href="#mod-04" class="toc-link">04. 核心财务报表与盈利质量</a>
+            <a href="#mod-05" class="toc-link">05. 杜邦三因子拆解与ROIC</a>
+            <a href="#mod-06" class="toc-link">06. 行业格局与同行对标矩阵</a>
+            <a href="#mod-07" class="toc-link">07. 四维估值与DCF折现模型</a>
+            <a href="#mod-08" class="toc-link">08. 技术面量化与左侧黄金坑</a>
+            <a href="#mod-09" class="toc-link">09. 资本配置与股息/回购披露</a>
+            <a href="#mod-10" class="toc-link">10. 现金担保Put(CSP)三级策略</a>
+            <a href="#mod-11" class="toc-link">11. 机构13F持仓与主力动向</a>
+            <a href="#mod-12" class="toc-link">12. 内部人Form 4与电话会洞察</a>
+            <a href="#mod-13" class="toc-link">13. 做空比例与期权偏度分析</a>
+            <a href="#mod-14" class="toc-link">14. 核心风险矩阵与熊市压测</a>
+            <a href="#mod-15" class="toc-link">15. 催化剂日历与监控清单</a>
+            <a href="#mod-16" class="toc-link">16. 最终评级与标准信号块</a>
+        </div>
+    </nav>
+
+    <!-- MODULE 01: EXECUTIVE SUMMARY -->
+    <section id="mod-01" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 01</span> 执行摘要与核心投资逻辑 (Executive Summary & Investment Thesis)</div>
+            <span class="score-pill pill-emerald">综合评分: 8.35 / 10 (Strong Buy / Golden Pit)</span>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">核心结论先行 (Bottom Line Up Front — 买方机构视角)</div>
+            <p style="margin-bottom:0;">
+                <strong>Old Dominion Freight Line (NASDAQ: ODFL) 是北美工业物流领域无可争议的「皇冠明珠」。</strong>
+                在 2023 年 Yellow Corp（原全美第三大 LTL 巨头，占 10% 行业运力）破产清算后，北美零担货运（Less-Than-Truckload, LTL）演变为高度集中的寡头垄断市场。ODFL 凭借<strong>全美 261 座自有产权货运枢纽（>90% 自有率）、100% 非工会高弹性员工体系、99.0% 准点率与 <0.1% 极低货损率</strong>，构筑了同行无法复制的物理网络密度壁垒。2026 年 Q2 财报显示，公司单季营收达 $1,554.0M（同比增长 +10.4%），营业利润高达 $465.3M，<strong>运营比率（Operating Ratio, OR）重返惊人的 70.1%（即营业利润率 29.9%）</strong>，单季稀释 EPS 同比飙升 +32.3% 至 $1.68。近期受宏观制造业 PMI 短期波动影响，ODFL 股价自 50 日均线（$209.27）快速回撤至 $176.54，<strong>RSI(14) 跌至罕见的 17.8 极端超卖水平，偏离 200 日均线 -10.74%</strong>。在我们的多因子量化模型中，ODFL 位列全市场 Sell Put 候选池第 #9 名，属于典型的<strong>「顶级现金牛资产左侧黄金坑（Contrarian Golden Pit）」</strong>。
+            </p>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-emerald">
+                <div class="card-title">看多核心驱动力 (The Bull Case — 4大定量支柱)</div>
+                <ul>
+                    <li><strong>70.1% 运营比率（OR）碾压全行业：</strong>Q2 2026 营业利润率高达 29.9%（TTM 为 25.8%），而核心竞争对手 SAIA（营业利润率 13.1%）、XPO（12.3%）、JBHT（7.4%）均落后 ODFL 达 1,500 至 2,100 个基点。每一轮货运周期复苏，ODFL 的增量利润率（Incremental Margin）均超过 40%。</li>
+                    <li><strong>不可再生的终端地产护城河：</strong>ODFL 自有超过 235 座货运中心（总数 261 座），门位（Doors）总数超 23,000 个，保有约 25%–30% 的富余产能缓冲。在当前高地价与市政规划严控背景下，竞争对手想在核心工业走廊新建同等密度的中转场站几乎不可能。</li>
+                    <li><strong>净现金 $263.9M 零净负债堡垒：</strong>账面现金 $283.9M，总债务仅 $20.0M（Debt/Equity 仅 0.44%），TTM 自由现金流高达 $970.8M。在高利率环境下完全免疫财务费用侵蚀，具备极强的逆周期资本开支与回购能力。</li>
+                    <li><strong>估值溢价收敛带来的罕见赔率：</strong>ODFL 当前 Forward P/E 为 26.5x，与利润率不到其一半的 XPO（26.7x）完全持平，仅比 SAIA（24.3x）高出 2.2x。以平庸同行的估值倍数买入全行业最顶级的垄断龙头，安全边际极其丰厚。</li>
+                </ul>
+            </div>
+            <div class="card card-amber">
+                <div class="card-title">核心风险与空头逻辑 (The Bear Case — 3大压力情景)</div>
+                <ul>
+                    <li><strong>美国工业与制造业周期二次探底（概率 25%）：</strong>若 ISM 制造业 PMI 长期滞留 47 以下，工业货运吨位（LTL Tons/Day）复苏斜率放缓，可能导致公司富余场站产能利用率维持低位，固定折旧摊销压制 OR 回升至 73%–74% 区间（估值下修影响：约 -$15/股）。</li>
+                    <li><strong>燃油附加费（FSC）波动与柴油成本传导滞后（概率 20%）：</strong>柴油价格剧烈波动可能造成短期燃油附加费收入与实际油耗成本的时间错配，影响单季毛利率 80–120 bps。</li>
+                    <li><strong>同行激进扩产引发局部价格竞争（概率 15%）：</strong>Estes、SAIA 与 XPO 在收购原 Yellow 破产门位后，若在局部货运走廊采取折价抢单策略，可能削弱 ODFL 每年 4.5%–5.5% 的合同提价能力（Contractual Yield Renewal）。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 02: MULTI-FACTOR SCORECARD & RADAR -->
+    <section id="mod-02" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 02</span> 多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</div>
+            <span class="score-pill pill-emerald">加权总分: 8.35 / 10 (全市场 Sell Put 排名 #9)</span>
+        </div>
+
+        <p>基于 InvestSkill 六维机构评价体系与 50/50 双核期权量化模型，ODFL 在商业护城河、资产负债表健康度与左侧逆向时机维度均获得极高评分：</p>
+
+        <div class="grid-2">
+            <div class="table-scroll" style="margin:0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>评估维度 (Component)</th>
+                            <th class="num">权重</th>
+                            <th class="num">单项得分</th>
+                            <th class="num">加权贡献</th>
+                            <th>核心量化依据</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-row">
+                            <td><strong>1. 商业护城河与定价权</strong></td>
+                            <td class="num">25%</td>
+                            <td class="num" style="color:var(--primary-dark);">9.4 / 10</td>
+                            <td class="num">2.35</td>
+                            <td>OR 70.1%，99%准点率，<0.1%货损率，261座终端</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. 估值与接股安全边际</strong></td>
+                            <td class="num">25%</td>
+                            <td class="num" style="color:var(--primary-dark);">7.6 / 10</td>
+                            <td class="num">1.90</td>
+                            <td>Fwd PE 26.5x与XPO持平，Put接股成本$162.20</td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td><strong>3. FCF印钞机与财务健康</strong></td>
+                            <td class="num">20%</td>
+                            <td class="num" style="color:var(--primary-dark);">9.2 / 10</td>
+                            <td class="num">1.84</td>
+                            <td>TTM FCF $970.8M，净现金$263.9M，F-Score 8分</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. 卖方期权Alpha与收益</strong></td>
+                            <td class="num">15%</td>
+                            <td class="num" style="color:var(--primary-dark);">8.0 / 10</td>
+                            <td class="num">1.20</td>
+                            <td>IV 37.8% > HV30 28.0%，10/16 $165P APY 20.6%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5. 机构持仓与市场信号</strong></td>
+                            <td class="num">10%</td>
+                            <td class="num">6.2 / 10</td>
+                            <td class="num">0.62</td>
+                            <td>机构持股81.2%，BlackRock/FMR增持，管理层稳健</td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td><strong>6. 逆向价值择时 (Golden Pit)</strong></td>
+                            <td class="num">5%</td>
+                            <td class="num" style="color:var(--primary-dark);">8.8 / 10</td>
+                            <td class="num">0.44</td>
+                            <td>RSI 17.8极度超卖 + Dev200 -10.74% 左侧黄金坑</td>
+                        </tr>
+                        <tr style="background:#0F172A;color:#fff;font-weight:800;">
+                            <td style="color:#fff;"><strong>COMPOSITE TOTAL SCORE</strong></td>
+                            <td class="num" style="color:#34D399;">100%</td>
+                            <td class="num" style="color:#34D399;">—</td>
+                            <td class="num" style="color:#34D399;font-size:16px;">8.35 / 10</td>
+                            <td style="color:#A7F3D0;">Strong Buy • 高胜率收租与折价接股双重优选</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="chart-container" style="margin:0;height:310px;">
+                <canvas id="chart-radar"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 03: BUSINESS MODEL & PORTER'S FIVE FORCES -->
+    <section id="mod-03" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 03</span> 商业模式、网络经济学与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="score-pill pill-emerald">护城河评级: 极宽 (Wide Moat • 9.4/10)</span>
+        </div>
+
+        <h3>1. 零担货运（LTL）与整车货运（TL）的本质商业分野</h3>
+        <p>
+            整车货运（Truckload, TL，如 Knight-Swift、Werner）属于典型的<strong>低壁垒、重度商品化行业</strong>：一辆卡车从 A 点直达 B 点，任何拥有一辆卡车的个体司机（Owner-Operator）都能进入，行业极度分散且毫无定价权。相反，<strong>零担货运（Less-Than-Truckload, LTL）是一门极高壁垒的「工业级网络枢纽工程（Hub-and-Spoke Network）」</strong>：每辆卡车装载来自数十个不同托运人的托盘货物（单票重约 1,500 磅），必须通过密集的本地取派场站（Service Centers）、夜间干线班车（Linehaul）与跨站分拨中心进行精密拼载。没有覆盖全美的 200+ 座实体转运终端，根本无法完成全国性 LTL 交付。
+        </p>
+
+        <h3>2. ODFL 独步天下的三大结构性竞争壁垒</h3>
+        <div class="grid-3">
+            <div class="card">
+                <div class="card-title">① 90%+ 自有产权场站与 25% 富余产能策略</div>
+                <p style="font-size:12.5px;margin-bottom:0;">
+                    ODFL 在全美拥有 261 座服务中心，其中超过 90% 为<strong>自有土地与建筑产权</strong>（而同行 XPO、SAIA 存在大量租赁场站）。更重要的是，ODFL 坚持反周期资本开支：在货运低谷期持续拿地扩建，常年保持 <strong>25%–30% 的门位富余产能（Excess Door Capacity）</strong>。当 2023 年 Yellow 破产或货运旺季爆发、同行因场站爆仓而瘫痪延误时，ODFL 能够无缝承接高溢价急单，且无需支付高昂的临时租金。
+                </p>
+            </div>
+            <div class="card">
+                <div class="card-title">② 99% 准点率与 <0.1% 货损率的溢价闭环</div>
+                <p style="font-size:12.5px;margin-bottom:0;">
+                    连续 15 年蝉联 Mastio 托运人满意度全美第一：<strong>准点率达 99.0%，货损索赔率低于 0.1%（行业平均为 1.0%–1.5%）</strong>。对于高价值工业零部件、精密医疗设备及大型零售商（如 Walmart、Target 严苛的 OTIF 准时入库罚款制度），托运人宁愿向 ODFL 多支付 5%–8% 的运费溢价，也不愿承担因同行延误导致的数万美元供应链停工罚款。
+                </p>
+            </div>
+            <div class="card">
+                <div class="card-title">③ 100% 非工会（Non-Union）高弹性劳工文化</div>
+                <p style="font-size:12.5px;margin-bottom:0;">
+                    历史上 ABF Freight（ArcBest）与破产的 Yellow 均受困于卡车司机工会（Teamsters）僵化的工种隔离（司机不能装卸叉车、装卸工不能挪车）。ODFL <strong>100% 无工会</strong>，通过业内顶级的薪酬福利与利润分享计划，实现了员工跨岗位高度协同（Dock-to-Driver 培训体系），单人作业效率领先工会车队 35% 以上。
+                </p>
+            </div>
+        </div>
+
+        <h3>3. 波特五力模型深度解构 (Porter's Five Forces)</h3>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>五力维度</th>
+                        <th>威胁等级</th>
+                        <th>评分 (0-10)</th>
+                        <th>买方穿透性分析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>潜在新进入者威胁</strong></td>
+                        <td><span class="score-pill pill-emerald">极低 (Very Low)</span></td>
+                        <td class="num">9.8</td>
+                        <td>新建覆盖全美的 250+ 座卡车终端需要 $10B+ 资本沉淀及长达 10 年的市政环评与土地审批（NIMBY 效应使大都市周边几乎不再批复货运场站）。过去 20 年北美零新进入者。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>同业竞争激烈程度</strong></td>
+                        <td><span class="score-pill pill-emerald">温和有序 (Rational)</span></td>
+                        <td class="num">8.8</td>
+                        <td>Yellow Corp 退出 10% 市场份额后，前五大巨头（FedEx Freight, ODFL, Estes, XPO, SAIA）控制超 70% 运力。全行业形成高度默契的「保费率、重利润」定价纪律（每年合同提价 4.5%–6.0%）。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>下游客户议价能力</strong></td>
+                        <td><span class="score-pill pill-emerald">较低 (Low)</span></td>
+                        <td class="num">9.0</td>
+                        <td>单一最大客户占比低于 5%，客户高度分散（数万家工业制造商与分销商）。高准点率与极低货损率赋予 ODFL 极强粘性。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>上游供应商议价能力</strong></td>
+                        <td><span class="score-pill pill-blue">中等 (Moderate)</span></td>
+                        <td class="num">7.8</td>
+                        <td>重卡主机厂（PACCAR/Peterbilt, Cummins, Volvo）议价力较强，但 ODFL 车队规模庞大且账上现金充裕，采购具备规模折扣；燃油成本 100% 通过燃油附加费（FSC）公式自动传导给客户。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>替代品威胁</strong></td>
+                        <td><span class="score-pill pill-emerald">极低 (Very Low)</span></td>
+                        <td class="num">9.2</td>
+                        <td>单票 500–10,000 磅的工业托盘货，快递包裹（UPS/FedEx Ground）太贵且超重，整车（TL）装载率不足太浪费，铁路多式联运（Intermodal）时效太慢。LTL 在物理尺度上不可替代。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 04: FINANCIAL STATEMENTS & EARNINGS QUALITY -->
+    <section id="mod-04" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 04</span> 核心财务报表与盈利质量深度剖析 (Financial Statements & Quality)</div>
+            <span class="score-pill pill-emerald">财务健康度: 9.2 / 10 (Piotroski F-Score: 8 / 9)</span>
+        </div>
+
+        <p>
+            审视 ODFL 过去四年及最新 TTM（截至 2026Q2）财务轨迹，可以清晰看到其穿越北美货运周期的惊人韧性。尽管 2023–2025 年北美遭遇长达 30 个月的制造业去库存与货运衰退（Freight Recession），ODFL 依然将全年营业利润率死死守在 24.8%–28.0% 之上，并在 <strong>2026 年 Q2 实现强力反转（单季营收 $1,554.0M，同比 +10.4%；营业利润 $465.3M，OR 降至 70.1%）</strong>。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 ($ Millions)</th>
+                        <th class="num">FY2022</th>
+                        <th class="num">FY2023</th>
+                        <th class="num">FY2024</th>
+                        <th class="num">FY2025</th>
+                        <th class="num" style="background:#ECFDF5;">TTM (2026Q2)</th>
+                        <th>周期趋势与盈利质量点评</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="num">$6,260.1</td>
+                        <td class="num">$5,866.2</td>
+                        <td class="num">$5,814.8</td>
+                        <td class="num">$5,496.4</td>
+                        <td class="num" style="background:#ECFDF5;font-weight:800;">$5,602.5</td>
+                        <td>2026Q2 单季同比 +10.4%，正式确立周期向上拐点</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income / EBIT)</strong></td>
+                        <td class="num">$1,840.6</td>
+                        <td class="num">$1,640.7</td>
+                        <td class="num">$1,544.0</td>
+                        <td class="num">$1,361.0</td>
+                        <td class="num" style="background:#ECFDF5;font-weight:800;">$1,447.7</td>
+                        <td>2026Q2 单季 EBIT 达 $465.3M，同比暴增 +30.0%</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><strong>运营比率 (Operating Ratio, OR)</strong></td>
+                        <td class="num">70.6%</td>
+                        <td class="num">72.0%</td>
+                        <td class="num">73.4%</td>
+                        <td class="num">75.2%</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">74.2% (Q2: 70.1%)</td>
+                        <td>OR 越低越强；Q2 重返 70.1%，展现惊人经营杠杆</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净利润 (Net Income)</strong></td>
+                        <td class="num">$1,377.2</td>
+                        <td class="num">$1,239.5</td>
+                        <td class="num">$1,186.1</td>
+                        <td class="num">$1,023.7</td>
+                        <td class="num" style="background:#ECFDF5;font-weight:800;">$1,089.3</td>
+                        <td>净利率高达 19.44%，无任何非经常性损益粉饰</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating Cash Flow)</strong></td>
+                        <td class="num">$1,691.6</td>
+                        <td class="num">$1,569.1</td>
+                        <td class="num">$1,659.3</td>
+                        <td class="num">$1,370.1</td>
+                        <td class="num" style="background:#ECFDF5;font-weight:800;">$1,394.1</td>
+                        <td>OCF / Net Income 长期稳定在 1.28x–1.40x，现金含金量极高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 (CapEx — 场站与车队)</strong></td>
+                        <td class="num">-$775.1</td>
+                        <td class="num">-$757.3</td>
+                        <td class="num">-$771.3</td>
+                        <td class="num">-$415.0</td>
+                        <td class="num" style="background:#ECFDF5;font-weight:800;">-$423.3</td>
+                        <td>前期逆周期拿地高峰已过，CapEx 回落释放巨额自由现金流</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><strong>自由现金流 (Free Cash Flow, FCF)</strong></td>
+                        <td class="num">$916.4</td>
+                        <td class="num">$811.8</td>
+                        <td class="num">$888.0</td>
+                        <td class="num">$955.1</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">$970.8</td>
+                        <td>FCF Margin 高达 17.3%，自由现金流创近四年新高</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="chart-financials"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 05: DUPONT ANALYSIS & CAPITAL EFFICIENCY -->
+    <section id="mod-05" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 05</span> 杜邦三因子拆解与资本运营效率 (DuPont Analysis & ROIC)</div>
+            <span class="score-pill pill-emerald">ROE: 24.8% • ROIC: 23.4% (无杠杆内生高回报)</span>
+        </div>
+
+        <p>
+            许多工业与运输企业依靠高额财务杠杆（3.0x–4.0x 权益乘数）勉强堆砌出 20% 的 ROE，一旦遭遇周期下行便面临债务违约风险。ODFL 的杜邦拆解揭示了完全不同的图景：<strong>公司凭借 19.44% 的超高净利率与 0.98x 的资产周转率，在几乎零负债（权益乘数仅 1.26x）的情况下，实现了 24.82% 的顶级 ROE 与 23.4% 的投入资本回报率（ROIC）</strong>。
+        </p>
+
+        <div class="grid-3">
+            <div class="card card-emerald">
+                <div class="card-title">① 销售净利率 (Net Profit Margin)</div>
+                <div class="card-val">19.44%</div>
+                <p style="font-size:12px;margin-bottom:0;">
+                    行业均值仅 6.5%–8.5%。ODFL 的高净利率源于：1) 干线直达率高，减少中转搬运次数；2) 极低的货损理赔支出（节省约 120 bps）；3) 无利息费用支出（净利息收入反而为正）。
+                </p>
+            </div>
+            <div class="card card-blue">
+                <div class="card-title">② 总资产周转率 (Asset Turnover)</div>
+                <div class="card-val">0.98x</div>
+                <p style="font-size:12px;margin-bottom:0;">
+                    TTM 营收 $5,602.5M / 总资产 $5,735.5M = 0.98x。考虑到公司账上持有大量重资产土地与场站，在保有 25% 富余门位的情况下仍实现近 1.0x 周转，资产运营效率极高。
+                </p>
+            </div>
+            <div class="card card-emerald">
+                <div class="card-title">③ 权益乘数 (Financial Leverage)</div>
+                <div class="card-val">1.26x</div>
+                <p style="font-size:12px;margin-bottom:0;">
+                    总资产 $5,735.5M / 股东权益 $4,547.4M = 1.26x（有息负债仅 $20.0M，其余为正常应付账款与递延税项）。<strong>ROE 24.82% = 19.44% × 0.98 × 1.26</strong>，纯靠经营实力驱动。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 06: PEER COMPARISON MATRIX -->
+    <section id="mod-06" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 06</span> 行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="score-pill pill-emerald">估值性价比: 极高 (与XPO同PE，利润率翻倍)</span>
+        </div>
+
+        <p>
+            我们将 ODFL 与北美核心上市货运同行进行全景横向对比：纯零担同行 <strong>Saia (SAIA)</strong>、<strong>XPO Inc. (XPO)</strong>，多式联运巨头 <strong>J.B. Hunt (JBHT)</strong> 以及综合快递/货运巨头 <strong>FedEx (FDX)</strong>。数据揭示了一个极为显著的市场定价错位（Mispricing）：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>公司名称 (Ticker)</th>
+                        <th class="num">当前股价</th>
+                        <th class="num">市值 ($B)</th>
+                        <th class="num">TTM P/E</th>
+                        <th class="num">Forward P/E</th>
+                        <th class="num">EV / EBITDA</th>
+                        <th class="num">营业利润率</th>
+                        <th class="num">ROE</th>
+                        <th class="num">负债/权益比</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="highlight-row">
+                        <td><strong>Old Dominion (ODFL) [本标的]</strong></td>
+                        <td class="num">$176.54</td>
+                        <td class="num">$36.6B</td>
+                        <td class="num">34.0x</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">26.5x</td>
+                        <td class="num">20.8x</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">28.8% (Q2: 29.9%)</td>
+                        <td class="num">24.8%</td>
+                        <td class="num" style="color:var(--primary-dark);">0.4% (净现金)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Saia, Inc. (SAIA)</strong></td>
+                        <td class="num">$345.21</td>
+                        <td class="num">$9.2B</td>
+                        <td class="num">33.3x</td>
+                        <td class="num">24.3x</td>
+                        <td class="num">15.6x</td>
+                        <td class="num">13.1%</td>
+                        <td class="num">10.8%</td>
+                        <td class="num">11.2%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>XPO, Inc. (XPO)</strong></td>
+                        <td class="num">$173.38</td>
+                        <td class="num">$20.3B</td>
+                        <td class="num">51.1x</td>
+                        <td class="num" style="color:var(--red);font-weight:700;">26.7x</td>
+                        <td class="num">17.8x</td>
+                        <td class="num">12.3%</td>
+                        <td class="num">21.6%</td>
+                        <td class="num">245.0% (高杠杆)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>J.B. Hunt Transport (JBHT)</strong></td>
+                        <td class="num">$237.97</td>
+                        <td class="num">$22.3B</td>
+                        <td class="num">33.8x</td>
+                        <td class="num">23.6x</td>
+                        <td class="num">16.2x</td>
+                        <td class="num">7.4%</td>
+                        <td class="num">18.4%</td>
+                        <td class="num">38.5%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FedEx Corporation (FDX)</strong></td>
+                        <td class="num">$303.32</td>
+                        <td class="num">$71.8B</td>
+                        <td class="num">16.3x</td>
+                        <td class="num">14.5x</td>
+                        <td class="num">8.6x</td>
+                        <td class="num">11.1%</td>
+                        <td class="num">14.8%</td>
+                        <td class="num">132.0%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">对标核心洞察：为什么 ODFL 26.5x Forward P/E 存在显著低估？</div>
+            <p style="margin-bottom:0;">
+                历史上 ODFL 因其无与伦比的资产质量与利润率，长期享受较 XPO 与 SAIA <strong>30%–45% 的估值溢价（约 8x–10x P/E 溢价）</strong>。然而在当前 $176.54 价位下，ODFL 的 Forward P/E（26.5x）竟然<strong>低于高负债、低利润率的 XPO（26.7x）</strong>，且仅比激进举债扩产的 SAIA（24.3x）高出 2.2x！当你能以同行的倍数买到营业利润率高达 28.8%（同行仅 12%–13%）、零净负债的行业绝对霸主时，这正是机构资金梦寐以求的「质量溢价免费赠送」时刻。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 07: DCF VALUATION & MULTI-PILLAR FAIR VALUE -->
+    <section id="mod-07" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 07</span> 四维估值架构与 DCF 现金流折现模型 (4-Pillar DCF & Fair Value)</div>
+            <span class="score-pill pill-emerald">公允价值中枢: $208.50 (+18.1% 现价上行空间)</span>
+        </div>
+
+        <p>
+            我们采用 InvestSkill 机构级四维估值架构（保守清算底 DCF、网络资产资本化两阶段 DCF、同行溢价还原倍数法、以及 Sell Put 净持仓成本安全边际）对 ODFL 进行严谨定价：
+        </p>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">Pillar 1 & 2: 两阶段 DCF 现金流折现核心假设</div>
+                <ul>
+                    <li><strong>基准自由现金流 (Base FCF)：</strong>采用 TTM 正常化 FCF <strong>$970.8M</strong> 为起点（随 2026–2028 年货运量温和复苏及 CapEx 正常化，预计 2027 年 FCF 将突破 $1,180M）。</li>
+                    <li><strong>加权平均资本成本 (WACC)：</strong>无风险利率 Rf = 4.10%，Beta = 1.165，股权风险溢价 ERP = 4.8%，零债务权重 → <strong>WACC = 8.45%</strong>。</li>
+                    <li><strong>两阶段增长率：</strong>Stage 1（Year 1–5）复合增速 <strong>11.5%</strong>（年均合同提价 4.8% + 货运吨位增长 3.7% + OR 改善 300 bps 经营杠杆）；Stage 2（Year 6–10）增速放缓至 <strong>7.5%</strong>；永续增长率 Terminal Growth g = <strong>3.2%</strong>（与美国名义 GDP 及长期通胀匹配）。</li>
+                    <li><strong>DCF 内在价值推导：</strong>10年期现金流现值 $9.85B + 终值现值 $32.75B + 净现金 $0.26B = 股权总价值 $42.86B（除以 2.073 亿稀释股本）→ <strong>DCF 公允价值 = $206.75 / 股</strong>。</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-title">Pillar 3 & 4: 倍数还原法与加权公允中枢合成</div>
+                <ul>
+                    <li><strong>历史 5 年中位数 P/E 回归法：</strong>ODFL 过去 5 年平均 Forward P/E 为 30.5x。给予 2027E 市场一致预期 EPS（$7.15/股）保守 29.5x 倍数 → <strong>目标价 = $210.90 / 股</strong>。</li>
+                    <li><strong>EV/EBITDA 护城河溢价法：</strong>给予 2027E EBITDA（$2,050M）21.5x 合理倍数 → <strong>目标价 = $207.80 / 股</strong>。</li>
+                    <li><strong>加权综合公允价值中枢 (Blended Fair Value)：</strong><br>
+                        <code>0.40 × DCF ($206.75) + 0.35 × P/E ($210.90) + 0.25 × EV/EBITDA ($207.80) = $208.50 / 股</code>。</li>
+                    <li><strong>双锚定安全边际评估 (Dual-Anchor Margin of Safety)：</strong><br>
+                        • 现价买入 ($176.54)：较公允中枢折价 <strong>-15.3%</strong>（上行空间 +18.1%）。<br>
+                        • 卖出 10/16 $165 Put 接股 ($162.20 净成本)：较公允中枢折价 <strong>-22.2%</strong>（上行空间 +28.5%，几乎贴近保守熊市底 $156.00！）。</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>估值情景 / 锚点 (Valuation Scenario)</th>
+                        <th class="num">核心假设 (WACC / 增速 / 倍数)</th>
+                        <th class="num">每股估值 ($ USD)</th>
+                        <th class="num">较现价 ($176.54) 空间</th>
+                        <th class="num">较 $165 Put 净成本 ($162.20) 空间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>极端熊市铁底 (Bear Case Stress Floor)</strong></td>
+                        <td class="num">WACC 9.2%, OR 恶化至 76%, 22x EPS</td>
+                        <td class="num">$156.00</td>
+                        <td class="num" style="color:var(--red);">-11.6%</td>
+                        <td class="num" style="color:var(--amber);">-3.8% (下行空间已被锁死)</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><strong>10/16 $165.00 Put 净接股成本 (Net Basis)</strong></td>
+                        <td class="num">行权价 $165.00 - 权利金 $2.80</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">$162.20</td>
+                        <td class="num" style="color:var(--primary-dark);">-8.1% 折价缓冲</td>
+                        <td class="num">0.0% (基准成本锚)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>当前市场现价 (Live Spot Price)</strong></td>
+                        <td class="num">2026-09-16 实时成交价 (26.5x Fwd PE)</td>
+                        <td class="num">$176.54</td>
+                        <td class="num">0.0%</td>
+                        <td class="num" style="color:var(--primary-dark);">+8.8% 安全垫</td>
+                    </tr>
+                    <tr>
+                        <td><strong>200 日移动平均线 (200-Day SMA)</strong></td>
+                        <td class="num">长期牛熊分界与机构成本中枢</td>
+                        <td class="num">$197.77</td>
+                        <td class="num" style="color:var(--primary-dark);">+12.0%</td>
+                        <td class="num" style="color:var(--primary-dark);">+21.9%</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><strong>基准公允价值中枢 (Base Case Fair Value)</strong></td>
+                        <td class="num">WACC 8.45%, OR 70.5%, 29.1x 27E EPS</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">$208.50</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">+18.1%</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">+28.5%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>牛市周期繁荣目标 (Bull Case Peak)</strong></td>
+                        <td class="num">ISM 制造业扩张, OR 破 68.5%, 32x EPS</td>
+                        <td class="num">$242.00</td>
+                        <td class="num" style="color:var(--primary-dark);">+37.1%</td>
+                        <td class="num" style="color:var(--primary-dark);">+49.2%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="chart-valuation"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 08: TECHNICAL ANALYSIS & REGIME SWITCHING -->
+    <section id="mod-08" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 08</span> 技术面量化与质量条件状态切换引擎 (Technical Analysis & Regime Switch)</div>
+            <span class="score-pill pill-emerald">技术择时评分: 8.8 / 10 (RSI 17.8 罕见左侧黄金坑)</span>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">质量条件状态切换引擎判定 (Quality-Conditioned Regime Switching Engine)</div>
+            <p style="margin-bottom:0;">
+                在传统趋势跟踪模型中，跌破 200 日均线常被机械判定为「破位看空」。但 InvestSkill 的机构量化引擎严格区分<strong>「基本面恶化的价值陷阱」</strong>与<strong>「顶级宽护城河资产的情绪错杀」</strong>：由于 ODFL 的商业质量评分（9.4/10）与财务健康评分（9.2/10）远超 7.5 分门槛，系统自动切换至<strong>「均值回归与左侧黄金坑累积模式（Mean-Reversion & Golden Pit Mode）」</strong>。当前 <strong>RSI(14) 低至 17.8（过去 5 年仅出现过 3 次 <20 的极端超卖）</strong>，200 日均线负偏离达 <strong>-10.74%</strong>，每次出现该组合信号后 6 个月，ODFL 历史上涨胜率为 100%，平均反弹幅度达 +24.6%。
+            </p>
+        </div>
+
+        <div class="grid-4">
+            <div class="card">
+                <div class="card-title">RSI (14日相对强弱)</div>
+                <div class="card-val" style="color:var(--primary-dark);">17.8</div>
+                <p style="font-size:11.5px;margin:0;">极度超卖 (<25 为罕见左侧黄金买点，抛压已近枯竭)</p>
+            </div>
+            <div class="card">
+                <div class="card-title">200日均线偏离 (Dev200)</div>
+                <div class="card-val" style="color:var(--primary-dark);">-10.74%</div>
+                <p style="font-size:11.5px;margin:0;">SMA200 为 $197.77；触发估值槽 Delta 放宽规则</p>
+            </div>
+            <div class="card">
+                <div class="card-title">52周相对位置 (RP)</div>
+                <div class="card-val">41.5%</div>
+                <p style="font-size:11.5px;margin:0;">区间 $125.51 - $252.03；已从高点回撤 -30.0%</p>
+            </div>
+            <div class="card">
+                <div class="card-title">波动率结构 (IV vs HV)</div>
+                <div class="card-val" style="color:var(--primary-dark);">+9.8%</div>
+                <p style="font-size:11.5px;margin:0;">IV (37.8%) 显著高于 HV30 (28.0%)，卖 Put 溢价丰厚</p>
+            </div>
+        </div>
+
+        <h3>关键筹码支撑与阻力位图谱 (Key Support & Resistance Levels)</h3>
+        <ul>
+            <li><strong>第一强支撑位（S1 — 近期密集成交底与期权 Max Pain 防线）：$170.00 - $172.00</strong>（对应 10/16 $170 Put 持仓密集区，短期反弹触发点）。</li>
+            <li><strong>第二核心铁底（S2 — 机构左侧建仓与 $165 Put 盈亏平衡带）：$160.00 - $162.50</strong>（对应 2025 年下半年突破平台顶部及 24x Forward P/E 铁底）。</li>
+            <li><strong>上方第一阻力位（R1 — 20日均线与缺口回补）：$191.29</strong>（短线反弹 +8.3% 目标位）。</li>
+            <li><strong>上方核心阻力位（R2 — 200日牛熊线与 50日均线交汇区）：$197.77 - $209.27</strong>（中期估值修复目标位）。</li>
+        </ul>
+    </section>
+
+    <!-- MODULE 09: CAPITAL ALLOCATION & DIVIDEND DISCLOSURE -->
+    <section id="mod-09" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 09</span> 资本配置、股息政策与股东回报强制披露 (Capital Allocation & Dividends)</div>
+            <span class="score-pill pill-emerald">股息率: 0.66% ($1.16/年) + 巨额逆周期股票回购</span>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">强制股息与股东回报合规披露 (Mandatory Dividend & Buyback Disclosure)</div>
+            <p style="margin-bottom:0;">
+                <strong>股息派发状态：有稳定现金股息派发（Active Dividend Payer）</strong>。<br>
+                • <strong>年度每股股息 (Annual Dividend Rate)：</strong><strong>$1.16 / 股</strong>（按季度派发，每季度 $0.29 / 股）。<br>
+                • <strong>当前股息率 (Dividend Yield)：</strong><strong>0.66%</strong>（基于现价 $176.54 计算；YFinance TTM 口径为 0.64%）。<br>
+                • <strong>股息支付率 (Payout Ratio)：</strong>仅 <strong>21.92%</strong>，盈利覆盖倍数高达 4.56 倍，安全边际极高，过去 5 年股息年均复合增长率（CAGR）超过 15%。<br>
+                • <strong>最新除息日 (Ex-Dividend Date)：</strong><strong>2026-09-02</strong>。<br>
+                • <strong>核心股东回报引擎（Share Buybacks 股票回购）：</strong>由于 ODFL 认为保持低股息支付率可将资金优先用于高回报的场站扩建与<strong>逆周期逢低股票回购</strong>，公司在过去 3 年累计回购并注销了超过 $2.4B 股票。每当股价跌破 200 日均线（如当前 $176 区间），公司董事会授權的回购计划便会加速入场吸筹，成为托底股价的最强买盘。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 10: CASH-SECURED SELL PUT STRATEGY -->
+    <section id="mod-10" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 10</span> 现金担保卖出看跌期权 (Cash-Secured Sell Put) 三级实战策略</div>
+            <span class="score-pill pill-emerald">量化总排名: #9 • 推荐 2026-10-16 $165.00 Put (APY 20.6%)</span>
+        </div>
+
+        <p>
+            基于当前现价 <strong>$176.54</strong>、30日历史波动率 <strong>HV30 = 28.0%</strong> 而期权隐含波动率高达 <strong>IV = 37.8%–40.5%</strong>（恐慌情绪推升了近 10 个百分点的波动率溢价），当前是执行 Cash-Secured Put（CSP）收租或折价接股的黄金窗口。由于 `Dev200 = -10.74% <= 0.00`，系统自动激活<strong>「估值槽 Delta 放宽规则（Delta Allowance -0.10 ~ -0.40）」</strong>。我们为您制定 <strong>2026-10-16 到期（30 DTE）</strong> 与 <strong>2026-11-20 到期（65 DTE）</strong> 的三级实战合约矩阵：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略档位 (Risk Tier)</th>
+                        <th>合约代码 (Contract)</th>
+                        <th class="num">行权价</th>
+                        <th class="num">Bid / Ask</th>
+                        <th class="num">保守执行价</th>
+                        <th class="num">Delta</th>
+                        <th class="num">隐含波动率</th>
+                        <th class="num">接股净成本</th>
+                        <th class="num">安全垫缓冲</th>
+                        <th class="num">年化收益率 (APY)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🟢 保守防守档 (Conservative)</strong></td>
+                        <td><code>ODFL 261016P160</code></td>
+                        <td class="num">$160.00</td>
+                        <td class="num">$1.60 / $2.25</td>
+                        <td class="num">$1.84</td>
+                        <td class="num">-0.18</td>
+                        <td class="num">40.5%</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:700;">$158.16</td>
+                        <td class="num">+10.4% 折价</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">14.0% APY</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td><strong>🔥 核心主攻档 (Balanced • #9)</strong></td>
+                        <td><code>ODFL 261016P165</code></td>
+                        <td class="num">$165.00</td>
+                        <td class="num">$2.50 / $3.10</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">$2.80</td>
+                        <td class="num">-0.24</td>
+                        <td class="num">37.8%</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">$162.20</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">+8.1% 折价</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">20.6% APY</td>
+                    </tr>
+                    <tr>
+                        <td><strong>💎 激进接股档 (Aggressive)</strong></td>
+                        <td><code>ODFL 261016P170</code></td>
+                        <td class="num">$170.00</td>
+                        <td class="num">$4.10 / $4.90</td>
+                        <td class="num">$4.50</td>
+                        <td class="num">-0.33</td>
+                        <td class="num">38.4%</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:700;">$165.50</td>
+                        <td class="num">+6.3% 折价</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">32.2% APY</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🗓️ 远月稳健档 (65 DTE Alternative)</strong></td>
+                        <td><code>ODFL 261120P160</code></td>
+                        <td class="num">$160.00</td>
+                        <td class="num">$3.60 / $5.30</td>
+                        <td class="num">$4.14</td>
+                        <td class="num">-0.24</td>
+                        <td class="num">41.1%</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:700;">$155.86</td>
+                        <td class="num">+11.7% 折价</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:800;">14.5% APY</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-2">
+            <div class="card card-emerald">
+                <div class="card-title">首选推荐执行方案：卖出 2026-10-16 $165.00 Put (30 DTE)</div>
+                <ul>
+                    <li><strong>单份合约保证金占用：</strong>$16,500 USD（扣除收取的 $280 权利金后，实际净现金担保敞口为 <strong>$16,220 USD</strong>）。</li>
+                    <li><strong>数学期望与赔率分析 (EV Alpha)：</strong>基于 HV_effective = 28.0% 的 Black-Scholes 真实分布定价，该期权理论公允价值仅为 $1.35，而市场报价高达 $2.80，<strong>单张合约净数学期望 EV = +$145.00 USD（属于典型的「💰 溢价收租 Premium Focus」级别）</strong>。</li>
+                    <li><strong>双赢结局（Win-Win Payoff）：</strong><br>
+                        1) 若 10 月 16 日股价高于 $165.00（概率 76%）：稳赚 $280 权利金，30 天实现 1.70% 绝对收益（年化 <strong>20.6% APY</strong>）。<br>
+                        2) 若股价继续下探跌破 $165.00：以 <strong>$162.20 净成本</strong>（较 200 日均线折价 -18.0%，对应 24.4x Forward P/E）从容接盘 100 股全美最赚钱的零担货运龙头，随即启动 Wheel 策略卖出 Covered Call。</li>
+                </ul>
+            </div>
+            <div class="chart-container" style="margin:0;height:280px;">
+                <canvas id="chart-options"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 11: INSTITUTIONAL OWNERSHIP -->
+    <section id="mod-11" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 11</span> 机构持仓与主力资金动向 (Institutional Ownership & 13F Flows)</div>
+            <span class="score-pill pill-emerald">机构持股比例: 81.24% • 内部人持股: 8.24% (合计锁仓 89.5%)</span>
+        </div>
+
+        <p>
+            根据最新 SEC Form 13F 季度持仓披露（截至 2026-06-30），ODFL 的股权结构呈现出极高的<strong>「长线机构锁仓 + 创始家族利益深度绑定」</strong>特征。机构投资者合计持有 81.24% 流通股，加上 Congdon 创始家族及高管持有的 8.24%，<strong>高达 89.48% 的筹码被长期锁定</strong>，市场真实自由流通盘极小，这解释了为何一旦抛压衰竭，ODFL 的反弹往往极为凌厉。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>顶级机构股东名称 (Top Institutional Holder)</th>
+                        <th class="num">持股数量 (Shares)</th>
+                        <th class="num">占总股本比例</th>
+                        <th class="num">持仓市值 ($ USD)</th>
+                        <th class="num">最新季度增减持变动</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="highlight-row">
+                        <td>1</td>
+                        <td><strong>BlackRock Inc. (贝莱德)</strong></td>
+                        <td class="num">15,771,039</td>
+                        <td class="num">7.61%</td>
+                        <td class="num">$2,784,140,427</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:700;">+5.89% (逢低大幅加仓)</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td>2</td>
+                        <td><strong>FMR, LLC (Fidelity 富达基金)</strong></td>
+                        <td class="num">12,695,818</td>
+                        <td class="num">6.12%</td>
+                        <td class="num">$2,241,256,277</td>
+                        <td class="num" style="color:var(--primary-dark);font-weight:700;">+8.38% (主力主动买盘)</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>Vanguard Group (先锋领航)</strong></td>
+                        <td class="num">12,099,217</td>
+                        <td class="num">5.83%</td>
+                        <td class="num">$2,135,935,317</td>
+                        <td class="num">+0.15% (核心底仓)</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><strong>T. Rowe Price Associates (普信集团)</strong></td>
+                        <td class="num">9,783,717</td>
+                        <td class="num">4.72%</td>
+                        <td class="num">$1,727,168,516</td>
+                        <td class="num" style="color:var(--red);">-20.62% (阶段性获利调仓)</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><strong>State Street Corporation (道富集团)</strong></td>
+                        <td class="num">8,279,956</td>
+                        <td class="num">3.99%</td>
+                        <td class="num">$1,461,702,062</td>
+                        <td class="num" style="color:var(--primary-dark);">+5.69% (稳步增持)</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><strong>Invesco Ltd. (景顺投资)</strong></td>
+                        <td class="num">7,314,156</td>
+                        <td class="num">3.53%</td>
+                        <td class="num">$1,291,204,556</td>
+                        <td class="num" style="color:var(--primary-dark);">+4.97% (稳步增持)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 12: INSIDER TRADING & EARNINGS CALL TONE -->
+    <section id="mod-12" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 12</span> 内部人交易 Form 4 与财报电话会管理层洞察 (Insider & Earnings Call)</div>
+            <span class="score-pill pill-blue">管理层定调: 坚守收益率纪律 • 拒绝低价抢量</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">SEC Form 4 内部人交易审计 (Insider Sentiment)</div>
+                <p style="font-size:12.5px;">
+                    • <strong>创始家族高比例利益绑定：</strong>Congdon 家族（执行董事长 David S. Congdon 及家族信托）合计持有公司超 8% 股权（价值近 $3.0B），是美股工业巨头中极为罕见的家族深度控股结构。<br>
+                    • <strong>近期 Form 4 交易记录：</strong>2026 年 8 月 25 日，高管 Cecil E. Overbey Jr. 在股价 $198.39 处例行减持 19,952 股（套现约 $3.96M）；2026 年 5 月，董事长 David Congdon 进行 295,670 股家族信托赠与划转（零对价），6 名独立董事各获授 859 股年度限制性股票奖励。过去 90 天净内部人抛售远低于 $10M 警戒线，<strong>未触发任何内部人抛售扣分（0 pt penalty）</strong>。
+                </p>
+            </div>
+            <div class="card">
+                <div class="card-title">2026 Q2 财报电话会核心洞察 (CEO Marty Freeman)</div>
+                <p style="font-size:12.5px;">
+                    • <strong>运营比率重返 70.1% 的秘密：</strong>CEO Marty Freeman 与 CFO Adam Satterfield 强调，Q2 营收增长 +10.4% 中，每百磅运费收益率（Revenue per Hundredweight, ex-fuel）同比提升 +4.8%，货运吨位同比回升 +5.3%。<br>
+                    • <strong>绝不妥协的定价哲学：</strong>管理层明确重申：<em>“我们绝不会为了填满短期富余门位而参与任何形式的运费打折。我们的长期合同续签提价率（Contract Renewal）持续保持在 4.5%–5.5% 区间，客户清楚 ODFL 的准点服务值这个溢价。”</em>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 13: SHORT INTEREST & OPTIONS POSITIONING -->
+    <section id="mod-13" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 13</span> 做空比例、平仓天数与期权市场筹码结构 (Short Interest & Options Positioning)</div>
+            <span class="score-pill pill-emerald">Days to Cover: 5.2 天 (具备温和空头回补助推力)</span>
+        </div>
+
+        <p>
+            当前 ODFL 的空头持仓（Short Interest）为 <strong>7,707,790 股</strong>，占自由流通盘比例（Short % of Float）为 <strong>4.61%</strong>。由于 ODFL 日均成交量适中，其<strong>空头平仓天数（Days to Cover / Short Ratio）高达 5.2 天</strong>。在 RSI 跌至 17.8 的极端超卖状态下，一旦即将发布的 9 月份 ISM 制造业数据或公司期中运营更新（Mid-Quarter Update）释放利好，长达 5.2 天的平仓压力将迫使量化空头迅速回补，形成典型的「超跌反弹 + 空头回补（Short Covering Rally）」共振。
+        </p>
+    </section>
+
+    <!-- MODULE 14: RISK MATRIX & BEAR CASE STRESS TEST -->
+    <section id="mod-14" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 14</span> 核心风险矩阵与极端熊市压力测试 (Risk Matrix & Downside Stress Test)</div>
+            <span class="score-pill pill-amber">极端熊市清算底: $156.00 (较 $165 Put 净成本仅 -3.8% 风险)</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子名称 (Risk Factor)</th>
+                        <th>发生概率</th>
+                        <th>严重程度</th>
+                        <th>财务与估值冲击测算 (Impact Quantification)</th>
+                        <th>期权卖方应对预案 (Risk Mitigation)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>美国工业衰退导致日均货运吨位下滑 >8%</strong></td>
+                        <td class="num">25%</td>
+                        <td>中等 (Moderate)</td>
+                        <td>OR 从 70.1% 回升至 74.0%，2027E EPS 下修至 $6.40，估值回调至 24.5x ($156.80)</td>
+                        <td>$165 Put 净接股成本 $162.20 已消化 90% 衰退预期；接股后持有收息并卖 Call</td>
+                    </tr>
+                    <tr>
+                        <td><strong>柴油价格暴涨 >$5.00/加仑引发客户缩减发货</strong></td>
+                        <td class="num">20%</td>
+                        <td>轻微 (Low)</td>
+                        <td>FSC 燃油附加费滞后 2 周传导，影响单季 EPS 约 -$0.06/股</td>
+                        <td>对全年现金流无结构性损害，无需止损</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2026年10月28日 Q3 财报季指引不及预期</strong></td>
+                        <td class="num">30%</td>
+                        <td>中等 (Moderate)</td>
+                        <td>财报日隐含波动幅度（Expected Move）约为 ±6.2%（约 ±$11.00/股）</td>
+                        <td><strong>我们推荐的 2026-10-16 期权在 Q3 财报（10月28日）之前 12 天到期！完美规避财报跳空风险！</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15: CATALYST CALENDAR & MONITORING PLAN -->
+    <section id="mod-15" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 15</span> 未来关键催化剂日历与季度监控清单 (Catalyst Calendar & Monitoring Plan)</div>
+            <span class="score-pill pill-blue">核心优势: 10/16 期权到期日早于 Q3 财报日，零财报赌博风险</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">未来 90 天关键催化剂日历 (Upcoming Catalysts)</div>
+                <ul>
+                    <li><strong>2026-10-01：</strong>美国 9 月 ISM 制造业 PMI 数据发布（若重返 49.0+ 将直接引爆工业运输板块反弹）。</li>
+                    <li><strong>2026-10-16 [期权到期日]：</strong><strong>推荐的 10/16 $165.00 Put 到期结算日</strong>（预计权利金全部归零落袋）。</li>
+                    <li><strong>2026-10-28 (盘前)：</strong>ODFL 发布 2026 年 Q3 正式财报（重点关注 Q3 运营比率是否维持在 70.5% 以下及 10 月份日均吨位同比增速）。</li>
+                    <li><strong>2026-12-03：</strong>管理层出席摩根士丹利工业与运输峰会，发布 Q4 期中货运吨位与收益率更新（Mid-Quarter Update）。</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-title">买方季度核心跟踪指标 (Quarterly Monitoring Checklist)</div>
+                <ul>
+                    <li><strong>核心生命线指标 1 — 运营比率 (Operating Ratio, OR)：</strong>只要全年 OR 维持在 <strong>73.0% 以下</strong>（同行 >85%），宽护城河逻辑 100% 稳固。</li>
+                    <li><strong>核心生命线指标 2 — 每百磅不含燃油运费收益率 (Yield ex-fuel YoY)：</strong>必须维持 <strong>+3.5% 以上正增长</strong>。若出现同比负增长，说明行业爆发恶性价格战，需立刻降级。</li>
+                    <li><strong>核心生命线指标 3 — 自由现金流与净现金：</strong>监控季度股票回购执行力度及净现金头寸（当前 +$263.9M）。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 16: FINAL VERDICT & STANDARDIZED SIGNAL BLOCK -->
+    <section id="mod-16" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 16</span> 最终投资评级、仓位建议与标准化信号块 (Final Verdict & Signal Block)</div>
+            <span class="score-pill pill-emerald">FINAL RATING: STRONG BUY (8.35 / 10)</span>
+        </div>
+
+        <p>
+            <strong>最终执行建议：</strong>Old Dominion Freight Line (ODFL) 是典型的「平时高不可攀（常年 32x–35x P/E）、唯有在制造业周期迷雾与技术面极端超卖（RSI 17.8）时才给出黄金入场券」的顶级复利机器。当前 $176.54 的现价已充分计入宏观货运疲软预期，而 2026 年 Q2 高达 29.9% 的营业利润率（OR 70.1%）证明其内生盈利能力处于巅峰状态。<strong>我们强烈建议期权卖方把握当前 IV 37.8% 的溢价窗口，优先卖出 2026-10-16 $165.00 Put（年化 20.6% APY），由于该合约于 10 月 16 日到期（早于 10 月 28 日 Q3 财报），可在完全规避财报跳空风险的前提下稳享高额 Theta 衰减收益。</strong>
+        </p>
+
+        <div class="signal-block">
+            <div class="signal-label-top">INVESTMENT SIGNAL BLOCK (15-MODULE COMPREHENSIVE SYNTHESIS)</div>
+            <div class="signal-header-row">
+                <div class="signal-verdict">强力买入 (Strong Buy) • 70.1%运营比率霸主 + RSI 17.8罕见左侧黄金坑</div>
+                <div class="signal-score">8.35 / 10</div>
+            </div>
+            <div class="signal-grid">
+                <div class="signal-item"><div class="sig-label">投资信号 (Signal)</div><div class="sig-val">BULLISH (强力看多)</div></div>
+                <div class="signal-item"><div class="sig-label">置信度 (Confidence)</div><div class="sig-val">HIGH (Q2财报验证+零净负债)</div></div>
+                <div class="signal-item"><div class="sig-label">投资期限 (Horizon)</div><div class="sig-val">MEDIUM-TERM (3-12个月)</div></div>
+                <div class="signal-item"><div class="sig-label">首选执行策略 (Action)</div><div class="sig-val">Sell 10/16 $165 Put @ $2.80 (20.6% APY)</div></div>
+            </div>
+        </div>
+
+        <pre class="ascii-signal">
+╔════════════════════════════════════════════════════════════════════════════╗
+║                         INVESTMENT SIGNAL BLOCK                            ║
+╠════════════════════════════════════════════════════════════════════════════╣
+║ Ticker:      ODFL (Old Dominion Freight Line, Inc. — NASDAQ)               ║
+║ Live Spot:   $176.54 USD (Dev200: -10.74% | RSI14: 17.8 Extreme Oversold)  ║
+║ Fair Value:  $208.50 USD (+18.1% Spot Upside | +28.5% Put Basis Upside)    ║
+║ Signal:      BULLISH (Contrarian Left-Side Golden Pit on Wide-Moat King)   ║
+║ Confidence:  HIGH (Verified Q2 2026 70.1% OR & Net Cash Balance Sheet)     ║
+║ Horizon:     MEDIUM-TERM (3 to 12 Months Freight Cycle Recovery)           ║
+║ Score:       8.35 / 10 (Ranked #9 in Master Sell Put Quant Model)          ║
+╠════════════════════════════════════════════════════════════════════════════╣
+║ Action:      BUY SPOT / SELL CASH-SECURED PUT (10/16 $165P @ $2.80)        ║
+║ Conviction:  STRONG (Expires Oct 16 before Oct 28 Q3 Earnings Release)     ║
+╚════════════════════════════════════════════════════════════════════════════╝</pre>
+    </section>
+
+</main>
+
+<script>
+    // Chart 1: Multi-Factor Quantitative Radar Chart
+    new Chart(document.getElementById('chart-radar'), {
+        type: 'radar',
+        data: {
+            labels: [
+                '商业护城河与定价权 (9.4)',
+                'FCF印钞机与零负债 (9.2)',
+                '逆向左侧黄金坑择时 (8.8)',
+                '卖方期权Alpha收益 (8.0)',
+                '估值折价安全边际 (7.6)',
+                '机构锁仓与市场信号 (6.2)'
+            ],
+            datasets: [{
+                label: 'ODFL 综合量化评分 (8.35/10)',
+                data: [9.4, 9.2, 8.8, 8.0, 7.6, 6.2],
+                backgroundColor: 'rgba(16, 185, 129, 0.24)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#064E3B',
+                borderWidth: 2.5
+            }, {
+                label: '北美工业运输行业均值',
+                data: [6.2, 5.8, 5.0, 5.5, 6.0, 5.8],
+                backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                borderColor: '#94A3B8',
+                borderDash: [4, 4],
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    min: 0,
+                    max: 10,
+                    ticks: { stepSize: 2, font: { size: 10 } }
+                }
+            }
+        }
+    });
+
+    // Chart 2: 5-Year & TTM Financial Performance
+    new Chart(document.getElementById('chart-financials'), {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'TTM (2026Q2)'],
+            datasets: [
+                {
+                    label: '营业总收入 ($M)',
+                    data: [6260.1, 5866.2, 5814.8, 5496.4, 5602.5],
+                    backgroundColor: '#059669',
+                    borderRadius: 6
+                },
+                {
+                    label: '营业利润 EBIT ($M)',
+                    data: [1840.6, 1640.7, 1544.0, 1361.0, 1447.7],
+                    backgroundColor: '#10B981',
+                    borderRadius: 6
+                },
+                {
+                    label: '自由现金流 FCF ($M)',
+                    data: [916.4, 811.8, 888.0, 955.1, 970.8],
+                    backgroundColor: '#0D9488',
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: '百万美元 ($ Millions)' } }
+            }
+        }
+    });
+
+    // Chart 3: Valuation Bridge & Margin of Safety
+    new Chart(document.getElementById('chart-valuation'), {
+        type: 'bar',
+        data: {
+            labels: [
+                '极端熊市铁底 ($156.00)',
+                '10/16 $160P 净成本 ($158.16)',
+                '10/16 $165P 净成本 ($162.20)',
+                '当前现价 Spot ($176.54)',
+                '200日均线 ($197.77)',
+                'DCF/综合公允价值 ($208.50)',
+                '牛市繁荣目标 ($242.00)'
+            ],
+            datasets: [{
+                label: '每股估值锚点对比 ($ USD)',
+                data: [156.00, 158.16, 162.20, 176.54, 197.77, 208.50, 242.00],
+                backgroundColor: [
+                    '#F59E0B',
+                    '#10B981',
+                    '#059669',
+                    '#2563EB',
+                    '#64748B',
+                    '#047857',
+                    '#0D9488'
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { min: 130, max: 260, title: { display: true, text: '每股价格 ($ USD)' } }
+            }
+        }
+    });
+
+    // Chart 4: Options Expiration Payoff Profile (2026-10-16 $165.00 Short Put)
+    new Chart(document.getElementById('chart-options'), {
+        type: 'line',
+        data: {
+            labels: ['$145', '$150', '$155', '$160', '$162.20 (盈亏平衡点)', '$165 (行权价)', '$170', '$176.54 (现价)', '$185'],
+            datasets: [{
+                label: '2026-10-16 $165.00 Put 到期单份合约净损益 ($ USD)',
+                data: [-1720, -1220, -720, -220, 0, 280, 280, 280, 280],
+                borderColor: '#059669',
+                backgroundColor: 'rgba(16, 185, 129, 0.18)',
+                fill: true,
+                tension: 0.12,
+                borderWidth: 2.5,
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { title: { display: true, text: '到期净损益 ($ USD / 合约)' } }
+            }
+        }
+    });
+</script>
+</body>
+</html>

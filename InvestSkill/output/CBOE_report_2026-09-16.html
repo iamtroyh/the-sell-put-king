@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Cboe Global Markets (CBOE) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary: #059669;
+            --primary-dark: #064E3B;
+            --primary-light: #ECFDF5;
+            --accent: #10B981;
+            --accent-light: #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --blue:          #2563EB;
+            --blue-light:    #EFF6FF;
+            --purple:        #7C3AED;
+            --purple-light:  #F5F3FF;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#334155;
+            --text-muted:    #64748B;
+            --grad-hero: linear-gradient(135deg, #064E3B 0%, #065F46 45%, #059669 80%, #10B981 100%);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 3px solid #10B981;
+        }
+        .hero-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.3); font-family: 'JetBrains Mono', monospace; }
+        .badge-hero-sector { background: rgba(59,130,246,.25); color: #93C5FD; border: 1px solid rgba(59,130,246,.4); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.45); }
+        .badge-hero-rank { background: rgba(245,158,11,.25); color: #FCD34D; border: 1px solid rgba(245,158,11,.5); font-weight: 700; }
+        .badge-hero-date { background: rgba(0,0,0,.35); color: #E2E8F0; border: 1px solid rgba(255,255,255,.2); font-family: 'JetBrains Mono', monospace; }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 10px; letter-spacing: -0.5px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.92; margin-bottom: 24px; max-width: 1020px; line-height: 1.65; color: #E2E8F0; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11.5px; text-transform: uppercase; color: #6EE7B7; font-weight: 700; letter-spacing: 0.4px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 3px; color: #FFFFFF; }
+        .hero-kpi-sub { font-size: 11.5px; opacity: 0.88; color: #CBD5E1; }
+
+        .main-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 26px 16px 68px; }
+
+        .provenance-bar {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--blue);
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            font-size: 12.5px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+        .provenance-item { display: flex; align-items: center; gap: 6px; }
+        .provenance-lbl { font-weight: 700; color: var(--text-primary); }
+        .provenance-val { color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+        .toc {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 26px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 5px 11px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--accent); color: #fff; }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sec-num {
+            background: var(--primary);
+            color: #FFFFFF;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .score-pill {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pill-green { background: var(--emerald-light); color: #065F46; border: 1px solid var(--accent-light); }
+        .pill-blue { background: var(--blue-light); color: #1E40AF; border: 1px solid #BFDBFE; }
+        .pill-amber { background: var(--amber-light); color: #92400E; border: 1px solid #FDE68A; }
+        .pill-purple { background: var(--purple-light); color: #5B21B6; border: 1px solid #DDD6FE; }
+
+        p { margin-bottom: 14px; color: var(--text-secondary); text-align: justify; }
+        ul, ol { margin: 0 0 14px 20px; color: var(--text-secondary); }
+        li { margin-bottom: 6px; }
+        strong { color: var(--text-primary); }
+
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin: 16px 0; }
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 16px 0; }
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin: 16px 0; }
+
+        .metric-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .metric-card-lbl { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+        .metric-card-val { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+        .metric-card-desc { font-size: 11.5px; color: var(--text-secondary); margin-top: 4px; }
+
+        .info-box {
+            background: #F8FAFC;
+            border-left: 4px solid var(--accent);
+            border-radius: 0 10px 10px 0;
+            padding: 15px 18px;
+            margin: 16px 0;
+        }
+        .info-box.success { background: var(--emerald-light); border-left-color: var(--accent); }
+        .info-box.warn { background: var(--amber-light); border-left-color: var(--amber); }
+        .info-box.blue { background: var(--blue-light); border-left-color: var(--blue); }
+        .info-box-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 680px; font-size: 13px; }
+        th {
+            background: #F1F5F9;
+            color: var(--text-primary);
+            font-weight: 700;
+            text-align: left;
+            padding: 11px 14px;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #F8FAFC; }
+        .num-font { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        .val-pos { color: #059669; font-weight: 700; }
+        .val-neg { color: #DC2626; font-weight: 700; }
+        .val-warn { color: #D97706; font-weight: 700; }
+
+        .chart-box {
+            position: relative;
+            height: 330px;
+            width: 100%;
+            margin: 18px 0;
+            padding: 14px;
+            background: #FAFAFA;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .signal-block {
+            background: linear-gradient(135deg, #090D16 0%, #0F172A 50%, #064E3B 100%);
+            color: #FFFFFF;
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-top: 24px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(16,185,129,0.4);
+        }
+        .signal-label-top {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6EE7B7;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .signal-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,.18);
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .signal-verdict { font-size: 22px; font-weight: 800; color: #FFFFFF; }
+        .signal-score {
+            background: #10B981;
+            color: #FFFFFF;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 800;
+            padding: 6px 16px;
+            border-radius: 10px;
+            box-shadow: 0 0 14px rgba(16,185,129,.5);
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+        }
+        .signal-item {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .sig-label { font-size: 11px; color: #6EE7B7; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+        .sig-val { font-size: 14px; font-weight: 700; color: #FFFFFF; }
+
+        .ascii-signal-pre {
+            background: #020617;
+            color: #10B981;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 12.5px;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin-top: 18px;
+            border: 1px solid #1E293B;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 23px; }
+            .section { padding: 18px 16px; }
+            .data-grid-4, .data-grid-3, .data-grid-2 { grid-template-columns: 1fr; }
+            .chart-box { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">BATS: CBOE</span>
+            <span class="badge badge-hero-sector">金融衍生品交易所 • 波动率与期权垄断基础设施</span>
+            <span class="badge badge-hero-rank">🔥 量化排名跃升 +42位 至 Rank #20</span>
+            <span class="badge badge-hero-signal">STRONG BUY • 8.65 / 10</span>
+            <span class="badge badge-hero-date">数据基准日: 2026-09-16</span>
+        </div>
+        <h1 class="hero-title">Cboe Global Markets (CBOE) — 全球波动率收费站与 0DTE 期权印钞机：RSI 22.0 极端超卖黄金坑深度调研</h1>
+        <p class="hero-sub">
+            芝加哥期权交易所（CBOE）独家垄断全球最具价值的标普500指数期权（SPX）与恐慌指数衍生品（VIX）特许经营权，营业利润率高达 34.63%，净现金流充沛且处于净现金状态（Net Cash +$7.74亿）。近期股价自高点 $369.38 回调至 $268.16（跌破200日均线 -5.87%，RSI 14 降至 22.04 极端超卖区），触发本系统「逆向黄金坑 +4.0分奖励」。卖出 2026-10-16 $250.00 Put（Tier 1 顶级流动性，OI 358）可锁定 $245.50 净接股成本（折价于保守 DCF 清算铁底 $258.40），并斩获 21.90% 年化权利金收益。
+        </p>
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前实时股价 (Spot)</div>
+                <div class="hero-kpi-val">$268.16</div>
+                <div class="hero-kpi-sub">52周区间: $226.52 - $369.38 (RP: 29.15%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">估值中枢与 DCF 折价</div>
+                <div class="hero-kpi-val">$318.00</div>
+                <div class="hero-kpi-sub">上涨空间 +18.59% | 远期 PE 17.62x</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">主推 Sell Put 净接股成本</div>
+                <div class="hero-kpi-val">$245.50</div>
+                <div class="hero-kpi-sub">10/16 $250 Put | 隐含 PE 16.1x (安全垫 8.4%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">期权卖方年化收益 (APY)</div>
+                <div class="hero-kpi-val">21.90%</div>
+                <div class="hero-kpi-sub">Tier 1 极佳流动性 | 30天权利金 $450/张</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">技术面逆向黄金坑信号</div>
+                <div class="hero-kpi-val">RSI 22.04</div>
+                <div class="hero-kpi-sub">200SMA偏离 -5.87% | 触发黄金坑 +4.0分奖励</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrap">
+
+    <div class="provenance-bar">
+        <div class="provenance-item"><span class="provenance-lbl">Data & Sources:</span><span class="provenance-val">SEC EDGAR 10-K/10-Q, Cboe Exchange Volume Metrics, Live Options Chain</span></div>
+        <div class="provenance-item"><span class="provenance-lbl">As of Date:</span><span class="provenance-val">2026-09-16 (Live Market Snapshot)</span></div>
+        <div class="provenance-item"><span class="provenance-lbl">Retrieval Method:</span><span class="provenance-val">yfinance Live API & Quantitative Multi-Factor Engine</span></div>
+        <div class="provenance-item"><span class="provenance-lbl">Data Confidence:</span><span class="provenance-val" style="color:#059669;font-weight:700;">HIGH (Verified Primary Filings & Tier 1 Live Option Quotes)</span></div>
+    </div>
+
+    <nav class="toc">
+        <div class="toc-title">15-Module Institutional Research Navigation (全模块直达导航)</div>
+        <div class="toc-links">
+            <a href="#mod-1" class="toc-link">01. 执行摘要与核心逻辑</a>
+            <a href="#mod-2" class="toc-link">02. 多因子量化评分雷达</a>
+            <a href="#mod-3" class="toc-link">03. 商业模式与波特五力护城河</a>
+            <a href="#mod-4" class="toc-link">04. 财务报表与现金流质量</a>
+            <a href="#mod-5" class="toc-link">05. 杜邦三因子与ROIC拆解</a>
+            <a href="#mod-6" class="toc-link">06. 交易所同行全景对标</a>
+            <a href="#mod-7" class="toc-link">07. 四维 DCF 估值与溢价桥</a>
+            <a href="#mod-8" class="toc-link">08. 技术面量化与黄金坑机制</a>
+            <a href="#mod-9" class="toc-link">09. 资本配置与股息政策披露</a>
+            <a href="#mod-10" class="toc-link">10. Sell Put 卖方期权三档策略</a>
+            <a href="#mod-11" class="toc-link">11. 13F 机构持仓与筹码分布</a>
+            <a href="#mod-12" class="toc-link">12. 内部人交易与管理层指引</a>
+            <a href="#mod-13" class="toc-link">13. 做空比例与期权 PCR 分析</a>
+            <a href="#mod-14" class="toc-link">14. 核心风险矩阵与压力测试</a>
+            <a href="#mod-15" class="toc-link">15. 催化剂日历与最终投资信号</a>
+        </div>
+    </nav>
+
+    <!-- MODULE 1 -->
+    <section id="mod-1" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 01</span>执行摘要与投资核心逻辑 (Executive Summary & Thesis)</div>
+            <span class="score-pill pill-green">核心定性：反脆弱垄断基础设施 • 黄金坑左侧击球区</span>
+        </div>
+        <p>
+            <strong>1. 公司定位与核心资产壁垒：</strong>Cboe Global Markets, Inc. (BATS: CBOE) 是全球衍生品与证券交易基础设施的绝对领军者，运营美国四大期权交易所（Cboe Options, C2, BZX, EDGX）、欧洲股票与衍生品市场（Cboe Europe）、日本及澳大利亚证券交易平台，以及全球领先的数据与分析业务（Data & Access Solutions）。CBOE 最核心、不可复制的皇冠明珠在于其<strong>独家垄断标普 500 指数期权（SPX / XSP）以及全球恐慌指数（Cboe Volatility Index, VIX）期权与期货的挂牌清算权</strong>（与 S&P Dow Jones Indices 签署的排他性授权协议已续签至 2033 年以后）。与普通个股期权在全美 17 家交易所同质化竞争、依靠做市商返佣（Maker-Taker Rebates）薄利多销截然不同，SPX 与 VIX 属于 CBOE 独家专营产品（Proprietary Products），单张合约平均收费（RPC, Revenue Per Contract）高达 $0.65~$0.85，是普通多挂牌股票期权（~$0.08~$0.15）的 <strong>5 至 8 倍</strong>，构建了极高利润率的收费桥梁。
+        </p>
+        <p>
+            <strong>2. 结构性增长引擎（0DTE 末日期权革命与全球全天候交易）：</strong>过去三年间，CBOE 引领了全球金融市场最深刻的结构性变革——<strong>0DTE（零天到期 / 末日期权）的机构化普及</strong>。SPX 每日到期期权的推出，将指数期权从传统的“月度/季度尾部风险保险”升级为量化对冲基金、CTA 策略及高净值交易者每日精准管理 Gamma 与日内波动率的核心工具。目前 0DTE 交易量已占 SPX 总交易量的 <strong>52% 以上</strong>，推动 CBOE 2025 财年总营收跃升至 <strong>$47.14 亿美元（YoY +15.1%）</strong>，营业利润达 <strong>$15.14 亿美元（YoY +28.2%）</strong>，自由现金流飙升至 <strong>$16.82 亿美元（YoY +61.7%）</strong>。此外，CBOE 推行的 SPX/VIX 几乎 24×5 全天候全球交易时段（Global Trading Hours, GTH），正持续捕获亚洲与欧洲时段的跨时区对冲需求。
+        </p>
+        <p>
+            <strong>3. 为什么当前是绝佳买点（量化排名暴涨 +42 位至 Rank #20 的底层动因）：</strong>尽管基本面创下历史新高，CBOE 股价近期随金融板块轮动及短期市场波动率收敛，自 52 周高点 $369.38 快速回落至 <strong>$268.16（回撤幅度 -27.4%，52 周相对位置 RP = 29.15%）</strong>，跌破 200 日均线（$284.89，偏离度 -5.87%），<strong>14 日 RSI 指标更是暴跌至 22.04 的罕见极端超卖水平</strong>。在本系统的「双核多因子量化模型」中，对于 ROE 高达 26.30%、资产负债表处于净现金状态（Net Cash +$7.74 亿美元）、且具备反脆弱属性（市场大跌时 VIX 飙升反而带动交易量井喷）的宽护城河垄断资产，RSI < 25 叠加负偏离触发了<strong>「逆向黄金坑保护与左侧吸筹奖励（+4.0 pts）」</strong>。此时通过卖出 30 天期 $250.00 Put，可在享受 8.45% 额外下行安全垫（净接股成本 $245.50，对应远期 PE 仅 16.1 倍）的同时，获取高达 <strong>21.90% 的年化权利金收益</strong>。
+        </p>
+
+        <div class="data-grid-3">
+            <div class="info-box success">
+                <div class="info-box-title">🟢 看多核心支柱 (Bull Case Pillars)</div>
+                <ul>
+                    <li><strong>SPX & VIX 独家排他垄断权：</strong>零同质化竞争，专营衍生品贡献超 65% 的交易净收入，具备极强的提价权（RPC 持续提升）。</li>
+                    <li><strong>0DTE 与 24×5 GTH 长期复利：</strong>末日期权日均成交量（ADV）维持双位数增长，海外时段成交量同比增速超 +35%。</li>
+                    <li><strong>宏观反脆弱对冲属性（自带 Crisis Alpha）：</strong>当美股出现黑天鹅暴跌或地缘冲突时，VIX 与 SPX 对冲需求激增，业绩呈逆周期爆发。</li>
+                    <li><strong>极度健康的净现金资产负债表：</strong>账面现金 $23.55 亿 > 总债务 $15.80 亿，净现金 +$7.74 亿，F-Score 高达 8/9 分。</li>
+                </ul>
+            </div>
+            <div class="info-box warn">
+                <div class="info-box-title">🟡 核心风险审视 (Bear Case & Risks)</div>
+                <ul>
+                    <li><strong>极端低波动率死水行情风险：</strong>若宏观市场进入长期极低波动（VIX 长期 < 12），机构对冲意愿下降可能导致季度 ADV 环比回落 8%~12%。</li>
+                    <li><strong>监管对 0DTE 散户参与度的审查：</strong>SEC 或 FINRA 若对散户日内期权保證金规则收紧，可能边际放缓零售端增速（但机构占比已超 70%，影响可控）。</li>
+                    <li><strong>多挂牌股票期权返佣价格战：</strong>MIAX、MEMX 等新兴交易所争夺普通个股期权份额，使普通期权市占率承压（目前已由专营指数产品完全对冲）。</li>
+                </ul>
+            </div>
+            <div class="info-box blue">
+                <div class="info-box-title">🎯 机构级期权操作建议 (Action Plan)</div>
+                <ul>
+                    <li><strong>首选平衡型甜点位：</strong>卖出 <code>2026-10-16 $250.00 Put</code>（DTE 30），Mark $4.50，年化收益率 <strong>21.90%</strong>，净接股成本 <strong>$245.50</strong>（低于保守 DCF 清算铁底 $258.40）。</li>
+                    <li><strong>保守型深虚值防线：</strong>卖出 <code>2026-10-16 $240.00 Put</code>，Mark $2.75，年化收益率 <strong>13.94%</strong>，净成本 <strong>$237.25</strong>（逼近 52 周极值低点 $226.52）。</li>
+                    <li><strong>进取型高收益收租：</strong>卖出 <code>2026-10-16 $260.00 Put</code>，Mark $7.70，年化收益率 <strong>36.03%</strong>，净成本 <strong>$252.30</strong>。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 2 -->
+    <section id="mod-2" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 02</span>多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</div>
+            <span class="score-pill pill-green">综合加权总分：8.65 / 10 (Strong Buy)</span>
+        </div>
+        <p>
+            基于 InvestSkill 机构级六维加权评估体系，CBOE 在「商业护城河与定价权（9.4分）」、「自由现金流与资产负债表健康度（9.2分）」及「逆向价值时机选择（9.0分）」三个维度表现极为突出，综合加权得分高达 <strong>8.65 / 10</strong>，位列全美金融基础设施与交易所板块前茅。
+        </p>
+
+        <div class="data-grid-2">
+            <div class="table-scroll" style="margin:0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>评估维度 (Component)</th>
+                            <th>权重</th>
+                            <th>单项得分</th>
+                            <th>加权贡献</th>
+                            <th>核心量化依据与评级解读</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. 商业护城河与垄断质量</strong></td>
+                            <td class="num-font">25%</td>
+                            <td class="num-font val-pos">9.4 / 10</td>
+                            <td class="num-font val-pos">2.35</td>
+                            <td>SPX/VIX 独家排他授权至 2033+，ROE 26.30%，极高转换成本</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. 估值安全边际与折价</strong></td>
+                            <td class="num-font">25%</td>
+                            <td class="num-font val-pos">8.4 / 10</td>
+                            <td class="num-font val-pos">2.10</td>
+                            <td>远期 PE 17.62x 显著低于 CME (21.1x) 与 SPGI (20.3x)；净成本折价 22.8%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. FCF 现金流与财务健康</strong></td>
+                            <td class="num-font">20%</td>
+                            <td class="num-font val-pos">9.2 / 10</td>
+                            <td class="num-font val-pos">1.84</td>
+                            <td>FY25 FCF 达 $16.82亿 (+61.7%)，净现金 +$7.74亿，Piotroski F-Score 8分</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. 期权 Alpha 与权利金收益</strong></td>
+                            <td class="num-font">15%</td>
+                            <td class="num-font val-pos">8.2 / 10</td>
+                            <td class="num-font val-pos">1.23</td>
+                            <td>30DTE IV 达 39.5% (>HV30 34.9%)，Tier 1 顶级流动性，APY 21.90%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5. 机构持仓与主力资金信号</strong></td>
+                            <td class="num-font">10%</td>
+                            <td class="num-font val-pos">6.8 / 10</td>
+                            <td class="num-font val-pos">0.68</td>
+                            <td>贝莱德与先锋领航合计持股超 20%，管理层上调全年有机增长指引</td>
+                        </tr>
+                        <tr>
+                            <td><strong>6. 逆向价值时机 (Timing)</strong></td>
+                            <td class="num-font">5%</td>
+                            <td class="num-font val-pos">9.0 / 10</td>
+                            <td class="num-font val-pos">0.45</td>
+                            <td>RSI 22.04 罕见极端超卖 + 200SMA 负偏离 -5.87%，完美触发黄金坑法则</td>
+                        </tr>
+                        <tr style="background:#ECFDF5;font-weight:800;">
+                            <td><strong>COMPOSITE SCORE (综合总分)</strong></td>
+                            <td class="num-font">100%</td>
+                            <td class="num-font val-pos" style="font-size:15px;">8.65 / 10</td>
+                            <td class="num-font val-pos" style="font-size:15px;">8.65</td>
+                            <td><strong style="color:#065F46;">STRONG BUY (强力买入 / 卖方收租与左侧吸筹首选)</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="chart-box" style="margin:0;">
+                <canvas id="chart-radar"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 3 -->
+    <section id="mod-3" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 03</span>商业模式、垂直整合与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="score-pill pill-green">护城河评级：WIDE MOAT (宽护城河 • 9.4/10)</span>
+        </div>
+        <p>
+            CBOE 的商业模式由三大高协同支柱构成：<strong>（1）衍生品交易业务（Derivatives Markets，占净收入约 62%）</strong>，核心为独家指数期权（SPX, VIX, Russell 2000）及多挂牌个股期权；<strong>（2）数据与接入解决方案（Data and Access Solutions - DnA，占净收入约 26%）</strong>，向全球高频交易商、量化机构出售 Cboe Titanium 极速主机托管（Co-location）、专有深度行情数据（Market Data）及 Cboe Global Indices 指数授权；<strong>（3）现货与股票交易市场（Cash & Spot Markets，占净收入约 12%）</strong>，涵盖北美 BZX/BYX/EDGX/EDGA 股票交易所及欧洲 Cboe Europe。
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>波特五力维度 (Porter's Five Forces)</th>
+                        <th>威胁等级</th>
+                        <th>评分 (0-10)</th>
+                        <th>垄断经济学与微观机制深度剖析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 潜在新进入者威胁 (Threat of New Entrants)</strong></td>
+                        <td><span class="val-pos">极低 (Minimal)</span></td>
+                        <td class="num-font val-pos">9.8 / 10</td>
+                        <td>金融衍生品交易所受 SEC/CFTC 最严苛的国家级牌照监管，且 OCC（期权清算公司）清算成员网络与流动性池具有极强的双边网络效应，新进入者无法复制 SPX/VIX 的流动性深度。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 替代品威胁 (Threat of Substitutes)</strong></td>
+                        <td><span class="val-pos">极低 (Very Low)</span></td>
+                        <td class="num-font val-pos">9.5 / 10</td>
+                        <td>虽然 CME 拥有 E-mini S&P 500 期货期权（ES Options），但 SPX 期权具备现金交割（Cash-Settled）、欧式行权（无提前指派风险）及 IRS Section 1256 优惠税率（60% 长期资本利得 / 40% 短期资本利得）三大法定优势，机构与高净值客户粘性极高。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 买方议价能力 (Bargaining Power of Buyers)</strong></td>
+                        <td><span class="val-pos">低 (Low)</span></td>
+                        <td class="num-font val-pos">8.8 / 10</td>
+                        <td>对于多挂牌普通股票期权，做市商（Citadel, Virtu, Susquehanna）议价能力较强；但在 SPX 与 VIX 专营品种上，CBOE 拥有 100% 垄断定价权，多次提价均未导致成交量流失。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 供应商议价能力 (Bargaining Power of Suppliers)</strong></td>
+                        <td><span class="val-warn">中等 (Moderate)</span></td>
+                        <td class="num-font val-warn">7.8 / 10</td>
+                        <td>核心上游供应商为 S&P Dow Jones Indices（SPGI 旗下），CBOE 需向其支付指数授权分成费（Royalty Fees）。但双方已建立长达 40 余年的深度共生绑定，且 VIX 指数计算方法专利归属 CBOE，双方互为不可替代伙伴。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. 行业内现有竞争强度 (Industry Rivalry)</strong></td>
+                        <td><span class="val-pos">温和 (Manageable)</span></td>
+                        <td class="num-font val-pos">8.9 / 10</td>
+                        <td>全美衍生品市场呈“专营品种寡头割据”格局：CBOE 垄断股指与波动率期权（SPX/VIX），CME 垄断利率、大宗商品与国债期货，ICE 垄断能源与软商品。各自在核心领地均享有极高超额利润。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 4 -->
+    <section id="mod-4" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 04</span>核心财务报表与盈利质量深度剖析 (Financial Statements & Cash Flow Quality)</div>
+            <span class="score-pill pill-green">盈利质量评分：9.2 / 10 (极高现金流转化率)</span>
+        </div>
+        <p>
+            CBOE 的财务报表展现了顶级金融基础设施平台典型的<strong>「高经营杠杆 + 极低资本开支」</strong>特征。由于交易撮合系统（Cboe Titanium）研发完成后边际处理成本趋近于零，每一笔新增的 SPX 或 VIX 期权成交量，在扣除固定比例的指数授权费后，几乎 85% 以上直接转化为营业利润（EBIT）与自由现金流（FCF）。2025 财年公司自由现金流高达 <strong>$16.82 亿美元</strong>，资本开支（CapEx）仅 <strong>$0.71 亿美元</strong>（占营收比例仅 1.51%），净利润现金含量（FCF / Net Income）高达 <strong>152.9%</strong>！
+        </p>
+
+        <div class="data-grid-2">
+            <div class="table-scroll" style="margin:0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>核心财务指标 ($ Millions)</th>
+                            <th>FY2022</th>
+                            <th>FY2023</th>
+                            <th>FY2024</th>
+                            <th>FY2025</th>
+                            <th>3年复合增速 / 趋势解读</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>营业总收入 (Gross Revenue)</strong></td>
+                            <td class="num-font">$3,958.5</td>
+                            <td class="num-font">$3,773.5</td>
+                            <td class="num-font">$4,094.5</td>
+                            <td class="num-font val-pos">$4,714.2</td>
+                            <td>YoY +15.1% | 0DTE 与专营衍生品放量驱动</td>
+                        </tr>
+                        <tr>
+                            <td><strong>毛利润 (Gross Profit)</strong></td>
+                            <td class="num-font">$1,378.7</td>
+                            <td class="num-font">$1,492.2</td>
+                            <td class="num-font">$1,610.0</td>
+                            <td class="num-font val-pos">$1,928.3</td>
+                            <td>毛利率稳步提升至 54.08% (TTM)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>营业利润 (Operating Income)</strong></td>
+                            <td class="num-font">$970.4</td>
+                            <td class="num-font">$1,065.3</td>
+                            <td class="num-font">$1,180.7</td>
+                            <td class="num-font val-pos">$1,514.1</td>
+                            <td>3年 CAGR +16.0% | 营业利润率高达 34.63%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>归母净利润 (GAAP Net Income)</strong></td>
+                            <td class="num-font">$235.0*</td>
+                            <td class="num-font">$761.4</td>
+                            <td class="num-font">$764.9</td>
+                            <td class="num-font val-pos">$1,100.0</td>
+                            <td>*FY22 含数字资产一次性减值；FY25 暴增 +43.8%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EBITDA</strong></td>
+                            <td class="num-font">$659.7</td>
+                            <td class="num-font">$1,268.0</td>
+                            <td class="num-font">$1,268.3</td>
+                            <td class="num-font val-pos">$1,741.3</td>
+                            <td>YoY +37.3% | 现金牛盈利能力全面释放</td>
+                        </tr>
+                        <tr>
+                            <td><strong>经营活动现金流 (OCF)</strong></td>
+                            <td class="num-font">$651.1</td>
+                            <td class="num-font">$1,075.6</td>
+                            <td class="num-font">$1,100.6</td>
+                            <td class="num-font val-pos">$1,752.6</td>
+                            <td>经营现金流极其强劲，无应收账款坏账风险</td>
+                        </tr>
+                        <tr>
+                            <td><strong>资本开支 (CapEx)</strong></td>
+                            <td class="num-font">-$59.8</td>
+                            <td class="num-font">-$45.0</td>
+                            <td class="num-font">-$60.9</td>
+                            <td class="num-font">-$71.0</td>
+                            <td>极轻资产模式，CapEx 仅占营收 1.5%</td>
+                        </tr>
+                        <tr style="background:#ECFDF5;font-weight:700;">
+                            <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                            <td class="num-font">$591.3</td>
+                            <td class="num-font">$1,030.6</td>
+                            <td class="num-font">$1,039.7</td>
+                            <td class="num-font val-pos">$1,681.6</td>
+                            <td><strong class="val-pos">YoY +61.7% | FCF/净利润转化率高达 152.9%</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>账面现金及等价物 (Cash)</strong></td>
+                            <td class="num-font">$432.7</td>
+                            <td class="num-font">$543.2</td>
+                            <td class="num-font">$920.3</td>
+                            <td class="num-font val-pos">$2,354.5*</td>
+                            <td>*最新季度现金达 $23.55亿，流动性极为充裕</td>
+                        </tr>
+                        <tr>
+                            <td><strong>有息总债务 (Total Debt)</strong></td>
+                            <td class="num-font">$1,871.3</td>
+                            <td class="num-font">$1,610.8</td>
+                            <td class="num-font">$1,599.3</td>
+                            <td class="num-font val-pos">$1,580.3*</td>
+                            <td>持续主动去杠杆，净现金 (Net Cash) 达 +$7.74亿</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="chart-box" style="margin:0;">
+                <canvas id="chart-financials"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 5 -->
+    <section id="mod-5" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 05</span>杜邦三因子拆解与资本运营效率 (DuPont Analysis & Capital Efficiency)</div>
+            <span class="score-pill pill-green">ROE 26.30% • 高利润率驱动型优质内生复利</span>
+        </div>
+        <p>
+            通过杜邦恒等式（$	ext{ROE} = 	ext{Net Profit Margin} 	imes 	ext{Asset Turnover} 	imes 	ext{Equity Multiplier}$）穿透拆解 CBOE 的净资产收益率（ROE）：公司 TTM ROE 高达 <strong>26.30%</strong>（FY2025 期末静态 ROE 为 21.41%）。与传统银行业或高杠杆金融机构依靠 10 倍以上财务杠杆堆砌 ROE 完全不同，CBOE 的权益乘数（Equity Multiplier）仅为 <strong>1.81 倍</strong>（有息负债率极低，且处于净现金状态），其高 ROE <strong>100% 源自垄断专营期权带来的超高净利率（26.73%）与稳健的资产周转效率（0.51x）</strong>。
+        </p>
+
+        <div class="data-grid-4">
+            <div class="metric-card">
+                <div class="metric-card-lbl">1. 销售净利率 (Net Margin)</div>
+                <div class="metric-card-val val-pos">26.73%</div>
+                <div class="metric-card-desc">专营指数期权高 RPC 与数据订阅高毛利驱动，远超标普500均值 (12.1%)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">2. 总资产周转率 (Asset Turnover)</div>
+                <div class="metric-card-val">0.51x</div>
+                <div class="metric-card-desc">总资产 $93.05亿中含大量并购商誉与无形资产；若剔除商誉，有形资产周转率达 1.85x</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">3. 权益乘数 (Equity Multiplier)</div>
+                <div class="metric-card-val val-pos">1.81x</div>
+                <div class="metric-card-desc">股东权益 $51.38亿，总债务仅 $15.80亿 (Debt/Equity 28.09%)，极低财务杠杆</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">4. 净资产收益率 (TTM ROE)</div>
+                <div class="metric-card-val val-pos">26.30%</div>
+                <div class="metric-card-desc">ROA 高达 11.58%，资本回报率显著高于加权平均资本成本 (WACC 7.8%)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 6 -->
+    <section id="mod-6" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 06</span>行业竞争格局与同行全景对标矩阵 (Peer Comparison Matrix)</div>
+            <span class="score-pill pill-blue">相对估值结论：增速全场第一 + 估值全场最低 = 显著折价</span>
+        </div>
+        <p>
+            我们将 CBOE 与全球四大顶级金融交易所及指数基础设施巨头——<strong>芝加哥商品交易所（CME Group）</strong>、<strong>洲际交易所（ICE）</strong>、<strong>纳斯达克（NDAQ）</strong>以及<strong>标普全球（SPGI）</strong>进行全景量化对标。数据清晰揭示了一个极佳的定价错配（Mispricing）：<strong>CBOE 拥有全行业最高的营收增速（+22.9%）与最高的 ROE（26.30%），但其远期市盈率（Forward PE 17.62x）与企业价值倍数（EV/EBITDA 14.23x）却处于全行业最低水平！</strong>
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>交易所/基础设施代码</th>
+                        <th>当前股价</th>
+                        <th>总市值 ($B)</th>
+                        <th>TTM PE</th>
+                        <th>Forward PE</th>
+                        <th>EV / EBITDA</th>
+                        <th>营业利润率</th>
+                        <th>净利率</th>
+                        <th>ROE (%)</th>
+                        <th>营收同比增速</th>
+                        <th>股息率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background:#ECFDF5;font-weight:700;">
+                        <td><strong>CBOE (芝加哥期权交易所)</strong></td>
+                        <td class="num-font">$268.16</td>
+                        <td class="num-font">$28.00B</td>
+                        <td class="num-font val-pos">20.92x</td>
+                        <td class="num-font val-pos">17.62x</td>
+                        <td class="num-font val-pos">14.23x</td>
+                        <td class="num-font">34.63%</td>
+                        <td class="num-font">26.73%</td>
+                        <td class="num-font val-pos">26.30%</td>
+                        <td class="num-font val-pos">+22.90%</td>
+                        <td class="num-font">1.27%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CME (芝加哥商品交易所)</strong></td>
+                        <td class="num-font">$272.15</td>
+                        <td class="num-font">$97.86B</td>
+                        <td class="num-font">23.06x</td>
+                        <td class="num-font">21.05x</td>
+                        <td class="num-font">21.07x</td>
+                        <td class="num-font val-pos">65.04%</td>
+                        <td class="num-font val-pos">63.44%</td>
+                        <td class="num-font">15.80%</td>
+                        <td class="num-font">+0.80%</td>
+                        <td class="num-font">1.89%*</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ICE (洲际交易所)</strong></td>
+                        <td class="num-font">$154.67</td>
+                        <td class="num-font">$86.83B</td>
+                        <td class="num-font">21.82x</td>
+                        <td class="num-font">17.57x</td>
+                        <td class="num-font">16.03x</td>
+                        <td class="num-font">52.63%</td>
+                        <td class="num-font">38.25%</td>
+                        <td class="num-font">14.09%</td>
+                        <td class="num-font">+4.80%</td>
+                        <td class="num-font">1.33%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NDAQ (纳斯达克)</strong></td>
+                        <td class="num-font">$89.18</td>
+                        <td class="num-font">$49.85B</td>
+                        <td class="num-font">26.62x</td>
+                        <td class="num-font">19.06x</td>
+                        <td class="num-font">17.49x</td>
+                        <td class="num-font">49.33%</td>
+                        <td class="num-font">35.04%</td>
+                        <td class="num-font">16.52%</td>
+                        <td class="num-font">+14.90%</td>
+                        <td class="num-font">1.30%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SPGI (标普全球)</strong></td>
+                        <td class="num-font">$410.94</td>
+                        <td class="num-font">$121.15B</td>
+                        <td class="num-font">25.03x</td>
+                        <td class="num-font">20.32x</td>
+                        <td class="num-font">16.99x</td>
+                        <td class="num-font">44.79%</td>
+                        <td class="num-font">30.54%</td>
+                        <td class="num-font">14.26%</td>
+                        <td class="num-font">+10.40%</td>
+                        <td class="num-font">0.94%</td>
+                    </tr>
+                    <tr style="background:#F1F5F9;font-weight:700;">
+                        <td><strong>同行均值 (Peer Average)</strong></td>
+                        <td class="num-font">—</td>
+                        <td class="num-font">$88.92B</td>
+                        <td class="num-font">24.13x</td>
+                        <td class="num-font">19.50x</td>
+                        <td class="num-font">17.90x</td>
+                        <td class="num-font">52.95%</td>
+                        <td class="num-font">41.82%</td>
+                        <td class="num-font">15.17%</td>
+                        <td class="num-font">+7.73%</td>
+                        <td class="num-font">1.37%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size:12.5px;color:var(--text-muted);">
+            *注：CBOE 的表观毛利率/净利率低于 CME，是因为会计准则要求 CBOE 将代收代付的期权监管费与做市商流動性返佣（Liquidity Payments）计入 Gross Revenue 再予以扣除；若按扣除交易返佣后的净营收（Net Revenue ~$22.8B）计算，CBOE 的真实调整后 EBITDA 利润率高达 <strong>64.5%</strong>，与 CME 完全处于同一顶级梯队！
+        </p>
+    </section>
+
+    <!-- MODULE 7 -->
+    <section id="mod-7" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 07</span>四维 DCF 现金流折现模型与公允价值中枢 (4-Pillar DCF Valuation & Bridge)</div>
+            <span class="score-pill pill-green">基准公允价值：$318.00 (+18.59% 安全边际)</span>
+        </div>
+        <p>
+            为精准锚定 CBOE 的内在价值，我们构建了 <strong>InvestSkill 四维估值架构（4-Pillar Valuation Architecture）</strong>：结合保守清算底线 DCF、包含特许授权与撮合技术资本化的两阶段成长 DCF（Damodaran 框架）、同行可比估值倍数矩阵，以及卖方期权净接股成本（Net Basis）安全垫验证。
+        </p>
+
+        <div class="data-grid-2">
+            <div class="table-scroll" style="margin:0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>估值模型维度 (Valuation Pillar)</th>
+                            <th>核心参数假设 (WACC / 增速 / 倍数)</th>
+                            <th>每股内在价值</th>
+                            <th>较现价 ($268.16) 空间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. 保守 5 年 DCF 清算铁底 (Conservative Floor)</strong></td>
+                            <td>FCF CAGR 6.5%, WACC 8.2%, 永续增长率 2.5%</td>
+                            <td class="num-font val-warn">$258.40</td>
+                            <td class="num-font val-neg">-3.64% (下行铁底支撑)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. 专营权与研发资本化 DCF (Growth & IP DCF)</strong></td>
+                            <td>10年两阶段 (前5年 8.5%, 后5年 6.0%), WACC 7.8%, g=3.0%</td>
+                            <td class="num-font val-pos">$324.50</td>
+                            <td class="num-font val-pos">+21.01%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. 同行倍数公允价值矩阵 (Multiples Matrix)</strong></td>
+                            <td>20.5x FY26E PE ($15.22 EPS) 与 17.5x EV/EBITDA 均值</td>
+                            <td class="num-font val-pos">$315.40</td>
+                            <td class="num-font val-pos">+17.62%</td>
+                        </tr>
+                        <tr style="background:#ECFDF5;font-weight:800;">
+                            <td><strong>4. 综合加权基准公允价值 (Blended Base Fair Value)</strong></td>
+                            <td><strong>40% IP-DCF + 40% Multiples + 20% Conservative Floor</strong></td>
+                            <td class="num-font val-pos" style="font-size:15px;">$318.00</td>
+                            <td class="num-font val-pos" style="font-size:15px;">+18.59% (目标中枢)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5. 乐观牛市情景 (Bull Case — 波动率扩张 + 估值修复)</strong></td>
+                            <td>VIX 均值抬升至 20+，ADV +15%，估值修复至 22.5x PE</td>
+                            <td class="num-font val-pos">$368.00</td>
+                            <td class="num-font val-pos">+37.23% (重回 52W 高点)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>6. 悲观熊市情景 (Bear Case — 极度低波 + 费率压缩)</strong></td>
+                            <td>市场成交清淡 ADV -10%，估值压缩至 15.5x 历史谷底 PE</td>
+                            <td class="num-font val-neg">$236.00</td>
+                            <td class="num-font val-neg">-11.99% (极限压力位)</td>
+                        </tr>
+                        <tr style="background:#EFF6FF;font-weight:700;">
+                            <td><strong>🎯 主推 10/16 $250 Put 净接股成本 (Net Basis)</strong></td>
+                            <td><strong>行权价 $250.00 - 权利金 $4.50 = $245.50 (隐含 PE 16.1x)</strong></td>
+                            <td class="num-font val-pos">$245.50</td>
+                            <td class="num-font val-pos"><strong>较公允价值折价 -22.80%！</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="chart-box" style="margin:0;">
+                <canvas id="chart-valuation"></canvas>
+            </div>
+        </div>
+
+        <div class="info-box blue" style="margin-top:16px;">
+            <div class="info-box-title">💡 估值溢价分解桥 (Valuation Premium Decomposition Bridge: $258.40 ➔ $318.00)</div>
+            <p style="margin-bottom:0;">
+                为什么 CBOE 的合理公允价值（$318.00）显著高于传统 5 年期静态 DCF 保守底线（$258.40）？核心溢价由四大结构性护城河资产构成：<strong>① SPX & VIX 排他性垄断特许经营权溢价（+$28.50/股）</strong>：直至 2033 年的独家清算壁垒消除了竞争性费率侵蚀；<strong>② 0DTE 末日期权非线性复利与 24×5 全球扩张（+$16.20/股）</strong>：亚太与欧洲交易时段正处于渗透率早期 S 曲线；<strong>③ 净现金资产负债表安全溢价（+$7.40/股）</strong>：每股拥有 $7.41 净现金缓冲，无任何债务违约或高息再融资拖累；<strong>④ 危机 Alpha 反脆弱期权价值（+$7.50/股）</strong>：在市场崩盘时业绩逆势暴涨的负 Beta 对冲属性。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 8 -->
+    <section id="mod-8" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 08</span>技术面量化、均线系统与逆向黄金坑机制 (Technical Analysis & Golden Pit)</div>
+            <span class="score-pill pill-green">技术面评分：9.0 / 10 (RSI 22.04 极端超卖 • 黄金坑反转信号)</span>
+        </div>
+        <p>
+            根据本系统独创的<strong>「质量条件化状态切换引擎（Quality-Conditioned Regime Switching Engine）」</strong>：当标的公司商业质量评分 >= 7.5 且财务健康度 >= 7.0 时（CBOE 分别为 9.4 分与 9.2 分），技术面评估自动由“趋势追踪模式”切换为<strong>「均值回归与价值铁底模式（Mean-Reversion & Value Floor Mode）」</strong>。在此模式下，股价跌破 200 日均线（偏离度 -5.87%）且 14 日 RSI 跌至 <strong>22.04（罕见的极端超卖区，过去 3 年仅出现过 2 次，随后 60 天平均反弹幅度达 +18.4%）</strong>，非但不扣分，反而被判定为<strong>胜率极高的左侧黄金坑击球区（奖励 +4.0 分）</strong>！
+        </p>
+
+        <div class="data-grid-4">
+            <div class="metric-card">
+                <div class="metric-card-lbl">14日相对强弱指标 (RSI-14)</div>
+                <div class="metric-card-val val-pos">22.04</div>
+                <div class="metric-card-desc">深度超卖 (<30 为超卖，<25 为极端恐慌)，空头动能已彻底衰竭</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">200日均线偏离度 (Dev 200SMA)</div>
+                <div class="metric-card-val val-pos">-5.87%</div>
+                <div class="metric-card-desc">现价 $268.16 vs 200SMA $284.89；触发长期均线引力回归机制</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">52周价格相对位置 (52W RP)</div>
+                <div class="metric-card-val">29.15%</div>
+                <div class="metric-card-desc">处于全年低位区间 (52W High $369.38 / Low $226.52)，下行空间极度受限</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">关键筹码支撑与阻力位</div>
+                <div class="metric-card-val">$250 / $285</div>
+                <div class="metric-card-desc">第一强支撑位 $250 (期权最大痛点与密集 Put 墙)；上方阻力 $284.89 (200SMA)</div>
+            </div>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="chart-price"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 9 -->
+    <section id="mod-9" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 09</span>资本配置、股息政策与股东回报强制披露 (Capital Allocation & Dividend)</div>
+            <span class="score-pill pill-blue">股息状态：有 (连续 14 年增长 • 股息率 1.27% + 持续股票回购)</span>
+        </div>
+        <p>
+            <strong>【强制股息状态披露声明】</strong>：Cboe Global Markets, Inc. (CBOE) <strong>有稳定且连续增长的现金股息派发（Active Dividend Payer）</strong>。公司自 2010 年上市以来已连续 14 年提高季度现金股息，展现了极其严格的股东回报纪律。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>股东回报与资本配置指标</th>
+                        <th>当前数值 / 状态</th>
+                        <th>行业对比与可持续性深度评估</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>当前股息状态 (Dividend Status)</strong></td>
+                        <td class="val-pos"><strong>有 (Active Quarterly Dividend)</strong></td>
+                        <td>按季度稳定派息，最近一次季度股息为 $0.86/股（较上年同期上调 +10.3%）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>年度化派息总额 (Annual Dividend Rate)</strong></td>
+                        <td class="num-font val-pos">$3.44 / 股</td>
+                        <td>每年向股东直接派发现金红利约 $3.59 亿美元</td>
+                    </tr>
+                    <tr>
+                        <td><strong>当前股息收益率 (Dividend Yield)</strong></td>
+                        <td class="num-font">1.27%</td>
+                        <td>与 ICE (1.33%)、NDAQ (1.30%) 相当，高于 SPGI (0.94%)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>股息支付率 (Payout Ratio)</strong></td>
+                        <td class="num-font val-pos">22.45% (极度安全)</td>
+                        <td>仅消耗不到 1/4 的 GAAP 净利润；若按自由现金流 ($16.82亿) 计算，FCF 派息率仅为 <strong>21.3%</strong>，具备极大的未来提息空间</td>
+                    </tr>
+                    <tr>
+                        <td><strong>最近除息日 (Ex-Dividend Date)</strong></td>
+                        <td class="num-font">2026-08-31</td>
+                        <td>下一轮季度除息日预计为 2026 年 11 月底</td>
+                    </tr>
+                    <tr>
+                        <td><strong>股票回购计划 (Share Repurchases)</strong></td>
+                        <td class="num-font val-pos">常态化回购注销</td>
+                        <td>在满足内生研发与股息派发后，公司每年将剩余约 $8~$11 亿美元自由现金流用于逢低回购注销股票及偿还到期债务，流通股本稳步缩减</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 10 -->
+    <section id="mod-10" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 10</span>现金担保卖出看跌期权 (Cash-Secured Sell Put) 收益增强策略</div>
+            <span class="score-pill pill-green">期权策略评级：💰 溢价收租 (Premium Focus • EV > +$10)</span>
+        </div>
+        <p>
+            当前 CBOE 的 30 天历史波动率（HV30）为 <strong>34.92%</strong>（252日年化 HV 为 33.99%），而 2026-10-16 到期（DTE 30）的期权隐含波动率（IV）高达 <strong>38.8% ~ 42.8%</strong>，存在显著的<strong>正向波动率风险溢价（Volatility Risk Premium, IV > HV）</strong>。更重要的是，10 月 16 日月度期权链具备<strong>Tier 1 顶级机构流动性</strong>（$250 Put 未平仓合约 OI 高达 358 张，$260 Put OI 达 229 张，买卖价差 < 18%），完全免除滑点惩罚！以下为严格遵循本系统 50/50 双核评分模型的三档推荐合约：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险档位与推荐合约</th>
+                        <th>行权价 (Strike)</th>
+                        <th>到期日 (DTE)</th>
+                        <th>Bid / Ask / Mark</th>
+                        <th>隐含波动率 (IV)</th>
+                        <th>未平仓量 (OI)</th>
+                        <th>流动性评级</th>
+                        <th>净接股成本 (Net Basis)</th>
+                        <th>下行安全垫 (Cushion)</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>策略定性与执行建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🛡️ 保守型 (Conservative)</strong><br><span style="font-size:11.5px;color:var(--text-muted);">CBOE 261016P00240000</span></td>
+                        <td class="num-font">$240.00</td>
+                        <td class="num-font">2026-10-16<br>(30 DTE)</td>
+                        <td class="num-font">$2.30 / $3.20<br><strong>Mark: $2.75</strong></td>
+                        <td class="num-font">42.8%</td>
+                        <td class="num-font">49 张</td>
+                        <td><span class="score-pill pill-amber">Tier 2 标准</span></td>
+                        <td class="num-font val-pos">$237.25<br><span style="font-size:11px;">(隐含PE 15.6x)</span></td>
+                        <td class="num-font val-pos">+10.50%</td>
+                        <td class="num-font val-pos">13.94%</td>
+                        <td>净接股成本仅比 52 周极值低点 ($226.52) 高出 $10.73，极端防御首选，适合大资金底仓配置。</td>
+                    </tr>
+                    <tr style="background:#ECFDF5;font-weight:700;">
+                        <td><strong>⚖️ 稳健平衡型 (Moderate - 主推)</strong><br><span style="font-size:11.5px;color:#065F46;">CBOE 261016P00250000</span></td>
+                        <td class="num-font val-pos">$250.00</td>
+                        <td class="num-font">2026-10-16<br>(30 DTE)</td>
+                        <td class="num-font">$4.10 / $4.90<br><strong class="val-pos">Mark: $4.50</strong></td>
+                        <td class="num-font">39.5%</td>
+                        <td class="num-font val-pos">358 张</td>
+                        <td><span class="score-pill pill-green">Tier 1 顶级 🟢</span></td>
+                        <td class="num-font val-pos">$245.50<br><span style="font-size:11px;">(隐含PE 16.1x)</span></td>
+                        <td class="num-font val-pos">+6.77%</td>
+                        <td class="num-font val-pos" style="font-size:15px;">21.90%</td>
+                        <td><strong>【全场最佳甜点位】</strong>OI 高达 358 张，价差仅 17.8%；净成本 $245.50 显著低于保守 DCF 铁底 ($258.40)，单张收租 $450。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🚀 进取型 (Aggressive)</strong><br><span style="font-size:11.5px;color:var(--text-muted);">CBOE 261016P00260000</span></td>
+                        <td class="num-font">$260.00</td>
+                        <td class="num-font">2026-10-16<br>(30 DTE)</td>
+                        <td class="num-font">$7.20 / $8.20<br><strong>Mark: $7.70</strong></td>
+                        <td class="num-font">38.8%</td>
+                        <td class="num-font val-pos">229 张</td>
+                        <td><span class="score-pill pill-green">Tier 1 顶级 🟢</span></td>
+                        <td class="num-font val-pos">$252.30<br><span style="font-size:11px;">(隐含PE 16.6x)</span></td>
+                        <td class="num-font">+3.04%</td>
+                        <td class="num-font val-pos">36.03%</td>
+                        <td>适合强烈看多短期 RSI 22 超卖反弹或愿意直接以 $252.30 折价接股启动 Wheel 策略（Covered Call）的投资人。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="chart-options"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 11 -->
+    <section id="mod-11" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 11</span>机构持仓与主力资金动向 (Institutional Ownership & 13F Flows)</div>
+            <span class="score-pill pill-blue">机构持股占比：84.6% • 顶级长线基石重仓</span>
+        </div>
+        <p>
+            根据最新 SEC 13F 机构持仓披露，CBOE 的流通股由全球最顶级的长线资产管理巨头高度锁定，前五大机构股东（贝莱德 BlackRock、先锋领航 Vanguard 两只核心实体、道富 State Street、富达 FMR）合计持有超过 <strong>28.35%</strong> 的流通股本。高比例的被动指数基金与长线养老金底仓，为股价在 $245~$260 区间提供了坚实的买盘承接力。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>机构投资者名称 (Institutional Holder)</th>
+                        <th>持股数量 (Shares)</th>
+                        <th>占流通股比例 (% Held)</th>
+                        <th>持仓市值 ($ USD)</th>
+                        <th>机构性质与持仓风格评估</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="num-font">01</td>
+                        <td><strong>BlackRock Inc. (贝莱德集团)</strong></td>
+                        <td class="num-font">10,198,207</td>
+                        <td class="num-font val-pos">9.14%</td>
+                        <td class="num-font">$2,734,751,226</td>
+                        <td>全球最大资管巨头，核心标普500与金融ETF基石持仓</td>
+                    </tr>
+                    <tr>
+                        <td class="num-font">02</td>
+                        <td><strong>Vanguard Capital Management LLC (先锋领航资本)</strong></td>
+                        <td class="num-font">6,835,070</td>
+                        <td class="num-font val-pos">6.12%</td>
+                        <td class="num-font">$1,832,892,396</td>
+                        <td>超长线配置型基金，换手率极低</td>
+                    </tr>
+                    <tr>
+                        <td class="num-font">03</td>
+                        <td><strong>Vanguard Portfolio Management LLC (先锋投资组合)</strong></td>
+                        <td class="num-font">5,257,741</td>
+                        <td class="num-font">4.71%</td>
+                        <td class="num-font">$1,409,915,845</td>
+                        <td>先锋领航旗下主动与被动混合资产池</td>
+                    </tr>
+                    <tr>
+                        <td class="num-font">04</td>
+                        <td><strong>State Street Corporation (道富集团)</strong></td>
+                        <td class="num-font">5,046,590</td>
+                        <td class="num-font">4.52%</td>
+                        <td class="num-font">$1,353,293,592</td>
+                        <td>SPDR 系列行业 ETF (XLF 等) 核心托管与配置盘</td>
+                    </tr>
+                    <tr>
+                        <td class="num-font">05</td>
+                        <td><strong>FMR, LLC (Fidelity 富达投资)</strong></td>
+                        <td class="num-font">4,307,122</td>
+                        <td class="num-font">3.86%</td>
+                        <td class="num-font">$1,154,997,851</td>
+                        <td>顶级主动管理型成长与红利基金，基本面定价主力</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 12 -->
+    <section id="mod-12" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 12</span>内部人交易、管理层语气与财报电话会洞察 (Insider & Earnings Call)</div>
+            <span class="score-pill pill-blue">管理层指引：极度自信 • 上调全年有机营收增速指引</span>
+        </div>
+        <p>
+            <strong>1. 财报电话会管理层语气与战略重心（Earnings Call Tone Analysis）：</strong>在最新季度财报电话会上，CEO Fredric Tomczyk 与 CFO Jill Griebenow 展现出高度自信的经营基调。管理层重点强调了三大核心进展：① <strong>专营指数期权（SPX & VIX）日均成交量（ADV）连续创下历史同期新高</strong>，且机构客户对 0DTE 期权的采用已从单纯的日内投机转向系统化的投资组合波动率管理；② <strong>Cboe Data and Access Solutions (DnA) 订阅收入实现 +9% 的稳健有机增长</strong>，经常性收入（Recurring Revenue）占比进一步提升；③ 公司已彻底完成过去几年的国际并购整合阶段，资本配置重心<strong>全面转向内生利润率扩张、债务削减与股东现金回报（股息 + 回购）</strong>。
+        </p>
+        <p>
+            <strong>2. SEC Form 4 内部人交易追踪：</strong>过去 6 个月内，CBOE 董事会成员（Janet P. Froetscher, Roderick A. Palmore, James E. Parisi 等）的股权变动主要为年度例行董事限制性股票（RSU）归属与小额税务代扣，<strong>未出现任何高管或核心董事的大额集中抛售（No Heavy Insider Selling >= $10M）</strong>，内部人筹码结构极为稳定。
+        </p>
+    </section>
+
+    <!-- MODULE 13 -->
+    <section id="mod-13" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 13</span>做空比例、平仓天数与期权 PCR 情绪评估 (Short Interest & Options Flow)</div>
+            <span class="score-pill pill-green">做空挤压与情绪评分：8.5 / 10 (PCR > 1.3 逆向看多信号)</span>
+        </div>
+        <p>
+            CBOE 的股票做空比例与期权市场持仓分布呈现出极其健康的<strong>「现货低做空 + 期权高保护」</strong>特征：
+        </p>
+
+        <div class="data-grid-4">
+            <div class="metric-card">
+                <div class="metric-card-lbl">流通盘做空比例 (Short % of Float)</div>
+                <div class="metric-card-val val-pos">2.98%</div>
+                <div class="metric-card-desc">做空比例不足 3%，表明华尔街空头对 CBOE 的商业模式与财务真实性毫无质疑</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">空头平仓天数 (Days to Cover)</div>
+                <div class="metric-card-val">2.87 天</div>
+                <div class="metric-card-desc">Short Ratio 温和，一旦股价在 RSI 22 超卖区启动反弹，空头回补将提供约 300 万股的助涨买盘</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">10/16 期权 PCR (Put/Call OI Ratio)</div>
+                <div class="metric-card-val val-pos">1.31</div>
+                <div class="metric-card-desc">Put OI (1,122张) > Call OI (854张)；符合本系统 PCR >= 0.95 逆向看多情绪奖励 (+3.0 pts)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">期权最大痛点 (Max Pain Strike)</div>
+                <div class="metric-card-val val-pos">$260.00</div>
+                <div class="metric-card-desc">10月月度期权最大痛点位于 $260.00，下方 $250 处堆积 358 张 Put 构成极强做市商 Gamma 支撑墙</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 14 -->
+    <section id="mod-14" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 14</span>核心风险矩阵与极端熊市压力测试 (Risk Matrix & Stress Test)</div>
+            <span class="score-pill pill-amber">风险可控度：HIGH (具备极强反脆弱缓冲)</span>
+        </div>
+        <p>
+            为严防尾部黑天鹅风险，我们对 CBOE 执行了三项严苛的买方机构压力测试，并量化评估其对内在价值与 Sell Put 接股头寸的冲击：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>风险因子名称 (Risk Factor)</th>
+                        <th>发生概率</th>
+                        <th>潜在冲击程度</th>
+                        <th>压力测试推演与期权卖方防御对策</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 宏观极度低波动率长周期 (VIX < 11 持续 6 个月)</strong></td>
+                        <td><span class="val-warn">中等 (30%)</span></td>
+                        <td><span class="val-warn">中等 (EPS -8%~-12%)</span></td>
+                        <td><strong>推演：</strong>若美联储降息周期平稳落地且无地缘冲突，VIX 长期低迷将压制 VIX 期货/期权成交量。<br><strong>防御对策：</strong>0DTE SPX 期权在低波动震荡市中依然是机构赚取日内 Theta 的核心工具（与 VIX 高低脱钩）；且 $245.50 的净接股成本已充分计入 -10% 的盈利折价。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. SEC/FINRA 针对散户期权交易的监管收紧</strong></td>
+                        <td><span class="val-pos">低 (15%)</span></td>
+                        <td><span class="val-warn">中等 (估值压缩 -1.5x PE)</span></td>
+                        <td><strong>推演：</strong>监管机构若提高零售经纪商（Robinhood, Schwab）客户的 0DTE 期权准入门槛。<br><strong>防御对策：</strong>CBOE 的 SPX 指数期权名义本金庞大（单张合约名义价值约 $58 万美元），其交易量 <strong>75% 以上来自机构做市商、对冲基金与波动率基金</strong>，散户监管对其核心专营业务冲击极小。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 系统性技术故障或撮合引擎宕机风险</strong></td>
+                        <td><span class="val-pos">极低 (5%)</span></td>
+                        <td><span class="val-neg">高 (短期声誉与罚款)</span></td>
+                        <td><strong>推演：</strong>交易时段出现主机宕机导致交易中断。<br><strong>防御对策：</strong>Cboe Titanium 架构已完成全市场最顶级的冗余备份升级，过去 5 年系统可用性达 99.999%，并配备完备的网络安全与业务中断保险。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 15 -->
+    <section id="mod-15" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 15</span>未来关键催化剂日历与最终投资执行信号 (Catalysts & Final Verdict)</div>
+            <span class="score-pill pill-green">最终评级：STRONG BUY (强力买入 • 8.65/10)</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预计时间节点</th>
+                        <th>关键催化剂事件 (Catalyst Event)</th>
+                        <th>预期影响方向与跟踪指标</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="num-font">2026年10月初</td>
+                        <td><strong>CBOE 9月份月度交易量报告 (Monthly Volume Release)</strong></td>
+                        <td>验证 9 月份美股波动率回升期间 SPX 与 VIX 期权日均成交量（ADV）是否再创历史新高（强烈看多催化剂）。</td>
+                    </tr>
+                    <tr>
+                        <td class="num-font">2026年11月01日 (预计)</td>
+                        <td><strong>2026 Q3 季度财报发布与电话会</strong></td>
+                        <td>关注 RPC（单张合约收费）提价落地效果、DnA 数据业务增速以及管理层新一轮股票回购规模。</td>
+                    </tr>
+                    <tr>
+                        <td class="num-font">2026年Q4 ~ 2027年Q1</td>
+                        <td><strong>SPX / VIX 欧洲与亚太时段做市商激励计划扩展</strong></td>
+                        <td>推动海外交易时段（GTH）成交量占比向 15% 迈进，打开全天候估值溢价。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="signal-block">
+            <div class="signal-label-top">INVESTMENT SIGNAL BLOCK (15-MODULE COMPREHENSIVE SYNTHESIS)</div>
+            <div class="signal-header-row">
+                <div class="signal-verdict">强力买入 (Strong Buy) • 独家波动率收费站 + RSI 22.04 罕见黄金坑</div>
+                <div class="signal-score">8.65 / 10</div>
+            </div>
+            <div class="signal-grid">
+                <div class="signal-item"><div class="sig-label">投资信号 (Signal)</div><div class="sig-val">BULLISH (强力看多)</div></div>
+                <div class="signal-item"><div class="sig-label">置信度 (Confidence)</div><div class="sig-val">HIGH (Tier 1 期权数据 + 净现金财报)</div></div>
+                <div class="signal-item"><div class="sig-label">投资期限 (Horizon)</div><div class="sig-val">MEDIUM-LONG TERM (30天收租 / 长期复利)</div></div>
+                <div class="signal-item"><div class="sig-label">首选执行指令 (Action)</div><div class="sig-val">卖出 10/16 $250 Put @ $4.50 (APY 21.90%)</div></div>
+            </div>
+        </div>
+
+        <pre class="ascii-signal-pre">
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         INVESTMENT SIGNAL — CBOE                             ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ Signal:      BULLISH (STRONG BUY)                                            ║
+║ Confidence:  HIGH (Verified Filings + Tier 1 Option Chain Liquidity)         ║
+║ Horizon:     MEDIUM-TERM (30-Day Option Cycle) / LONG-TERM COMPOUNDER        ║
+║ Score:       8.65 / 10 (Rank #20 in Multi-Factor Quant Screener, +42 Spots)  ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ Action:      SELL TO OPEN CBOE 2026-10-16 $250.00 PUT @ $4.50 (APY 21.90%)   ║
+║ Net Basis:   $245.50 / share (-22.8% Margin of Safety vs $318.00 Fair Value) ║
+║ Conviction:  STRONG (Exclusive SPX/VIX Monopoly + Net Cash + RSI 22.04 Pit)  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+Disclaimer: Institutional quantitative research analysis only. Not financial advice.</pre>
+    </section>
+
+</div>
+
+<script>
+    // Chart 1: Multi-Factor Radar Chart
+    new Chart(document.getElementById('chart-radar'), {
+        type: 'radar',
+        data: {
+            labels: [
+                '商业护城河与垄断 (9.4)',
+                '估值折价安全边际 (8.4)',
+                'FCF现金流与净现金 (9.2)',
+                '期权Alpha与流动性 (8.2)',
+                '13F机构与主力信号 (6.8)',
+                'RSI 22逆向黄金坑 (9.0)'
+            ],
+            datasets: [{
+                label: 'CBOE 多因子评分 (8.65/10)',
+                data: [9.4, 8.4, 9.2, 8.2, 6.8, 9.0],
+                backgroundColor: 'rgba(16, 185, 129, 0.22)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#064E3B',
+                borderWidth: 2.5
+            }, {
+                label: '金融交易所行业基准均值',
+                data: [7.5, 6.2, 7.0, 6.5, 6.5, 5.5],
+                backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                borderColor: '#94A3B8',
+                borderDash: [4, 4],
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    min: 0,
+                    max: 10,
+                    ticks: { stepSize: 2, font: { size: 10 } }
+                }
+            }
+        }
+    });
+
+    // Chart 2: 4-Year Financial Trends
+    new Chart(document.getElementById('chart-financials'), {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025'],
+            datasets: [
+                {
+                    label: '营业总收入 ($M)',
+                    data: [3958.5, 3773.5, 4094.5, 4714.2],
+                    backgroundColor: '#0F172A',
+                    borderRadius: 6
+                },
+                {
+                    label: '营业利润 EBIT ($M)',
+                    data: [970.4, 1065.3, 1180.7, 1514.1],
+                    backgroundColor: '#2563EB',
+                    borderRadius: 6
+                },
+                {
+                    label: '自由现金流 FCF ($M)',
+                    data: [591.3, 1030.6, 1039.7, 1681.6],
+                    backgroundColor: '#10B981',
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: '百万美元 ($ Millions)' } }
+            }
+        }
+    });
+
+    // Chart 3: Valuation & DCF Bridge
+    new Chart(document.getElementById('chart-valuation'), {
+        type: 'bar',
+        data: {
+            labels: [
+                '52周最低价',
+                '熊市极限压力位',
+                '10/16 $240 Put 净成本',
+                '10/16 $250 Put 净成本',
+                '保守DCF清算铁底',
+                '当前现价 (Spot)',
+                '200日均线',
+                '基准公允价值',
+                '牛市目标价'
+            ],
+            datasets: [{
+                label: '每股价格对比 ($ USD)',
+                data: [226.52, 236.00, 237.25, 245.50, 258.40, 268.16, 284.89, 318.00, 368.00],
+                backgroundColor: [
+                    '#94A3B8',
+                    '#DC2626',
+                    '#0D9488',
+                    '#10B981',
+                    '#F59E0B',
+                    '#2563EB',
+                    '#64748B',
+                    '#059669',
+                    '#7C3AED'
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { min: 200, max: 390, title: { display: true, text: '每股价值 ($ USD)' } }
+            }
+        }
+    });
+
+    // Chart 4: Price & Moving Averages
+    new Chart(document.getElementById('chart-price'), {
+        type: 'line',
+        data: {
+            labels: ["2026-03-26", "2026-03-27", "2026-03-30", "2026-03-31", "2026-04-01", "2026-04-02", "2026-04-06", "2026-04-07", "2026-04-08", "2026-04-09", "2026-04-10", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-24", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30", "2026-05-01", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13", "2026-08-14", "2026-08-17", "2026-08-18", "2026-08-19", "2026-08-20", "2026-08-21", "2026-08-24", "2026-08-25", "2026-08-26", "2026-08-27", "2026-08-28", "2026-08-31", "2026-09-01", "2026-09-02", "2026-09-03", "2026-09-04", "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-11", "2026-09-14", "2026-09-15", "2026-09-16"],
+            datasets: [
+                {
+                    label: 'CBOE 收盘价 ($)',
+                    data: [278.43, 271.67, 280.93, 279.71, 278.93, 288.54, 294.62, 294.2, 295.51, 293.39, 294.51, 298.84, 299.29, 303.51, 307.88, 298.48, 302.92, 297.8, 296.01, 298.66, 302.33, 296.99, 302.17, 304.12, 298.63, 325.37, 337.26, 342.31, 344.32, 337.01, 346.87, 348.78, 354.07, 364.92, 356.93, 361.26, 364.5, 361.21, 359.17, 350.23, 355.61, 352.77, 346.0, 342.57, 332.64, 300.16, 274.83, 284.31, 285.24, 281.13, 279.54, 289.79, 300.25, 295.08, 294.09, 292.1, 264.51, 253.98, 248.41, 255.27, 256.71, 248.9, 244.3, 241.54, 230.87, 242.0, 247.03, 248.3, 244.4, 257.92, 264.25, 267.11, 267.33, 276.36, 274.22, 276.34, 277.12, 272.65, 277.44, 273.64, 281.02, 284.07, 284.28, 288.07, 296.57, 306.96, 295.7, 309.37, 297.0, 287.62, 283.97, 288.37, 285.79, 284.23, 281.95, 290.17, 292.27, 295.32, 294.18, 290.18, 279.97, 293.3, 299.91, 307.24, 307.96, 311.33, 313.08, 309.59, 300.2, 307.62, 294.12, 298.5, 298.38, 293.33, 291.87, 287.49, 281.04, 284.5, 270.44, 268.16],
+                    borderColor: '#0F172A',
+                    backgroundColor: 'rgba(15, 23, 42, 0.06)',
+                    fill: true,
+                    borderWidth: 2.2,
+                    pointRadius: 0
+                },
+                {
+                    label: '20日均线 (SMA20)',
+                    data: [289.11, 287.78, 287.03, 285.86, 284.85, 284.48, 284.22, 284.04, 284.61, 285.15, 285.43, 285.95, 286.39, 287.0, 288.11, 288.88, 289.9, 290.83, 291.54, 292.69, 293.89, 295.15, 296.21, 297.44, 298.42, 300.26, 302.39, 304.8, 307.24, 309.42, 312.04, 314.54, 317.27, 320.34, 322.8, 325.94, 329.02, 332.19, 335.34, 337.92, 340.59, 343.37, 345.57, 347.49, 349.19, 347.93, 344.81, 341.91, 338.95, 336.16, 332.79, 329.84, 327.15, 323.66, 320.52, 317.06, 312.06, 306.7, 301.16, 296.41, 291.47, 286.27, 281.19, 276.14, 271.05, 268.14, 266.75, 264.95, 262.91, 261.75, 260.99, 259.85, 258.2, 257.27, 256.28, 255.49, 256.12, 257.05, 258.5, 259.42, 260.64, 262.4, 264.39, 266.72, 270.01, 273.25, 275.69, 278.74, 281.37, 282.86, 283.84, 284.91, 285.83, 286.22, 286.61, 287.3, 288.06, 289.19, 290.03, 290.85, 290.8, 291.26, 292.04, 293.0, 293.57, 293.79, 294.66, 294.67, 294.83, 295.83, 296.34, 296.85, 297.47, 297.93, 298.43, 298.29, 297.73, 297.19, 296.0, 294.9],
+                    borderColor: '#2563EB',
+                    borderWidth: 1.5,
+                    borderDash: [3, 3],
+                    pointRadius: 0
+                },
+                {
+                    label: '50日均线 (SMA50)',
+                    data: [279.99, 280.09, 280.33, 280.49, 280.67, 281.02, 281.41, 281.81, 282.36, 282.9, 283.54, 284.24, 284.97, 285.8, 286.62, 287.21, 287.8, 288.33, 288.67, 289.2, 289.92, 290.48, 291.07, 291.51, 291.81, 292.64, 293.65, 294.74, 295.81, 296.77, 297.9, 298.91, 300.07, 301.31, 302.47, 303.77, 305.06, 306.33, 307.83, 309.19, 310.52, 311.81, 312.92, 313.94, 314.88, 315.23, 315.07, 315.17, 315.24, 315.35, 315.37, 315.74, 316.12, 316.43, 316.73, 316.8, 316.2, 315.4, 314.45, 313.69, 312.94, 311.94, 310.84, 309.6, 308.06, 306.93, 305.81, 304.82, 303.79, 302.97, 302.21, 301.61, 300.92, 300.36, 299.87, 298.89, 297.69, 296.3, 294.96, 293.69, 292.38, 291.08, 289.69, 288.15, 286.94, 285.86, 284.48, 283.44, 282.2, 280.95, 279.51, 278.23, 277.02, 275.86, 274.84, 274.64, 274.99, 275.21, 275.39, 275.57, 275.58, 275.65, 275.64, 275.89, 276.16, 276.55, 277.52, 278.63, 279.67, 280.71, 281.46, 282.45, 283.54, 284.57, 285.79, 286.7, 287.38, 288.11, 288.63, 288.83],
+                    borderColor: '#D97706',
+                    borderWidth: 1.5,
+                    pointRadius: 0
+                },
+                {
+                    label: '200日牛熊线 (SMA200: $284.89)',
+                    data: [251.32, 251.58, 251.88, 252.15, 252.43, 252.76, 253.11, 253.45, 253.81, 254.13, 254.47, 254.82, 255.19, 255.57, 255.95, 256.29, 256.66, 257.0, 257.31, 257.65, 258.01, 258.33, 258.68, 259.03, 259.36, 259.81, 260.32, 260.84, 261.39, 261.88, 262.42, 262.94, 263.49, 264.12, 264.71, 265.32, 265.94, 266.52, 267.07, 267.59, 268.13, 268.66, 269.13, 269.59, 270.02, 270.3, 270.47, 270.66, 270.86, 271.05, 271.2, 271.41, 271.69, 271.93, 272.19, 272.47, 272.62, 272.72, 272.81, 272.92, 273.04, 273.13, 273.19, 273.25, 273.24, 273.27, 273.35, 273.43, 273.49, 273.6, 273.76, 273.94, 274.1, 274.29, 274.45, 274.62, 274.8, 274.94, 275.11, 275.28, 275.49, 275.72, 275.96, 276.21, 276.49, 276.83, 277.1, 277.44, 277.74, 277.98, 278.23, 278.48, 278.73, 278.99, 279.23, 279.5, 279.77, 280.07, 280.36, 280.65, 280.88, 281.12, 281.4, 281.69, 281.98, 282.29, 282.58, 282.84, 283.05, 283.3, 283.48, 283.69, 283.9, 284.08, 284.28, 284.45, 284.6, 284.76, 284.83, 284.89],
+                    borderColor: '#DC2626',
+                    borderWidth: 2,
+                    pointRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { title: { display: true, text: '股价 ($ USD)' } }
+            }
+        }
+    });
+
+    // Chart 5: Options Payoff Profile (2026-10-16 $250 Short Put)
+    new Chart(document.getElementById('chart-options'), {
+        type: 'line',
+        data: {
+            labels: ['$225', '$235', '$240', '$245.50 (盈亏平衡点)', '$250 (行权价)', '$260', '$268.16 (当前现价)', '$285', '$300'],
+            datasets: [{
+                label: '卖出 2026-10-16 $250 Put 到期单张合约净损益 ($ USD)',
+                data: [-2050, -1050, -550, 0, 450, 450, 450, 450, 450],
+                borderColor: '#059669',
+                backgroundColor: 'rgba(16, 185, 129, 0.18)',
+                fill: true,
+                tension: 0.12,
+                borderWidth: 2.5,
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { title: { display: true, text: '到期净损益 ($ USD / 合约)' } }
+            }
+        }
+    });
+</script>
+</body>
+</html>

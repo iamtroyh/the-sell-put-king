@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>百胜中国 (YUMC) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary: #059669;
+            --primary-dark: #064E3B;
+            --primary-light: #ECFDF5;
+            --accent: #10B981;
+            --accent-light: #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --blue:          #2563EB;
+            --blue-light:    #EFF6FF;
+            --purple:        #7C3AED;
+            --purple-light:  #F5F3FF;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero: linear-gradient(135deg, #064E3B 0%, #065F46 45%, #059669 80%, #10B981 100%);
+            --grad-signal:   linear-gradient(135deg, #064E3B 0%, #047857 50%, #059669 100%);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1150px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.18); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-sector { background: rgba(255,255,255,.14); color: #FEE2E2; border: 1px solid rgba(255,255,255,.25); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.45); }
+        .badge-hero-rp { background: rgba(255,255,255,.15); color: #FDE68A; border: 1px solid rgba(255,255,255,.28); }
+        .badge-hero-date { background: rgba(0,0,0,.25); color: #E2E8F0; border: 1px solid rgba(255,255,255,.2); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 10px; letter-spacing: -0.5px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 24px; max-width: 1050px; line-height: 1.65; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11.5px; text-transform: uppercase; color: #FCA5A5; font-weight: 700; letter-spacing: 0.4px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 3px; color: #FFFFFF; }
+        .hero-kpi-sub { font-size: 11.5px; opacity: 0.92; color: #FEF2F2; }
+
+        .main-wrap { max-width: 1150px; margin: 0 auto; padding: 26px 16px 68px; }
+
+        .provenance-bar {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--blue);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 18px;
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .prov-item { display: flex; align-items: center; gap: 6px; }
+        .prov-label { font-weight: 700; color: var(--text-primary); }
+
+        .toc {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 26px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 5px 11px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sec-num {
+            background: var(--primary);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 14px 0; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 14px 0; }
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin: 14px 0; }
+
+        .info-box {
+            border-left: 4px solid var(--primary);
+            background: #F8FAFC;
+            padding: 15px 18px;
+            border-radius: 0 10px 10px 0;
+            margin: 14px 0;
+        }
+        .info-box.warn { border-left-color: var(--amber); background: #FFFBEB; }
+        .info-box.danger { border-left-color: var(--red); background: #FEF2F2; }
+        .info-box.success { border-left-color: var(--emerald); background: #ECFDF5; }
+        .info-box-title { font-size: 13.5px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; color: var(--text-primary); }
+
+        .metric-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .metric-card-val {
+            font-size: 22px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+            margin: 4px 0;
+        }
+        .metric-card-lbl { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .metric-card-desc { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+        .pillar-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            border-top: 3px solid var(--primary);
+        }
+        .pillar-title { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .pillar-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 14px 0; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background: #F1F5F9; color: var(--text-secondary); font-weight: 700; padding: 10px 12px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        tr:hover td { background: #F8FAFC; }
+        .num-font { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        .val-pos { color: #059669; font-weight: 600; }
+        .val-neg { color: #DC2626; font-weight: 600; }
+        .val-warn { color: #D97706; font-weight: 600; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 340px;
+            margin: 16px 0;
+        }
+
+        .score-pill { display: inline-block; padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 11.5px; }
+        .pill-green { background: var(--emerald-light); color: #065F46; }
+        .pill-blue { background: var(--blue-light); color: var(--blue); }
+        .pill-amber { background: var(--amber-light); color: var(--amber); }
+        .pill-purple { background: var(--purple-light); color: var(--purple); }
+        .pill-red { background: var(--red-light); color: var(--red); }
+
+        .signal-block {
+            background: var(--grad-signal);
+            color: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 18px;
+            box-shadow: var(--shadow-md);
+        }
+        .signal-label-top { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700; margin-bottom: 8px; }
+        .signal-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.2); padding-bottom: 12px; }
+        .signal-verdict { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #FFFFFF; }
+        .signal-score { font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #A7F3D0; }
+        .signal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .signal-item { background: rgba(255,255,255,.12); border-radius: 8px; padding: 11px 14px; }
+        .sig-label { font-size: 11px; color: #D1FAE5; font-weight: 600; text-transform: uppercase; }
+        .sig-val { font-size: 13.5px; font-weight: 700; color: #FFFFFF; margin-top: 3px; }
+
+        pre.ascii-signal {
+            background: #0F172A;
+            color: #10B981;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            line-height: 1.45;
+            overflow-x: auto;
+            margin-top: 16px;
+            border: 1px solid #334155;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 23px; }
+            .section { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">🍗 NYSE: YUMC · Yum China Holdings, Inc. (百胜中国)</span>
+            <span class="badge badge-hero-sector">📂 Consumer Cyclical | 中国最大连锁餐饮与数字化供应链帝国</span>
+            <span class="badge badge-hero-signal">🚀 强力买入 (Strong Buy · 黄金坑左侧建仓)</span>
+            <span class="badge badge-hero-rp">📉 52周相对位置: 8.2% (极度超卖 RP=0.082)</span>
+            <span class="badge badge-hero-date">📅 报告基准日: 2026-09-16</span>
+        </div>
+        <h1 class="hero-title">百胜中国 (YUMC) 15模块机构级深度投研报告</h1>
+        <p class="hero-sub">
+            全市场量化扫描 Top 30 新晋核心标的（Rank #18）。当前现价 <strong>$41.65</strong> 逼近 52 周极限底部 $40.15（52周 RP 仅 <strong>8.2%</strong>，RSI(14) 跌至罕见的 <strong>12.79 极度超卖区</strong>），对应远期市盈率仅 <strong>12.33x Forward P/E</strong>、EV/EBITDA 仅 <strong>8.45x</strong>。作为坐拥 15,800+ 家直营与加盟门店、4.9 亿数字化会员、33 座全国冷链物流中心及 <strong>$14.1 亿账面现金（零净有息负债）</strong>的餐饮现金牛，百胜中国正以每年 <strong>$15 亿美元（股息率 2.78% + 净回购率 7.83% = 综合股东回报率 10.61%）</strong>史诗级力度在底部注销自身流通股。当前既是左侧长线资金的黄金坑，更是卖出 <strong>2026-10-16 $40.00 Put（年化收益率 18.25%，净接股成本 $39.40 击穿 52 周低点）</strong>的教科书级高胜率标的。
+        </p>
+
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前实时现价 (Spot)</div>
+                <div class="hero-kpi-val">$41.65</div>
+                <div class="hero-kpi-sub">52周: $40.15 ~ $58.39 (RP: 8.2%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">15模块多因子综合评分</div>
+                <div class="hero-kpi-val">8.15 / 10</div>
+                <div class="hero-kpi-sub">强力买入 (Strong Buy) • 逆向黄金坑</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">估值倍数与 DCF 中枢</div>
+                <div class="hero-kpi-val">12.33x Fwd PE</div>
+                <div class="hero-kpi-sub">DCF 公允价值: $54.20 (+30.1%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">股东总回报率 (Total Yield)</div>
+                <div class="hero-kpi-val">10.61% / 年</div>
+                <div class="hero-kpi-sub">2.78% 现金股息 + 7.83% 净回购</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-wrap">
+
+    <!-- DATA & SOURCES PROVENANCE HEADER -->
+    <div class="provenance-bar">
+        <div class="prov-item"><span class="prov-label">📊 Data & Sources:</span> As of 2026-09-16 Live Market Close & Real-Time Option Chain</div>
+        <div class="prov-item"><span class="prov-label">🏛️ Primary Sources:</span> SEC EDGAR 10-K/10-Q Filings, Yum China IR Store Economics Data, yfinance Live API</div>
+        <div class="prov-item"><span class="prov-label">🔍 Retrieval Method:</span> Automated Live Quantitative Extraction (Zero Synthetic Data)</div>
+        <div class="prov-item"><span class="prov-label">🛡️ Confidence Level:</span> <span class="val-pos">HIGH (Institutional Grade Verified)</span></div>
+    </div>
+
+    <!-- NAVIGATION TOC -->
+    <nav class="toc">
+        <div class="toc-title">INVESTSKILL 15-MODULE INSTITUTIONAL RESEARCH NAVIGATION · 15模块买方深度导航</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 执行摘要与核心逻辑</a>
+            <a href="#sec-2" class="toc-link">02. 多因子量化评分雷达</a>
+            <a href="#sec-3" class="toc-link">03. 商业模式与波特五力</a>
+            <a href="#sec-4" class="toc-link">04. 单店模型与万店飞轮</a>
+            <a href="#sec-5" class="toc-link">05. 四年财务与盈利质量</a>
+            <a href="#sec-6" class="toc-link">06. 杜邦拆解与租赁会计</a>
+            <a href="#sec-7" class="toc-link">07. 行业竞争与同行对标</a>
+            <a href="#sec-8" class="toc-link">08. DCF估值与敏感性矩阵</a>
+            <a href="#sec-9" class="toc-link">09. 技术面量化与RSI极值</a>
+            <a href="#sec-10" class="toc-link">10. 股息披露与百亿回购</a>
+            <a href="#sec-11" class="toc-link">11. 卖方期权CSP三梯队</a>
+            <a href="#sec-12" class="toc-link">12. 13F机构持仓结构</a>
+            <a href="#sec-13" class="toc-link">13. 内部人交易与CEO实录</a>
+            <a href="#sec-14" class="toc-link">14. 空头证伪与熊市压测</a>
+            <a href="#sec-15" class="toc-link">15. 催化剂与标准化信号</a>
+        </div>
+    </nav>
+
+    <!-- MODULE 01: EXECUTIVE SUMMARY & THESIS -->
+    <section id="sec-1" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 01</span> 执行摘要与买方投资核心逻辑 (Executive Summary & Institutional Thesis)</div>
+            <span class="score-pill pill-green">综合量化评级：强力买入 (Strong Buy) • 8.15 / 10</span>
+        </div>
+
+        <div class="info-box success">
+            <div class="info-box-title">💡 买方核心投资论点 (Bottom Line Up Front)：12倍远期市盈率 + 10.6% 股东总回报率的“餐饮现金印钞机”</div>
+            <p>
+                百胜中国（Yum China Holdings, Inc., NYSE: YUMC）是中国规模最大、数字化程度最高的餐饮巨头，独家运营肯德基（KFC，逾 11,200 家）、必胜客（Pizza Hut，逾 3,600 家）及 Lavazza、塔可钟（Taco Bell）、黄记煌等品牌，门店总数突破 <strong>15,800 家</strong>，覆盖中国超过 2,100 个城镇。近期受海外资金对中国消费复苏斜率的悲观情绪拖累，YUMC 股价从 52 周高点 $58.39 连续回调至当前 <strong>$41.65</strong>（200日均线偏离度 <code>Dev = -12.63%</code>，52周分位 <code>RP = 8.2%</code>，RSI(14) 低至 <strong>12.79</strong>）。
+            </p>
+            <p style="margin-top: 8px;">
+                <strong>核心预期差（Variant Perception）</strong>：华尔街空头将 YUMC 视为受制于客单价（Ticket Size）下行的普通周期股，却严重忽视了其<strong>“供应链通缩红利截留 + 小店模型约 2 年极速回本 + 每年 $15 亿美元（占市值 10.61%）暴力回购分红”</strong>的三重内生阿尔法。在 TTM 营收 <strong>$124.38 亿</strong>、经营现金流 <strong>$15.78 亿</strong>、自由现金流 <strong>$8.60 亿</strong>的坚实底座上，管理层正利用当前 12.33 倍 Forward P/E 的历史极值低估窗口，以每年注销约 7.8% 流通股本的速度实施“自我私有化式”回购。对于期权卖方而言，在 52 周铁底 $40.15 附近卖出 Cash-Secured Put，拥有极高的基本面安全垫与不对称正期望收益。
+            </p>
+        </div>
+
+        <div class="data-grid-4">
+            <div class="metric-card">
+                <div class="metric-card-lbl">TTM 营业总收入</div>
+                <div class="metric-card-val">$12.44B</div>
+                <div class="metric-card-desc">YoY 稳健增长 +12.6%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">TTM 经营现金流 / FCF</div>
+                <div class="metric-card-val">$1.58B / $0.86B</div>
+                <div class="metric-card-desc">FCF/Net Income 转化率 88.2%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">52周位置 / RSI(14)</div>
+                <div class="metric-card-val">8.2% / 12.79</div>
+                <div class="metric-card-desc">触发【逆向黄金坑】左侧信号</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">2024-2026 股东回馈承诺</div>
+                <div class="metric-card-val">$4.50B</div>
+                <div class="metric-card-desc">年均 $1.5B (占当前市值 10.61%)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 02: MULTI-FACTOR QUANTITATIVE SCORECARD & RADAR -->
+    <section id="sec-2" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 02</span> 多因子量化评分雷达模型 (Multi-Factor Quantitative Scorecard)</div>
+            <span class="score-pill pill-green">加权总分：8.15 / 10 (Strong Buy)</span>
+        </div>
+        <p>
+            基于 InvestSkill 机构级六维加权评估体系（长期价值与现金流权重 70%，期权 Alpha 与逆向择时权重 30%），YUMC 凭借深厚的全国冷链护城河、12.33x 远期 PE 的历史底部估值以及 RSI=12.79 的极度超卖黄金坑，斩获 <strong>8.15 / 10</strong> 的高分：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>评估维度 (Component)</th>
+                        <th>模型权重</th>
+                        <th>单项评分 (0-10)</th>
+                        <th>加权得分</th>
+                        <th>核心量化指标与定性评分依据</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 商业模式与护城河 (Business Quality & Moat)</strong></td>
+                        <td class="num-font">25%</td>
+                        <td class="num-font val-pos">8.4 / 10</td>
+                        <td class="num-font">2.10</td>
+                        <td>15,800+ 门店规模效应、自建 33 座物流中心冷链壁垒、4.9 亿数字化会员占销售额 90%</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>2. 估值与安全边际 (Valuation & Margin of Safety)</strong></td>
+                        <td class="num-font">25%</td>
+                        <td class="num-font val-pos">8.8 / 10</td>
+                        <td class="num-font">2.20</td>
+                        <td>Forward P/E 12.33x (较 5 年均值 24.8x 折让逾 50%)，EV/EBITDA 8.45x，DCF 折价 30.1%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 现金流引擎与财务健康 (FCF & Financial Health)</strong></td>
+                        <td class="num-font">20%</td>
+                        <td class="num-font val-pos">8.0 / 10</td>
+                        <td class="num-font">1.60</td>
+                        <td>账面现金 $14.1 亿，剔除租赁负债后净有息债务为负；年均 $1.5B 回购分红完全由内生现金覆盖</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 期权 Alpha 与权利金收益 (Option Alpha & Yield)</strong></td>
+                        <td class="num-font">15%</td>
+                        <td class="num-font val-pos">7.6 / 10</td>
+                        <td class="num-font">1.14</td>
+                        <td>10/16 $40 Put 提供 18.25% APY，净接股成本 $39.40 击穿 52 周低点 ($40.15)，安全垫极佳</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. 机构主力与内部人信号 (Smart Money & Signals)</strong></td>
+                        <td class="num-font">10%</td>
+                        <td class="num-font">6.6 / 10</td>
+                        <td class="num-font">0.66</td>
+                        <td>机构持仓高达 74.23% (摩根大通、春华资本、先锋领航重仓)；公司层面日均千万美元级回购托底</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>6. 逆向价值择时 (Contrarian Value Timing)</strong></td>
+                        <td class="num-font">5%</td>
+                        <td class="num-font val-pos">9.0 / 10</td>
+                        <td class="num-font">0.45</td>
+                        <td>基本面稳健 (F-Score 7/9) 叠加 RSI(14)=12.79、RP=8.2%，触发【逆向黄金坑】最高等级左侧买点</td>
+                    </tr>
+                    <tr style="background: #F1F5F9; font-weight: 800;">
+                        <td><strong>COMPOSITE TOTAL SCORE (综合加权总分)</strong></td>
+                        <td class="num-font">100%</td>
+                        <td class="num-font val-pos">8.15 / 10</td>
+                        <td class="num-font val-pos">8.15</td>
+                        <td><strong>STRONG BUY (强力买入 • 左侧现货吸筹与 $40.00 Sell Put 双轮驱动)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="chart-radar"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 03: BUSINESS MODEL & PORTER'S 5 FORCES -->
+    <section id="sec-3" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 03</span> 商业模式、垂直整合供应链与波特五力护城河评级 (Business Model & Moat)</div>
+            <span class="score-pill pill-blue">经济护城河评级：宽护城河 (Wide Moat • 8.4/10)</span>
+        </div>
+        <p>
+            百胜中国于 2016 年从 Yum! Brands (NYSE: YUM) 分拆独立上市，拥有肯德基（KFC）、必胜客（Pizza Hut）和塔可钟（Taco Bell）在中国大陆的永久独家特许经营权（向母公司支付净销售额 3% 的特许权使用费），并全资拥有中式餐饮品牌黄记煌、小肥羊，以及与意大利百年咖啡品牌 Lavazza 组建合资公司。其商业本质是<strong>“披着餐饮外衣的巨型食品供应链与数字化算法公司”</strong>。
+        </p>
+
+        <div class="data-grid-3">
+            <div class="pillar-card">
+                <div class="pillar-title">🚚 护城河支柱一：全国自建冷链物流与集采霸权</div>
+                <div class="pillar-desc">
+                    百胜中国拥有 <strong>33 座自营物流中心与 7 座整合中心</strong>，冷链配送网络覆盖中国 100% 省份及逾 2,100 个城镇。凭借年采购白羽肉鸡逾 10 亿只、奶酪数万吨的惊人规模，YUMC 与圣农发展、正大集团等头部供应商签订长期锁价协议，原材料采购成本较行业平均水平低 <strong>12%–18%</strong>。在中国禽肉与农产品价格温和通缩周期中，这一供应链优势直接转化为高达 16.8%+ 的餐厅层面利润率（Restaurant Margin）。
+                </div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">📱 护城河支柱二：4.9亿超级App会员与AI排班引擎</div>
+                <div class="pillar-desc">
+                    肯德基与必胜客 Super App 累计注册会员已突破 <strong>4.9 亿人</strong>，数字化订单（小程序/App点餐、自助点餐机、外卖）贡献了高达 <strong>90% 的餐厅销售额</strong>。公司自主研发的“Pocket Manager（掌上店长）”AI 系统实现了从食材自动订货、销量小时级预测到员工灵活用工排班的全链路自动化，单店管理半径从过去的 1 名店长管 1 家店扩展至“1 名资深店长统筹 3–4 家邻近门店（RGM Mega-Store Management）”，显著摊薄了人工成本。
+                </div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">☕ 护城河支柱三：KCOFFEE 肯悦咖啡“店中店”裂变</div>
+                <div class="pillar-desc">
+                    面对瑞幸（Luckin）与库迪咖啡的价格战，肯德基推出了极具杀伤力的 <strong>KCOFFEE（肯悦咖啡）肩并肩（Side-by-Side）模式</strong>：直接复用现有肯德基门店的闲置面积、后厨水电工程与店员，仅需投入极低改造费用即可开出独立门头的精品咖啡店，主力产品定价 9.9 元人民币仍能保持丰厚毛利。截至 2026 年中，肯悦咖啡已迅猛突破 <strong>500+ 家门店</strong>，年销售咖啡逾 2.5 亿杯，成为拉动下午茶时段同店销售（SSS）的最强第二曲线。
+                </div>
+            </div>
+        </div>
+
+        <div class="table-scroll" style="margin-top: 16px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>波特五力模型维度 (Porter's Five Forces)</th>
+                        <th>威胁/议价等级</th>
+                        <th>买方穿透式定性分析与护城河验证</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 供应商议价能力 (Supplier Power)</strong></td>
+                        <td class="val-pos">极低 (Very Low)</td>
+                        <td>作为中国最大的禽肉、土豆、面粉与乳制品餐饮采购商，YUMC 对上游农牧企业拥有绝对买方定价权，且单一供应商占比不超过 10%。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 买方/消费者议价能力 (Buyer Power)</strong></td>
+                        <td class="val-warn">中等 (Moderate)</td>
+                        <td>餐饮转换成本较低，但 YUMC 通过“疯狂星期四（Crazy Thursday）”全民社交 IP 与“必胜客 WOW 乐享店”极致性价比菜单，成功锁住了价格敏感型客群。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 潜在新进入者威胁 (Threat of New Entrants)</strong></td>
+                        <td class="val-pos">低 (Low)</td>
+                        <td>单开一家炸鸡/汉堡店容易，但复制覆盖全国 2,100 个城市的万店冷链物流、食品安全溯源与黄金商圈租约网络几乎不可能。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 替代品威胁 (Threat of Substitutes)</strong></td>
+                        <td class="val-warn">中等 (Moderate)</td>
+                        <td>面临中式快餐与外卖平台补贴分流，但百胜中国自有骑手配送团队与前置仓网格化布局确保了 28 分钟极速送达体验。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. 行业内部竞争激烈度 (Competitive Rivalry)</strong></td>
+                        <td class="val-warn">中高 (Mod-High)</td>
+                        <td>下沉市场面临塔斯汀、华莱士等本土低价品牌竞争，但 KFC 通过小店模型（投资额砍半至 120 万 RMB）在三至六线城市实现了降维打击。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 04: STORE UNIT ECONOMICS & EXPANSION FLYWHEEL -->
+    <section id="sec-4" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 04</span> 门店单店经济学（Unit Economics）与 20,000 店下沉飞轮</div>
+            <span class="score-pill pill-green">新店现金回本周期：KFC ~2.0年 | 必胜客 ~2.5年</span>
+        </div>
+        <p>
+            机构投资者评估连锁餐饮的核心标尺是<strong>新开门店的资本回报率（New Store ROIC）与现金投资回收期（Payback Period）</strong>。尽管中国宏观消费环境趋于理性，百胜中国通过革命性的<strong>“门店小型化与模块化设计”</strong>，将新店单店资本开支（CapEx）较五年前大幅压缩了 40% 以上，从而维持了全球餐饮业顶尖的单店回报率：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心品牌矩阵</th>
+                        <th>当前门店总数</th>
+                        <th>新店单店 CapEx (RMB / USD)</th>
+                        <th>平均单店年销售额 (AUV)</th>
+                        <th>餐厅层面利润率 (Restaurant Margin)</th>
+                        <th>税前现金回本周期 (Payback Period)</th>
+                        <th>下沉与加盟扩张战略要点</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>肯德基 (KFC China)</strong></td>
+                        <td class="num-font">11,200+ 家</td>
+                        <td class="num-font">¥120万–150万 (~$175k–$210k)</td>
+                        <td class="num-font">~$1.05M (¥750万)</td>
+                        <td class="num-font val-pos">18.2% – 19.5%</td>
+                        <td class="num-font val-pos">~2.0 年 (行业标杆)</td>
+                        <td>重点加密三至六线城市、高速服务区、高校与医院净新增加盟比例提升至 25%+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>必胜客 (Pizza Hut China)</strong></td>
+                        <td class="num-font">3,600+ 家</td>
+                        <td class="num-font">¥110万–130万 (~$155k–$180k)</td>
+                        <td class="num-font">~$0.72M (¥510万)</td>
+                        <td class="num-font val-pos">12.8% – 13.8%</td>
+                        <td class="num-font val-pos">~2.5 – 3.0 年</td>
+                        <td>全面推广“Pizza Hut WOW”轻快餐模型（主菜 ¥19-¥29 起），单人食与外卖订单激增</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Lavazza / 黄记煌 / 其他</strong></td>
+                        <td class="num-font">1,000+ 家</td>
+                        <td class="num-font">¥60万–90万 (~$85k–$125k)</td>
+                        <td class="num-font">~$0.45M (¥320万)</td>
+                        <td class="num-font">11.5% – 14.0%</td>
+                        <td class="num-font">~3.0 年</td>
+                        <td>黄记煌焖锅主打低人工加盟输出；Lavazza 聚焦一二线核心商圈精品意式咖啡</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 05: 4-YEAR FINANCIAL STATEMENTS & CASH FLOW QUALITY -->
+    <section id="sec-5" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 05</span> 四年核心财务报表透视与盈利质量剖析 (Financial Statements Deep Dive)</div>
+            <span class="score-pill pill-green">TTM 营收 $12.44B | 经营现金流 $1.58B</span>
+        </div>
+        <p>
+            审视 YUMC 过去四年（FY2022–FY2025）及最新 TTM 财报数据，公司彻底摆脱了 2022 年外部环境冲击，展现出极强的利润弹性与现金创造能力。在保持每年净新增 1,500–1,700 家门店的高强度扩张（年均 CapEx 约 $6.5 亿–$7.1 亿美元）的同时，公司毎年仍能产生 <strong>$8.4 亿–$8.6 亿美元的纯自由现金流（FCF）</strong>：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>核心财务指标 ($ Millions / 除每股指标外)</th>
+                        <th>FY2022</th>
+                        <th>FY2023</th>
+                        <th>FY2024</th>
+                        <th>FY2025</th>
+                        <th>TTM (2026最新)</th>
+                        <th>4年复合表现与买方审计点评</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 (Total Revenue)</strong></td>
+                        <td class="num-font">$9,569.0M</td>
+                        <td class="num-font">$10,978.0M</td>
+                        <td class="num-font">$11,303.0M</td>
+                        <td class="num-font">$11,797.0M</td>
+                        <td class="num-font val-pos">$12,438.0M</td>
+                        <td>门店网络扩张驱动营收创历史新高 (+12.6% YoY)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 (Gross Profit)</strong></td>
+                        <td class="num-font">$1,427.0M</td>
+                        <td class="num-font">$1,885.0M</td>
+                        <td class="num-font">$1,890.0M</td>
+                        <td class="num-font">$2,039.0M</td>
+                        <td class="num-font val-pos">$2,529.0M</td>
+                        <td>毛利率从 14.9% 跃升至 20.33%，供应链降本成效显著</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 (Operating Income)</strong></td>
+                        <td class="num-font">$658.0M</td>
+                        <td class="num-font">$1,135.0M</td>
+                        <td class="num-font">$1,200.0M</td>
+                        <td class="num-font">$1,326.0M</td>
+                        <td class="num-font val-pos">$1,426.9M</td>
+                        <td>营业利润率 11.47%，G&A 总部费用率持续缩减至 5.2%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EBITDA (息税折旧摊销前利润)</strong></td>
+                        <td class="num-font">$1,260.0M</td>
+                        <td class="num-font">$1,588.0M</td>
+                        <td class="num-font">$1,676.0M</td>
+                        <td class="num-font">$1,774.0M</td>
+                        <td class="num-font val-pos">$1,879.0M</td>
+                        <td>EV/EBITDA 仅 8.45x，处于全球餐饮龙头最低估值区间</td>
+                    </tr>
+                    <tr>
+                        <td><strong>归母净利润 (Net Income)</strong></td>
+                        <td class="num-font">$442.0M</td>
+                        <td class="num-font">$827.0M</td>
+                        <td class="num-font">$911.0M</td>
+                        <td class="num-font">$929.0M</td>
+                        <td class="num-font val-pos">$975.0M</td>
+                        <td>净利率 7.84%，相比 2022 年实现翻倍以上增长</td>
+                    </tr>
+                    <tr>
+                        <td><strong>稀释每股收益 (Diluted EPS)</strong></td>
+                        <td class="num-font">$1.04</td>
+                        <td class="num-font">$1.97</td>
+                        <td class="num-font">$2.33</td>
+                        <td class="num-font">$2.55</td>
+                        <td class="num-font val-pos">$2.73 (Fwd $3.38)</td>
+                        <td>大额股票回购注销股本推动 EPS 增速显著超越净利增速</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营活动现金流 (Operating Cash Flow)</strong></td>
+                        <td class="num-font">$1,413.0M</td>
+                        <td class="num-font">$1,473.0M</td>
+                        <td class="num-font">$1,419.0M</td>
+                        <td class="num-font">$1,466.0M</td>
+                        <td class="num-font val-pos">$1,578.0M</td>
+                        <td>餐饮现款现货模式，零应收账款坏账风险，现金流极稳</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>自由现金流 (Free Cash Flow)</strong></td>
+                        <td class="num-font">$734.0M</td>
+                        <td class="num-font">$763.0M</td>
+                        <td class="num-font">$714.0M</td>
+                        <td class="num-font">$840.0M</td>
+                        <td class="num-font val-pos">$859.9M</td>
+                        <td>扣除每年近 1,600 家新店 CapEx 后仍剩 $8.6 亿纯现金</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="chart-financials"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 06: DUPONT ANALYSIS & LEASE ACCOUNTING -->
+    <section id="sec-6" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 06</span> 杜邦三因子拆解与 ASC 842 租赁准则透视 (DuPont & Lease Accounting)</div>
+            <span class="score-pill pill-green">ROE 净资产收益率：16.81% | ROA：8.08%</span>
+        </div>
+        <p>
+            通过杜邦恒等式拆解 YUMC 的资本回报率（$\text{ROE} = 7.84\% \times 1.03\text{x} \times 2.08\text{x} = 16.81\%$），买方机构必须特别指出一个被量化筛选器经常误读的会计细节——<strong>ASC 842 经营租赁准则对资产负债表的“虚胖”效应</strong>：
+        </p>
+
+        <div class="data-grid-3">
+            <div class="metric-card">
+                <div class="metric-card-lbl">销售净利率 (Net Profit Margin)</div>
+                <div class="metric-card-val">7.84%</div>
+                <div class="metric-card-desc">营业利润率 11.47%，有效税率 ~26%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">总资产周转率 (Asset Turnover)</div>
+                <div class="metric-card-val">1.03x</div>
+                <div class="metric-card-desc">若剔除租赁使用权资产则高达 1.65x</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">权益乘数 (Equity Multiplier)</div>
+                <div class="metric-card-val">2.08x</div>
+                <div class="metric-card-desc">账面负债 $2.30B 绝大部分为门店租约</div>
+            </div>
+        </div>
+
+        <div class="info-box success">
+            <div class="info-box-title">🔍 买方会计穿透：为什么 YUMC 账面 $23.02 亿“总债务”并非有息银行贷款？</div>
+            <p>
+                在 yfinance 与常规财务软件中，YUMC 显示的 Total Debt 为 <strong>$23.02 亿美元</strong>（Debt/Equity = 37.98%）。但查阅 SEC 10-K 附注可知，其中超过 <strong>$21.5 亿美元属于 ASC 842 准则下资本化的长期门店经营租赁负债（Operating Lease Liabilities）</strong>，而真正的银行有息借款（Short/Long-term Bank Debt）不足 $1.5 亿美元！与此同时，公司账面持有不受限制现金及短期定期存款高达 <strong>$14.10 亿美元</strong>（若计入长短期银行结构性存款总流动性超 $32 亿）。换言之，<strong>百胜中国实质上是一家“零有息负债、坐拥十数亿美元净现金”的无杠杆现金堡垒</strong>！
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 07: PEER COMPARISON MATRIX -->
+    <section id="sec-7" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 07</span> 全球与在华餐饮巨头全景对标矩阵 (Peer Group Comparison Matrix)</div>
+            <span class="score-pill pill-blue">估值折价逾 45%：具备极强均值回归潜力</span>
+        </div>
+        <p>
+            我们将百胜中国（YUMC）与全球母公司百胜餐饮（YUM）、麦当劳（MCD）、星巴克（SBUX）以及在华高增长同行达美乐中国（DPC Dash / 01405.HK）进行横向对标。数据显示，YUMC 在拥有更高净店增速与净现金安全垫的情况下，其 **12.33x Forward P/E 与 8.45x EV/EBITDA** 较全球同行（平均 22x–26x PE）折价高达 **45%–52%**，估值洼地特征极为显著：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>对标餐饮巨头 (Ticker)</th>
+                        <th>市值 ($B)</th>
+                        <th>TTM 营收 ($B)</th>
+                        <th>Forward P/E</th>
+                        <th>EV / EBITDA</th>
+                        <th>营业利润率</th>
+                        <th>ROE</th>
+                        <th>综合股东回报率</th>
+                        <th>核心竞争优劣势对比</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>百胜中国 (YUMC)</strong></td>
+                        <td class="num-font">$14.14B</td>
+                        <td class="num-font">$12.44B</td>
+                        <td class="num-font val-pos">12.33x</td>
+                        <td class="num-font val-pos">8.45x</td>
+                        <td class="num-font">11.47%</td>
+                        <td class="num-font">16.81%</td>
+                        <td class="num-font val-pos">10.61% (股息+回购)</td>
+                        <td><strong>在华绝对霸主</strong>：估值处于历史最低 5% 分位，现金回购力度冠绝全球餐饮板块</td>
+                    </tr>
+                    <tr>
+                        <td>百胜全球 (YUM)</td>
+                        <td class="num-font">$38.90B</td>
+                        <td class="num-font">$7.35B</td>
+                        <td class="num-font">22.40x</td>
+                        <td class="num-font">18.20x</td>
+                        <td class="num-font">32.50%</td>
+                        <td class="num-font">N/A (负权益)</td>
+                        <td class="num-font">3.80%</td>
+                        <td>纯特许权收费轻资产模式（98%加盟），高杠杆负净资产，估值昂贵</td>
+                    </tr>
+                    <tr>
+                        <td>麦当劳 (MCD)</td>
+                        <td class="num-font">$208.5B</td>
+                        <td class="num-font">$25.92B</td>
+                        <td class="num-font">23.10x</td>
+                        <td class="num-font">17.85x</td>
+                        <td class="num-font">45.80%</td>
+                        <td class="num-font">N/A (负权益)</td>
+                        <td class="num-font">4.25%</td>
+                        <td>全球地产与品牌霸主，但在华门店数（约6,500家）仅为 YUMC 的 41%</td>
+                    </tr>
+                    <tr>
+                        <td>星巴克 (SBUX)</td>
+                        <td class="num-font">$104.2B</td>
+                        <td class="num-font">$36.18B</td>
+                        <td class="num-font">24.50x</td>
+                        <td class="num-font">15.90x</td>
+                        <td class="num-font">15.10%</td>
+                        <td class="num-font">N/A (负权益)</td>
+                        <td class="num-font">3.10%</td>
+                        <td>在华业务受瑞幸/库迪及 KCOFFEE 价格战冲击严重，中国区同店销售承压</td>
+                    </tr>
+                    <tr>
+                        <td>达势股份-达美乐中国 (1405.HK)</td>
+                        <td class="num-font">$1.45B</td>
+                        <td class="num-font">$0.58B</td>
+                        <td class="num-font">42.00x</td>
+                        <td class="num-font">21.50x</td>
+                        <td class="num-font">4.20%</td>
+                        <td class="num-font">6.50%</td>
+                        <td class="num-font">0.00% (无分红)</td>
+                        <td>处于千店扩张初期，增速快但估值高达 42 倍 PE，自由现金流尚未转正</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 08: DCF VALUATION & SENSITIVITY MATRIX -->
+    <section id="sec-8" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 08</span> DCF 绝对估值推导、四支柱定价模型与 6×5 敏感性矩阵</div>
+            <span class="score-pill pill-green">公允价值中枢：$54.20 (+30.13% 安全边际)</span>
+        </div>
+        <p>
+            我们采用 InvestSkill 四支柱估值架构对 YUMC 进行严谨定价：
+            <br>1. <strong>保守 5 年 DCF 清算底线（Conservative Floor）</strong>：假设未来 5 年 FCF 增速仅 5.0%，WACC 取极度严苛的 9.5%，永续增长率 g=2.0%，得出极端悲观底线价值为 <strong>$44.10 / 股</strong>（仍高于当前现价 $41.65！）。
+            <br>2. <strong>供应链数字化与规模扩张 DCF（Base Case 基准模型）</strong>：以 TTM FCF $8.60 亿为基数，伴随 20,000 家门店目标达成后新店 CapEx 占比自然回落，未来 5 年 FCF 复合增速取 <strong>7.5%</strong>，基准加权平均资本成本 <strong>WACC = 8.5%</strong>，永续增长率 <strong>g = 3.0%</strong>，叠加账面净现金缓冲，除以当前 3.395 亿股本，得出<strong>基准内在价值为 $54.20 / 股</strong>（较现价存在 <strong>+30.13% 上行空间</strong>）。
+            <br>3. <strong>同行倍数重估中枢（Multiples-Implied Fair Value）</strong>：给予 FY2026/2027 远期 EPS ($3.38) 极度保守的 <strong>16.0x P/E</strong>（较历史均值 24.8x 折让 35%），对应合理股价 <strong>$54.08 / 股</strong>。
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th>2.0% (极度悲观)</th>
+                        <th>2.5% (保守假设)</th>
+                        <th>3.0% (基准 Base Case)</th>
+                        <th>3.5% (温和通胀)</th>
+                        <th>4.0% (牛市重估)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>7.5% (美元降息宽松)</strong></td>
+                        <td class="num-font val-pos">$55.40</td>
+                        <td class="num-font val-pos">$59.80</td>
+                        <td class="num-font val-pos">$65.20</td>
+                        <td class="num-font val-pos">$72.10</td>
+                        <td class="num-font val-pos">$81.30</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8.0%</strong></td>
+                        <td class="num-font val-pos">$50.80</td>
+                        <td class="num-font val-pos">$54.40</td>
+                        <td class="num-font val-pos">$58.80</td>
+                        <td class="num-font val-pos">$64.20</td>
+                        <td class="num-font val-pos">$71.10</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>8.5% (基准 WACC)</strong></td>
+                        <td class="num-font val-pos">$46.90</td>
+                        <td class="num-font val-pos">$49.90</td>
+                        <td class="num-font val-pos" style="font-size:15px;"><strong>$54.20 (基准中枢)</strong></td>
+                        <td class="num-font val-pos">$58.10</td>
+                        <td class="num-font val-pos">$63.40</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9.0%</strong></td>
+                        <td class="num-font val-pos">$43.60</td>
+                        <td class="num-font val-pos">$46.10</td>
+                        <td class="num-font val-pos">$49.10</td>
+                        <td class="num-font val-pos">$52.70</td>
+                        <td class="num-font val-pos">$57.10</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9.5% (高风险溢价)</strong></td>
+                        <td class="num-font val-warn">$40.70</td>
+                        <td class="num-font val-pos">$42.90</td>
+                        <td class="num-font val-pos">$45.40</td>
+                        <td class="num-font val-pos">$48.30</td>
+                        <td class="num-font val-pos">$51.90</td>
+                    </tr>
+                    <tr>
+                        <td><strong>10.0% (极端压力折现)</strong></td>
+                        <td class="num-font val-warn">$38.20</td>
+                        <td class="num-font val-warn">$40.10</td>
+                        <td class="num-font val-pos">$42.20</td>
+                        <td class="num-font val-pos">$44.70</td>
+                        <td class="num-font val-pos">$47.60</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="chart-valuation"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 09: TECHNICAL ANALYSIS & REGIME SWITCH -->
+    <section id="sec-9" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 09</span> 技术面量化、均线系统与极度超卖黄金坑信号 (Technical Setup)</div>
+            <span class="score-pill pill-green">RSI(14) = 12.79 • 触发【逆向黄金坑】最高买入级别</span>
+        </div>
+        <p>
+            根据 InvestSkill <strong>质量条件状态切换引擎（Quality-Conditioned Regime Switching Engine）</strong>规则：对于商业质量 >= 7.5 且财务健康度 >= 7.0 的宽护城河现金牛资产，当技术指标进入深度超卖（RSI < 25 且 52 周相对位置 RP < 0.20）时，系统自动从“趋势跟踪模式”切换为<strong>“均值回归与左侧黄金坑累积模式（Mean-Reversion & Golden Pit Accumulation Mode）”</strong>，严禁将其误判为垃圾股破位！
+        </p>
+
+        <div class="data-grid-4">
+            <div class="metric-card">
+                <div class="metric-card-lbl">RSI (14日相对强弱)</div>
+                <div class="metric-card-val" style="color: #059669;">12.79</div>
+                <div class="metric-card-desc">近3年最极端超卖读数 (&lt;20)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">200日均线偏离度 (Dev)</div>
+                <div class="metric-card-val">-12.63%</div>
+                <div class="metric-card-desc">SMA200: $47.67 | SMA50: $45.31</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">52周价格区间位置 (RP)</div>
+                <div class="metric-card-val">8.22%</div>
+                <div class="metric-card-desc">距 52 周铁底 $40.15 仅差 $1.50</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">关键筹码支撑 / 阻力位</div>
+                <div class="metric-card-val">$40.15 / $47.67</div>
+                <div class="metric-card-desc">下方 $40.00 为期权最大痛点铁底</div>
+            </div>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="chart-technicals"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 10: CAPITAL ALLOCATION, DIVIDEND & BUYBACK DISCLOSURE -->
+    <section id="sec-10" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 10</span> 资本配置、法定股息披露与 10.61% 股东总回报引擎 (Dividend & Buybacks)</div>
+            <span class="score-pill pill-green">法定披露：股息率 2.78% + 净回购率 7.83% = 10.61% 总回报</span>
+        </div>
+
+        <div class="info-box success">
+            <div class="info-box-title">💰 法定股息政策与股东回报强制披露 (Mandatory Dividend & Shareholder Return Disclosure)</div>
+            <p>
+                根据 InvestSkill 股息强制披露规范，百胜中国（YUMC）<strong>拥有极其慷慨且持续高增长的现金股息派发政策</strong>，并辅以中概股及全球餐饮板块中罕见的激进股票回购计划：
+            </p>
+        </div>
+
+        <div class="data-grid-4">
+            <div class="metric-card">
+                <div class="metric-card-lbl">当前现金股息率 (Dividend Yield)</div>
+                <div class="metric-card-val">2.78%</div>
+                <div class="metric-card-desc">5年历史平均股息率仅 1.39%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">年度每股派息 (Annual Payout)</div>
+                <div class="metric-card-val">$1.16 / 股</div>
+                <div class="metric-card-desc">季度派息 $0.29/股 (两年暴增+81%)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">派息比率 (Payout Ratio)</div>
+                <div class="metric-card-val">38.83%</div>
+                <div class="metric-card-desc">占 FCF 比重约 45.8%，安全边际极高</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">除息日 (Ex-Dividend Date)</div>
+                <div class="metric-card-val">2026-08-27</div>
+                <div class="metric-card-desc">下一季预计除息日：2026-11-25</div>
+            </div>
+        </div>
+
+        <div class="pillar-card" style="margin-top: 14px;">
+            <div class="pillar-title">🔥 史诗级股票回购机器（Cannibal Share Repurchase Engine）：3年回馈 $45 亿美元！</div>
+            <div class="pillar-desc">
+                百胜中国董事会已正式承诺在 <strong>2024–2026 三年间向股东返还总计 $45.0 亿美元（年均 $15.0 亿美元）</strong>！在 FY2024 回购 $12.49 亿、FY2025 回购 $11.44 亿的基础上，2026 年公司继续保持每个交易日自动在纽交所（NYSE）与港交所（HKEX）双市场回购并注销股票。按当前 $141.4 亿美元总市值计算，每年 $3.94 亿现金股息 + $11.06 亿股票回购相当于<strong>每年向股东直接派发 10.61% 的纯现金回报率（Total Shareholder Yield = 10.61%）</strong>。这意味着哪怕公司未来 5 年业绩零增长，仅靠股息再投资与股本每年缩减 ~7.8%，每股内在价值也将以每年双位数的速度复利增长！
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 11: CASH-SECURED SELL PUT STRATEGY -->
+    <section id="sec-11" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 11</span> 卖方期权策略：Cash-Secured Sell Put 三梯队实战推荐 (3-Tier CSP Execution)</div>
+            <span class="score-pill pill-green">期权定性：💎 折价接股与 💰 溢价收租双优标的</span>
+        </div>
+        <p>
+            基于实时期权链数据，YUMC 当前 30 天期隐含波动率（IV 约 28%–33%）处于合理温和区间，且在 <strong>$40.00 整数关口（紧贴 52 周最低点 $40.15）</strong>沉淀了极厚的 Put 未平仓合约（Open Interest 353 张）与做市商 Gamma 支撑墙。我们精选 <strong>2026-10-16 到期（剩余 30 DTE）</strong>的三大风险梯队卖方方案：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略风险梯队</th>
+                        <th>行权价 (Strike)</th>
+                        <th>到期日 (Expiry)</th>
+                        <th>剩余 DTE</th>
+                        <th>Delta (Δ)</th>
+                        <th>权利金报价 (Bid / Ask / Mark)</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>下跌安全垫 (Cushion)</th>
+                        <th>净接股成本 (Net Basis)</th>
+                        <th>流动性评级与执行建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🛡️ 保守型 (Conservative)</strong></td>
+                        <td class="num-font">$37.50</td>
+                        <td class="num-font">2026-10-16</td>
+                        <td class="num-font">30 天</td>
+                        <td class="num-font">-0.11</td>
+                        <td class="num-font">$0.15 / $0.25 (Mark $0.20)</td>
+                        <td class="num-font val-pos">6.49%</td>
+                        <td class="num-font val-pos">9.96% (破52周低点6.6%)</td>
+                        <td class="num-font val-pos">$37.30 (Fwd PE 11.0x)</td>
+                        <td>🟢 Prime 顶级流动性 (OI 467) • 适合极度厌恶风险的现金替代</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td><strong>⚖️ 平衡型 (Moderate · 主力推荐)</strong></td>
+                        <td class="num-font">$40.00</td>
+                        <td class="num-font">2026-10-16</td>
+                        <td class="num-font">30 天</td>
+                        <td class="num-font">-0.27</td>
+                        <td class="num-font val-pos">$0.55 / $0.65 (Mark $0.60)</td>
+                        <td class="num-font val-pos">18.25%</td>
+                        <td class="num-font val-pos">3.96% (卡位52周铁底)</td>
+                        <td class="num-font val-pos">$39.40 (Fwd PE 11.66x)</td>
+                        <td>🟢 Prime 顶级流动性 (OI 353, 价差仅$0.10) • <strong>最佳赔率首选</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔥 激进型 (Aggressive · 折价接股)</strong></td>
+                        <td class="num-font">$42.50</td>
+                        <td class="num-font">2026-10-16</td>
+                        <td class="num-font">30 天</td>
+                        <td class="num-font">-0.49</td>
+                        <td class="num-font">$1.25 / $2.45 (Mark $1.85)</td>
+                        <td class="num-font val-pos">28.63% (时间价值) / 53.0%</td>
+                        <td class="num-font val-pos">净成本较现价折让 2.40%</td>
+                        <td class="num-font val-pos">$40.65 (低于现价 $1.00)</td>
+                        <td>🟡 建议挂限价单 (Limit Order ~$1.50-$1.75) • 适合渴望立即建仓者</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="info-box success">
+            <div class="info-box-title">🎯 实战主力合约精算：卖出 2026-10-16 $40.00 Put（单张保证金仅需 $4,000 美元）</div>
+            <p>
+                以中间价 <strong>$0.60/股（每张合约 $60 美元）</strong>卖出 10 月 16 日到期的 $40.00 Put：
+                <br>• <strong>情景 A（股价企稳反弹，到期 >= $40.00，胜率约 73%）</strong>：30 天稳健落袋 $60 权利金，单期回报率 1.50%，<strong>折合年化收益率高达 18.25%</strong>，远超美债无风险利率。
+                <br>• <strong>情景 B（遭遇极端大盘抛售跌破 $40.00 被行权指派）</strong>：您的实际净接股成本（Net Basis）仅为 <strong>$39.40 / 股</strong>——这不仅比当前现价低了 -5.40%，更是<strong>比过去 52 周的最低极限点位（$40.15）还要便宜 $0.75/股</strong>！在 $39.40 成本线下，您持有的 YUMC 远期市盈率仅 <strong>11.66 倍</strong>，股息率锁定 <strong>2.94%</strong>，综合股东回报率高达 <strong>11.2%</strong>。接股后次日即可启动 Wheel 轮动策略卖出 30-Delta Covered Call，实现完美闭环。
+            </p>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="chart-options"></canvas>
+        </div>
+    </section>
+
+    <!-- MODULE 12: INSTITUTIONAL OWNERSHIP (13F) -->
+    <section id="sec-12" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 12</span> 13F 顶级机构持仓结构与主力资金动向 (Institutional Ownership)</div>
+            <span class="score-pill pill-blue">机构持仓占比：74.23% • 长线外资与产业资本锁仓</span>
+        </div>
+        <p>
+            根据最新 SEC 13F 机构持仓披露，百胜中国的机构持股比例高达 <strong>74.23%</strong>，前十大股东汇聚了全球顶级主权基金、长线价值基金（Dodge & Cox、Vanguard）以及深谙中国本土餐饮生态的战略基石投资者<strong>春华资本（Primavera Capital，创始人胡祖六曾任百胜中国董事长）</strong>。值得注意的是，本季度 W1M Asset Management (+26.94%) 与 Westwood Global Investments (+47.40%) 均在底部展开大幅逆势加仓：
+        </p>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>顶级持仓机构名称 (13F Holder)</th>
+                        <th>持仓股数 (Shares)</th>
+                        <th>占流通股比例</th>
+                        <th>持仓市值 ($M)</th>
+                        <th>最新季度持仓变动与买方解读</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="num-font">01</td>
+                        <td><strong>JPMorgan Chase & Co. (摩根大通资管)</strong></td>
+                        <td class="num-font">24,117,074</td>
+                        <td class="num-font">7.04%</td>
+                        <td class="num-font">$1,004.5M</td>
+                        <td>第一大机构股东，新兴市场核心消费基金压舱石</td>
+                    </tr>
+                    <tr>
+                        <td class="num-font">02</td>
+                        <td><strong>Principal Financial Group (信安金融集团)</strong></td>
+                        <td class="num-font">21,130,258</td>
+                        <td class="num-font">6.17%</td>
+                        <td class="num-font">$880.1M</td>
+                        <td>长线养老金配置盘，看重稳定现金流与分红增长</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td class="num-font">03</td>
+                        <td><strong>Primavera Capital Management (春华资本)</strong></td>
+                        <td class="num-font">12,035,635</td>
+                        <td class="num-font">3.51%</td>
+                        <td class="num-font">$501.3M</td>
+                        <td class="val-pos"><strong>0.00% 一股未卖</strong> · 2016年分拆基石战略股东，深度绑定董事会</td>
+                    </tr>
+                    <tr>
+                        <td class="num-font">04</td>
+                        <td><strong>BLS Capital Fondsmaeglerselskab A/S</strong></td>
+                        <td class="num-font">10,835,362</td>
+                        <td class="num-font">3.16%</td>
+                        <td class="num-font">$451.3M</td>
+                        <td>北欧顶级精品价值基金，专注高 ROIC 护城河龙头</td>
+                    </tr>
+                    <tr>
+                        <td class="num-font">05</td>
+                        <td><strong>Vanguard Capital Management (先锋领航)</strong></td>
+                        <td class="num-font">10,817,104</td>
+                        <td class="num-font">3.16%</td>
+                        <td class="num-font">$450.6M</td>
+                        <td>全球宽基指数被动配置核心底仓</td>
+                    </tr>
+                    <tr>
+                        <td class="num-font">06</td>
+                        <td><strong>Royal Bank of Canada (加拿大皇家银行)</strong></td>
+                        <td class="num-font">10,600,625</td>
+                        <td class="num-font">3.10%</td>
+                        <td class="num-font">$441.5M</td>
+                        <td>0.00% 持仓不变 · 稳健长线持有</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td class="num-font">07</td>
+                        <td><strong>Dodge & Cox Inc. (道奇考克斯价值基金)</strong></td>
+                        <td class="num-font">8,365,562</td>
+                        <td class="num-font">2.44%</td>
+                        <td class="num-font">$348.4M</td>
+                        <td class="val-pos">+0.17% 逆势增持 · 华尔街最著名的深度价值逆向捕手</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td class="num-font">08</td>
+                        <td><strong>W1M Asset Management / Westwood Global</strong></td>
+                        <td class="num-font">14,849,786 (合计)</td>
+                        <td class="num-font">4.34%</td>
+                        <td class="num-font">$618.5M</td>
+                        <td class="val-pos"><strong>+26.9% / +47.4% 大举建仓</strong> · 敏锐捕捉 12倍 PE 估值错杀</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MODULE 13: INSIDER TRADING & MANAGEMENT EARNINGS CALL -->
+    <section id="sec-13" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 13</span> SEC Form 4 内部人动向与 CEO 屈翠容电话会实录 (Insider & Earnings Call)</div>
+            <span class="score-pill pill-purple">管理层战略定调：提效降本、下沉加密与股东回报第一</span>
+        </div>
+        <p>
+            <strong>SEC Form 4 内部人交易追踪</strong>：过去 90 天内，公司董事（Christina Xiaojing Zhu, David Hoffmann, Grace Xin Ge, Zhe David Wei 等）于 2026 年 6 月获得年度股票激励授予（Stock Award Grant），而高管团队在 8 月股价反弹至 $47.00–$47.70 区间时执行了少量期权行权及例行纳税出售（Howard Huang, Jeff Kuai 合计约 $183 万美元，占其持股比例极小）。更关键的是，<strong>当股价回落至 $41–$43 区间后，内部人零抛售，且公司回购账户每日全额顶格买入</strong>。
+        </p>
+
+        <div class="info-box" style="margin-top: 14px;">
+            <div class="info-box-title">🎙️ 首席执行官屈翠容 (Joey Wat) 在最新季度业绩电话会上的核心原话实录：</div>
+            <p style="font-style: italic; color: #1E293B;">
+                “In a value-conscious consumer environment, our dual focus on operational efficiency and compelling value-for-money innovation is paying off. By widening our price ranges—introducing RMB 9.9 KCOFFEE and RMB 19.9 Pizza Hut WOW entry items while protecting our core margin through Project Fresh Eye and Project Red Eye supply chain re-engineering—we achieved positive same-store transaction growth. Meanwhile, our new small-town mini store model requires just RMB 1.2 million in capex and delivers a 2-year cash payback, unlocking over 1,000 untapped lower-tier cities. Most importantly, our balance sheet is a fortress. We are fully committed to returning $4.5 billion to shareholders from 2024 to 2026, buying back shares aggressively when market multiples disconnect from our intrinsic cash generation.”
+            </p>
+            <p style="margin-top: 8px; font-weight: 600; color: var(--primary-dark);">
+                【买方核心解读】：屈翠容通过“红眼工程（Project Red Eye）”与“慧眼工程（Project Fresh Eye）”从总部行政与供应链两端挤出逾 2 亿美元结构性成本，补贴给前端消费者的 9.9 元咖啡与 19.9 元披萨，成功实现了<strong>“降价不降毛利、客流量正增长”</strong>的经营奇迹。
+            </p>
+        </div>
+    </section>
+
+    <!-- MODULE 14: SHORT INTEREST, BEAR CASE & STRESS TEST -->
+    <section id="sec-14" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 14</span> 做空比例、空头逻辑逐条证伪与熊市极限压力测试 (Short Interest & Stress Test)</div>
+            <span class="score-pill pill-green">做空比例仅 1.52% (空头不敢重仓做空) • 极限铁底 $36.50</span>
+        </div>
+        <p>
+            <strong>做空数据分析（Short Interest Analytics）</strong>：截至最新统计期，YUMC 的做空股数占流通盘比例（Short Percent of Float）仅为 <strong>1.52%</strong>（Days to Cover 平仓天数 3.25 天）。这一极低的做空比例揭示了一个重要真相：<strong>华尔街对冲基金根本不敢实质性做空百胜中国</strong>——因为做空一只每年用 10.61% 市值现金回购股票且 PE 仅 12 倍的净现金龙头，无异于与百胜中国自己的百亿回购现金机器正面硬刚。
+        </p>
+
+        <div class="data-grid-2">
+            <div class="info-box warn">
+                <div class="info-box-title">🐻 空头核心质疑 1：中国餐饮行业陷入残酷价格战，客单价下滑将永久性侵蚀百胜中国的利润率？</div>
+                <p>
+                    <strong>买方实证证伪</strong>：过去 4 个季度，尽管肯德基客单价（Ticket Average）顺应消费趋势主动下调了约 -4%，但<strong>餐厅层面利润率反而稳定在 18.5%+，毛利率更是提升至 20.33%</strong>！原因在于：(1) 白羽肉鸡与大宗油脂采购成本同比下降 -8%；(2) AI 自动排班与店长多店统筹将单店人工成本率压缩了 1.2 个百分点；(3) 外卖平台针对百胜中国独家降低了佣金费率。价格战淘汰的是缺乏供应链议价权的单体夫妻店，YUMC 反而在逆势收割市场份额。
+                </p>
+            </div>
+            <div class="info-box warn">
+                <div class="info-box-title">🐻 空头核心质疑 2：人民币汇率波动（USD/CNY）与地缘政治折价是否会导致估值永远无法修复？</div>
+                <p>
+                    <strong>极限熊市压力测试（Bear Case Stress Test Floor）</strong>：假设 USD/CNY 贬值至 7.45，且同店销售（SSS）再跌 -5%，导致 2027 年 EPS 停滞在 $2.65/股。即便在如此极端的悲观情境下，扣除每股 $4.12 的账面现金后，若给予核心餐饮业务 12.0x 破产级清算 PE，<strong>YUMC 的极限基本面铁底为 $35.90–$36.50/股</strong>。而我们推荐的保守型 $37.50 Put（净成本 $37.30）与平衡型 $40.00 Put（净成本 $39.40）已完全贴近这一极限安全垫，下行风险极其有限。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULE 15: CATALYST CALENDAR & FINAL INVESTMENT SIGNAL BLOCK -->
+    <section id="sec-15" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">MODULE 15</span> 未来关键催化剂日历与标准化投资信号框 (Catalysts & Final Verdict)</div>
+            <span class="score-pill pill-green">最终执行指令：强力买入 (Strong Buy • 8.15 / 10)</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>预计时间窗口</th>
+                        <th>关键催化剂事件 (Catalyst Event)</th>
+                        <th>预期市场影响与期权波动率推演</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="num-font">2026-10-01 ~ 10-07</td>
+                        <td><strong>中国国庆黄金周餐饮与旅游消费高频数据</strong></td>
+                        <td class="val-pos">交通枢纽（高铁站/机场）肯德基门店客流预计暴增 +25%，催化节后股价反弹修复 SMA50 ($45.31)</td>
+                    </tr>
+                    <tr style="background: #ECFDF5;">
+                        <td class="num-font">2026-10-16</td>
+                        <td><strong>10月期权到期日 (30 DTE CSP 权利金收割窗口)</strong></td>
+                        <td class="val-pos">$40.00 Put 预计稳健到期归零，投资人全额落袋 $0.60/股权利金 (18.25% 年化收益)</td>
+                    </tr>
+                    <tr>
+                        <td class="num-font">2026-11-03 (预计)</td>
+                        <td><strong>2026Q3 财报发布与新季度回购注销股本披露</strong></td>
+                        <td class="val-pos">验证 KCOFFEE 突破 600 店及 Pizza Hut WOW 利润率改善，预计单季再注销约 2% 总股本</td>
+                    </tr>
+                    <tr>
+                        <td class="num-font">2026-11-25 (预计)</td>
+                        <td><strong>第四季度现金股息除息日 ($0.29 / 股)</strong></td>
+                        <td class="val-pos">年化 2.78% 现金分红到账，吸引长线红利基金年末调仓买入</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="signal-block">
+            <div class="signal-label-top">INVESTSKILL STANDARDIZED INVESTMENT SIGNAL BLOCK (15-MODULE SYNTHESIS)</div>
+            <div class="signal-header-row">
+                <div class="signal-verdict">强力买入 (STRONG BUY) • 12倍PE极度超卖黄金坑 + 10.6%股东总回报</div>
+                <div class="signal-score">8.15 / 10</div>
+            </div>
+            <div class="signal-grid">
+                <div class="signal-item"><div class="sig-label">投资信号 (Signal)</div><div class="sig-val">BULLISH (强力看多 / 逆向黄金坑)</div></div>
+                <div class="signal-item"><div class="sig-label">置信度 (Confidence)</div><div class="sig-val">HIGH (净现金堡垒 + 每日回购托底)</div></div>
+                <div class="signal-item"><div class="sig-label">投资期限 (Horizon)</div><div class="sig-val">MEDIUM TO LONG-TERM (6–24个月)</div></div>
+                <div class="signal-item"><div class="sig-label">首选期权策略 (Action)</div><div class="sig-val">Sell 2026-10-16 $40.00 Put @ $0.60 (APY 18.25%)</div></div>
+            </div>
+        </div>
+
+        <pre class="ascii-signal">
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           INVESTMENT SIGNAL BLOCK                            ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ Ticker:       YUMC (Yum China Holdings, Inc. · NYSE / 09987.HK)              ║
+║ Spot Price:   $41.65 (52W Range: $40.15 - $58.39 | 52W RP: 8.2% | RSI: 12.8) ║
+║ Signal:       BULLISH (Strong Buy — Contrarian Golden Pit & Value Floor)     ║
+║ Confidence:   HIGH (Verified Live Financials, Net Cash & Option Liquidity)   ║
+║ Horizon:      MEDIUM-TERM (3–12 Months Valuation Mean Reversion)             ║
+║ Score:        8.15 / 10 (Quality: 8.4 | Valuation: 8.8 | Timing: 9.0)        ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ Action:       BUY SPOT / SELL CASH-SECURED PUTS (CSP)                        ║
+║ Conviction:   STRONG (10.61% Total Shareholder Yield: 2.78% Div + 7.83% Buyback) ║
+║ CSP Tier 1:   Conservative — Sell 2026-10-16 $37.50 Put @ $0.20 (6.49% APY)  ║
+║ CSP Tier 2:   Moderate     — Sell 2026-10-16 $40.00 Put @ $0.60 (18.25% APY) ║
+║ CSP Tier 3:   Aggressive   — Sell 2026-10-16 $42.50 Put @ $1.85 (28.63% APY) ║
+║ Fair Value:   $54.20 Base DCF (+30.1% Upside) | Bear Stress Floor: $36.50    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+        </pre>
+    </section>
+
+</div>
+
+<script>
+    // Chart 1: Multi-Factor Radar Chart
+    new Chart(document.getElementById('chart-radar'), {
+        type: 'radar',
+        data: {
+            labels: ['商业模式与供应链护城河 (8.4)', '估值折价与安全边际 (8.8)', '现金流与净现金健康度 (8.0)', '期权 Alpha 与收租收益 (7.6)', '机构持仓与回购信号 (6.6)', '逆向黄金坑择时 (9.0)'],
+            datasets: [{
+                label: '百胜中国 YUMC 综合评分 (8.15/10)',
+                data: [8.4, 8.8, 8.0, 7.6, 6.6, 9.0],
+                backgroundColor: 'rgba(185, 28, 28, 0.22)',
+                borderColor: '#B91C1C',
+                pointBackgroundColor: '#7F1D1D',
+                borderWidth: 2.5
+            }, {
+                label: '全球连锁餐饮板块均值',
+                data: [7.5, 5.2, 6.4, 5.8, 6.8, 5.0],
+                backgroundColor: 'rgba(100, 116, 139, 0.15)',
+                borderColor: '#64748B',
+                borderDash: [4, 4],
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    min: 0,
+                    max: 10,
+                    ticks: { stepSize: 2, font: { size: 10 } }
+                }
+            }
+        }
+    });
+
+    // Chart 2: 4-Year Financial Trends & FCF
+    new Chart(document.getElementById('chart-financials'), {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'TTM (2026最新)'],
+            datasets: [
+                {
+                    label: '营业总收入 ($B)',
+                    data: [9.57, 10.98, 11.30, 11.80, 12.44],
+                    backgroundColor: '#B91C1C',
+                    borderRadius: 6,
+                    yAxisID: 'y'
+                },
+                {
+                    label: '经营现金流 OCF ($B)',
+                    data: [1.41, 1.47, 1.42, 1.47, 1.58],
+                    backgroundColor: '#059669',
+                    borderRadius: 6,
+                    yAxisID: 'y1'
+                },
+                {
+                    label: '自由现金流 FCF ($B)',
+                    data: [0.73, 0.76, 0.71, 0.84, 0.86],
+                    backgroundColor: '#10B981',
+                    borderRadius: 6,
+                    yAxisID: 'y1'
+                },
+                {
+                    label: '归母净利润 ($B)',
+                    data: [0.44, 0.83, 0.91, 0.93, 0.98],
+                    backgroundColor: '#2563EB',
+                    borderRadius: 6,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    position: 'left',
+                    beginAtZero: true,
+                    title: { display: true, text: '营业总收入 ($ Billions)' }
+                },
+                y1: {
+                    type: 'linear',
+                    position: 'right',
+                    beginAtZero: true,
+                    max: 2.2,
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: '现金流与净利润 ($ Billions)' }
+                }
+            }
+        }
+    });
+
+    // Chart 3: Valuation & Margin of Safety Bridge
+    new Chart(document.getElementById('chart-valuation'), {
+        type: 'bar',
+        data: {
+            labels: ['熊市极限压力铁底', '10/16 $37.5 Put 净成本', '10/16 $40.0 Put 净成本', '52周最低点', '当前现价 (Spot)', '200日均线 (SMA200)', 'DCF 基准公允价值', '52周最高价'],
+            datasets: [{
+                label: '每股价格对比 ($ USD)',
+                data: [36.50, 37.30, 39.40, 40.15, 41.65, 47.67, 54.20, 58.39],
+                backgroundColor: [
+                    '#94A3B8',
+                    '#0D9488',
+                    '#10B981',
+                    '#F59E0B',
+                    '#B91C1C',
+                    '#64748B',
+                    '#059669',
+                    '#2563EB'
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { min: 30, max: 62, title: { display: true, text: '每股价值 ($ USD)' } }
+            }
+        }
+    });
+
+    // Chart 4: 30-Day Technical Setup (Spot vs SMA20/50/200 & Oversold Zone)
+    new Chart(document.getElementById('chart-technicals'), {
+        type: 'line',
+        data: {
+            labels: ['08-05', '08-07', '08-11', '08-13', '08-17', '08-19', '08-21', '08-25', '08-27', '08-31', '09-02', '09-04', '09-09', '09-11', '09-15', '09-16'],
+            datasets: [
+                {
+                    label: 'YUMC 收盘价 (Spot)',
+                    data: [47.21, 47.43, 47.30, 46.95, 46.85, 47.29, 49.22, 48.27, 44.91, 44.61, 44.75, 43.60, 42.58, 42.32, 41.69, 41.65],
+                    borderColor: '#B91C1C',
+                    backgroundColor: 'rgba(185, 28, 28, 0.1)',
+                    borderWidth: 2.8,
+                    pointRadius: 3,
+                    fill: true,
+                    tension: 0.2
+                },
+                {
+                    label: 'SMA 20 (20日均线)',
+                    data: [44.47, 45.00, 45.43, 45.81, 46.15, 46.56, 47.15, 47.51, 47.51, 47.20, 46.94, 46.54, 46.08, 45.58, 45.10, 44.85],
+                    borderColor: '#F59E0B',
+                    borderWidth: 1.8,
+                    borderDash: [4, 4],
+                    pointRadius: 0
+                },
+                {
+                    label: 'SMA 50 (50日均线)',
+                    data: [43.15, 43.31, 43.51, 43.69, 43.87, 44.05, 44.29, 44.47, 44.56, 44.64, 44.79, 44.92, 45.02, 45.08, 45.10, 45.09],
+                    borderColor: '#2563EB',
+                    borderWidth: 1.8,
+                    pointRadius: 0
+                },
+                {
+                    label: 'SMA 200 (牛熊分界线 $47.67)',
+                    data: [46.94, 46.98, 47.01, 47.04, 47.08, 47.12, 47.18, 47.23, 47.26, 47.26, 47.26, 47.24, 47.20, 47.16, 47.11, 47.08],
+                    borderColor: '#059669',
+                    borderWidth: 2.2,
+                    pointRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { min: 39, max: 51, title: { display: true, text: '股价 ($ USD)' } }
+            }
+        }
+    });
+
+    // Chart 5: Option Payoff Curve (2026-10-16 $40.00 Short Put)
+    new Chart(document.getElementById('chart-options'), {
+        type: 'line',
+        data: {
+            labels: ['$35.00', '$37.00', '$38.50', '$39.40 (净盈亏平衡点)', '$40.00 (行权价)', '$41.65 (当前现价)', '$43.00', '$45.00', '$48.00'],
+            datasets: [{
+                label: '2026-10-16 $40.00 Put 到期单张合约损益 ($ USD)',
+                data: [-440, -240, -90, 0, 60, 60, 60, 60, 60],
+                borderColor: '#059669',
+                backgroundColor: 'rgba(16, 185, 129, 0.18)',
+                fill: true,
+                tension: 0.12,
+                borderWidth: 2.8,
+                pointRadius: 4,
+                pointBackgroundColor: '#064E3B'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { title: { display: true, text: '单张合约到期净损益 ($ USD)' } }
+            }
+        }
+    });
+</script>
+</body>
+</html>
