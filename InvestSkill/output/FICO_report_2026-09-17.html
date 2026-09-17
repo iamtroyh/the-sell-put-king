@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>费埃哲 (FICO) 深度投研报告 - InvestSkill</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+        :root {
+            --primary:       #059669;
+            --primary-dark:  #064E3B;
+            --primary-light: #ECFDF5;
+            --accent:        #10B981;
+            --accent-light:  #D1FAE5;
+            --emerald:       #10B981;
+            --emerald-light: #ECFDF5;
+            --teal:          #0D9488;
+            --teal-light:    #CCFBF1;
+            --blue:          #2563EB;
+            --blue-light:    #EFF6FF;
+            --purple:        #7C3AED;
+            --purple-light:  #F5F3FF;
+            --red:           #DC2626;
+            --red-light:     #FEE2E2;
+            --amber:         #D97706;
+            --amber-light:   #FEF3C7;
+            --slate:         #64748B;
+            --slate-light:   #F8FAFC;
+            --border:        #E2E8F0;
+            --text-primary:  #0F172A;
+            --text-secondary:#475569;
+            --text-muted:    #94A3B8;
+            --grad-hero:     linear-gradient(135deg, #064E3B 0%, #065F46 45%, #059669 80%, #10B981 100%);
+            --grad-accent:   linear-gradient(90deg, #059669, #10B981);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md:     0 4px 16px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+            --shadow-lg:     0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: #F8FAFC;
+            font-size: 14px;
+        }
+
+        .report-hero {
+            background: var(--grad-hero);
+            padding: 44px 24px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-inner { max-width: 1150px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-hero-stock { background: rgba(255,255,255,.18); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+        .badge-hero-sector { background: rgba(255,255,255,.14); color: #ECFDF5; border: 1px solid rgba(255,255,255,.25); }
+        .badge-hero-signal { background: #10B981; color: #fff; box-shadow: 0 0 14px rgba(16,185,129,.6); border: 1px solid rgba(255,255,255,.45); }
+        .badge-hero-rp { background: rgba(255,255,255,.15); color: #A7F3D0; border: 1px solid rgba(255,255,255,.28); }
+        .badge-hero-date { background: rgba(0,0,0,.2); color: #E2E8F0; border: 1px solid rgba(255,255,255,.2); }
+
+        .hero-title { font-size: 30px; font-weight: 800; line-height: 1.25; margin-bottom: 10px; letter-spacing: -0.5px; }
+        .hero-sub { font-size: 14.5px; opacity: 0.95; margin-bottom: 24px; max-width: 1000px; line-height: 1.6; }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+        .hero-kpi-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 12px;
+            padding: 14px 16px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-kpi-lbl { font-size: 11.5px; text-transform: uppercase; color: #A7F3D0; font-weight: 700; letter-spacing: 0.4px; }
+        .hero-kpi-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 4px 0 3px; color: #FFFFFF; }
+        .hero-kpi-sub { font-size: 11.5px; opacity: 0.9; color: #ECFDF5; }
+
+        .main-wrap { max-width: 1150px; margin: 0 auto; padding: 26px 16px 68px; }
+
+        .data-source-bar {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+        .data-source-bar span strong { color: var(--text-primary); }
+
+        .toc {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 26px;
+            box-shadow: var(--shadow-sm);
+        }
+        .toc-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            background: #F1F5F9;
+            padding: 5px 11px;
+            border-radius: 6px;
+            transition: all .15s;
+        }
+        .toc-link:hover { background: var(--primary); color: #fff; }
+
+        .section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sec-num {
+            background: var(--primary);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .data-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 14px 0; }
+        .data-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 14px 0; }
+        .data-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin: 14px 0; }
+
+        .info-box {
+            border-left: 4px solid var(--primary);
+            background: #F8FAFC;
+            padding: 15px 18px;
+            border-radius: 0 10px 10px 0;
+            margin: 14px 0;
+        }
+        .info-box.warn { border-left-color: var(--amber); background: #FFFBEB; }
+        .info-box.danger { border-left-color: var(--red); background: #FEF2F2; }
+        .info-box.success { border-left-color: var(--emerald); background: #ECFDF5; }
+        .info-box-title { font-size: 13.5px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; color: var(--primary-dark); }
+
+        .metric-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .metric-card-val {
+            font-size: 22px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary-dark);
+            margin: 4px 0;
+        }
+        .metric-card-lbl { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .metric-card-desc { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+        .pillar-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            border-top: 3px solid var(--primary);
+        }
+        .pillar-title { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .pillar-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 14px 0; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background: #F1F5F9; color: var(--text-secondary); font-weight: 700; padding: 10px 12px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        tr:hover td { background: #F8FAFC; }
+        .num-font { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        .val-pos { color: #059669; font-weight: 600; }
+        .val-neg { color: #DC2626; font-weight: 600; }
+        .val-warn { color: #D97706; font-weight: 600; }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 330px;
+            margin: 16px 0;
+        }
+
+        .score-pill { display: inline-block; padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 11.5px; }
+        .pill-green { background: var(--emerald-light); color: #065F46; }
+        .pill-blue { background: var(--blue-light); color: var(--blue); }
+        .pill-amber { background: var(--amber-light); color: var(--amber); }
+        .pill-purple { background: var(--purple-light); color: var(--purple); }
+
+        .signal-block {
+            background: var(--grad-hero);
+            color: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 18px;
+            box-shadow: var(--shadow-md);
+        }
+        .signal-label-top { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #A7F3D0; font-weight: 700; margin-bottom: 8px; }
+        .signal-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.2); padding-bottom: 12px; }
+        .signal-verdict { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #FFFFFF; }
+        .signal-score { font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #A7F3D0; }
+        .signal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .signal-item { background: rgba(255,255,255,.12); border-radius: 8px; padding: 11px 14px; }
+        .sig-label { font-size: 11px; color: #D1FAE5; font-weight: 600; text-transform: uppercase; }
+        .sig-val { font-size: 13.5px; font-weight: 700; color: #FFFFFF; margin-top: 3px; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 23px; }
+            .section { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-hero">
+    <div class="hero-inner">
+        <div class="hero-badge-row">
+            <span class="badge badge-hero-stock">🏛️ NYSE: FICO · Fair Isaac Corporation (费埃哲)</span>
+            <span class="badge badge-hero-sector">📂 Information Technology | 全球信用评分体系基石与决策分析软件垄断霸主</span>
+            <span class="badge badge-hero-signal">🚀 强力买入 (Strong Buy)</span>
+            <span class="badge badge-hero-rp">📈 52周相对位置: 8.3% (RP 历史黄金坑)</span>
+            <span class="badge badge-hero-date">📅 报告基准日: 2026-09-17</span>
+        </div>
+        <h1 class="hero-title">费埃哲 (FICO) 深度投研报告</h1>
+        <p class="hero-sub">
+            全球金融信用基础设施领域无可争议的“收费公路之王”。股价自52周历史高位 $1,998.01 遭遇监管恐慌砸盘，累计腰斩 -51.8% 探底至 $963.80（52周相对分位 RP 仅 8.3%，RSI 跌至 27.34 极度超卖）。因美国联邦住房金融局（FHFA）推行房贷 VantageScore 双轨制与批价审查，市场极度恐慌性定价其护城河瓦解。然而，凭借 85.1% 惊人毛利率、53.8% 经营利润率、全美信贷与证券化市场逾 90% 不可替代的实证穿透力，以及云原生 FICO Platform 软件高双位数扩张，Forward P/E 从 50x+ 历史极值暴力出清至 18.15x，形成数年一遇的“逆向黄金坑”与极佳赔率的现金担保 Sell Put 收租窗口。
+        </p>
+
+        <div class="hero-kpis">
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">当前市场现价</div>
+                <div class="hero-kpi-val">$963.80</div>
+                <div class="hero-kpi-sub">52周: $870.01 ~ $1,998.01 (RP: 8.3%)</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">多因子综合评分</div>
+                <div class="hero-kpi-val">8.5 / 10</div>
+                <div class="hero-kpi-sub">强力买入 (Strong Buy) • 逆向黄金坑与深度安全垫</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">总市值 (Market Cap)</div>
+                <div class="hero-kpi-val">$20.82B</div>
+                <div class="hero-kpi-sub">企业价值 (EV): $26.76B</div>
+            </div>
+            <div class="hero-kpi-card">
+                <div class="hero-kpi-lbl">市盈率与估值中枢</div>
+                <div class="hero-kpi-val">Forward P/E: 18.15x</div>
+                <div class="hero-kpi-sub">DCF 公允价值: $1,220.00 (折让 21.0%)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-wrap">
+
+    <div class="data-source-bar">
+        <span><strong>数据来源与可信度:</strong> SEC EDGAR 10-K/10-Q (FY2022-FY2025及2026Q3最新季报)、NYSE/CBOE 期权实时报价链、yfinance 实时行情</span>
+        <span><strong>报告基准日:</strong> 2026-09-17 | <strong>置信等级:</strong> HIGH (买方机构穿透级)</span>
+    </div>
+
+    <nav class="toc">
+        <div class="toc-title">报告核心导航目录 (15 Modules Full Structure)</div>
+        <div class="toc-links">
+            <a href="#sec-1" class="toc-link">01. 商业模式与产品</a>
+            <a href="#sec-2" class="toc-link">02. 行业格局与护城河</a>
+            <a href="#sec-3" class="toc-link">03. 四年财务全景审计</a>
+            <a href="#sec-4" class="toc-link">04. 杜邦分析与F-Score</a>
+            <a href="#sec-5" class="toc-link">05. 估值架构与DCF</a>
+            <a href="#sec-6" class="toc-link">06. 技术面与动量反转</a>
+            <a href="#sec-7" class="toc-link">07. 内部人交易与SEC Form 4</a>
+            <a href="#sec-8" class="toc-link">08. 13F机构持仓与聪明钱</a>
+            <a href="#sec-9" class="toc-link">09. 电话会要点与管理层</a>
+            <a href="#sec-10" class="toc-link">10. 量化期权与Sell Put策略</a>
+            <a href="#sec-11" class="toc-link">11. 熊市压力测试</a>
+            <a href="#sec-12" class="toc-link">12. 宏观与利率敏感性</a>
+            <a href="#sec-13" class="toc-link">13. 10-K/10-Q核心风险</a>
+            <a href="#sec-14" class="toc-link">14. 股息与资本返还</a>
+            <a href="#sec-15" class="toc-link">15. 综合论证与评分卡</a>
+        </div>
+    </nav>
+
+    <!-- SECTION 1 -->
+    <section id="sec-1" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">01</span> 商业模式与产品矩阵：B2B 定价权与双轮驱动</div>
+            <span class="score-pill pill-green">护城河评分: 9.5 / 10</span>
+        </div>
+        <p>
+            费埃哲公司（Fair Isaac Corporation，NYSE: FICO）成立于 1956 年，是全球金融信贷风险量化、预测分析与决策软件的开创者与绝对垄断者。FICO 的商业本质是建立在现代信贷契约之上的<strong>“私人铸币厂”与金融数据“收费站”</strong>。公司主要由两大互补且飞轮协同的业务部门构成：
+        </p>
+        <div class="data-grid-2">
+            <div class="pillar-card">
+                <div class="pillar-title">1. 评分部门 (Scores Segment) — 现金流奶牛与极度垄断定价权</div>
+                <div class="pillar-desc">
+                    <strong>核心产品：</strong>B2B 信用评分（FICO Score 8, 9, 10, 10T）及特定行业评分（汽车、信用卡）。<br>
+                    <strong>盈利模式：</strong>通过三大征信局（Equifax、Experian、TransUnion）向下游放贷机构（银行、房贷公司、信用卡发卡行）每次调用按次收费（Royalty fee per score）。<br>
+                    <strong>财务贡献：</strong>占总收入约 52%，但贡献了全公司逾 78% 的营业利润，EBIT Margin 高达 88%~90%。<br>
+                    <strong>定价特权：</strong>FICO 评分在单笔几十万美元的房贷中仅占十几美元成本（占比仅 0.003%），但对贷款能否被房利美/房地美二级市场证券化打包打包起生杀大权，客户价格敏感度几乎为零。近年推行“特殊定价机制（Special Pricing）”，将单次房贷评分批发价从 $3.50 逐步上调至 $10+，释放出令人震惊的非线性利润爆发力。
+                </div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">2. 软件部门 (Software Segment) — FICO Platform 云原生 SaaS 增长引擎</div>
+                <div class="pillar-desc">
+                    <strong>核心产品：</strong>FICO Platform（云决策平台）、Falcon Fraud Manager（全球逾 26 亿张银行卡的防欺诈实时拦截引擎）、CCS 客户交互催收与授信决策引擎。<br>
+                    <strong>盈利模式：</strong>从传统的本地部署许可证转变为云原生订阅 SaaS 模式，按年度经常性收入（ARR）及调用量计费。<br>
+                    <strong>财务贡献：</strong>占总收入约 48%，年 ARR 保持 20%+ 复合增速，净美元留存率（DBNR）连续多年维持在 115%~120% 的行业顶级水平。<br>
+                    <strong>协同效应：</strong>Scores 部门为软件部门提供了全球顶级银行的最高层客户信任通道，而 FICO Platform 则将评分深度集成进银行端到端的开户、审批、授信、反欺诈与催收流程，极大加深了技术栈沉没成本。
+                </div>
+            </div>
+        </div>
+        <div class="info-box success">
+            <div class="info-box-title">💡 买方深度洞察：特许金融通行费的极致模型</div>
+            <p>巴菲特曾将穆迪（MCO）描述为“即使没有额外资本投入也能随意提价的特许权收费站”。FICO 的 Scores 部门在过去 10 年将这种特许权发挥得淋漓尽致：无需额外资本开支（FY2025 Capex 仅 3940 万美元，占收入比不到 2%），每一块钱提价几乎 100% 毫无摩擦地穿透为营业利润和自由现金流。</p>
+        </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section id="sec-2" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">02</span> 行业格局与竞争护城河：事实标准与监管扰动的博弈</div>
+            <span class="score-pill pill-green">壁垒韧性: 9.0 / 10</span>
+        </div>
+        <p>
+            理解 FICO 当前股价腰斩的核心矛盾，必须穿透其护城河的真实本质与当前市场恐慌的监管源头：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>竞争维度</th>
+                        <th>FICO (Fair Isaac)</th>
+                        <th>VantageScore (三大局联合体)</th>
+                        <th>竞争与替代性穿透分析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>底层股东与利益</strong></td>
+                        <td>独立第三方中立算法公司</td>
+                        <td>Equifax / Experian / TransUnion 2006年联营</td>
+                        <td>银行对三大征信局“既当裁判又当运动员”心存戒备，FICO 中立性更受资金方青睐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>房贷市场份额</strong></td>
+                        <td>> 95% (长达30年事实垄断)</td>
+                        <td>< 5% (多用于前端预审与非标)</td>
+                        <td>房贷核心在二级市场打包成 RMBS（抵押支持证券），全球买家只认 FICO 违约损失校准</td>
+                    </tr>
+                    <tr>
+                        <td><strong>车贷与信用卡</strong></td>
+                        <td>> 90% (无任何行政强制要求)</td>
+                        <td>< 10% (主要存在于免费查分软件)</td>
+                        <td><strong>最硬逻辑：</strong>在没有任何监管强制的信用卡/车贷领域，银行历经20年依然选择 FICO，证伪“行政垄断”论</td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本充足率模型</strong></td>
+                        <td>Basel / CECL 历经30年完整信贷周期穿透验证</td>
+                        <td>历史数据仅有2006年后，缺乏极端压力宏观周期样本</td>
+                        <td>华尔街一级交易商与评级机构（标普、穆迪）的风险加权资产（RWA）全部锚定 FICO 分段</td>
+                    </tr>
+                    <tr>
+                        <td><strong>最新监管冲击</strong></td>
+                        <td>FHFA 推进 FICO 10T 与 VantageScore 4.0 双轨制</td>
+                        <td>FHFA 领导层（Bill Pulte）喊话强推，试图压降购房成本</td>
+                        <td>短期造成情绪崩溃，但落地面临全美放贷系统、AUS（桌面核保人）、评级机构庞大改造阻力</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="info-box warn">
+            <div class="info-box-title">⚖️ 关键推论：VantageScore 无法从根本上取代 FICO</div>
+            <p>三大征信局在 2006 年创立 VantageScore 的唯一目的就是打破 FICO 的专利税。然而 20 年过去了，在完全自由竞争的信用卡、汽车贷款、个人消费信贷市场，FICO 的份额依然超过 90%。原因在于：<strong>信贷风控的本质不是“数学公式”，而是“三十年的违约行为校准基准”</strong>。全球万亿美元级别的资产证券化市场（ABS/RMBS）投资者绝不会因为节省 $10 美元评分费而承担底层资产评级被降级的巨大信用利差风险。</p>
+        </div>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section id="sec-3" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">03</span> 四年历史财务报表全景审计：极高毛利与负净资产的秘密</div>
+            <span class="score-pill pill-green">财务质量: 8.8 / 10</span>
+        </div>
+        <p>
+            FICO 展现出美股极少数“轻资产超级印钞机”的典型财务特征：超高的毛利率（85%+）、高耸入云的营业利润率（53.8%），以及由持续激进回购导致的“账面负所有者权益”：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>财务指标 (FY截至9月30日)</th>
+                        <th>FY2022</th>
+                        <th>FY2023</th>
+                        <th>FY2024</th>
+                        <th>FY2025</th>
+                        <th>TTM (2026Q3)</th>
+                        <th>四年趋势与买方评估</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>营业总收入 ($M)</strong></td>
+                        <td class="num-font">$1,377.3</td>
+                        <td class="num-font">$1,513.6</td>
+                        <td class="num-font">$1,717.5</td>
+                        <td class="num-font">$1,990.9</td>
+                        <td class="num-font val-pos">$2,393.7</td>
+                        <td>年复合增速 CAGR 达 15.2%，特殊定价驱动加速</td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利润 ($M) / 毛利率</strong></td>
+                        <td class="num-font">$1,075.1 (78.1%)</td>
+                        <td class="num-font">$1,202.5 (79.4%)</td>
+                        <td class="num-font">$1,369.3 (79.7%)</td>
+                        <td class="num-font">$1,637.1 (82.2%)</td>
+                        <td class="num-font val-pos">$2,037.0 (85.1%)</td>
+                        <td>毛利率连续4年攀升，边际增量收入毛利达 95%+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>营业利润 ($M) / 利润率</strong></td>
+                        <td class="num-font">$542.4 (39.4%)</td>
+                        <td class="num-font">$640.9 (42.3%)</td>
+                        <td class="num-font">$733.6 (42.7%)</td>
+                        <td class="num-font">$935.8 (47.0%)</td>
+                        <td class="num-font val-pos">$1,287.4 (53.8%)</td>
+                        <td>营运杠杆极其强劲，经营利润率突破 50% 门槛</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GAAP 净利润 ($M)</strong></td>
+                        <td class="num-font">$373.5</td>
+                        <td class="num-font">$429.4</td>
+                        <td class="num-font">$512.8</td>
+                        <td class="num-font">$651.9</td>
+                        <td class="num-font val-pos">$815.1</td>
+                        <td>4年净利润翻倍，高质量纯现金收益</td>
+                    </tr>
+                    <tr>
+                        <td><strong>稀释每股收益 EPS ($)</strong></td>
+                        <td class="num-font">$14.18</td>
+                        <td class="num-font">$16.93</td>
+                        <td class="num-font">$20.45</td>
+                        <td class="num-font">$26.54</td>
+                        <td class="num-font val-pos">$34.62</td>
+                        <td>回购与净利共振，EPS 4年内增长 144%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>经营现金流 OCF ($M)</strong></td>
+                        <td class="num-font">$509.5</td>
+                        <td class="num-font">$468.9</td>
+                        <td class="num-font">$633.0</td>
+                        <td class="num-font">$778.8</td>
+                        <td class="num-font val-pos">$1,001.5</td>
+                        <td>OCF 突破 10 亿美元大关，盈利现金转化率 > 120%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>资本开支 Capex ($M)</strong></td>
+                        <td class="num-font">$6.0</td>
+                        <td class="num-font">$4.2</td>
+                        <td class="num-font">$25.6</td>
+                        <td class="num-font">$39.4</td>
+                        <td class="num-font">$42.0</td>
+                        <td>极轻资产运作，研发多已计入费用，Capex占收入仅 1.7%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由现金流 FCF ($M)</strong></td>
+                        <td class="num-font val-pos">$503.4</td>
+                        <td class="num-font val-pos">$464.7</td>
+                        <td class="num-font val-pos">$607.4</td>
+                        <td class="num-font val-pos">$739.4</td>
+                        <td class="num-font val-pos">$959.5</td>
+                        <td>FCF Margin 稳定在 38%~40%，无任何虚假水分</td>
+                    </tr>
+                    <tr>
+                        <td><strong>股东权益 (Book Value, $M)</strong></td>
+                        <td class="num-font val-neg">-$801.9</td>
+                        <td class="num-font val-neg">-$688.0</td>
+                        <td class="num-font val-neg">-$962.7</td>
+                        <td class="num-font val-neg">-$1,745.8</td>
+                        <td class="num-font val-neg">-$2,120.0</td>
+                        <td><strong>非经营性亏损！</strong>过去4年累计回购耗资逾 $37 亿，超额注销资本金</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-box">
+            <canvas id="chart-financials"></canvas>
+        </div>
+        <div class="info-box danger">
+            <div class="info-box-title">🔍 核心财务答疑：为什么股东权益是负数？它危险吗？</div>
+            <p>很多量化黑盒系统会因为 FICO 的负净资产将其粗暴剔除。但买方专业分析必须指出：FICO 的负权益是类似 AutoZone (AZO)、Home Depot (HD) 和星巴克 (SBUX) 的<strong>“超级资本回流现象”</strong>。由于公司 ROIC 极高且现金流极其确定，管理层利用自身强劲的 FCF 加上部分低息长期债券，持续以高于账面净资产的价格在公开市场回购注销股票。会计上，回购支出全部从“留存收益”和“资本公积”中扣减，从而把账面净资产冲成负数。公司当前利息保障倍数高达 8.5x 以上，完全不存在资不抵债风险。</p>
+        </div>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section id="sec-4" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">04</span> 杜邦分析与 Piotroski F-Score 深度解构</div>
+            <span class="score-pill pill-green">F-Score: 7 / 9 (优异)</span>
+        </div>
+        <p>
+            对于负净资产企业，传统的三要素杜邦 ROE 公式在分母为负时失去直观意义。我们采用基于总资产收益率（ROA）与资本回报率（ROIC）的改良杜邦框架，并对 9 因子 Piotroski F-Score 进行严谨的逐项审计：
+        </p>
+        <div class="data-grid-3">
+            <div class="metric-card">
+                <div class="metric-card-lbl">总资产收益率 ROA (TTM)</div>
+                <div class="metric-card-val val-pos">39.98%</div>
+                <div class="metric-card-desc">远超标普500均值(7.2%)，轻资产盈利极其强悍</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">息税前投资资本回报率 ROIC</div>
+                <div class="metric-card-val val-pos">46.50%</div>
+                <div class="metric-card-desc">经济特许权带来巨大的超额资本回报 (WACC仅9.5%)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">现金流量负债比 (CFO/Debt)</div>
+                <div class="metric-card-val val-pos">32.6%</div>
+                <div class="metric-card-desc">仅需约 3 年即可用自身现金流还清全部有息负债</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Piotroski 维度</th>
+                        <th>检验因子 (Factor)</th>
+                        <th>当期数据与判定标准</th>
+                        <th>得分</th>
+                        <th>因子分析与解读</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="4"><strong>盈利能力 (Profitability)</strong></td>
+                        <td>1. ROA > 0</td>
+                        <td>ROA = 34.90% (FY25) > 0</td>
+                        <td class="val-pos">+1</td>
+                        <td>资产盈利能力极高，净利润扎实</td>
+                    </tr>
+                    <tr>
+                        <td>2. 经营现金流 CFO > 0</td>
+                        <td>CFO = $778.8M (FY25) > 0</td>
+                        <td class="val-pos">+1</td>
+                        <td>纯粹真金白银流入，无坏账或虚增应收</td>
+                    </tr>
+                    <tr>
+                        <td>3. ROA 同比提升</td>
+                        <td>34.90% vs 29.85% (FY24)</td>
+                        <td class="val-pos">+1</td>
+                        <td>资产收益率连续提升，价格调整释放杠杆</td>
+                    </tr>
+                    <tr>
+                        <td>4. 应计项 CFO > Net Income</td>
+                        <td>CFO $778.8M > NI $651.9M</td>
+                        <td class="val-pos">+1</td>
+                        <td>收益质量极高，非现金折旧摊销充分</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3"><strong>杠杆与流动性 (Leverage)</strong></td>
+                        <td>5. 长期杠杆率降低</td>
+                        <td>Debt/Assets 1.65 vs 1.30 (FY24)</td>
+                        <td class="val-neg">0</td>
+                        <td>因执行大额回购发行部分公司债，账面债务略升</td>
+                    </tr>
+                    <tr>
+                        <td>6. 流动比率提升</td>
+                        <td>CR 0.83 vs 1.62 (FY24)</td>
+                        <td class="val-neg">0</td>
+                        <td>短期循环授信使用增加导致流动比率暂时收窄</td>
+                    </tr>
+                    <tr>
+                        <td>7. 无股权稀释 (No Dilution)</td>
+                        <td>总股本从 25.07M 持续降至 21.60M</td>
+                        <td class="val-pos">+1</td>
+                        <td>零增发且高强度回购，股东权益含金量提升</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2"><strong>运营效率 (Efficiency)</strong></td>
+                        <td>8. 毛利率同比提升</td>
+                        <td>82.23% vs 79.73% (FY24)</td>
+                        <td class="val-pos">+1</td>
+                        <td>特殊定价推动核心业务毛利率再次拔高</td>
+                    </tr>
+                    <tr>
+                        <td>9. 资产周转率提升</td>
+                        <td>1.07 次 vs 1.00 次 (FY24)</td>
+                        <td class="val-pos">+1</td>
+                        <td>单位资产创造收入效率持续上行</td>
+                    </tr>
+                    <tr style="background:#ECFDF5; font-weight:700;">
+                        <td colspan="3"><strong>综合 PIOTROSKI F-SCORE 最终得分</strong></td>
+                        <td class="val-pos" style="font-size:16px;">7 / 9</td>
+                        <td><strong>优异 (堡垒级资产健康梯队，获模型 +5.0 奖励分)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 5 -->
+    <section id="sec-5" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">05</span> 四支柱估值架构、DCF模型与同行对标</div>
+            <span class="score-pill pill-green">估值折让: 21.0% (深度安全垫)</span>
+        </div>
+        <p>
+            通过<strong>“四支柱估值架构”</strong>（保守现金流底价、研发资本化10年DCF、同行可比倍数、期权净成本底线），全景测算 FICO 在监管恐慌腰斩后的真实公允价值：
+        </p>
+        <div class="data-grid-4">
+            <div class="metric-card">
+                <div class="metric-card-lbl">柱1: 保守压力测试底价</div>
+                <div class="metric-card-val val-warn">$754.03</div>
+                <div class="metric-card-desc">悲观假设房贷份额流失30%，WACC 9.5%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">柱2: DCF 基准公允价值</div>
+                <div class="metric-card-val val-pos">$1,220.00</div>
+                <div class="metric-card-desc">10年期复合增速 13%，折现率 9.5%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">柱3: 同行倍数对标价值</div>
+                <div class="metric-card-val val-pos">$1,274.40</div>
+                <div class="metric-card-desc">对标穆迪/标普给予 24x Forward P/E</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">柱4: 860P 卖权接股净成本</div>
+                <div class="metric-card-val" style="color:var(--blue);">$846.30</div>
+                <div class="metric-card-desc">较现价折让 12.2%，较基准公允价折让 30.6%</div>
+            </div>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="chart-valuation"></canvas>
+        </div>
+
+        <h4 style="margin:18px 0 10px; font-size:15px; font-weight:700;">WACC 折现率 × 永续增长率 (g) 交叉敏感性矩阵 ($/股)</h4>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WACC \ 永续增长率 (g)</th>
+                        <th>2.5% (极端保守)</th>
+                        <th>3.0% (温和通胀)</th>
+                        <th>3.5% (基准锚点)</th>
+                        <th>4.0% (轻资产垄断)</th>
+                        <th>4.5% (强定价飞轮)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WACC 8.5%</strong></td>
+                        <td class="num-font">$788.49</td>
+                        <td class="num-font">$860.76</td>
+                        <td class="num-font">$947.48</td>
+                        <td class="num-font val-pos">$1,053.48</td>
+                        <td class="num-font val-pos">$1,185.97</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 9.0%</strong></td>
+                        <td class="num-font">$711.02</td>
+                        <td class="num-font">$771.05</td>
+                        <td class="num-font">$842.01</td>
+                        <td class="num-font">$927.15</td>
+                        <td class="num-font val-pos">$1,031.22</td>
+                    </tr>
+                    <tr style="background:#ECFDF5; font-weight:700;">
+                        <td><strong>WACC 9.5% (基准模型)</strong></td>
+                        <td class="num-font">$644.55</td>
+                        <td class="num-font">$695.08</td>
+                        <td class="num-font val-pos" style="font-size:15px;">$754.03</td>
+                        <td class="num-font val-pos">$823.69</td>
+                        <td class="num-font val-pos">$907.29</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 10.0%</strong></td>
+                        <td class="num-font">$586.90</td>
+                        <td class="num-font">$629.90</td>
+                        <td class="num-font">$679.52</td>
+                        <td class="num-font">$737.40</td>
+                        <td class="num-font">$805.81</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 10.5% (悲观加息)</strong></td>
+                        <td class="num-font">$536.42</td>
+                        <td class="num-font">$573.37</td>
+                        <td class="num-font">$615.59</td>
+                        <td class="num-font">$664.32</td>
+                        <td class="num-font">$721.16</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WACC 11.0%</strong></td>
+                        <td class="num-font">$491.84</td>
+                        <td class="num-font">$523.86</td>
+                        <td class="num-font">$560.14</td>
+                        <td class="num-font">$601.62</td>
+                        <td class="num-font">$649.47</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h4 style="margin:18px 0 10px; font-size:15px; font-weight:700;">同行垄断与金融数据超级护城河对标分析</h4>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>标的代码</th>
+                        <th>公司名称</th>
+                        <th>总市值 ($B)</th>
+                        <th>TTM P/E</th>
+                        <th>Forward P/E</th>
+                        <th>EV/EBITDA</th>
+                        <th>毛利率</th>
+                        <th>经营利润率</th>
+                        <th>FCF Yield</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background:#ECFDF5; font-weight:700;">
+                        <td><strong>FICO</strong></td>
+                        <td><strong>Fair Isaac Corp</strong></td>
+                        <td class="num-font">$20.8</td>
+                        <td class="num-font val-pos">27.9x</td>
+                        <td class="num-font val-pos" style="font-size:14px;">18.2x</td>
+                        <td class="num-font val-pos">21.2x</td>
+                        <td class="num-font val-pos">85.1%</td>
+                        <td class="num-font val-pos">53.8%</td>
+                        <td class="num-font">3.72%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MCO</strong></td>
+                        <td>Moody's Corporation</td>
+                        <td class="num-font">$80.5</td>
+                        <td class="num-font">41.8x</td>
+                        <td class="num-font">31.2x</td>
+                        <td class="num-font">28.4x</td>
+                        <td class="num-font">75.0%</td>
+                        <td class="num-font">49.5%</td>
+                        <td class="num-font">3.20%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SPGI</strong></td>
+                        <td>S&P Global Inc.</td>
+                        <td class="num-font">$119.9</td>
+                        <td class="num-font">36.5x</td>
+                        <td class="num-font">28.0x</td>
+                        <td class="num-font">24.6x</td>
+                        <td class="num-font">70.9%</td>
+                        <td class="num-font">44.8%</td>
+                        <td class="num-font">4.54%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MSCI</strong></td>
+                        <td>MSCI Inc.</td>
+                        <td class="num-font">$39.9</td>
+                        <td class="num-font">37.2x</td>
+                        <td class="num-font">30.1x</td>
+                        <td class="num-font">26.5x</td>
+                        <td class="num-font">83.0%</td>
+                        <td class="num-font">56.3%</td>
+                        <td class="num-font">3.00%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EFX</strong></td>
+                        <td>Equifax Inc.</td>
+                        <td class="num-font">$19.0</td>
+                        <td class="num-font">35.4x</td>
+                        <td class="num-font">22.8x</td>
+                        <td class="num-font">18.2x</td>
+                        <td class="num-font">55.5%</td>
+                        <td class="num-font">17.3%</td>
+                        <td class="num-font">4.98%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TRU</strong></td>
+                        <td>TransUnion</td>
+                        <td class="num-font">$14.1</td>
+                        <td class="num-font">38.0x</td>
+                        <td class="num-font">19.5x</td>
+                        <td class="num-font">15.8x</td>
+                        <td class="num-font">58.7%</td>
+                        <td class="num-font">19.7%</td>
+                        <td class="num-font">5.72%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="info-box success">
+            <div class="info-box-title">📊 估值底线结论：历史性估值洼地</div>
+            <p>与拥有类似评级特许权的穆迪（MCO 31x Forward P/E）、标普（SPGI 28x Forward P/E）相比，FICO 当前 18.15x Forward P/E 处于不可思议的折让状态。即使相比征信下游纯代工性质的 Equifax 和 TransUnion，FICO 的毛利率（85.1% vs 55.5%）和营业利润率（53.8% vs 17.3%）均呈现压倒性优势。市场恐慌已过度定价最极端情景，估值安全垫极度丰厚。</p>
+        </div>
+    </section>
+
+    <!-- SECTION 6 -->
+    <section id="sec-6" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">06</span> 技术面量化分析与质量条件制导机制状态切换</div>
+            <span class="score-pill pill-green">技术形态评分: 9.2 / 10 (黄金坑模式)</span>
+        </div>
+        <p>
+            根据 InvestSkill <strong>“高品质资产质量条件制导机制（Quality-Conditioned Regime Switching Engine）”</strong>：当标的具备卓越业务品质（商业模式 >= 7.5 且财务健康度 >= 7.0）时，系统自动从“顺势趋势追踪”切换为<strong>“均值回归与价值底线锚定模式（Mean-Reversion & Value Floor Mode）”</strong>：
+        </p>
+        <div class="data-grid-3">
+            <div class="metric-card">
+                <div class="metric-card-lbl">52周最高 / 最低 / 现价</div>
+                <div class="metric-card-val">$963.80</div>
+                <div class="metric-card-desc">最高 $1,998.01 | 最低 $870.01 (跌幅 -51.8%)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">52周相对位置 (RP)</div>
+                <div class="metric-card-val val-pos">8.31%</div>
+                <div class="metric-card-desc">低于 0.20 极值阈值，处于左侧绝佳黄金坑区</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-lbl">200日均线偏差 (Dev200)</div>
+                <div class="metric-card-val val-pos">-24.29%</div>
+                <div class="metric-card-desc">MA200 = $1,272.95，远低于牛熊均线负偏差</div>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>量化技术指标</th>
+                        <th>当前读数</th>
+                        <th>历史统计分位</th>
+                        <th>制导机制解析 (Regime Switching Interpretation)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>RSI (14日相对强弱)</strong></td>
+                        <td class="num-font val-pos">27.34</td>
+                        <td>深度超卖区 (&lt; 30)</td>
+                        <td>日线级别严重超卖，抛压衰竭，底背离信号显现</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MACD (12, 26, 9)</strong></td>
+                        <td class="num-font val-neg">-44.44 / -38.04</td>
+                        <td>柱状图 -6.40</td>
+                        <td>绿柱已开始显著收敛，空头做空动能衰减，正在构筑W底右肩</td>
+                    </tr>
+                    <tr>
+                        <td><strong>均线系统排列</strong></td>
+                        <td class="num-font">MA30: $1,066.10 | MA60: $1,141.13 | MA200: $1,272.95</td>
+                        <td>空头排列尾声</td>
+                        <td>由于基本面为超宽护城河资产，负偏离 24.3% 构成最经典的左侧黄金坑</td>
+                    </tr>
+                    <tr>
+                        <td><strong>关键支撑位 (Support)</strong></td>
+                        <td class="num-font val-pos">S1: $870.00 (52W最低) | S2: $840.00 (整数筹码区)</td>
+                        <td>强支撑带</td>
+                        <td>$870 附近获得强劲机构买盘托底，两次探底不破</td>
+                    </tr>
+                    <tr>
+                        <td><strong>关键阻力位 (Resistance)</strong></td>
+                        <td class="num-font">R1: $1,066.00 (MA30) | R2: $1,150.00 (筹码密集区)</td>
+                        <td>反弹目标带</td>
+                        <td>突破 $1,066 将触发空头回补与右侧技术性暴力反弹</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="info-box success">
+            <div class="info-box-title">🎯 技术结论：反向投资者的完美猎场</div>
+            <p>在垃圾资产上，跌破 200 日均线是“有毒坠落飞刀（Toxic Falling Knife）”；但在拥有 85% 毛利率和 53% 经营利润率的 FICO 身上，52周相对分位 8.3% + RSI 27.34 + 200日均线折让 24.3% 是<strong>五年一遇的经典均值回归蓄水池</strong>。技术面明确支持现货左侧分批吸筹或卖出深度 OTM Put 策略。</p>
+        </div>
+    </section>
+
+    <!-- SECTION 7 -->
+    <section id="sec-7" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">07</span> 内部人交易与 SEC Form 4 动向穿透</div>
+            <span class="score-pill pill-blue">内部人信号: 6.8 / 10</span>
+        </div>
+        <p>
+            对最近 6 个月 SEC Form 4 披露的董事与高管交易进行穿透分析。高管薪酬多以限制性股票（RSU）形式发放，日常纳税清算与自动减持计划（10b5-1）已基本消化完毕，值得注意的是董事会成员在暴跌期间的积极锁仓：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>交易日期</th>
+                        <th>内部人姓名 (Insider)</th>
+                        <th>职位 (Title)</th>
+                        <th>交易类型</th>
+                        <th>变动股数 (Shares)</th>
+                        <th>交易单价 / 金额</th>
+                        <th>申报意义与买方解读</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-08-24</td>
+                        <td><strong>KELLY BRADEN R</strong></td>
+                        <td>董事 (Director)</td>
+                        <td>行权/内部配置</td>
+                        <td class="num-font val-pos">+4,353 股</td>
+                        <td class="num-font">$1,900,397</td>
+                        <td>董事高位锁定权益，展示对公司长期基本面坚定承诺</td>
+                    </tr>
+                    <tr>
+                        <td>2026-08-21</td>
+                        <td>STANSBURY HENRY TAYLOE</td>
+                        <td>董事 (Director)</td>
+                        <td>股权授予 (Grant)</td>
+                        <td class="num-font">+91 股</td>
+                        <td class="num-font">$0 (例行激励)</td>
+                        <td>年度例行董事会津贴</td>
+                    </tr>
+                    <tr>
+                        <td>2026-07-29</td>
+                        <td>MANOLIS EVA</td>
+                        <td>董事 (Director)</td>
+                        <td>公开行权</td>
+                        <td class="num-font">+967 股</td>
+                        <td class="num-font">$1,353,800</td>
+                        <td>董事持续持有，未在股价动荡中抛售套现</td>
+                    </tr>
+                    <tr>
+                        <td>2026-06-05</td>
+                        <td>LANSING WILLIAM J</td>
+                        <td>首席执行官 (CEO)</td>
+                        <td>期权归属 (Vesting)</td>
+                        <td class="num-font">+784 股</td>
+                        <td class="num-font">$0</td>
+                        <td>CEO 个人净资产深度绑定 FICO 长期股价表现</td>
+                    </tr>
+                    <tr>
+                        <td>2026-05-15</td>
+                        <td>WEBER STEVEN P.</td>
+                        <td>首席财务官 (CFO)</td>
+                        <td>期权归属 (Vesting)</td>
+                        <td class="num-font">+706 股</td>
+                        <td class="num-font">$0</td>
+                        <td>核心高管层零异常恐慌性抛盘</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="info-box">
+            <div class="info-box-title">📌 内部人情绪总结</div>
+            <p>在股价从 $1,998 暴跌至 $963 的整个过程中，<strong>没有发生任何高管大额无限制公开市场砸盘抛售（Non-10b5-1 Panic Selling）</strong>。相反，董事会及 CEO Lansing 持续维持高额股票持有，管理层利益与普通股东高度一致。</p>
+        </div>
+    </section>
+
+    <!-- SECTION 8 -->
+    <section id="sec-8" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">08</span> 机构所有权与 13F 聪明钱流向审计</div>
+            <span class="score-pill pill-green">机构支持度: 8.8 / 10</span>
+        </div>
+        <p>
+            FICO 的机构持股比例高达 86% 以上，筹码极其沉淀。除贝莱德、先锋领航等被动指数基金外，全球最顶级的集中型价值复利基金长期重仓 FICO：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>机构投资者名称 (Holder)</th>
+                        <th>持有股数 (Shares)</th>
+                        <th>报告基准日</th>
+                        <th>持股比例 (% Out)</th>
+                        <th>持仓总市值 ($ USD)</th>
+                        <th>机构投资哲学与持仓意义</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BlackRock Inc.</strong></td>
+                        <td class="num-font">2,085,336</td>
+                        <td>2026-06-30</td>
+                        <td class="num-font">9.66%</td>
+                        <td class="num-font">$2,009.8M</td>
+                        <td>全球第一大资管，标普500核心权重被动配置基石</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vanguard Group Inc.</strong></td>
+                        <td class="num-font">2,732,426</td>
+                        <td>2026-06-30</td>
+                        <td class="num-font">12.65%</td>
+                        <td class="num-font">$2,633.5M</td>
+                        <td>全美核心指数与养老金长期底仓，筹码极具韧性</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Capital Research Global Investors</strong></td>
+                        <td class="num-font">1,296,893</td>
+                        <td>2026-06-30</td>
+                        <td class="num-font">6.00%</td>
+                        <td class="num-font">$1,249.9M</td>
+                        <td>美洲基金旗舰旗舰机构，以深度基本面和长期持有闻名</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Capital International Investors</strong></td>
+                        <td class="num-font">1,247,685</td>
+                        <td>2026-06-30</td>
+                        <td class="num-font">5.78%</td>
+                        <td class="num-font">$1,202.5M</td>
+                        <td>资本集团海外分部，重仓全球高 ROIC 特许经营资产</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Street Corporation</strong></td>
+                        <td class="num-font">1,054,495</td>
+                        <td>2026-06-30</td>
+                        <td class="num-font">4.88%</td>
+                        <td class="num-font">$1,016.3M</td>
+                        <td>三大被动巨头之一，提供源源不断的流动性锁仓</td>
+                    </tr>
+                    <tr style="background:#ECFDF5; font-weight:700;">
+                        <td><strong>Valley Forge Capital Management</strong></td>
+                        <td class="num-font val-pos">672,186</td>
+                        <td>2026-06-30</td>
+                        <td class="num-font val-pos">3.11%</td>
+                        <td class="num-font val-pos">$647.9M</td>
+                        <td><strong>买方传奇基金！</strong>Dev Kantesaria 掌舵，仅重仓全球少数垄断印钞机（FICO、MCO、SPGI），视 FICO 为终生核心资产</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Morgan Stanley</strong></td>
+                        <td class="num-font">579,682</td>
+                        <td>2026-06-30</td>
+                        <td class="num-font">2.68%</td>
+                        <td class="num-font">$558.7M</td>
+                        <td>大摩财富管理部门核心资产管理账户底仓</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="info-box success">
+            <div class="info-box-title">💎 聪明钱背书：传奇专注型基金的定海神针</div>
+            <p>Valley Forge Capital Management 作为华尔街过去十年年化复合收益率最高的顶级买方基金之一，其投资哲学极其严苛——只投资拥有绝对垄断地位、不依赖资本投入、且具有无限提价权的商业模式。Valley Forge 将 FICO 列为其前三大重仓股多年，在当前暴跌估值区间，此类长线价值资本是强有力的底部流动性提供者。</p>
+        </div>
+    </section>
+
+    <!-- SECTION 9 -->
+    <section id="sec-9" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">09</span> 最新财报电话会议实录与管理层基调</div>
+            <span class="score-pill pill-green">管理层定力: 8.5 / 10</span>
+        </div>
+        <p>
+            对 FICO 2026 财年第三季度最新财报电话会议（Earnings Call）中 CEO William Lansing 与 CFO Steven Weber 的核心发言及买方关注焦点进行实录提炼：
+        </p>
+        <div class="data-grid-2">
+            <div class="pillar-card">
+                <div class="pillar-title">1. 关于 FHFA 监管与 VantageScore 竞争的官方回应</div>
+                <div class="pillar-desc">
+                    <strong>CEO Will Lansing 原话基调：</strong>“关于 FHFA 和房贷评分市场的讨论，我们在过去五年中经历过多次类似周期。我们全力支持并配合 FHFA 推进 FICO 10T 模型的落地。FICO 10T 引入了趋势性信用数据，相比任何竞争对手模型都具有更卓越的坏账预测准确性，能够帮助贷款机构多批准 5% 的合格借款人，同时降低整体违约率。华尔街的二级市场投资者和资本充足率核算体系对 FICO 历史数据的依赖是几十年来基于数亿条信贷样本沉淀的。我们对 FICO 在房贷及全市场信贷中的核心地位充满绝对信心。”
+                </div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">2. 关于特殊定价机制（Special Pricing）与软件平台扩张</div>
+                <div class="pillar-desc">
+                    <strong>CFO Steven Weber 财务指引：</strong>“本季度 Scores 部门的增长再次超出预期，特殊定价的落地非常顺利，客户流失率为零。我们收取的评分费用在贷款整体过户成本中依然只是极微不足道的一部分。与此同时，FICO Platform 的年度经常性收入（ARR）同比增长超过 22%，净留存率（DBNR）达到 118%。越来越多的全球一级银行正在将防欺诈、授信决策全面迁移至 FICO Platform 云端，这使得我们的软件业务正成为抵御任何单一信贷周期波动的强大压舱石。”
+                </div>
+            </div>
+        </div>
+        <div class="info-box">
+            <div class="info-box-title">🎙️ 买方情绪测温</div>
+            <p>分析师问答环节中，管理层表现出极高战略定力。面对高盛、摩根大通分析师关于监管阻力的连番追问，管理层明确表示：<strong>“FICO 从来不是一家依靠行政命令生存的公司，即便在完全没有 GSE 强制要求的汽车和信用卡领域，我们也有超过 90% 的市场份额。”</strong> 这充分展现了企业核心壁垒的自发商业力量。</p>
+        </div>
+    </section>
+
+    <!-- SECTION 10 -->
+    <section id="sec-10" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">10</span> 量化期权分析与三梯队 Sell Put 现金担保策略</div>
+            <span class="score-pill pill-green">期权Alpha: 8.6 / 10 (溢价丰厚)</span>
+        </div>
+        <p>
+            当前 FICO 隐含波动率（IV）受监管消息冲击大幅飙升至约 50.0%（处于过去一年历史 IVP 的 85% 分位），期权金呈现典型的“恐慌溢价超额爆发”。基准到期日选定为 <strong>2026-10-16（剩余 29 DTE）</strong>，针对不同资金风险偏好构建三梯队 Cash-Secured Put 策略：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略梯队</th>
+                        <th>行权价 (Strike)</th>
+                        <th>到期日 (Expiry)</th>
+                        <th>剩余 DTE</th>
+                        <th>Delta (Δ)</th>
+                        <th>权利金 Mark (Bid/Ask)</th>
+                        <th>年化收益率 (APY)</th>
+                        <th>安全垫缓冲 (Cushion)</th>
+                        <th>到期胜率 (POP)</th>
+                        <th>单份现金担保需求</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>保守型 (Conservative)</strong></td>
+                        <td class="num-font val-pos">$800.00</td>
+                        <td>2026-10-16</td>
+                        <td class="num-font">29天</td>
+                        <td class="num-font">-0.089</td>
+                        <td class="num-font">$5.65 ($4.30 / $7.00)</td>
+                        <td class="num-font val-pos">8.89%</td>
+                        <td class="num-font val-pos">17.00%</td>
+                        <td class="num-font val-pos">88.5%</td>
+                        <td class="num-font">$80,000</td>
+                    </tr>
+                    <tr style="background:#ECFDF5; font-weight:700;">
+                        <td><strong>平衡型 (Moderate) ⭐推荐</strong></td>
+                        <td class="num-font val-pos">$860.00</td>
+                        <td>2026-10-16</td>
+                        <td class="num-font">29天</td>
+                        <td class="num-font val-pos">-0.180</td>
+                        <td class="num-font val-pos">$13.70 ($12.10 / $15.30)</td>
+                        <td class="num-font val-pos">20.05%</td>
+                        <td class="num-font val-pos">10.77%</td>
+                        <td class="num-font val-pos">78.1%</td>
+                        <td class="num-font">$86,000</td>
+                    </tr>
+                    <tr>
+                        <td><strong>激进型 (Aggressive)</strong></td>
+                        <td class="num-font">$900.00</td>
+                        <td>2026-10-16</td>
+                        <td class="num-font">29天</td>
+                        <td class="num-font">-0.285</td>
+                        <td class="num-font">$25.85 ($23.00 / $28.70)</td>
+                        <td class="num-font val-pos">36.15%</td>
+                        <td class="num-font">6.62%</td>
+                        <td class="num-font">66.4%</td>
+                        <td class="num-font">$90,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="chart-options"></canvas>
+        </div>
+
+        <div class="data-grid-2">
+            <div class="info-box success">
+                <div class="info-box-title">🏆 核心策略推荐：平衡型 $860 Put (年化 20.05%)</div>
+                <p>
+                    <strong>执行逻辑：</strong>$860 行权价精准位于 52 周最低价 $870.01 下方，提供高达 10.77% 的下行缓冲垫。单份合约收取 $1,370 权利金，净接股成本仅为 <strong>$846.30</strong>。在此成本下，FICO 对应 Forward P/E 仅 15.9x，相当于以极度便宜的价格买入一家 85% 毛利率的垄断印钞机。若未跌破，则 29 天无风险将 20.05% 年化收益收入囊中。
+                </p>
+            </div>
+            <div class="info-box warn">
+                <div class="info-box-title">⚠️ 资金规模与担保金特别提示</div>
+                <p>
+                    由于 FICO 单股股价接近千元（$963.80），单张期权合约对应 100 股，单份现金担保需求在 <strong>$80,000 ~ $90,000 美元</strong>。对于中小资金账户，建议通过分批现货吸筹（如每次买入 5~10 股），或使用牛市看跌期权差价（Bull Put Spread）来严格限定最大风险敞口。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 11 -->
+    <section id="sec-11" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">11</span> 熊市压力测试与下行保护</div>
+            <span class="score-pill pill-amber">压力测试韧性: 8.0 / 10</span>
+        </div>
+        <p>
+            针对市场目前最为担心的三大极端悲观场景，进行量化现金流与估值底线压力测试：
+        </p>
+        <div class="data-grid-3">
+            <div class="pillar-card">
+                <div class="pillar-title">极端场景 1: FHFA 彻底推行双轨制，房贷份额被蚕食 30%</div>
+                <div class="pillar-desc">
+                    <strong>情景假定：</strong>未来 3 年内，VantageScore 4.0 在房贷领域获取 30% 市场份额，FICO 房贷调用量下降 30%。<br>
+                    <strong>量化测算：</strong>房贷业务占 Scores 部门约 45%，占总收入约 23%。即使量缩 30%（收入减少约 7%），FICO 可通过将剩余 70% 的客户单价微调 15% 即可完全对冲！同时软件部门 20% 的年增量将完全抵消该负面影响。<br>
+                    <strong>底线估值：</strong>EPS 依然维持在 $32~$35 水平，给予 20x 估值底，股价底线为 <strong>$700.00</strong>。
+                </div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">极端场景 2: 美国司法部 (DOJ) 展开反垄断价格管制</div>
+                <div class="pillar-desc">
+                    <strong>情景假定：</strong>DOJ 认定 FICO 存在反垄断定价行为，强制冻结提价权利。<br>
+                    <strong>量化测算：</strong>公司目前特殊定价已落地完成，存量价格具有极高合同法律保护。即便未来零提价，仅依靠信贷市场自然放量与云软件扩张，TTM FCF 仍高达 $7.5 亿+。叠加每年 $10 亿规模回购注销 4% 股本，每股收益仍可保持 8%~10% 内生复利增长。<br>
+                    <strong>底线估值：</strong>股价估值底线约为 <strong>$750.00</strong>。
+                </div>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-title">极端场景 3: 宏观滞胀与房地产长期冰封</div>
+                <div class="pillar-desc">
+                    <strong>情景假定：</strong>30 年期房贷利率维持在 7.5% 以上，美国房屋交易量维持在 30 年历史低位。<br>
+                    <strong>量化测算：</strong>FICO 已经在过去两年的房贷冰封期证明了自身强大的盈利韧性（FY2023-FY2025 逆势实现收入与利润历史新高）。Scores 部门在信用卡账户审阅（Account Review）和汽车贷款领域的非房贷收入具有极强抗周期防御性。<br>
+                    <strong>底线估值：</strong>现金流折现铁底为 <strong>$680.00</strong>。
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 12 -->
+    <section id="sec-12" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">12</span> 宏观经济与利率周期敏感性分析</div>
+            <span class="score-pill pill-blue">宏观适配度: 7.8 / 10</span>
+        </div>
+        <p>
+            市场往往错误地将 FICO 视作“纯粹的房贷敏感型周期股”，实则忽略了其独特的<strong>“降息非对称看涨期权”</strong>属性：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>宏观环境与利率周期</th>
+                        <th>对 FICO 的经营影响</th>
+                        <th>业绩弹性与对冲机制</th>
+                        <th>买方战术应对</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>美联储降息周期开启 (50bps/次)</strong></td>
+                        <td>房贷再融资（Refinancing）爆发式复苏，抵押贷款申请量出现指数级激增</td>
+                        <td>每次房贷申请需拉取多次评分（Tri-merge/Bi-merge），Scores 部门交易量迎来非线性弹性</td>
+                        <td>极大利好！历史上每一次降息周期开启，FICO 估值与业绩均迎来双击暴涨</td>
+                    </tr>
+                    <tr>
+                        <td><strong>高利率维持更久 (Higher for Longer)</strong></td>
+                        <td>存量房贷交易受抑制，但银行为了控制坏账，大幅增加存量信用卡与个人贷的风险监控调用</td>
+                        <td>B2B 账户管理（Account Management）调用量上升，且软件反欺诈需求扩张，形成天然内生对冲</td>
+                        <td>业绩平稳增长，依靠提价与回购拉动 EPS</td>
+                    </tr>
+                    <tr>
+                        <td><strong>信贷紧缩与经济衰退</strong></td>
+                        <td>银行提高借贷门槛，审批更审慎，单笔贷款需反复比对验证更多维度的信贷决策指标</td>
+                        <td>FICO 10T 趋势性模型因预测精准而加速渗透，反洗钱与催收软件收入上升</td>
+                        <td>抗跌性显著强于同业周期性商业银行</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 13 -->
+    <section id="sec-13" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">13</span> 10-K / 10-Q 深度穿透与关键风险因子</div>
+            <span class="score-pill pill-amber">风险管控: 7.2 / 10</span>
+        </div>
+        <p>
+            穿透审阅 FICO 最新 SEC 10-K 年报与 10-Q 季报，买方必须密切跟踪以下潜在风险点：
+        </p>
+        <div class="info-box danger">
+            <div class="info-box-title">🚨 风险点 1: 分销渠道集中度（三大征信局依赖）</div>
+            <p>FICO 的 Scores 部门并不直接向成千上万的中小放贷机构收取现金，而是通过三大征信局（Equifax、TransUnion、Experian）分销并结算。三大局既是 FICO 最大的分销伙伴，又是竞争对手 VantageScore 的母公司。合同续签谈判、结算周期以及三大局自身的反抗是核心监管与商业博弈点。</p>
+        </div>
+        <div class="info-box warn">
+            <div class="info-box-title">⚠️ 风险点 2: 政治与公关舆论反弹</div>
+            <p>由于美国社会对“住房可负担性（Housing Affordability）”的高度敏感，部分政客可能将高房价和过户成本的矛盾转嫁给 FICO，借此发起听证会或施压监管机构，可能对短期市场估值倍数造成情绪压制。</p>
+        </div>
+        <div class="info-box">
+            <div class="info-box-title">📌 风险点 3: 债务利息支出与再融资</div>
+            <p>公司目前有约 30.7 亿美元有息负债（多为长期固定利率优先票据）。尽管利息覆盖倍数高达 8.5x，但在高利率环境下，未来到期债券再融资成本将有所上升，管理层需合理平衡回购节奏与资产负债表久期。</p>
+        </div>
+    </section>
+
+    <!-- SECTION 14 -->
+    <section id="sec-14" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">14</span> 股息与股东资本返还全景审计</div>
+            <span class="score-pill pill-blue">资本返还: 9.0 / 10</span>
+        </div>
+        <p>
+            根据 InvestSkill 投研标准第 5 条法定披露规范，对 FICO 的股息及股东回报进行彻底穿透审计：
+        </p>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>资本返还维度</th>
+                        <th>当前状态 / 数值</th>
+                        <th>买方机制解析与股东价值评估</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>股息派发状态 (Dividend)</strong></td>
+                        <td class="num-font val-neg"><strong>无 / 没有 (无股息派发 / Zero Dividend / None)</strong></td>
+                        <td>FICO 自成立至今从不派发现金股息，股息收益率为 0.00%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>核心资本返还途径</strong></td>
+                        <td class="num-font val-pos"><strong>100% 聚焦于股票回购注销 (Share Repurchases)</strong></td>
+                        <td>管理层将全部自由现金流倾注于公开市场回购注销，以实现最大化股东递延税收效率</td>
+                    </tr>
+                    <tr>
+                        <td><strong>过去 4 年回购金额</strong></td>
+                        <td class="num-font val-pos">累计耗资约 $37.46 亿美元</td>
+                        <td>FY22: $1.10B | FY23: $405M | FY24: $822M | FY25: $1.415B</td>
+                    </tr>
+                    <tr>
+                        <td><strong>总流通股本缩减幅度</strong></td>
+                        <td class="num-font val-pos">股本自峰值缩减逾 20%</td>
+                        <td>流通股数已降至 21.60M 股，使得每股 EPS 的复利增速持续远超净利润绝对增速</td>
+                    </tr>
+                    <tr>
+                        <td><strong>综合股东收益率 (Shareholder Yield)</strong></td>
+                        <td class="num-font val-pos">约 4.5% ~ 5.5% (回购收益率)</td>
+                        <td>在股价腰斩阶段，回购同等金额能够注销两倍的股本，构成极其显著的每股内生价值增厚</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="info-box success">
+            <div class="info-box-title">💡 资本配置评价：高税收效率的终极复利机器</div>
+            <p>对于高成长、高 ROIC 的轻资产印钞机而言，“零股息 + 全额回购”是巴菲特最推崇的资本返还方式。相比派息需要被征收高达 20%~37% 的股息红利税，持续回购不仅免税，更在股价遭遇非理性恐慌砸盘时以“半价”注销股份，为长期留存股东创造巨大的隐性阿尔法收益。</p>
+        </div>
+    </section>
+
+    <!-- SECTION 15 -->
+    <section id="sec-15" class="section">
+        <div class="sec-head">
+            <div class="sec-title"><span class="sec-num">15</span> 综合论证、多因子评分卡与确定性投资评级</div>
+            <span class="score-pill pill-green" style="font-size:14px;">最终得分: 8.5 / 10</span>
+        </div>
+        <p>
+            综合全部 15 个模块的深度穿透研究，FICO 当前处于极佳的<strong>“逆向黄金坑”</strong>状态：商业模式护城河坚不可摧、利润率极其惊人、监管恐慌过度反应导致 Forward P/E 从 50x 极值暴跌至 18x、技术面处于 52 周相对位置 8.3% 的深度超卖底背离区间。结合量化多因子评分模型与 Chart.js 六维雷达图，系统输出法定评级：
+        </p>
+
+        <div class="chart-box" style="height:360px;">
+            <canvas id="chart-radar"></canvas>
+        </div>
+
+        <h4 style="margin:20px 0 10px; font-size:15px; font-weight:700;">InvestSkill 六大核心维度评分卡 (Composite Scorecard)</h4>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>评分维度 (Dimension)</th>
+                        <th>权重 (%)</th>
+                        <th>得分 (0-10)</th>
+                        <th>加权得分</th>
+                        <th>买方核心依据与归因分析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. 商业模式与护城河 (Business Quality & Moat)</strong></td>
+                        <td class="num-font">25%</td>
+                        <td class="num-font val-pos">9.2</td>
+                        <td class="num-font">2.30</td>
+                        <td>信贷领域唯一事实标准，85% 毛利率与 54% 营业利润率无可匹敌</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. 估值与安全边际 (Valuation & Margin of Safety)</strong></td>
+                        <td class="num-font">25%</td>
+                        <td class="num-font val-pos">8.5</td>
+                        <td class="num-font">2.13</td>
+                        <td>Forward P/E 压缩至 18.15x，较 DCF 基准公允价值 $1,220 折让逾 21%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. 现金流与财务健康 (FCF Engine & Financial Health)</strong></td>
+                        <td class="num-font">20%</td>
+                        <td class="num-font val-pos">8.0</td>
+                        <td class="num-font">1.60</td>
+                        <td>Piotroski F-Score 7/9 堡垒级，TTM FCF 逼近 10 亿美元，负权益实为超额回购</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. 期权阿尔法与溢价 (Option Alpha & Premium Yield)</strong></td>
+                        <td class="num-font">15%</td>
+                        <td class="num-font val-pos">8.6</td>
+                        <td class="num-font">1.29</td>
+                        <td>IV 高达 50% 爆发恐慌溢价，860P 年化 APY 达 20.05% 且提供 10.8% 缓冲垫</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. 聪明钱与市场信号 (Smart Money & Market Signals)</strong></td>
+                        <td class="num-font">10%</td>
+                        <td class="num-font">6.8</td>
+                        <td class="num-font">0.68</td>
+                        <td>顶级买方专注基金 Valley Forge 坚定重仓，高管无恐慌抛售，分析师维持买入</td>
+                    </tr>
+                    <tr>
+                        <td><strong>6. 逆向价值时机 (Contrarian Value Timing)</strong></td>
+                        <td class="num-font">5%</td>
+                        <td class="num-font val-pos">9.2</td>
+                        <td class="num-font">0.46</td>
+                        <td>52周相对位置 8.3%，RSI 27.3，较ATH暴跌 51.8%，触发质量制导黄金坑机制</td>
+                    </tr>
+                    <tr style="background:#ECFDF5; font-weight:800; font-size:15px;">
+                        <td><strong>多因子综合得分 (COMPOSITE SCORE)</strong></td>
+                        <td class="num-font">100%</td>
+                        <td class="num-font val-pos" style="font-size:18px;">8.5 / 10</td>
+                        <td class="num-font val-pos" style="font-size:18px;">8.46</td>
+                        <td><strong>强力买入 (Strong Buy) • 极佳历史级不对称赔率</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SIGNAL BLOCK -->
+        <div class="signal-block">
+            <div class="signal-label-top">INVESTMENT SIGNAL BLOCK (15-MODULE COMPREHENSIVE SYNTHESIS)</div>
+            <div class="signal-header-row">
+                <div class="signal-verdict">强力买入 (Strong Buy) • 极度恐慌砸出历史级黄金坑</div>
+                <div class="signal-score">8.5 / 10</div>
+            </div>
+            <div class="signal-grid">
+                <div class="signal-item">
+                    <div class="sig-label">投资信号 (Signal)</div>
+                    <div class="sig-val">强力买入 (Strong Buy)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">置信度 (Confidence)</div>
+                    <div class="sig-val">HIGH (高置信度)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">投资期限 (Horizon)</div>
+                    <div class="sig-val">MEDIUM-TERM (6-18个月)</div>
+                </div>
+                <div class="signal-item">
+                    <div class="sig-label">执行建议 (Action)</div>
+                    <div class="sig-val">CSP 现金担保卖跌 (800P/860P) & 现货分批吸筹</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    // Chart 1: Multi-factor Scorecard Radar
+    new Chart(document.getElementById('chart-radar'), {
+        type: 'radar',
+        data: {
+            labels: [
+                '商业模式与护城河',
+                '估值与安全边际',
+                '现金流与财务健康',
+                '期权阿尔法与收益',
+                '聪明钱与市场信号',
+                '逆向价值时机'
+            ],
+            datasets: [{
+                label: 'FICO 费埃哲多因子综合雷达得分',
+                data: [9.2, 8.5, 8.0, 8.6, 6.8, 9.2],
+                backgroundColor: 'rgba(5, 150, 105, 0.22)',
+                borderColor: '#059669',
+                pointBackgroundColor: '#059669',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#059669',
+                borderWidth: 2.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    min: 0,
+                    max: 10,
+                    ticks: { stepSize: 2, font: { size: 10 } }
+                }
+            }
+        }
+    });
+
+    // Chart 2: 4-Year Financial Trends
+    new Chart(document.getElementById('chart-financials'), {
+        type: 'bar',
+        data: {
+            labels: ['FY2022', 'FY2023', 'FY2024', 'FY2025', 'TTM (2026Q3)'],
+            datasets: [
+                {
+                    label: '营业总收入 ($M)',
+                    data: [1377.3, 1513.6, 1717.5, 1990.9, 2393.7],
+                    backgroundColor: '#059669',
+                    borderRadius: 6
+                },
+                {
+                    label: '自由现金流 FCF ($M)',
+                    data: [503.4, 464.7, 607.4, 739.4, 959.5],
+                    backgroundColor: '#10B981',
+                    borderRadius: 6
+                },
+                {
+                    label: 'GAAP 净利润 ($M)',
+                    data: [373.5, 429.4, 512.8, 651.9, 815.1],
+                    backgroundColor: '#0D9488',
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: '百万美元 ($ Millions)' } }
+            }
+        }
+    });
+
+    // Chart 3: Valuation & Price Comparison
+    new Chart(document.getElementById('chart-valuation'), {
+        type: 'bar',
+        data: {
+            labels: ['52周最低价', '10/16 $860 Put 净成本', '当前市场现价', '保守DCF压力底', '200日均线', 'DCF基准公允价值', '同行对标公允价', '52周历史最高'],
+            datasets: [{
+                label: '每股价格对比 ($ USD)',
+                data: [870.01, 846.30, 963.80, 754.03, 1272.95, 1220.00, 1274.40, 1998.01],
+                backgroundColor: [
+                    '#94A3B8',
+                    '#10B981',
+                    '#2563EB',
+                    '#F59E0B',
+                    '#64748B',
+                    '#059669',
+                    '#0D9488',
+                    '#CBD5E1'
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { min: 600, max: 2150, title: { display: true, text: '股价 ($ USD)' } }
+            }
+        }
+    });
+
+    // Chart 4: Options Payoff Profile (2026-10-16 $860 Short Put)
+    new Chart(document.getElementById('chart-options'), {
+        type: 'line',
+        data: {
+            labels: ['$750', '$800', '$830', '$846.30 (盈亏平衡点)', '$860 (行权价)', '$900', '$963.80 (现价)', '$1020', '$1100'],
+            datasets: [{
+                label: '2026-10-16 $860 Put 到期单份合约净损益 ($ USD)',
+                data: [-9630, -4630, -1630, 0, 1370, 1370, 1370, 1370, 1370],
+                borderColor: '#059669',
+                backgroundColor: 'rgba(16, 185, 129, 0.18)',
+                fill: true,
+                tension: 0.15,
+                borderWidth: 2.5,
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { title: { display: true, text: '到期净损益 ($ USD / 合约)' } }
+            }
+        }
+    });
+</script>
+</body>
+</html>
